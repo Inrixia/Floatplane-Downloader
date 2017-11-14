@@ -17,7 +17,36 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 [![https://gyazo.com/62be2c518b09f39d8b73157790605430](https://i.gyazo.com/62be2c518b09f39d8b73157790605430.gif)](https://gyazo.com/62be2c518b09f39d8b73157790605430)
 
-3. **Install ffmpeg:**
+3. **Install [ffmpeg](ffmpeg.org) (If not running Windows):**
 
-   >In order to set the title's of videos for Plex you need ffmpeg installed. You can download it from here: **ffmpeg.zeranoe.com/builds/** The main site is **ffmpeg.org**
+   >In order to set the title's of videos for Plex you need ffmpeg installed. 
    >
+   >If you are running windows you dont need to install it its bundled with the script, however if you are using another OS or want to use a different version of ffmpeg then you need to change the reference inside the script. 
+   >
+   >You can download ffmpeg from: **ffmpeg.org**
+
+[![https://gyazo.com/16309a2e47e70755c26ccfb4d2bbbff1](https://i.gyazo.com/16309a2e47e70755c26ccfb4d2bbbff1.png)](https://gyazo.com/16309a2e47e70755c26ccfb4d2bbbff1)
+
+4. **Set your cookies:**
+
+   >This script does not login for you on floatplane. It requires cookies from a browser that has logged on (Though I may change this in the future for better support on servers).
+   >
+   >For the script to work you need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
+   >
+   >  Copy the cookie's into the script as can be seen below. You may also need to open the Fourms in the browser you used to log in occasionally before running the script.
+
+[![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
+Go to the Application TAB. (This is on Chrome)
+[![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
+Copy the blurred out values from above into the highlighted line below:
+[![https://gyazo.com/9932675c5a51df85cad723410066b4a8](https://i.gyazo.com/9932675c5a51df85cad723410066b4a8.png)](https://gyazo.com/9932675c5a51df85cad723410066b4a8)
+
+4. **Profit?:**
+
+   >At this point you should be completely setup and ready to go!
+   >
+   >To start the script all you need to do is run the run.bat file.
+   >
+   >If you want to start the script from console yourself, just use "node scrape.js"
+
+The script will download the videos into the videos folder along with their thumbnails. If you want to setup Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
