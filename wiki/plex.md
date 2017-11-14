@@ -22,7 +22,7 @@ Note: This is not how to install and setup Plex, this is only how to setup the L
 
    >Each LMG channel is listed as a Series with one season. Though we hid the seasons so that we can just go straight to the videos. However when looking at a "episode" plex will display this up the top:
    >[![https://gyazo.com/8b4513ea88e842581bf0b81586e9426d](https://i.gyazo.com/8b4513ea88e842581bf0b81586e9426d.png)](https://gyazo.com/8b4513ea88e842581bf0b81586e9426d)
-   >
+
    >To fix this you just need to rename the season using a sneaky trick.
 
 First enable seasons again
