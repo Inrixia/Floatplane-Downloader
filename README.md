@@ -1,6 +1,7 @@
 # Floatplane Club - PlexDownloader
 
-![The Theme](https://i.gyazo.com/5fede94f92aac42cfe633a650dccb4e4.png)
+![Plex Index](https://i.gyazo.com/5376160599df67eff0df9daac3e213c6.png)
+![Plex LTT](https://i.gyazo.com/5fede94f92aac42cfe633a650dccb4e4.png)
 
 ### Basic Info:
 
