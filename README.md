@@ -16,8 +16,8 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
  * If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) @Inrix**.
 
 #### Links:
- * [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/script.md)
- * [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/plex.md)
+ * [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
+ * [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
 
 I will be maintaining this as I use it.
 
@@ -26,8 +26,4 @@ If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, Windows
 **Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
 
 ---
-
-### More Screenshots:
- - **[Landscape Screenshots](https://imgur.com/a/0XpWx)**
-
- - **[Portrait Screenshots](https://imgur.com/a/PeF0y)**
+## [More Screenshots](https://imgur.com/a/LdY1B)
