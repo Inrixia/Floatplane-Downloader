@@ -9,6 +9,8 @@ This is a Node.js script to download the daily videos from the [LMG Floatplane](
 
 This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscription.
 
+**Important Note: You may need to update the cookies in the script occasionally, the guide on how to do this is [Part 4 of the Script Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)**
+
 ### **Install Guide**
 
  * Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system to use this.
