@@ -12,7 +12,7 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
 ### **Install Guide**
 
  * Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system to use this.
- * If you want to use **[Plex](https://www.plex.tv/)** to browse the files  install you must have it installed.
+ * If you want to use **[Plex](https://www.plex.tv/)** to browse the files installed you must have it installed.
  * If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) Sir Inrix | <3#6950**.
 
 #### Links:
