@@ -33,6 +33,7 @@ Then inspect the summary element and insert the below code into the HTML re **[T
 <input name="title" value="title goes here" />
 ```
 [![https://gyazo.com/18c9f952f37e6c3f3c40c5c42e4016f7](https://i.gyazo.com/18c9f952f37e6c3f3c40c5c42e4016f7.gif)](https://gyazo.com/18c9f952f37e6c3f3c40c5c42e4016f7)
+
 And rename the Season to whatever you want. In this case this is the Linus Tech Tips series so im naming it LTT.
 [![https://gyazo.com/a913578c6bbfcdbfdf41a8c8683f0af3](https://i.gyazo.com/a913578c6bbfcdbfdf41a8c8683f0af3.gif)](https://gyazo.com/a913578c6bbfcdbfdf41a8c8683f0af3)
 
