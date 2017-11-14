@@ -21,7 +21,7 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
 
 I will be maintaining this as I use it.
 
-If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, WindowsMediaPlayer. Go and install this tampermonkey script here: https://github.com/Kayomani/PlexExternalPlayer
+If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, WindowsMediaPlayer. Go and install this tampermonkey script here: **https://github.com/Kayomani/PlexExternalPlayer** **Note** important for chrome users: https://github.com/Kayomani/PlexExternalPlayer/issues/16
 
 **Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
 
