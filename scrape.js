@@ -1,4 +1,4 @@
-// include the libraries we need
+// Include the libraries we need
 var request = require('request');
 var cheerio = require('cheerio');
 var progress = require('request-progress');
@@ -6,7 +6,7 @@ var sanitize = require("sanitize-filename");
 var ffmpeg = require('fluent-ffmpeg');
 var glob = require("glob");
 var mv = require('mv');
-process.env.FFMPEG_PATH = "C:/Users/Inrix/MkvToMp4_0.224/Tools/ffmpeg/x64/ffmpeg.exe"
+process.env.FFMPEG_PATH = "./Floatplane-PlexDownloader/ffmpeg/bin/ffmpeg.exe"
 var fs = require('fs');
 var cookies = 'ips4_IPSSessionFront=##; ips4_device_key=##; ips4_hasJS=true; ips4_ipsTimezone=Pacific/Auckland; ips4_login_key=##; ips4_member_id=##; ips4_pass_hash=##; muxData=mux_viewer_id=##; video_res=1080p'
 var count = 5; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25
@@ -18,7 +18,7 @@ console.log('Episode Numbers', 'LTT:', episode_number_ltt, 'TQ:', episode_number
 episode_number_ltt += 1 // Increment by one so new videos dont use existing "episode" numbers
 episode_number_tq += 1
 episode_number_fp += 1
-// set some defaults
+// Set some defaults
 req = request.defaults({
 	jar: true,
 	rejectUnauthorized: false, 
