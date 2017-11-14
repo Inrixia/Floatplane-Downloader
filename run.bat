@@ -1,1 +1,1 @@
-node I:\nodeScrape\scrape.js
+node scrape.js

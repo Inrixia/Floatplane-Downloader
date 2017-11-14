@@ -6,9 +6,9 @@ var sanitize = require("sanitize-filename");
 var ffmpeg = require('fluent-ffmpeg');
 var glob = require("glob");
 var mv = require('mv');
-process.env.FFMPEG_PATH = "./Floatplane-PlexDownloader/ffmpeg/bin/ffmpeg.exe"
+process.env.FFMPEG_PATH = "./ffmpeg/bin/ffmpeg.exe"
 var fs = require('fs');
-var cookies = 'ips4_IPSSessionFront=##; ips4_device_key=##; ips4_hasJS=true; ips4_ipsTimezone=Pacific/Auckland; ips4_login_key=##; ips4_member_id=##; ips4_pass_hash=##; muxData=mux_viewer_id=##; video_res=1080p'
+var cookies = 'ips4_IPSSessionFront=##; ips4_device_key=##; ips4_hasJS=true; ips4_ipsTimezone=Pacific/Auckland; ips4_login_key=##; ips4_member_id=##; muxData=mux_viewer_id=##; video_res=1080p' // Change RES here and lower to change download Resoloution
 var count = 5; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25
 var loadCount = 0;
 episode_number_ltt = glob.sync("./Videos/*Linus Tech Tips*.mp4").length // Get the current number of "episodes" for each LTT channel
