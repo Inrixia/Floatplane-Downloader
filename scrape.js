@@ -26,7 +26,6 @@ req = request.defaults({
 });
 
 
-// scrape the page
 req.get({
     url: "https://linustechtips.com/main/forum/91-lmg-floatplane/", // Get the floatplane index page
     headers: {
