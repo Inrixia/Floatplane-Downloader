@@ -47,6 +47,7 @@ Tadaa Fixed!
    >If you dont want to watch the Floatplane content in the plex player and just want to use it for browsing the library. Then you can install **[This Awesome Script](https://github.com/Kayomani/PlexExternalPlayer)** to let you open the folder media is in and auto play plex files in  your default media player.
    >
    >More info on  its install is  at the above link.
+   >
    >**Important Note** for chrome users: https://github.com/Kayomani/PlexExternalPlayer/issues/16
 
 [![https://gyazo.com/5aa59889ac25f5f54c6790af9ed32c15](https://i.gyazo.com/5aa59889ac25f5f54c6790af9ed32c15.gif)](https://gyazo.com/5aa59889ac25f5f54c6790af9ed32c15)
