@@ -3,6 +3,7 @@
 Make sure you have **[Plex](https://www.plex.tv/)** installed on your system.
 
 Note: This is not how to install and setup Plex, this is only how to setup the LTT Library.
+Note: This only shows how to do this for LinusMediaGroup, for other channels just repeat the same steps for that channel.
 
 1. **Create a Library:**
 
