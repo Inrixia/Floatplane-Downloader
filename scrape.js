@@ -9,7 +9,7 @@ var mv = require('mv');
 process.env.FFMPEG_PATH = "./ffmpeg/bin/ffmpeg.exe"
 var fs = require('fs');
 var cookies = 'ips4_IPSSessionFront=##; ips4_device_key=##; ips4_hasJS=true; ips4_ipsTimezone=Pacific/Auckland; ips4_login_key=##; ips4_member_id=##; muxData=mux_viewer_id=##; video_res=1080p' // Change RES here and lower to change download Resoloution
-var count = 15; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
+var count = 5; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
 var loadCount = 0;
 //var channels = ['https://linustechtips.com/main/forum/91-lmg-floatplane/'] // Only LMG
 var channels = [
