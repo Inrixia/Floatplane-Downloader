@@ -30,6 +30,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 4. **Set your cookies:**
 
    >**Important Note: You may need to update the cookies in the script occasionally. Especially if you get something that looks like this! Where it does not output if any videos are downloaded.**
+   >
    >**But before you do to go update them, try just opening your browser to the LTT forms first. Usually that fixes it.**
    >[![https://gyazo.com/2f52b95875961a7fac33eae0a361ba54](https://i.gyazo.com/2f52b95875961a7fac33eae0a361ba54.png)](https://gyazo.com/2f52b95875961a7fac33eae0a361ba54)
 
