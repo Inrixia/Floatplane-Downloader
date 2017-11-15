@@ -30,6 +30,7 @@ If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, Windows
 
 If you want plex to update after downloading new videos you can add this code to the bottom of the run.bat file.
 **"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --section 10**
+
 You need to replace the -section 10 with the section your Floatplane videos are in for plex.
 
 **Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
