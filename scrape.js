@@ -93,6 +93,10 @@ channels.forEach(function(channel){
 						}, function(err, resp, body) {
 							const $ = cheerio.load(body)
 							var vidID = $('.floatplane-script').attr('data-video-guid'); // Get the video ID from the post
+							if (vidID == undefined) { // Check if the video is actually a video
+								console.log('>---Not a Video! Cancelling:', title)
+								return false;
+							}
 							var url = 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid='+ vidID +'&video_quality=1080&download=1'; // Generate the url that will return the download url for this video (To change the quality change 1080 to the resoloution you want)
 							var img_url = 'https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID; // Generate the url for getting the thumbnail for the video
 							request(img_url).pipe(fs.createWriteStream(__dirname + '/Videos/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
