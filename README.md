@@ -18,7 +18,7 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
 
  * Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system to use this.
  * If you want to use **[Plex](https://www.plex.tv/)** to browse the files installed you must have it installed.
- * If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) Sir Inrix | <3#6950**.
+ * If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) @Sir Inrix | <3#6950**.
 
 #### Links:
  * [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
@@ -27,6 +27,10 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
 I will be maintaining this as I use it.
 
 If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, WindowsMediaPlayer. Go and install this tampermonkey script here: **https://github.com/Kayomani/PlexExternalPlayer** **Important Note** for chrome users: https://github.com/Kayomani/PlexExternalPlayer/issues/16
+
+If you want plex to update after downloading new videos you can add this code to the bottom of the run.bat file.
+You need to replace the -section 10 with the section your Floatplane videos are in for plex.
+>**"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --section 10**
 
 **Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
 
