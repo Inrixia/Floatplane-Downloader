@@ -7,7 +7,11 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 1. **Download the script:**
 
    >Make sure to extract the files on the drive you want the videos saved to. Or you can syslink the videos folder to the drive you want.
+   
+**When getting the latest release [Stable] do this:**
+[![https://gyazo.com/f70dbb1137f20fe4ca983235c442d29d](https://i.gyazo.com/f70dbb1137f20fe4ca983235c442d29d.gif)](https://gyazo.com/f70dbb1137f20fe4ca983235c442d29d)
 
+**When getting the latest non-release version do this:**
 [![https://gyazo.com/4f3ada2e159372f9495776f956679e97](https://i.gyazo.com/4f3ada2e159372f9495776f956679e97.gif)](https://gyazo.com/4f3ada2e159372f9495776f956679e97)
 [![https://gyazo.com/05b588462d6243664cb15a4f0ffb8ec1](https://i.gyazo.com/05b588462d6243664cb15a4f0ffb8ec1.gif)](https://gyazo.com/05b588462d6243664cb15a4f0ffb8ec1)
 
