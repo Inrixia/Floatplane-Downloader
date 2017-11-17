@@ -2,7 +2,7 @@
 ---
 Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system.
 
-**You can download the latest version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
+**You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
 
 1. **Download the script:**
 
