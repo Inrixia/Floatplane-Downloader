@@ -5,6 +5,8 @@
 
 ### Basic Info:
 
+**You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
+
 This is a Node.js script to download the daily videos from the [LMG Floatplane](https://linustechtips.com/main/store/) and format them to be viewed in [Plex](https://www.plex.tv/). You can also  view the raw files in the download folder.
 
 This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscription.
