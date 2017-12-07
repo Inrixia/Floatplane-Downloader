@@ -1,0 +1,20 @@
+v2.0.0
+Changelog
+ - Settings are now contained in a seperate file to make updating easier
+ - Compressed required cookies down to a single line
+ - Ability to set video folder in settings
+ - Ability to set max videos in settings
+ - Fix for ffmpeg not downloading
+ - Support for channel super fun
+ - Created a package.json file for easy updates
+ - Added changelog.txt
+
+PS: Thanks to @seancorrgs for telling me about some errors <3.
+
+v1.0.0
+Changelog
+ - Now only does one request period for each "Channel" and only subsequent requests if its downloading the video or image.
+ - The download printout is much nicer now and should be less prone to breaking when downloading multiple videos.
+ - Optimizations with requests and other things, (now runs ALOT faster than before).
+ - Now supports multiple videos inside a post by just adding a number to the end of the posts title for each video.
+ - Videos are now stored in sub-folders for each SubChannel.

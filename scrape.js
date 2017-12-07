@@ -6,26 +6,37 @@ var sanitize = require("sanitize-filename");
 var ffmpeg = require('fluent-ffmpeg');
 var glob = require("glob");
 var mv = require('mv');
-process.env.FFMPEG_PATH = "./ffmpeg/bin/ffmpeg.exe"
+var settings = require('./settings.js');
+var settings = settings.settings;
+process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
 var fs = require('fs');
-var cookies = 'ips4_IPSSessionFront=##; ips4_device_key=##; ips4_hasJS=true; ips4_ipsTimezone=Pacific/Auckland; ips4_login_key=##; ips4_member_id=##; muxData=mux_viewer_id=##; video_res=1080p' // Change RES here and lower to change download Resoloution
-var count = 30; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
+var cookies = settings.cookies.parsed
+var count = settings.maxVideos; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
 var loadCount = 0;
-var channels = [
-	{'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane/', 'name': 'Linus Media Group', 'subChannels': [
+var channels = []
+if (settings.useFloatplane == true){
+	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
 		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': new RegExp('.*FP.*-'), 'episode_number': 0, 'extra': ' -'},
 		{'raw': 'LTT', 'formatted': 'Linus Tech Tips', 'name': 'LTT', 'replace': 'LTT', 'episode_number': 0, 'extra': ''},
-		{'raw': 'TQ', 'formatted': 'Techquickie', 'name': 'Techquickie', 'replace': 'TQ', 'episode_number': 0, 'extra': ''}
-	]} 
-	/*,{'url': 'https://linustechtips.com/main/forum/93-bitwit-ultra/', 'name': 'BitWit Ultra', 'subChannels': [
+		{'raw': 'TQ', 'formatted': 'Techquickie', 'name': 'Techquickie', 'replace': 'TQ', 'episode_number': 0, 'extra': ''},
+		{'raw': 'CSF', 'formatted': 'Channel Super Fun', 'name': 'CSF', 'replace': 'CSF', 'episode_number': 0, 'extra': ''}
+	]})
+}
+if (settings.useBitWit == true) {
+	channels.push({'url': 'https://linustechtips.com/main/forum/93-bitwit-ultra.xml', 'name': 'BitWit Ultra', 'subChannels': [
 		{'raw': '', 'formatted': 'BitWit Ultra', 'name': 'BitWit Ultra', 'replace': '', 'episode_number': 0, 'extra': ' - '}
-	]}*/
-] // To Enable BitWit Ultra, remove the /* and */ from above.
+	]})
+}
+files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
+if (files.length == -1) {
+	console.log('You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...');
+	process.exit()
+}
 console.log('===================\n'+'= Episode Numbers =')
 channels.forEach(function(channel){
 	console.log('\n>--'+channel.name)
 	channel.subChannels.forEach(function(subChannel){
-		subChannel.episode_number = (glob.sync("./Videos/*/*"+subChannel.formatted+"*.mp4").length + 1)
+		subChannel.episode_number = (glob.sync(settings.videoFolder+"*/*"+subChannel.formatted+"*.mp4").length + 1)
 		console.log(subChannel.formatted+':', subChannel.episode_number-1)
 	});
 });
@@ -33,7 +44,7 @@ console.log('==========')
 // Set some defaults
 req = request.defaults({
 	jar: true,
-	rejectUnauthorized: false, 
+	rejectUnauthorized: false,
 	followAllRedirects: true
 });
 
@@ -49,6 +60,7 @@ req.get({ // Generate the key used to download videos
 
 function findVideos(key) {
 	channels.forEach(function(channel){ // Find videos for each channel
+		var url = channel.url
 		req.get({
 		    url: channel.url,
 		    headers: {
@@ -82,11 +94,11 @@ function findVideos(key) {
 					match = match.replace(thisChannel.replace, thisChannel.formatted+'S01E'+(thisChannel.episode_number + thisChannel.extra)) // Format its title based on the subchannel
 					match = sanitize(match);
 					match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
-					files = glob.sync("./Videos/*/*"+match+"*.mp4") // Check if the video already exists based on the above match
+					files = glob.sync(settings.videoFolder+"*/*"+match+"*.mp4") // Check if the video already exists based on the above match
 	  				if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
 	  					return_title = title.replace(/:/g, ' -')
 	  					// Existing file *nice* name formatting
-	  					//return_title = return_title.replace(thisChannel.replace, thisChannel.formatted) 
+	  					//return_title = return_title.replace(thisChannel.replace, thisChannel.formatted)
 				        console.log(sanitize(return_title), '== EXISTS');
 				    } else { // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
 				    	title = title.replace(/:/g, ' -')
@@ -97,7 +109,7 @@ function findVideos(key) {
 				    	console.log('>--', title, '== DOWNLOADING');
 						var url = 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid='+ vidID +'&video_quality=1080&download=1'; // Generate the url that will return the download url for this video (To change the quality change 1080 to the resoloution you want)
 						var img_url = 'https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID; // Generate the url for getting the thumbnail for the video
-						request(img_url).pipe(fs.createWriteStream(__dirname + '/Videos/'+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
+						request(img_url).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
 						loadCount += 1
 						download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/1080.mp4?wmsAuthSign='+key, title, thisChannel, loadCount)
 				    }
@@ -126,8 +138,8 @@ function download(url, title, thisChannel, i) {
 		console.log(err);
 	}).on('end', function () {
 		loadCount -= 1
-	}).pipe(fs.createWriteStream('./Videos/'+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
-		file = './Videos/'+thisChannel.formatted+'/'+title+'.mp4'
+	}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
+		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4'
 		name = file.replace(/^.*[0-9].- /, '').replace('- ', '').replace('.mp4','') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = ('TEMP_'+title+'.mp4').replace(/ /g, '') // Specify the temp file to write the metadata to
 		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('end', function() { // Save the title in metadata
