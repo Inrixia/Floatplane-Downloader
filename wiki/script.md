@@ -58,7 +58,7 @@ If you want to change any other settings, you can do so now inside the settings.
 
    >At this point you should be completely setup and ready to go!
    >
-   >To start the script all you need to do is run the run.bat file.
+   >To start the script all you need to do is run the Floatplane.bat file.
    >
    >If you want to start the script from console yourself, just use "node scrape.js"
 
