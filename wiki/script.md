@@ -44,12 +44,12 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >
    >For the script to work you need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
    >
-   >  Copy the cookie's into the script as can be seen below.
+   >Copy the cookie's into the script as can be seen below.
 
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 Go to the Application TAB. (This is on Chrome)
 [![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
-Copy the ips4_IPSSessionFront cookie out values from above into the highlighted line below:
+Copy your ips4_IPSSessionFront cookie value seen above into the highlighted line below:
 [![https://gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2](https://i.gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2.png)](https://gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2)
 
 If you want to change any other settings, you can do so now inside the settings.js file.
