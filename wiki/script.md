@@ -44,7 +44,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >
    >For the script to work you need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
    >
-   >  Copy the cookie's into the script as can be seen below. You may also need to open the Fourms in the browser you used to log in occasionally before running the script.
+   >  Copy the cookie's into the script as can be seen below.
 
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 Go to the Application TAB. (This is on Chrome)
