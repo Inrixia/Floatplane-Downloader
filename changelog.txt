@@ -4,6 +4,7 @@ Changelog
  - Compressed required cookies down to a single line
  - Ability to set video folder in settings
  - Ability to set max videos in settings
+ - Ability to set what channels to download in settings
  - Fix for ffmpeg not downloading
  - Support for channel super fun
  - Created a package.json file for easy updates
