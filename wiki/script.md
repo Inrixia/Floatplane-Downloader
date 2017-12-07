@@ -17,7 +17,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 2. **Install Node.js packages:**
 
-   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console rightclick)
+   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console rightclick), Note this might take a while... Just let it load.
    >
    >**npm install**
 
