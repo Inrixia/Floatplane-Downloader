@@ -23,15 +23,15 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 [![https://gyazo.com/1988bad700edbc088895411916597558](https://i.gyazo.com/1988bad700edbc088895411916597558.gif)](https://gyazo.com/1988bad700edbc088895411916597558)
 
-~~3. **Install [ffmpeg](ffmpeg.org) (If not running Windows):**~~
+3. **Install [ffmpeg](ffmpeg.org) (If not running Windows):**
 
-   >~~In order to set the title's of videos for Plex you need ffmpeg installed.~~
+   >In order to set the title's of videos for Plex you need ffmpeg installed.
    >
-   >~~If you are running windows you dont need to install it its bundled with the script, however if you are using another OS or want to use a different version of ffmpeg then you need to change the reference inside the script.~~
+   >If you are running windows you dont need to install it its bundled with the script, however if you are using another OS or want to use a different version of ffmpeg then you need to change the reference inside the script.
    >
-   >~~You can download ffmpeg from: **ffmpeg.org**~~
+   >You can download ffmpeg from: **ffmpeg.org**
 
-**This was only required up to version 2.0, you no longer need to do this!**
+[![https://gyazo.com/14763d29ff7ce685022de27304935276](https://i.gyazo.com/14763d29ff7ce685022de27304935276.png)](https://gyazo.com/14763d29ff7ce685022de27304935276)
 
 4. **Set your cookies:**
 
