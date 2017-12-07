@@ -11,7 +11,7 @@ This is a Node.js script to download the daily videos from the [LMG Floatplane](
 
 This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscription.
 
-**For BitWit Ultra you need to enable it by uncommenting this line in the config:**
+**For BitWit Ultra you need to enable it by setting this line to true in the settings:**
 [![https://gyazo.com/ab02a065add0dd811e15852945d3f15f](https://i.gyazo.com/ab02a065add0dd811e15852945d3f15f.png)](https://gyazo.com/ab02a065add0dd811e15852945d3f15f)
 
 **Important Note: You may need to update the cookies in the script occasionally, the guide on how to do this is [Part 4 of the Script Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)**
