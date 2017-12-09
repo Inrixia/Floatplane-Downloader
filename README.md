@@ -30,7 +30,7 @@ I will be maintaining this as I use it.
 
 If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, WindowsMediaPlayer. Go and install this tampermonkey script here: **https://github.com/Kayomani/PlexExternalPlayer** **Important Note** for chrome users: https://github.com/Kayomani/PlexExternalPlayer/issues/16
 
-If you want plex to update after downloading new videos you can add this code to the bottom of the run.bat file.
+If you want plex to update after downloading new videos you can add this code to the bottom of the Floatplane.bat file.
 You need to replace the -section 10 with the section your Floatplane videos are in for plex.
 >**"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --section 10**
 
