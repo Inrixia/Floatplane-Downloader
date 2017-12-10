@@ -1,7 +1,7 @@
 const settings = {
 	'videoFolder':'./videos/', // Default is ./videos which is inside the script folder. Can be changed to any folder on system
 	'useFloatplane':true, // Default is true
-	'useBitWit':true, // Default is false
+	'useBitWit':false, // Default is false
 	'maxVideos':30, // Default is 30 (The Max)
 	'cookies': {
 		'ips4_IPSSessionFront':'', // Put your session cookie here
