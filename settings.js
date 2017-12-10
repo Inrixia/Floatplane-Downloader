@@ -7,10 +7,11 @@ const settings = {
 		'ips4_IPSSessionFront':'', // Put your session cookie here
 		'video_res':'1080p', // Set the resoloution here
 		'parsed':'' // Ignore this
-	}
+	},
+	'email':'',
+	'password':''
 }
 
 settings.cookies.parsed = 'ips4_IPSSessionFront='+settings.cookies.ips4_IPSSessionFront+';'
 +'video_res='+settings.cookies.video_res+';' // Constructs the main cookie from the cookies you gave
-
 exports.settings = settings
