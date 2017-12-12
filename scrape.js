@@ -51,7 +51,7 @@ function checkAuth(forced) {
 		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.email || !settings.password)) {
 			console.log('> Please enter your login details:');
 			prompt.start();
-			prompt.get([{name: "Email", required: true}, {name: "Password", required: true, hidden: false, replace: '*'}], function (err, result) {
+			prompt.get([{name: "Email", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
 				settings.email = result.Email
 				settings.password = result.Password
 				console.log('');
