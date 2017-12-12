@@ -12,7 +12,7 @@ This is a Node.js script to download the daily videos from the [LMG Floatplane](
 This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscription.
 
 **For BitWit Ultra you need to enable it by setting this line to true in the settings:**
-[![https://gyazo.com/9589e955fa8b2a051e60ee9639b8fb39](https://i.gyazo.com/9589e955fa8b2a051e60ee9639b8fb39.png)](https://gyazo.com/9589e955fa8b2a051e60ee9639b8fb39)
+[![https://gyazo.com/87c287a03d190ed5c863a5271c5e734e](https://i.gyazo.com/87c287a03d190ed5c863a5271c5e734e.png)](https://gyazo.com/87c287a03d190ed5c863a5271c5e734e)
 
 ### **Install Guide**
 
