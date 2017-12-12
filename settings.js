@@ -12,8 +12,8 @@ const settings = {
 		'video_res':'1080p', // Set the resoloution here
 		'parsed':'' // Ignore this
 	},
-	'email': '',
-	'password': ''
+	'email':'',
+	'password':''
 }
 
 settings.cookies.parsed = 'ips4_IPSSessionFront='+settings.cookies.ips4_IPSSessionFront+';'
@@ -22,6 +22,5 @@ settings.cookies.parsed = 'ips4_IPSSessionFront='+settings.cookies.ips4_IPSSessi
 +'ips4_login_key='+settings.cookies.ips4_login_key+';'
 +'ips4_device_key='+settings.cookies.ips4_device_key+';'
 +'ips4_member_id='+settings.cookies.ips4_member_id+';'
-
 
 exports.settings = settings
