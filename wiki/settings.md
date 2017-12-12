@@ -1,4 +1,4 @@
-# Settings.json Info
+# settings.json Info
 ---
 This just covers what each setting is and what you can change it to.
 
