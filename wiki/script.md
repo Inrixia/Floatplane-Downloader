@@ -37,7 +37,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >**To use the script you need to login, you can do this two ways.**
    >**Login when the script asks you to:**
    [![https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f](https://i.gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f.png)](https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f)
-   
+   >
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
    >**Or manually set them yourself which is noted below.**
@@ -51,6 +51,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 Go to the Application TAB. (This is on Chrome)
 [![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
 Copy your ips4 cookies seen above into the highlighted line below:
+
 [![https://gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2](https://i.gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2.png)](https://gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2)
 
 If you want to change any other settings, you can do so now inside the settings.json file. More info on settings can be found here: **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**
