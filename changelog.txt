@@ -1,3 +1,7 @@
+v2.0.1
+Changelog
+ - Fixed cookies to includes ones needed for login refresh
+
 v2.0.0
 Changelog
  - Settings are now contained in a seperate file to make updating easier
