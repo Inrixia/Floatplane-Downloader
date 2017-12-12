@@ -10,7 +10,7 @@ This covers what each setting is and what you can change it to.
 >Default: "**./videos/**"  
 >Example:
 ```json 
-{ "videoFolder": "C:/Users/Inrix/Downloads" }
+"videoFolder": "C:/Users/Inrix/Downloads"
 ```
 
 **useFloatplane:**  
@@ -19,7 +19,7 @@ This covers what each setting is and what you can change it to.
 >Default: "**true**"  
 >Example:
 ```json 
-{ "useFloatplane": true }
+"useFloatplane": true
 ```
 
 **useBitWit:**  
@@ -28,7 +28,7 @@ This covers what each setting is and what you can change it to.
 >Default: "**false**"  
 >Example:
 ```json 
-{ "useBitWit": true }
+"useBitWit": true
 ```
 
 **maxVideos:**  
@@ -39,7 +39,7 @@ This covers what each setting is and what you can change it to.
 >Default: "**30**"  
 >Example:
 ```json 
-{ "maxVideos": 30 }
+"maxVideos": 30
 ```
 
 **cookie:**  
@@ -65,7 +65,7 @@ This covers what each setting is and what you can change it to.
 >Default: "**1080**"  
 >Example:
 ```json 
-{ "video_res": 1080 }
+"video_res": 1080
 ```
 
 **user:**
@@ -76,9 +76,9 @@ This covers what each setting is and what you can change it to.
 >Default: ""  
 >Examples:
 ```json 
-{ "user": "Inrix" }
+"user": "Inrix"
 OR
-{ "user": "AEmail@Gmail.com" }
+"user": "AEmail@Gmail.com"
 ```
 
 **password:**  
@@ -89,7 +89,7 @@ OR
 >Default: ""  
 >Example:
 ```json 
-{ "password": "YourPasswordHere" }
+"password": "YourPasswordHere"
 ```
 
 **csrfKey:**  
