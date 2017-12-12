@@ -34,8 +34,8 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 4. **Login:**
    >**To use the script you need to login, you can do this two ways.**
-   >**Login when the script asks you to:**
-   [![https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f](https://i.gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f.png)](https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f)
+   >**Login when the script asks you to using either your email or username:**  
+   [![https://gyazo.com/338c4ab48e21da63a512394ff08ca413](https://i.gyazo.com/338c4ab48e21da63a512394ff08ca413.png)](https://gyazo.com/338c4ab48e21da63a512394ff08ca413)
    >
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
