@@ -48,16 +48,16 @@ checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(find
 
 function checkAuth(forced) {
 	return new Promise((resolve, reject) => {
-		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.email || !settings.password)) {
+		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) {
 			console.log('> Please enter your login details:');
 			prompt.start();
-			prompt.get([{name: "Email", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
-				settings.email = result.Email
+			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
+				settings.user = result['Email/Username']
 				settings.password = result.Password
 				console.log('');
 				getSession().then(doLogin).then(resolve)
 			});
-		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.email || settings.password))) {
+		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) {
 			getSession().then(doLogin).then(resolve)
 		}	else {
 			console.log('> Using saved login data');
@@ -91,7 +91,7 @@ function getSession() {
 }
 
 function doLogin() {
-	console.log("> Logging in as", settings.email)
+	console.log("> Logging in as", settings.user)
 	return new Promise((resolve, reject) => {
 		req.post({
 			headers: {
@@ -99,7 +99,7 @@ function doLogin() {
 				'content-type': 'application/x-www-form-urlencoded'
 			},
 			url: 'https://linustechtips.com/main/login/',
-			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.email + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
+			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.user + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
 		}, function (error, resp, body) {
 			if (resp.headers['set-cookie']) {
 				console.log('Logged In!\n');
