@@ -8,19 +8,28 @@ This covers what each setting is and what you can change it to.
 >This sets the folder the videos are downloaded to. It can be related to the scripts folder through "./" or a full system path like "C:/Users/Inrix/Downloads".
 >
 >Default: "**./videos/**"  
->Example: **("videoFolder": "./videos/")**
+>Example:
+```json 
+{ "videoFolder": "C:/Users/Inrix/Downloads" }
+```
 
 **useFloatplane:**  
 >Defines wether or not do download **Linus Media Group** videos true to download, false to not.
 >
 >Default: "**true**"  
->Example: **("useFloatplane": true)**
+>Example:
+```json 
+{ "useFloatplane": true }
+```
 
 **useBitWit:**  
 >Defines wether or not do download **BitWit** videos true to download, false to not.
 >
 >Default: "**false**"  
->Example: **("useBitWit": true)**
+>Example:
+```json 
+{ "useBitWit": true }
+```
 
 **maxVideos:**  
 >States how far down the latest video posts the script should look in number of posts. 30 Is the maximum posts per page you can set it to anything below this.
@@ -28,7 +37,10 @@ This covers what each setting is and what you can change it to.
 >Note: This does not effect script performance, its only there if you only wanted to download a single video without downloading old ones.
 >
 >Default: "**30**"  
->Example: **("maxVideos": 30)**
+>Example:
+```json 
+{ "maxVideos": 30 }
+```
 
 **cookie:**  
 >Variable used in the script to combine all the cookies for use. Ignore this.
@@ -51,7 +63,10 @@ This covers what each setting is and what you can change it to.
 >**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
 >
 >Default: "**1080**"  
->Example: **("video_res": 1080)**
+>Example:
+```json 
+{ "video_res": 1080 }
+```
 
 **user:**
 >Stores your email/username for auto login. Can be deleted but only if cookies has values set.
@@ -59,7 +74,12 @@ This covers what each setting is and what you can change it to.
 >Can be manually set to your email/username by just typing it in.
 >
 >Default: ""  
->Example: **("user": "Inrix")** or **("user": "AEmail@Gmail.com")**
+>Examples:
+```json 
+{ "user": "Inrix" }
+OR
+{ "user": "AEmail@Gmail.com" }
+```
 
 **password:**  
 >Stores your password for auto login. Can be deleted but only if cookies has values set.
@@ -67,7 +87,10 @@ This covers what each setting is and what you can change it to.
 >Can be manually set to your password by just typing it in.
 >
 >Default: ""  
->Example: **("password": "YourPasswordHere")**
+>Example:
+```json 
+{ "password": "YourPasswordHere" }
+```
 
 **csrfKey:**  
 >Variable used in the script for getting session info. Ignore this.
