@@ -33,15 +33,16 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 [![https://gyazo.com/14763d29ff7ce685022de27304935276](https://i.gyazo.com/14763d29ff7ce685022de27304935276.png)](https://gyazo.com/14763d29ff7ce685022de27304935276)
 
-4. **Set your cookies:**
-
-   >**Important Note: If you get something that looks like this where it does not output if any videos are downloaded. You need to update your cookies.**
+4. **Login:**
+   >**To use the script you need to login, you can do this two ways.**
+   >**Login when the script asks you to:**
+   [![https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f](https://i.gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f.png)](https://gyazo.com/cb5611552b9e5dcf5a11ed5a40f13a6f)
+   
+   >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
-   >**But before you do to go update them, try just opening your browser to the LTT forms first. Usually that fixes it.**
-   >[![https://gyazo.com/2f52b95875961a7fac33eae0a361ba54](https://i.gyazo.com/2f52b95875961a7fac33eae0a361ba54.png)](https://gyazo.com/2f52b95875961a7fac33eae0a361ba54)
+   >**Or manually set them yourself which is noted below.**
+5. **Manually set your cookies [OPTIONAL]:**
 
-   >This script does not login for you on floatplane. It requires cookies from a browser that has logged on (Though I may change this in the future for better support on servers).
-   >
    >For the script to work you need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
    >
    >Copy the cookie's into the script as can be seen below.
@@ -49,12 +50,12 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 Go to the Application TAB. (This is on Chrome)
 [![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
-Copy your ips4_IPSSessionFront cookie value seen above into the highlighted line below:
-[![https://gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2](https://i.gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2.png)](https://gyazo.com/72aa884e9f9c9c24d8b2e6aaf849fdd2)
+Copy your ips4 cookies seen above into the highlighted line below:
+[![https://gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2](https://i.gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2.png)](https://gyazo.com/1d25bc4b3f2bf73c443ddbdc533942e2)
 
-If you want to change any other settings, you can do so now inside the settings.js file.
+If you want to change any other settings, you can do so now inside the settings.json file. More info on settings can be found here: **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**
 
-4. **Profit?:**
+6. **Profit?:**
 
    >At this point you should be completely setup and ready to go!
    >
