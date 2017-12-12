@@ -49,7 +49,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 **Go to the Application TAB. (This is on Chrome)**
 [![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
-**Copy your ips4 cookies seen above into the highlighted lines so it looks like this:**  
+**Copy your ips4 cookies seen above into the settings cookies so it looks like this:**  
 [![https://gyazo.com/bcb242eb53622cdf642d310f18db3e78](https://i.gyazo.com/bcb242eb53622cdf642d310f18db3e78.png)](https://gyazo.com/bcb242eb53622cdf642d310f18db3e78)
 
 If you want to change any other settings, you can do so now inside the settings.json file. More info on settings can be found here: **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**
