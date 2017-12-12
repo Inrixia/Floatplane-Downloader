@@ -6,11 +6,14 @@ var sanitize = require("sanitize-filename");
 var ffmpeg = require('fluent-ffmpeg');
 var glob = require("glob");
 var mv = require('mv');
-var settings = require('./settings.js');
-var settings = settings.settings;
-process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
+var settings = require('./settings.json');
+var prompt = require('prompt');
+if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
+	process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
+} else {
+	process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"
+}
 var fs = require('fs');
-var cookies = settings.cookies.parsed
 var count = settings.maxVideos; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
 var loadCount = 0;
 var channels = []
@@ -32,39 +35,138 @@ if (files.length == -1) {
 	console.log('You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...');
 	process.exit()
 }
-console.log('===================\n'+'= Episode Numbers =')
-channels.forEach(function(channel){
-	console.log('\n>--'+channel.name)
-	channel.subChannels.forEach(function(subChannel){
-		subChannel.episode_number = (glob.sync(settings.videoFolder+"*/*"+subChannel.formatted+"*.mp4").length + 1)
-		console.log(subChannel.formatted+':', subChannel.episode_number-1)
-	});
-});
-console.log('==========')
-// Set some defaults
+// Set request defaults
 req = request.defaults({
 	jar: true,
 	rejectUnauthorized: false,
-	followAllRedirects: true
 });
 
-req.get({ // Generate the key used to download videos
-	url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
-    headers: {
-    	Cookie: cookies
-    }
-}, function(err, resp, body) {
-	var key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
-	findVideos(key) // Begin finding videos
-})
+// Finish Init, Sart Script
 
-function findVideos(key) {
+console.log('\x1Bc');
+checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+
+function checkAuth(forced) {
+	return new Promise((resolve, reject) => {
+		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.email || !settings.password)) {
+			console.log('> Please enter your login details:');
+			prompt.start();
+			prompt.get([{name: "Email", required: true}, {name: "Password", required: true, hidden: false, replace: '*'}], function (err, result) {
+				settings.email = result.Email
+				settings.password = result.Password
+				console.log('');
+				getSession().then(doLogin).then(resolve)
+			});
+		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.email || settings.password))) {
+			getSession().then(doLogin).then(resolve)
+		}	else {
+			console.log('> Using saved login data');
+			resolve()
+		}
+	})
+}
+
+function constructCookie() {
+	return new Promise((resolve, reject) => {
+		for (k in settings.cookies) {
+			settings.cookie.push(settings.cookies[k])
+		}
+		console.log('> Cookie Constructed!');
+		resolve()
+	})
+}
+
+function getSession() {
+	console.log("> Fetching session")
+	return new Promise((resolve, reject) => {
+		req.get({ // Generate the key used to download videos
+			url: 'https://linustechtips.com/',
+			'content-type': 'application/x-www-form-urlencoded'
+		}, function (error, resp, body) {
+			settings.cookies.ips4_IPSSessionFront = resp.headers["set-cookie"][0];
+			settings.csrfKey = body.split("csrfKey=")[1].split("'")[0];
+			resolve();
+		}, reject)
+	})
+}
+
+function doLogin() {
+	console.log("> Logging in as", settings.email)
+	return new Promise((resolve, reject) => {
+		req.post({
+			headers: {
+				Cookie: settings.cookies.ips4_IPSSessionFront,
+				'content-type': 'application/x-www-form-urlencoded'
+			},
+			url: 'https://linustechtips.com/main/login/',
+			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.email + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
+		}, function (error, resp, body) {
+			if (resp.headers['set-cookie']) {
+				console.log('Logged In!\n');
+				settings.cookies.ips4_device_key = resp.headers['set-cookie'][0]
+				settings.cookies.ips4_member_id = resp.headers['set-cookie'][1]
+				settings.cookies.ips4_login_key = resp.headers['set-cookie'][2]
+				saveSettings().then(resolve())
+			} else {
+				console.log('\x1Bc');
+				console.log('There was a error while logging in...\n');
+				checkAuth(true)
+			}
+		}, reject)
+	})
+}
+
+function saveSettings() {
+	return new Promise((resolve, reject) => {
+		console.log('> Saving settings');
+		fs.writeFile("./settings.json", JSON.stringify(settings, null, 2), 'utf8', function (err) {
+	    if (err) reject(err)
+			resolve()
+		});
+	})
+}
+
+function parseKey() {
+	return new Promise((resolve, reject) => {
+		console.log("> Fetching video key")
+		req.get({ // Generate the key used to download videos
+			url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
+			headers: {
+				Cookie: settings.cookie
+			}
+		}, function (err, resp, body) {
+			settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
+			if (settings.key.length !== 144) {
+				console.log('Invalid Key! Attempting to re-authenticate...');
+				settings.cookies.ips4_IPSSessionFront = ''
+				checkAuth().then(constructCookie).then(parseKey).then(resolve)
+			} else {
+				console.log('Fetched!\n');
+				resolve()
+			}
+		});
+	})
+}
+
+function logEpisodeCount(){
+	console.log('=== Episode Count ===')
+	channels.forEach(function(channel){
+		console.log('\n>--'+channel.name)
+		channel.subChannels.forEach(function(subChannel){
+			subChannel.episode_number = (glob.sync(settings.videoFolder+"*/*"+subChannel.formatted+"*.mp4").length + 1)
+			console.log(subChannel.formatted+':', subChannel.episode_number-1)
+		});
+	});
+	console.log();
+}
+
+function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
 		var url = channel.url
 		req.get({
 		    url: channel.url,
 		    headers: {
-		        Cookie: cookies
+		        Cookie: settings.cookie
 		    }
 		  }, function(err, resp, body) {
 			const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
@@ -107,11 +209,9 @@ function findVideos(key) {
 						thisChannel.episode_number += 1 // Increment the episode number for this subChannel
 						title = sanitize(title);
 				    	console.log('>--', title, '== DOWNLOADING');
-						var url = 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid='+ vidID +'&video_quality=1080&download=1'; // Generate the url that will return the download url for this video (To change the quality change 1080 to the resoloution you want)
-						var img_url = 'https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID; // Generate the url for getting the thumbnail for the video
-						request(img_url).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
+						request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
 						loadCount += 1
-						download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/1080.mp4?wmsAuthSign='+key, title, thisChannel, loadCount)
+						download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
 				    }
 				})
 			})

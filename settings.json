@@ -1,0 +1,17 @@
+{
+  "videoFolder": "./videos/",
+  "useFloatplane": true,
+  "useBitWit": false,
+  "maxVideos": 30,
+  "cookie": [],
+  "cookies": {
+    "ips4_IPSSessionFront": "",
+    "ips4_login_key": "",
+    "ips4_device_key": "",
+    "ips4_member_id": ""
+  },
+  "video_res": 1080,
+  "email": "",
+  "password": "",
+  "csrfKey": ""
+}

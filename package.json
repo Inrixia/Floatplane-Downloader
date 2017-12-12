@@ -1,17 +1,19 @@
 {
   "name": "Floatplane-PlexDownloader",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
-    "start": "node scrape.js"
+    "start": "node scrape.js pause"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "fetch": "^1.1.0",
     "ffmpeg-binaries": "^3.2.2",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
     "glob": "^7.1.2",
     "mv": "^2.1.1",
+    "prompt": "^1.0.0",
     "request": "^2.83.0",
     "request-progress": "^3.0.0",
     "sanitize-filename": "^1.6.1"

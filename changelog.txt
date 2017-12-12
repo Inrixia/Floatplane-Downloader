@@ -1,3 +1,11 @@
+v3.0.0
+Changelog
+ - Changed settings to use a json file so they can be saved
+ - Removed the need to manually get cookies
+ - Added cli with prompts to use a Username/Email & Password to login
+ - Added full support for using different qualities
+ - Cleaned up obsolete code
+
 v2.0.1
 Changelog
  - Fixed cookies to includes ones needed for login refresh
