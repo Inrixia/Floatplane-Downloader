@@ -40,7 +40,8 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
-   >**Or manually set them yourself which is noted below. Note, if you dont login with a username/password or use 2Factor you may need to do this.**
+   >**Or manually set them yourself which is noted below. 
+   >Note, if you dont login with a username/password or use 2Factor you may need to do this.**
 5. **Manually set your cookies [OPTIONAL]:**
 
    >You need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
