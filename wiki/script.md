@@ -43,9 +43,9 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >**Or manually set them yourself which is noted below.**
 5. **Manually set your cookies [OPTIONAL]:**
 
-   >For the script to work you need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
+   >You need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.
    >
-   >Copy the cookie's into the script as can be seen below.
+   >Copy the cookie's into the settings.json as can be seen below.
 
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 Go to the Application TAB. (This is on Chrome)
