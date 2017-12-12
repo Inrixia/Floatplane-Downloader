@@ -1,6 +1,6 @@
 # settings.json Info
 ---
-This just covers what each setting is and what you can change it to.
+This covers what each setting is and what you can change it to.
 
 [![https://gyazo.com/1884dc350ebaa75964d509cd0c39cfa9](https://i.gyazo.com/1884dc350ebaa75964d509cd0c39cfa9.png)](https://gyazo.com/1884dc350ebaa75964d509cd0c39cfa9)
 
