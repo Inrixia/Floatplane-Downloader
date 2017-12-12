@@ -33,9 +33,7 @@ If you want plex to update after downloading new videos (fixing the issue with s
 
 ```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --force --section 20```
 
-You need to replace the --section 10 with the section your Floatplane videos are in for Plex. You can find what section Floatplane is by using the command:
-
-```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list```
+You need to replace the --section 10 with the section your Floatplane videos are in for Plex. You can find what section Floatplane is by using the command: ```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list```
 
 **Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
 
