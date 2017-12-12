@@ -11,7 +11,9 @@ const settings = {
 		'ips4_member_id':'',
 		'video_res':'1080p', // Set the resoloution here
 		'parsed':'' // Ignore this
-	}
+	},
+	'email': '',
+	'password': ''
 }
 
 settings.cookies.parsed = 'ips4_IPSSessionFront='+settings.cookies.ips4_IPSSessionFront+';'
