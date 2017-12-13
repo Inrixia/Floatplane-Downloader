@@ -136,14 +136,15 @@ function parseKey() {
 			}
 		}, function (err, resp, body) {
 			settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
-			if (settings.key.length !== 144) {
-				console.log('Invalid Key! Attempting to re-authenticate...');
-				settings.cookies.ips4_IPSSessionFront = ''
-				checkAuth().then(constructCookie).then(parseKey).then(resolve)
-			} else {
+			//if (settings.key.length !== 144) {
+			//	console.log(settings.key)
+			//	console.log('Invalid Key! Attempting to re-authenticate...');
+			//	settings.cookies.ips4_IPSSessionFront = ''
+			//	checkAuth().then(constructCookie).then(parseKey).then(resolve)
+			//} else {
 				console.log('Fetched!\n');
 				resolve()
-			}
+			//}
 		});
 	})
 }
