@@ -37,36 +37,41 @@ if (files.length == -1) {
 }
 // Set request defaults
 req = request.defaults({
-	jar: true,
+	jar: true, // Use the same cookies globally
 	rejectUnauthorized: false,
 });
 
 // Finish Init, Sart Script
 
-console.log('\x1Bc');
+console.log('\x1Bc'); // Clear the console
+// Check that the user is authenticated, then construct cookies, get the video key, log the current episodes and finally check for new videos
+// The below line triggers the main functions of the script
 checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
 
-function checkAuth(forced) {
+function checkAuth(forced) { // Check if the user is authenticated
 	return new Promise((resolve, reject) => {
-		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) {
+		// Check if a proper method of authentication exists if not get the users login details
+		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) { 
 			console.log('> Please enter your login details:');
 			prompt.start();
 			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
 				settings.user = result['Email/Username']
 				settings.password = result.Password
 				console.log('');
-				getSession().then(doLogin).then(resolve)
+				getSession().then(doLogin).then(resolve) // After getting the users details get their session and log them in. Then finish.
 			});
-		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) {
+			// If they have no session but do have login details then just get their session log them in and finish.
+		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) { 
 			getSession().then(doLogin).then(resolve)
 		}	else {
+			// They are already logged in with suficcent auth, just continue.
 			console.log('> Using saved login data');
 			resolve()
 		}
 	})
 }
 
-function constructCookie() {
+function constructCookie() { // Generate a array of cookies from the json object used to store them
 	return new Promise((resolve, reject) => {
 		for (k in settings.cookies) {
 			settings.cookie.push(settings.cookies[k])
@@ -76,7 +81,7 @@ function constructCookie() {
 	})
 }
 
-function getSession() {
+function getSession() { // Go to the LTT homepage to get a session key
 	console.log("> Fetching session")
 	return new Promise((resolve, reject) => {
 		req.get({ // Generate the key used to download videos
@@ -90,7 +95,7 @@ function getSession() {
 	})
 }
 
-function doLogin() {
+function doLogin() { // Login using the users credentials and save the cookies & session
 	console.log("> Logging in as", settings.user)
 	return new Promise((resolve, reject) => {
 		req.post({
@@ -101,22 +106,22 @@ function doLogin() {
 			url: 'https://linustechtips.com/main/login/',
 			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.user + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
 		}, function (error, resp, body) {
-			if (resp.headers['set-cookie']) {
+			if (resp.headers['set-cookie']) { // If the server returns cookies then we have probably logged in
 				console.log('Logged In!\n');
 				settings.cookies.ips4_device_key = resp.headers['set-cookie'][0]
 				settings.cookies.ips4_member_id = resp.headers['set-cookie'][1]
 				settings.cookies.ips4_login_key = resp.headers['set-cookie'][2]
-				saveSettings().then(resolve())
+				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
 			} else {
 				console.log('\x1Bc');
 				console.log('There was a error while logging in...\n');
-				checkAuth(true)
+				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
 			}
 		}, reject)
 	})
 }
 
-function saveSettings() {
+function saveSettings() { // Saves all the settings from the current settings object back to the settings.json file
 	return new Promise((resolve, reject) => {
 		console.log('> Saving settings');
 		fs.writeFile("./settings.json", JSON.stringify(settings, null, 2), 'utf8', function (err) {
@@ -126,10 +131,10 @@ function saveSettings() {
 	})
 }
 
-function parseKey() {
+function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
 		console.log("> Fetching video key")
-		req.get({ // Generate the key used to download videos
+		req.get({ 
 			url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
 			headers: {
 				Cookie: settings.cookie
@@ -138,6 +143,7 @@ function parseKey() {
 			if (body.includes('</html>')) { // Check if key is invalid
 				console.log('Invalid Key! Attempting to re-authenticate...');
 				settings.cookies.ips4_IPSSessionFront = ''
+				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
@@ -148,7 +154,7 @@ function parseKey() {
 	})
 }
 
-function logEpisodeCount(){
+function logEpisodeCount(){ // Print out the current number of "episodes" for each subchannel
 	console.log('=== Episode Count ===')
 	channels.forEach(function(channel){
 		console.log('\n>--'+channel.name)
