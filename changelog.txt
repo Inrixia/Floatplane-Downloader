@@ -1,3 +1,10 @@
+v3.0.2
+ - Proper fix for check invalid session key
+
+v3.0.1
+Changelog
+ - HotFix for invalid session key
+
 v3.0.0
 Changelog
  - Changed settings to use a json file so they can be saved
