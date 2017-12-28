@@ -51,7 +51,7 @@ checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(find
 function checkAuth(forced) { // Check if the user is authenticated
 	return new Promise((resolve, reject) => {
 		// Check if a proper method of authentication exists if not get the users login details
-		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) { 
+		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) {
 			console.log('> Please enter your login details:');
 			prompt.start();
 			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
@@ -61,7 +61,7 @@ function checkAuth(forced) { // Check if the user is authenticated
 				getSession().then(doLogin).then(resolve) // After getting the users details get their session and log them in. Then finish.
 			});
 			// If they have no session but do have login details then just get their session log them in and finish.
-		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) { 
+		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) {
 			getSession().then(doLogin).then(resolve)
 		}	else {
 			// They are already logged in with suficcent auth, just continue.
@@ -73,6 +73,7 @@ function checkAuth(forced) { // Check if the user is authenticated
 
 function constructCookie() { // Generate a array of cookies from the json object used to store them
 	return new Promise((resolve, reject) => {
+		settings.cookie = []
 		for (k in settings.cookies) {
 			settings.cookie.push(settings.cookies[k])
 		}
@@ -134,7 +135,7 @@ function saveSettings() { // Saves all the settings from the current settings ob
 function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
 		console.log("> Fetching video key")
-		req.get({ 
+		req.get({
 			url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
 			headers: {
 				Cookie: settings.cookie

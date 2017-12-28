@@ -1,3 +1,6 @@
+v3.0.3
+ - Fix for cookie not being cleared on invalid session
+
 v3.0.2
  - Proper fix for check invalid session key
  - Commented all new code from 3.0
