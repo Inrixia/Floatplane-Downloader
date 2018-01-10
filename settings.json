@@ -1,4 +1,5 @@
 {
+  "version": "3.3.0",
   "videoFolder": "./videos/",
   "useFloatplane": true,
   "useBitWit": false,

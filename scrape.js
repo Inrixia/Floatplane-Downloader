@@ -46,6 +46,15 @@ req = request.defaults({
 console.log('\x1Bc'); // Clear the console
 // Check that the user is authenticated, then construct cookies, get the video key, log the current episodes and finally check for new videos
 // The below line triggers the main functions of the script
+request.get({
+	url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
+}, function (err, resp, body) {
+	updateInfo = JSON.parse(body)
+	if(updateInfo.version != settings.version) {
+		console.log('New Version Avalible: v'+updateInfo.version+' | Update with update.bat!')
+	}
+})
+
 if (settings.forceLogin) {
 	getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
 } else {
