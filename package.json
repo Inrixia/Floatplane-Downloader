@@ -16,6 +16,7 @@
     "prompt": "^1.0.0",
     "request": "^2.83.0",
     "request-progress": "^3.0.0",
-    "sanitize-filename": "^1.6.1"
+    "sanitize-filename": "^1.6.1",
+    "ytdl-core": "^0.18.7"
   }
 }
