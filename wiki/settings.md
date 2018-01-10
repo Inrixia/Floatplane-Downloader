@@ -42,6 +42,15 @@ This covers what each setting is and what you can change it to.
 "maxVideos": 30
 ```
 
+**maxPages:**  
+>States how many pages of posts to look through. Intended to be used once to download a large amount of videos. 1 is the default and should be set to this for normal operation.
+>
+>Default: "**1**"  
+>Example:
+```json 
+"maxPages": 1
+```
+
 **forceLogin:**  
 >Forces the script to login every time. For if storing the session is causing errors.
 >
