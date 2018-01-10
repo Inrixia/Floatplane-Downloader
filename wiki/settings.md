@@ -1,7 +1,7 @@
 # settings.json Info
 ---
 This covers what each setting is and what you can change it to.  
-[![https://gyazo.com/e834bffb26cb135151a62677def04c79](https://i.gyazo.com/e834bffb26cb135151a62677def04c79.png)](https://gyazo.com/e834bffb26cb135151a62677def04c79)
+[![https://gyazo.com/1e2a134c7780fb4f1ba84a62884477f4](https://i.gyazo.com/1e2a134c7780fb4f1ba84a62884477f4.png)](https://gyazo.com/1e2a134c7780fb4f1ba84a62884477f4)
 
 **version:**  
 >Variable used in the update script. Ignore this.
