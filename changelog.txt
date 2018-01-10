@@ -1,3 +1,8 @@
+v3.4.0
+ - Added install.bat & install.js for easy installs
+ - Updated all documentation relating to this
+ - Possibly something else I missed a bunch of rewrites to scripts
+
 v3.3.0
  - Added update.bat & update.js for easy updating
 
