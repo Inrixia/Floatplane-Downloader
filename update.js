@@ -35,7 +35,7 @@ function updateSettings(){
 		newSettings.videoFolder = settings.videoFolder
 		newSettings.forceLogin = settings.forceLogin
 		newSettings.video_res = settings.video_res
-		fs.writeFile("./settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
+		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
 		})
 	})
