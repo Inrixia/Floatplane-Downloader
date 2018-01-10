@@ -2,6 +2,12 @@
 ---
 Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system.
 
+**There is now a auto installer! You can download and run it here: [Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)**
+
+To install using the **[Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)**, make sure you have Node.js installed, download the **[Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)** unzip it into the folder you want the script in and run install.bat. **Then skip to part 3 of this guide**.
+
+To install manually continue to read below.
+
 **You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
 
 1. **Download the script:**
@@ -40,7 +46,7 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
    >**Or manually set them yourself which is noted below.**  
-   >**If you dont login with a username/password or use 2Factor you may need to do this.**
+   >**If you dont login with a username/email & password or use 2Factor you may need to do this.**
 5. **Manually set your cookies [OPTIONAL]:**
 
    >You need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.  
