@@ -1,5 +1,4 @@
-npm install request prompt fs adm-zip --save
+CMD /C npm install request prompt fs adm-zip --save
 node update.js
-pause
-npm update
+CMD /C npm update
 pause
