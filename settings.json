@@ -3,6 +3,7 @@
   "useFloatplane": true,
   "useBitWit": false,
   "maxVideos": 30,
+  "forceLogin": false,
   "cookie": [],
   "cookies": {
     "ips4_IPSSessionFront": "",
