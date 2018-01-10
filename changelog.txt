@@ -1,3 +1,10 @@
+v3.5.0
+ - Rewrote downloading display to better support multiple videos & sexy loading bar.
+
+v3.4.1
+ - Fixed issues with update & install scripts
+ - Fixed MultiPage Downloads incorrectly organising videos
+
 v3.4.0
  - Added install.bat & install.js for easy installs
  - Updated all documentation relating to this

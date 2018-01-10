@@ -9,13 +9,18 @@ var mv = require('mv');
 var ytdl = require('ytdl-core');
 var settings = require('./settings.json');
 var prompt = require('prompt');
+var Multiprogress = require("multi-progress");
+var multi = new Multiprogress(process.stdout);
+var pad = require('pad');
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
 	process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
 } else {
 	process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"
 }
 var fs = require('fs');
-var loadCount = 0;
+var progressStates = [];
+var barArray = [];
+var loadCount = -1;
 var channels = []
 if (settings.useFloatplane == true){
 	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
@@ -43,7 +48,7 @@ req = request.defaults({
 
 // Finish Init, Sart Script
 
-console.log('\x1Bc'); // Clear the console
+//console.log('\x1Bc'); // Clear the console
 // Check that the user is authenticated, then construct cookies, get the video key, log the current episodes and finally check for new videos
 // The below line triggers the main functions of the script
 request.get({
@@ -56,9 +61,17 @@ request.get({
 })
 
 if (settings.forceLogin) {
-	getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+	getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
 } else {
-	checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+	checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+}
+
+function printLines() {
+	return new Promise((resolve, reject) => {
+		setTimeout(function(){
+			console.log('\n'.repeat(loadCount+1))
+		},1500)
+	})
 }
 
 function checkAuth(forced) { // Check if the user is authenticated
@@ -177,13 +190,13 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 			console.log(subChannel.formatted+':', subChannel.episode_number-1)
 		});
 	});
-	console.log();
+	//console.log();
 }
 
 function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
 		console.log('\n==='+channel.name+'===')
-		for(i=1; i <= settings.maxPages; i++){
+		for(i=settings.maxPages; i >= 1; i--){
 			req.get({
 			    url: channel.url+'/?page='+i,
 			    headers: {
@@ -223,7 +236,7 @@ function findVideos() {
 		  					return_title = title.replace(/:/g, ' -')
 		  					// Existing file *nice* name formatting
 		  					//return_title = return_title.replace(thisChannel.replace, thisChannel.formatted)
-					        console.log(sanitize(return_title), '== EXISTS');
+					        console.log(return_title, '== EXISTS');
 					    } else { // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
 					    	title = title.replace(/:/g, ' -')
 					    	// Downloaded file name formatting
@@ -235,10 +248,10 @@ function findVideos() {
 					    		console.log('>--', title, '== DOWNLOADING [Youtube 720p]');
 								downloadYoutube(vidID, title, thisChannel)
 								request('https://img.youtube.com/vi/'+ytdl.getVideoID(vidID)+'/hqdefault.jpg').on('error', function (err) {
-									console.log(err);
+									if (err) console.log(err);
 								}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.jpg'));
 							} else {
-								console.log('>--', title, '== DOWNLOADING');
+								process.stdout.write('>-- '+title+' == DOWNLOADING');
 								request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
 								loadCount += 1
 								download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
@@ -261,23 +274,25 @@ function downloadYoutube(url, title, thisChannel) { // Download function for you
 }
 
 function download(url, title, thisChannel, i) {
+	var bar = multi.newBar(':title [:bar] :percent :stats', {
+		complete: '\u001b[42m \u001b[0m',
+  		incomplete: '\u001b[41m \u001b[0m',
+		width: 30,
+		total: 100
+	})
+	var total = 0
 	progress(request(url), { // body contains only the download url given from requesting the generated url, Send a request with the download url to start downloading the video
 	}).on('progress', function (state) {
-		if (loadCount == i) { // If at the last video of the ones downloading clear the screen
-			setTimeout(function() {
-				console.log('\x1Bc');
-			}, 900);
-		}
-		console.log('Downloading:', title); // Below is just printing out the download info
-		console.log('Downloaded:', (state.percent*100).toFixed(2) + '%');
-		console.log('Time Remaining:', Math.floor(state.time.remaining)%60 + 's', Math.floor(state.time.remaining/60) + 'm');
-		if (state.speed != null) {
-			console.log('Speed:', ((state.speed/100000)/8).toFixed(2) + ' MB/s');
-		}
-		console.log('\n')
+		if (state.speed == null) {state.speed = 0}
+		bar.update(state.percent)
+		bar.tick({'title': pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,35), 39), 'stats': ((state.speed/100000)/8).toFixed(2)+'MB/s'+' '+(state.size.transferred/1024000).toFixed(0)+'/'+(state.size.total/1024000).toFixed(0)+'MB'+' '+'ETA: '+Math.floor(state.time.remaining/60) + 'm '+Math.floor(state.time.remaining)%60 + 's'})
+		total = (state.size.total/1024000).toFixed(0)
 	}).on('error', function(err, stdout, stderr) {
         console.log('An error occurred: ' + err.message, err, stderr);
     }).on('end', function () {
+    	bar.update(1)
+    	bar.tick({'title': pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,35), 39), 'stats': total+'/'+total+'MB'})
+		bar.terminate()
 		loadCount -= 1
 	}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
 		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4' // Specifies the folder the video is saved in
