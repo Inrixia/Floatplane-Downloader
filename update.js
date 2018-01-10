@@ -1,6 +1,6 @@
 const request = require('request')
 const prompt = require('prompt')
-const fs = require('fs')
+const fs = require('fs-extra')
 const AdmZip = require('adm-zip')
 const settings = require('./settings.json')
 
@@ -18,6 +18,7 @@ function getUpdate() {
 			}).pipe(fs.createWriteStream("./update.zip")).on('finish', function(){
 				AdmZip("./update.zip").extractAllTo("./update");
 				fs.unlink("./update.zip")
+				resolve()
 			});
 		});
 	})
@@ -34,31 +35,32 @@ function updateSettings(){
 		newSettings.videoFolder = settings.videoFolder
 		newSettings.forceLogin = settings.forceLogin
 		newSettings.video_res = settings.video_res
-		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8')
-		resolve()
+		fs.writeFile("./settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
+			resolve()
+		})
 	})
 }
 
 function moveFiles(){
 	return new Promise((resolve, reject) => {
 		fs.readdirSync('./update').forEach(function(file, index){
-		    fs.renameSync('./update/'+file, file);
+			if(file.indexOf('videos') == -1) {
+		    	fs.renameSync('./update/'+file, file);
+		    }
 		});
-		resolve()
+		fs.move('./update/videos', './videos', {overwrite: true}, err => {
+			if (err) console.log(err)
+			resolve()
+		})
 	})
 }
 
-function deleteFiles(){
+function deleteFiles(path){
 	return new Promise((resolve, reject) => {
-		fs.readdirSync('./update').forEach(function(file, index){
-	      var curPath = './update' + "/" + file;
-	      if (fs.lstatSync(curPath).isDirectory()) {
-	        deleteFolderRecursive(curPath);
-	      } else {
-	        fs.unlinkSync(curPath);
-	      }
-		});
-	    fs.rmdirSync('./update');
-	    resolve()
+		setTimeout(function(){
+			fs.remove('./update/').then(() => {
+		 		resolve()
+			})	
+		}, 1000);
 	})
 }
