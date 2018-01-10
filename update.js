@@ -48,10 +48,6 @@ function moveFiles(){
 		    	fs.renameSync('./update/'+file, file);
 		    }
 		});
-		fs.move('./update/videos', './videos', {overwrite: true}, err => {
-			if (err) console.log(err)
-			resolve()
-		})
 	})
 }
 
