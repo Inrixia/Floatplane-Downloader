@@ -3,6 +3,9 @@
 This covers what each setting is and what you can change it to.  
 [![https://gyazo.com/e834bffb26cb135151a62677def04c79](https://i.gyazo.com/e834bffb26cb135151a62677def04c79.png)](https://gyazo.com/e834bffb26cb135151a62677def04c79)
 
+**version:**  
+>Variable used in the update script. Ignore this.
+
 **videoFolder:**
 
 >This sets the folder the videos are downloaded to. It can be related to the scripts folder through "./" or a full system path like "C:/Users/Inrix/Downloads".
