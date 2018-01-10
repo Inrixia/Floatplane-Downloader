@@ -15,7 +15,6 @@ if(process.platform === 'win32'){ // If not using windows attempt to use linux f
 	process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"
 }
 var fs = require('fs');
-var count = settings.maxVideos; // Number of videos to look back through minus 1 (For the floatplane info post) Max 25 (Per Channel)
 var loadCount = 0;
 var channels = []
 if (settings.useFloatplane == true){
@@ -174,71 +173,72 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 
 function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
-		var url = channel.url
-		req.get({
-		    url: channel.url,
-		    headers: {
-		        Cookie: settings.cookie
-		    }
-		  }, function(err, resp, body) {
-			const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
-			console.log('\n==='+channel.name+'===')
-			var postArray = $('item').toArray().reverse()
-			postArray.forEach(function(element, i) { // For every "form post" on this page run the code below
-				if (i == count) { // Break on max videos parsed
-					return false
-				}
-				thisTitle = $(element).find('title').text() // Set the video title based off the post title
-				$2 = cheerio.load($(element).find('description').text()) // Load the html for the embedded video to parse the video id
-				$2('iframe').each(function(iC, elem) { // For each of the embedded videos
-					iN = i + iC // Create a counter that does all videos
-					video_count = $2('iframe').length
-					if (video_count > 1){ // If there is more than one video on a post, just add a number to the title
-						title = thisTitle+' #'+(iC+1)
-					} else {
-						title = thisTitle
+		console.log('\n==='+channel.name+'===')
+		for(i=1; i <= settings.maxPages; i++){
+			req.get({
+			    url: channel.url+'/?page='+i,
+			    headers: {
+			        Cookie: settings.cookie
+			    }
+			  }, function(err, resp, body) {
+				const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
+				var postArray = $('item').toArray().reverse()
+				postArray.forEach(function(element, i) { // For every "form post" on this page run the code below
+					if (i >= settings.maxVideos) { // Break on max videos parsed
+						return false
 					}
-					vidID = String($2(this).attr('src')).replace('https://cms.linustechtips.com/get/player/', '') // Get the id of the video
-					match = title.replace(/:/g, ' -') // Clean up the title for matching against existing videos to determine if they are already downloaded
-					// Determine what channel it is from
-					channel.subChannels.forEach(function(subChannel){ // For each subChannel in a channel
-						if(match.indexOf(subChannel.raw) > -1) { // Check if this video is part of a subchannel
-							thisChannel = subChannel
-						}
-					});
-					match = match.replace(thisChannel.replace, thisChannel.formatted+'S01E'+(thisChannel.episode_number + thisChannel.extra)) // Format its title based on the subchannel
-					match = match.replace('@CES', ' - CES') // Dirty fix for CES2018 content
-					match = sanitize(match);
-					match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
-					files = glob.sync(settings.videoFolder+"*/*"+match+"*.mp4") // Check if the video already exists based on the above match
-	  				if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
-	  					return_title = title.replace(/:/g, ' -')
-	  					// Existing file *nice* name formatting
-	  					//return_title = return_title.replace(thisChannel.replace, thisChannel.formatted)
-				        console.log(sanitize(return_title), '== EXISTS');
-				    } else { // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-				    	title = title.replace(/:/g, ' -')
-				    	// Downloaded file name formatting
-				    	title = title.replace(thisChannel.replace, thisChannel.formatted+' - S01E'+(thisChannel.episode_number + thisChannel.extra))
-						thisChannel.episode_number += 1 // Increment the episode number for this subChannel
-						title = title.replace('@CES', ' - CES') // Dirty fix for CES2018 content
-						title = sanitize(title);
-				    	if(vidID.indexOf('youtube') > -1) {
-				    		console.log('>--', title, '== DOWNLOADING [Youtube 720p]');
-							downloadYoutube(vidID, title, thisChannel)
-							request('https://img.youtube.com/vi/'+ytdl.getVideoID(vidID)+'/hqdefault.jpg').on('error', function (err) {
-								console.log(err);
-							}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.jpg'));
+					thisTitle = $(element).find('title').text() // Set the video title based off the post title
+					$2 = cheerio.load($(element).find('description').text()) // Load the html for the embedded video to parse the video id
+					$2('iframe').each(function(iC, elem) { // For each of the embedded videos
+						iN = i + iC // Create a counter that does all videos
+						video_count = $2('iframe').length
+						if (video_count > 1){ // If there is more than one video on a post, just add a number to the title
+							title = thisTitle+' #'+(iC+1)
 						} else {
-							console.log('>--', title, '== DOWNLOADING');
-							request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
-							loadCount += 1
-							download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
+							title = thisTitle
 						}
-				    }
+						vidID = String($2(this).attr('src')).replace('https://cms.linustechtips.com/get/player/', '') // Get the id of the video
+						match = title.replace(/:/g, ' -') // Clean up the title for matching against existing videos to determine if they are already downloaded
+						// Determine what channel it is from
+						channel.subChannels.forEach(function(subChannel){ // For each subChannel in a channel
+							if(match.indexOf(subChannel.raw) > -1) { // Check if this video is part of a subchannel
+								thisChannel = subChannel
+							}
+						});
+						match = match.replace(thisChannel.replace, thisChannel.formatted+'S01E'+(thisChannel.episode_number + thisChannel.extra)) // Format its title based on the subchannel
+						match = match.replace('@CES', ' - CES') // Dirty fix for CES2018 content
+						match = sanitize(match);
+						match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
+						files = glob.sync(settings.videoFolder+"*/*"+match+"*.mp4") // Check if the video already exists based on the above match
+		  				if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
+		  					return_title = title.replace(/:/g, ' -')
+		  					// Existing file *nice* name formatting
+		  					//return_title = return_title.replace(thisChannel.replace, thisChannel.formatted)
+					        console.log(sanitize(return_title), '== EXISTS');
+					    } else { // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
+					    	title = title.replace(/:/g, ' -')
+					    	// Downloaded file name formatting
+					    	title = title.replace(thisChannel.replace, thisChannel.formatted+' - S01E'+(thisChannel.episode_number + thisChannel.extra))
+							thisChannel.episode_number += 1 // Increment the episode number for this subChannel
+							title = title.replace('@CES', ' - CES') // Dirty fix for CES2018 content
+							title = sanitize(title);
+					    	if(vidID.indexOf('youtube') > -1) {
+					    		console.log('>--', title, '== DOWNLOADING [Youtube 720p]');
+								downloadYoutube(vidID, title, thisChannel)
+								request('https://img.youtube.com/vi/'+ytdl.getVideoID(vidID)+'/hqdefault.jpg').on('error', function (err) {
+									console.log(err);
+								}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.jpg'));
+							} else {
+								console.log('>--', title, '== DOWNLOADING');
+								request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
+								loadCount += 1
+								download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
+							}
+					    }
+					})
 				})
-			})
-		});
+			});
+		}
 	})
 }
 
