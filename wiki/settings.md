@@ -42,6 +42,15 @@ This covers what each setting is and what you can change it to.
 "maxVideos": 30
 ```
 
+**forceLogin:**  
+>Forces the script to login every time. For if storing the session is causing errors.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"forceLogin": true
+```
+
 **cookie:**  
 >Variable used in the script to combine all the cookies for use. Ignore this.
 
