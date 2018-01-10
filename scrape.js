@@ -6,6 +6,7 @@ var sanitize = require("sanitize-filename");
 var ffmpeg = require('fluent-ffmpeg');
 var glob = require("glob");
 var mv = require('mv');
+var ytdl = require('ytdl-core');
 var settings = require('./settings.json');
 var prompt = require('prompt');
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
@@ -46,7 +47,11 @@ req = request.defaults({
 console.log('\x1Bc'); // Clear the console
 // Check that the user is authenticated, then construct cookies, get the video key, log the current episodes and finally check for new videos
 // The below line triggers the main functions of the script
-checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+if (settings.forceLogin) {
+	getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+} else {
+	checkAuth().then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos)
+}
 
 function checkAuth(forced) { // Check if the user is authenticated
 	return new Promise((resolve, reject) => {
@@ -87,7 +92,7 @@ function getSession() { // Go to the LTT homepage to get a session key
 	return new Promise((resolve, reject) => {
 		req.get({ // Generate the key used to download videos
 			url: 'https://linustechtips.com/',
-			'content-type': 'application/x-www-form-urlencoded'
+			'content-type': 'application/x-www-form-urlencoded',
 		}, function (error, resp, body) {
 			settings.cookies.ips4_IPSSessionFront = resp.headers["set-cookie"][0];
 			settings.csrfKey = body.split("csrfKey=")[1].split("'")[0];
@@ -143,7 +148,7 @@ function parseKey() { // Get the key used to download videos
 		}, function (err, resp, body) {
 			if (body.includes('</html>')) { // Check if key is invalid
 				console.log('Invalid Key! Attempting to re-authenticate...');
-				settings.cookies.ips4_IPSSessionFront = ''
+				settings.cookies = {}
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
@@ -178,6 +183,9 @@ function findVideos() {
 		  }, function(err, resp, body) {
 			const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
 			console.log('\n==='+channel.name+'===')
+			postArray = $('item').toarray()
+			console.log()
+			postArray.reverse()
 			$('item').each(function(i, elem) { // For every "form post" on this page run the code below
 				if (i == count) { // Break on max videos parsed
 					return false
@@ -201,6 +209,7 @@ function findVideos() {
 						}
 					});
 					match = match.replace(thisChannel.replace, thisChannel.formatted+'S01E'+(thisChannel.episode_number + thisChannel.extra)) // Format its title based on the subchannel
+					match = match.replace('@CES', ' - CES') // Dirty fix for CES2018 content
 					match = sanitize(match);
 					match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
 					files = glob.sync(settings.videoFolder+"*/*"+match+"*.mp4") // Check if the video already exists based on the above match
@@ -214,16 +223,34 @@ function findVideos() {
 				    	// Downloaded file name formatting
 				    	title = title.replace(thisChannel.replace, thisChannel.formatted+' - S01E'+(thisChannel.episode_number + thisChannel.extra))
 						thisChannel.episode_number += 1 // Increment the episode number for this subChannel
+						title = title.replace('@CES', ' - CES') // Dirty fix for CES2018 content
 						title = sanitize(title);
-				    	console.log('>--', title, '== DOWNLOADING');
-						request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
-						loadCount += 1
-						download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
+				    	if(vidID.indexOf('youtube') > -1) {
+				    		console.log('>--', title, '== DOWNLOADING [Youtube 720p]');
+							downloadYoutube(vidID, title, thisChannel)
+							request('https://img.youtube.com/vi/'+ytdl.getVideoID(vidID)+'/hqdefault.jpg').on('error', function (err) {
+								console.log(err);
+							}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.jpg'));
+						} else {
+							console.log('>--', title, '== DOWNLOADING');
+							request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.png')); // Save the thumbnail with the same name as the video so plex will use it
+							loadCount += 1
+							download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, loadCount) // Download the video
+						}
 				    }
 				})
 			})
 		});
 	})
+}
+
+function downloadYoutube(url, title, thisChannel) {
+	ytdl(url).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
+		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4' // Specifies the folder the video is saved in
+		name = file.replace(/^.*[0-9].- /, '').replace('- ', '').replace('.mp4','')	// Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
+		file2 = ('TEMP_'+title+'.mp4').replace(/ /g, '') // Specify the temp file to write the metadata to
+		ffmpegFormat(file, name, file2)
+	});
 }
 
 function download(url, title, thisChannel, i) {
@@ -241,18 +268,24 @@ function download(url, title, thisChannel, i) {
 			console.log('Speed:', ((state.speed/100000)/8).toFixed(2) + ' MB/s');
 		}
 		console.log('\n')
-	}).on('error', function (err) {
-		console.log(err);
-	}).on('end', function () {
+	}).on('error', function(err, stdout, stderr) {
+        console.log('An error occurred: ' + err.message, err, stderr);
+    }).on('end', function () {
 		loadCount -= 1
 	}).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
-		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4'
-		name = file.replace(/^.*[0-9].- /, '').replace('- ', '').replace('.mp4','') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
+		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4' // Specifies the folder the video is saved in
+		name = file.replace(/^.*[0-9].- /, '').replace('- ', '').replace('.mp4','')	// Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = ('TEMP_'+title+'.mp4').replace(/ /g, '') // Specify the temp file to write the metadata to
-		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('end', function() { // Save the title in metadata
-			mv(file2, file, function(err){ // Overwrite the old video with the new one with the updated title
-				if (err) console.error("Error moving file...", err);
-			})
-		})
+		ffmpegFormat(file, name, file2)
 	});
+}
+
+function ffmpegFormat(file, name, file2) {
+	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) {
+    	console.log('An error occurred: ' + err.message, err, stderr);
+	}).on('end', function() { // Save the title in metadata
+		mv(file2, file, function(err){ // Overwrite the old video with the new one with the updated title
+			if (err) console.error("Error moving file...", err);
+		})
+	})
 }
