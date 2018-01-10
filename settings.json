@@ -2,7 +2,7 @@
   "videoFolder": "./videos/",
   "useFloatplane": true,
   "useBitWit": false,
-  "maxVideos": 30,
+  "maxVideos": 25,
   "maxPages": 1,
   "forceLogin": false,
   "cookie": [],
