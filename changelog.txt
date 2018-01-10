@@ -1,3 +1,13 @@
+v3.0.5
+ - Added optional maxPages setting to allow downloading more than one page of videos.
+
+v3.0.4
+ - Added subcategory for CES (LTT@CES)
+ - Added handling for embedded youtube videos
+ - Added optional forceLogin setting for session issues. This will force login every time the script runs removing the possibility of session errors.
+ - Added support for youtube videos in a post
+ - Fixed videos being ordered in reverse on first download
+
 v3.0.3
  - Fix for cookie not being cleared on invalid session
 
