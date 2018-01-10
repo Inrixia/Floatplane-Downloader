@@ -183,15 +183,13 @@ function findVideos() {
 		  }, function(err, resp, body) {
 			const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
 			console.log('\n==='+channel.name+'===')
-			postArray = $('item').toarray()
-			console.log()
-			postArray.reverse()
-			$('item').each(function(i, elem) { // For every "form post" on this page run the code below
+			var postArray = $('item').toArray().reverse()
+			postArray.forEach(function(element, i) { // For every "form post" on this page run the code below
 				if (i == count) { // Break on max videos parsed
 					return false
 				}
-				thisTitle = $(this).find('title').text() // Set the video title based off the post title
-				$2 = cheerio.load($(this).find('description').text()) // Load the html for the embedded video to parse the video id
+				thisTitle = $(element).find('title').text() // Set the video title based off the post title
+				$2 = cheerio.load($(element).find('description').text()) // Load the html for the embedded video to parse the video id
 				$2('iframe').each(function(iC, elem) { // For each of the embedded videos
 					iN = i + iC // Create a counter that does all videos
 					video_count = $2('iframe').length
@@ -244,7 +242,7 @@ function findVideos() {
 	})
 }
 
-function downloadYoutube(url, title, thisChannel) {
+function downloadYoutube(url, title, thisChannel) { // Download function for youtube videos
 	ytdl(url).pipe(fs.createWriteStream(settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4')).on('finish', function(){ // Save the downloaded video using the title generated
 		file = settings.videoFolder+thisChannel.formatted+'/'+title+'.mp4' // Specifies the folder the video is saved in
 		name = file.replace(/^.*[0-9].- /, '').replace('- ', '').replace('.mp4','')	// Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
