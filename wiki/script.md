@@ -6,6 +6,8 @@ Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your syste
 
 To install using the **[Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)**, make sure you have Node.js installed, download the **[Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)** unzip it into the folder you want the script in and run install.bat. **Then skip to part 3 of this guide**.
 
+**Note:** The Install and Update scripts will always install the newest version. If you want to install a older version you must do so manually.
+
 To install manually continue to read below.
 
 **You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
