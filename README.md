@@ -23,7 +23,7 @@ This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscrip
 #### Links:
  * [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
  * [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
- * [Settings Info](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
+ * [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
 
 I will be maintaining this as I use it.
 
