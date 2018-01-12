@@ -54,6 +54,25 @@ This covers what each setting is and what you can change it to.
 "maxPages": 1
 ```
 
+**maxParallelDownloads:**  
+>Sets the maximum amount of downloads that can run cocurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
+>Note: Using this option can cause issues and is not strictly reccomended.
+>
+>Default: "**-1**"  
+>Example:
+```json 
+"maxParallelDownloads": -1
+```
+
+**downloadArtwork:**  
+>Sets wether the script downloads album artwork images for each video. These are required for nice thumbnails in plex.
+>
+>Default: "**true**"  
+>Example:
+```json 
+"downloadArtwork": true
+```
+
 **forceLogin:**  
 >Forces the script to login every time. For if storing the session is causing errors.
 >
@@ -61,6 +80,48 @@ This covers what each setting is and what you can change it to.
 >Example:
 ```json 
 "forceLogin": true
+```
+
+**downloadUpdateTime:**  
+>Sets the time inbetween download bar updates and saving of partial data to disk. A lower rate may cause flickering on the download bars.
+>
+>Default: "**250**"  
+>Example:
+```json 
+"downloadUpdateTime": 250
+```
+
+**ignoreFolderStructure:**  
+>If true the script will save all videos directly into the videoFolder instead of organising into seperate ones for each subChannel.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"ignoreFolderStructure": false
+```
+
+
+**subChannelIgnore:**  
+>Contains a series of key value pairs that state what subChannels to not download. If a subChannel name has a value of true then all videos from that subChannel will not be downloaded.
+>Note: Using this with a maxVideos any lower than 30 will result in you missing videos!
+>
+>Default:
+```json
+"subChannelIgnore": {
+    "Floatplane Exclusive": false,
+    "Linus Tech Tips": false,
+    "Techquickie": false,
+    "Channel Super Fun": false
+}
+```
+>**Example (Dont download Techquickie videos):**
+```json 
+"subChannelIgnore": {
+    "Floatplane Exclusive": false,
+    "Linus Tech Tips": false,
+    "Techquickie": true,
+    "Channel Super Fun": false
+}
 ```
 
 **cookie:**  

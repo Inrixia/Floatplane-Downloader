@@ -72,6 +72,6 @@ If you want to change any other settings, you can do so now inside the settings.
 
    At this point you should be completely setup and ready to go!  
    To start the script all you need to do is run the **Floatplane.bat** file.  
-   If you want to start the script from console yourself, just use "**node scrape.js**"  
+   If you want to start the script from console yourself, just use "**node float.js**"  
 
 The script will download the videos into the videos folder along with their thumbnails. If you want to setup Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
