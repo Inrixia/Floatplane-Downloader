@@ -11,8 +11,8 @@ function getUpdate() {
 			url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
 		}, function (err, resp, body) {
 			updateInfo = JSON.parse(body)
-			console.log('Now updating to version '+updateInfo.version+'\n\n')
-			request('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/'+updateInfo.version+'.zip').on('error', function (err) {
+			console.log('Now updating to version '+updateInfo.beta+'\n\n')
+			request('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/'+updateInfo.beta+'.zip').on('error', function (err) {
 				console.log(err);
 			}).pipe(fs.createWriteStream("./update.zip")).on('finish', function(){
 				zip = AdmZip("./update.zip")
