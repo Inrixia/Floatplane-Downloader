@@ -82,6 +82,15 @@ This covers what each setting is and what you can change it to.
 "forceLogin": true
 ```
 
+**formatWithEpisodes:**  
+>If false will remove the SxxExx from the name of the videos. Will break plex support!
+>
+>Default: "**true**"  
+>Example:
+```json 
+"forceLogin": false
+```
+
 **downloadUpdateTime:**  
 >Sets the time inbetween download bar updates and saving of partial data to disk. A lower rate may cause flickering on the download bars.
 >
