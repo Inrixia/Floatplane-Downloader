@@ -1,3 +1,28 @@
+v3.6.1
+ - Added maxParallelDownloads allowing you to limit the number of simultaneous downloads
+ - Added downloadArtwork allowing you to disable downloading video pictures
+ - Folders are now created if they dont exist
+ - Added subChannelIgnore to ignore specific subchannels eg Techquickie
+ - A bunch of fixes and tweaks to code
+ - Fully commented new code
+
+v3.6.0
+ - Added resuming partial downloads
+ - Renamed scrape.js to float.js
+
+v3.5.1
+ - Fix for maxVideos<30 downloading inverse.
+ - Added ignoreFolderStructure allowing you to download all videos into one folder
+ - Added downloadUpdateTime allowing you to change the frequency the download bars update
+ - Added formatWithEpisodes allowing you to disable episode numbering in file name
+
+v3.5.0
+ - Rewrote downloading display to better support multiple videos & sexy loading bar.
+
+v3.4.1
+ - Fixed issues with update & install scripts
+ - Fixed MultiPage Downloads incorrectly organising videos
+
 v3.4.0
  - Added install.bat & install.js for easy installs
  - Updated all documentation relating to this
