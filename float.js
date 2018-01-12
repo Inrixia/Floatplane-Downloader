@@ -378,7 +378,7 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 		width: 30,
 		total: 100
 	})
-	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,35), 36) // Set the title for being displayed and limit it to 25 characters
+	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,25), 29) // Set the title for being displayed and limit it to 25 characters
 	progress(request({ // Request to download the video
 		url: url,
 		headers: { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
