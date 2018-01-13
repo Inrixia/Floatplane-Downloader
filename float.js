@@ -12,9 +12,17 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 
+process.on('uncaughtException', function(err) {
+  if (err == "TypeError: Cannot read property '0' of undefined") {
+  	console.log('\u001b[41m Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m')
+  } else {
+  	//console.log(err)
+  	throw err
+  }
+});
+
 const settings = require('./settings.json'); // File containing user settings
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
-
 
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
 	process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
@@ -41,7 +49,7 @@ if (settings.useBitWit == true) {
 }
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
 if (files.length == -1) {
-	console.log('You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...');
+	console.log('\u001b[41m You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
 	process.exit()
 }
 // Set request defaults
@@ -59,9 +67,9 @@ request.get({ // Check if there is a newer version avalible for download
 }, function (err, resp, body) {
 	updateInfo = JSON.parse(body)
 	if(updateInfo.version > settings.version) { // If the script is outdated
-		console.log('New Version Avalible: v'+updateInfo.version+' | Update with update.bat!')
+		console.log('\u001b[33mNew Version Avalible: v'+updateInfo.version+' | Update with update.bat!\u001b[0m')
 	} else if(updateInfo.version < settings.version) { // If the script is a beta version/nonpublic
-		console.log('Ohh, your running a hidden beta! Spooky...')
+		console.log('\u001b[35mOhh, your running a hidden beta! Spooky...\u001b[0m')
 	}
 })
 
@@ -139,14 +147,14 @@ function doLogin() { // Login using the users credentials and save the cookies &
 			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.user + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
 		}, function (error, resp, body) {
 			if (resp.headers['set-cookie']) { // If the server returns cookies then we have probably logged in
-				console.log('Logged In!\n');
+				console.log('\u001b[32mLogged In!\u001b[0m\n');
 				settings.cookies.ips4_device_key = resp.headers['set-cookie'][0]
 				settings.cookies.ips4_member_id = resp.headers['set-cookie'][1]
 				settings.cookies.ips4_login_key = resp.headers['set-cookie'][2]
 				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
 			} else {
 				console.log('\x1Bc');
-				console.log('There was a error while logging in...\n');
+				console.log('\u001b[31mThere was a error while logging in...\u001b[0m\n');
 				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
 			}
 		}, reject)
@@ -173,13 +181,13 @@ function parseKey() { // Get the key used to download videos
 			}
 		}, function (err, resp, body) {
 			if (body.includes('</html>')) { // Check if key is invalid
-				console.log('Invalid Key! Attempting to re-authenticate...');
+				console.log('\u001b[31mInvalid Key! Attempting to re-authenticate...\u001b[0m');
 				settings.cookies.ips4_IPSSessionFront = ''
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
-				console.log('Fetched!\n');
+				console.log('\u001b[36mFetched!\u001b[0m\n');
 				resolve()
 			}
 		});
@@ -187,7 +195,7 @@ function parseKey() { // Get the key used to download videos
 }
 
 function logEpisodeCount(){ // Print out the current number of "episodes" for each subchannel
-	console.log('=== Episode Count ===')
+	console.log('\u001b[33m=== Episode Count ===\u001b[0m')
 	channels.forEach(function(channel){
 		console.log('\n>--'+channel.name)
 		channel.subChannels.forEach(function(subChannel){
@@ -204,7 +212,6 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 
 function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
-		console.log('\n==='+channel.name+'===')
 		for(i=settings.maxPages; i >= 1; i--){ // For each page run this
 			req.get({
 			    url: channel.url+'/?page='+i,
@@ -212,6 +219,7 @@ function findVideos() {
 			        Cookie: settings.cookie
 			    }
 			  }, function(err, resp, body) {
+			  	if(i=settings.maxPages){console.log('\n==='+channel.name+'===')}
 				const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
 				var postArray = $('item').toArray().slice(0, settings.maxVideos).reverse()
 				postArray.forEach(function(element, i) { // For every "form post" on this page run the code below
@@ -245,14 +253,19 @@ function findVideos() {
 						match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
 						rawPath = settings.videoFolder+thisChannel.formatted+'/' // Create the rawPath variable that stores the path to the file
 						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
+						if (!fs.existsSync(settings.videoFolder)) {
+							fs.mkDirSync(settings.videoFolder)
+						}
 						if (!fs.existsSync(rawPath)){ // Check if the path exists
 						    fs.mkdirSync(rawPath); // If not create the folder needed
 						}
-						files = glob.sync(rawPath+'*'+match+"*.mp4") // Check if the video already exists based on the above match
-						partialFiles = glob.sync(rawPath+'*'+match+"*.mp4.part") // Check if the video is partially downloaded
+						// Added replace cases for brackets as they are being interperted as regex and windows escaping is broken for glob
+						files = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
+						partialFiles = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
+
 		  				if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
 		  					return_title = title.replace(/:/g, ' -')
-					        console.log(return_title, '== EXISTS');
+					        console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
 					    } else {
 					    	title = title.replace(/:/g, ' -')
 					    	title = title.replace(thisChannel.replace, titlePrefix)
@@ -260,7 +273,7 @@ function findVideos() {
 							title = title.replace('@CES', ' - CES') // Dirty fix for CES2018 content
 							title = sanitize(title);
 							if(vidID.indexOf('youtube') > -1) { // If its a youtube video then download via youtube
-					    		console.log('>--', title, '== DOWNLOADING [Youtube 720p]');
+					    		console.log('>--', title, '== \u001b[36mDOWNLOADING [Youtube 720p]\u001b[0m');
 								downloadYoutube(vidID, title, thisChannel, rawPath)
 								if(settings.downloadArtwork) {request('https://img.youtube.com/vi/'+ytdl.getVideoID(vidID)+'/hqdefault.jpg').on('error', function (err) { // If we are downloading artwork then download artwork
 									if (err) console.log(err);
@@ -275,10 +288,10 @@ function findVideos() {
 										loadCount -= 1
 									} else {
 										if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-											process.stdout.write('>-- '+title+' == RESUMING DOWNLOAD');
+											process.stdout.write('>-- '+title+' == \u001b[33mRESUMING DOWNLOAD\u001b[0m');
 											resumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Download the video
 										} else { // Otherwise add to queue
-											console.log('>-- '+title+' == RESUME QUEUED');
+											console.log('>-- '+title+' == \u001b[35mRESUME QUEUED\u001b[0m');
 											queueResumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Queue 
 										}
 									}
@@ -287,10 +300,10 @@ function findVideos() {
 									if(settings.downloadArtwork) { request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-										process.stdout.write('>-- '+title+' == DOWNLOADING');
+										process.stdout.write('>-- '+title+' == \u001b[1m\u001b[34mDOWNLOADING\u001b[0m');
 										download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
 									} else { // Otherwise add to queue
-										console.log('>-- '+title+' == QUEUED');
+										console.log('>-- '+title+' == \u001b[35mQUEUED\u001b[0m');
 										queueDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue 
 									}
 							    }
@@ -303,22 +316,22 @@ function findVideos() {
 	})
 }
 
-function queueDownload(url, title, thisChannel, match) { // Loop until current downloads is less than maxParallelDownloads and then download
+function queueDownload(url, title, thisChannel, match, rawPath) { // Loop until current downloads is less than maxParallelDownloads and then download
 	setTimeout(function(){
 		if (liveCount < settings.maxParallelDownloads) {
-			download(url, title, thisChannel, match)
+			download(url, title, thisChannel, match, rawPath)
 		} else {
-			queueDownload(url, title, thisChannel, match) // Run this function again continuing the loop
+			queueDownload(url, title, thisChannel, match, rawPath) // Run this function again continuing the loop
 		}
 	}, 500)
 }
 
-function queueResumeDownload(url, title, thisChannel, match) { // Loop until current downloads is less than maxParallelDownloads and then download
+function queueResumeDownload(url, title, thisChannel, match, rawPath) { // Loop until current downloads is less than maxParallelDownloads and then download
 	setTimeout(function(){
 		if (liveCount < settings.maxParallelDownloads) {
-			resumeDownload(url, title, thisChannel, match)
+			resumeDownload(url, title, thisChannel, match, rawPath)
 		} else {
-			queueResumeDownload(url, title, thisChannel, match) // Run this function again continuing the loop
+			queueResumeDownload(url, title, thisChannel, match, rawPath) // Run this function again continuing the loop
 		}
 	}, 500)
 }
@@ -360,7 +373,7 @@ function download(url, title, thisChannel, match, rawPath) { // The main downloa
 		loadCount -= 1 // Reduce loadCount and liveCount by 1
 		liveCount -= 1
 	}).pipe(fs.createWriteStream(rawPath+title+'.mp4.part')).on('finish', function(){ // Save the downloaded video using the title generated
-		fs.rename(rawPath+title+'.mp4.part', rawPath+title+'.mp4'); // Rename the .part file to a .mp4 file
+		fs.rename(rawPath+title+'.mp4.part', rawPath+title+'.mp4', function(){}); // Rename the .part file to a .mp4 file
 		delete partial_data[match] // Remove this videos partial data
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
@@ -378,7 +391,7 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 		width: 30,
 		total: 100
 	})
-	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,25), 29) // Set the title for being displayed and limit it to 25 characters
+	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,35), 36) // Set the title for being displayed and limit it to 25 characters
 	progress(request({ // Request to download the video
 		url: url,
 		headers: { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
@@ -402,8 +415,7 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 		liveCount -= 1
 	// Write out the file to the partial file previously saved. But write with read+ and set the starting byte number (Where to start wiriting to the file from) to the previous amount transferred
 	}).pipe(fs.createWriteStream(rawPath+title+'.mp4.part', {start: partial_data[match].transferred, flags: 'r+'})).on('finish', function(){ // When done writing out the file
-		console.log(rawPath)
-		fs.rename(rawPath+title+'.mp4.part', rawPath+title+'.mp4'); // Rename it without .part
+		fs.rename(rawPath+title+'.mp4.part', rawPath+title+'.mp4', function(){}); // Rename it without .part
 		delete partial_data[match] // Remove its partial data
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
@@ -415,13 +427,16 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 function ffmpegFormat(file, name, file2, recover) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
     	//console.log('An error occurred: ' + err.message, err, stderr); // Log errors for now, recover is broke af
-    	if (recover.match && err) { // If there is a error and its not a youtube video then try redownload the file
+    	setTimeout(function(){ // If the formatting fails, wait a second and try again
+    		if(err){ffmpegFormat(file, name, file2)}
+    	}, 1000)
+		/*if (recover.match && err) { // If there is a error and its not a youtube video then try redownload the file
     		download(recover.url, recover.title, recover.thisChannel, recover.match)
     	} else if(err) { // If it is a youtube video then just do nothing because somethings broken atm
     		downloadYoutube(recover.url, recover.title, recover.thisChannel)
-    	}
+    	}*/
 	}).on('end', function() { // Save the title in metadata
-		fs.rename(file2, file)
+		fs.rename(file2, file, function(){})
 	})
 }
 
