@@ -1,3 +1,10 @@
+v3.6.2
+ - Added coloured console printouts
+ - Fixed ffmpeg failing
+ - Fixed depricatedCallback error
+ - Fixed BitWit Ultra redownloading videos with a specific set of characters
+ - Fixed episodes names not being printed under the proper main channel
+
 v3.6.1
  - Added maxParallelDownloads allowing you to limit the number of simultaneous downloads
  - Added downloadArtwork allowing you to disable downloading video pictures
