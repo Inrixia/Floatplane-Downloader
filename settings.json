@@ -9,6 +9,7 @@
   "downloadArtwork": true,
   "forceLogin": false,
   "formatWithEpisodes": true,
+  "formatWithDate": true,
   "downloadUpdateTime": 250,
   "ignoreFolderStructure": false,
   "subChannelIgnore": {
