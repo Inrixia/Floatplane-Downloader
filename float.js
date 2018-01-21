@@ -227,6 +227,9 @@ function findVideos() {
 						return false
 					}
 					thisTitle = $(element).find('title').text() // Set the video title based off the post title
+					
+					dateTime = $(this).find('pubDate').text() //Set the video date based off the pubdate
+					dateTime = " - " + new Date(dateTime).toISOString().substring(0,10) //make it nice
 					$2 = cheerio.load($(element).find('description').text()) // Load the html for the embedded video to parse the video id
 					$2('iframe').each(function(iC, elem) { // For each of the embedded videos
 						iN = i + iC // Create a counter that does all videos
@@ -245,8 +248,10 @@ function findVideos() {
 							}
 						});
 						if (settings.subChannelIgnore[thisChannel.formatted]) {return false} // If this video is part of a subChannel we are ignoring then break
-						titlePrefix = thisChannel.formatted+' - S01E'+(thisChannel.episode_number + thisChannel.extra)
-						if (settings.formatWithEpisodes == false) { titlePrefix = thisChannel.formatted } // If we arent formatting with episode numbers then remove episode numbers
+						titlePrefix = thisChannel.formatted
+						if (settings.formatWithEpisodes == true) { titlePrefix = titlePrefix + ' - S01E'+(thisChannel.episode_number) } // add Episode Number
+						if (settings.formatWithDate == true) { titlePrefix = titlePrefix + dateTime } //add the upload date to the filename
+						titlePrefix = titlePrefix  + thisChannel.extra;
 						match = match.replace(thisChannel.replace, '') // Format its title based on the subchannel
 						match = match.replace('@CES', '') // Dirty fix for CES2018 content
 						match = sanitize(match);
@@ -444,4 +449,29 @@ function saveData() { // Function for saving partial data, just writes out the v
 	fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
     	if (err) console.log(err)
 	});
+}
+
+function getDateTime() {
+
+    var date = new Date();
+
+    var hour = date.getHours();
+    hour = (hour < 10 ? "0" : "") + hour;
+
+    var min  = date.getMinutes();
+    min = (min < 10 ? "0" : "") + min;
+
+    var sec  = date.getSeconds();
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var year = date.getFullYear();
+
+    var month = date.getMonth() + 1;
+    month = (month < 10 ? "0" : "") + month;
+
+    var day  = date.getDate();
+    day = (day < 10 ? "0" : "") + day;
+
+    return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
+
 }
