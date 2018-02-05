@@ -171,7 +171,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 >Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
 >
 >Default: "**false**"  
->Examples:
+>Examples:  
 Repeats every 2 minutes:
 ```json 
 "repeatScript": "2m"
