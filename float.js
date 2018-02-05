@@ -11,6 +11,7 @@ const Multiprogress = require("multi-progress");
 const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
+const spawn = require('child_process').spawn;
 
 /*
 process.on('uncaughtException', function(err) {
@@ -48,7 +49,8 @@ var progressStates = [];
 var barArray = [];
 var loadCount = -1;
 var liveCount = 0;
-var channels = []
+var channels = [];
+var updatePlex = false;
 if (settings.useFloatplane == true){ // Create the array containing the details for each Channel and its SubChannels
 	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
 		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': new RegExp('.*FP.*-'), 'episode_number': 0, 'extra': ' -'},
@@ -303,6 +305,7 @@ function findVideos() {
             if (!fs.existsSync(rawPath)){ // Check if the first path exists
 						    fs.mkdirSync(rawPath); // If not create the folder needed
 						}
+            var seasonNumber = '01'
             if(settings.monthsAsSeasons) {
               var date = new Date(dateTime)
               if(date.getMonth() < 10) {
@@ -337,6 +340,7 @@ function findVideos() {
 		  				return_title = title.replace(/:/g, ' -')
 					    console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
 					  } else {
+              updatePlex = true
 					    title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
 							thisChannel.episode_number += 1 // Increment the episode number for this subChannel
 							title = title.replace('@CES ', ' @CES ') // Dirty fix for CES2018 content
@@ -366,18 +370,18 @@ function findVideos() {
 									}
 						    	}
 							    if (partialFiles.length <= 0){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-									if(settings.downloadArtwork) { request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
-									loadCount += 1
-									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-										process.stdout.write('>-- '+title+' == \u001b[1m\u001b[34mDOWNLOADING\u001b[0m');
-										download(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
-									} else { // Otherwise add to queue
-										console.log('>-- '+title+' == \u001b[35mQUEUED\u001b[0m');
-										queueDownload(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue
+  									if(settings.downloadArtwork) { request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+  									loadCount += 1
+  									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
+  										process.stdout.write('>-- '+title+' == \u001b[1m\u001b[34mDOWNLOADING\u001b[0m');
+  										download(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
+  									} else { // Otherwise add to queue
+  										console.log('>-- '+title+' == \u001b[35mQUEUED\u001b[0m');
+  										queueDownload(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue
+										}
 									}
-							    }
+								}
 							}
-					    }
 					})
 				})
 			});
@@ -495,16 +499,13 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 
 function ffmpegFormat(file, name, file2, recover) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
-    	//console.log('An error occurred: ' + err.message, err, stderr); // Log errors for now, recover is broke af
     	setTimeout(function(){ // If the formatting fails, wait a second and try again
     		if(err){ffmpegFormat(file, name, file2)}
     	}, 1000)
-		/*if (recover.match && err) { // If there is a error and its not a youtube video then try redownload the file
-    		download(recover.url, recover.title, recover.thisChannel, recover.match)
-    	} else if(err) { // If it is a youtube video then just do nothing because somethings broken atm
-    		downloadYoutube(recover.url, recover.title, recover.thisChannel)
-    	}*/
 	}).on('end', function() { // Save the title in metadata
+		if(loadCount == -1 && settings.plexScannerInstall != false) {
+			spawn(settings.plexScannerInstall,  ['--scan', '--refresh', '--force', '--section', settings.plexSection]);
+		}
 		fs.rename(file2, file, function(){})
 	})
 }

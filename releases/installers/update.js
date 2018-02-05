@@ -51,6 +51,8 @@ function updateSettings(){
 		if(settings.repeatScript != null) {newSettings.repeatScript = settings.repeatScript}
 		if(settings.yearsAsSeasons != null) {newSettings.yearsAsSeasons = settings.yearsAsSeasons}
 		if(settings.monthsAsSeasons != null) {newSettings.monthsAsSeasons = settings.monthsAsSeasons}
+		if(settings.plexScannerInstall != null) {newSettings.plexScannerInstall = settings.plexScannerInstall}
+		if(settings.plexSection != null) {newSettings.plexSection = settings.plexSection}
 		if(settings["Floatplane Exclusive"] != null) {newSettings["Floatplane Exclusive"] = settings["Floatplane Exclusive"]}
 		if(settings["Linus Tech Tips"] != null) {newSettings["Linus Tech Tips"] = settings["Linus Tech Tips"]}
 		if(settings["Techquickie"] != null) {newSettings["Techquickie"] = settings["Techquickie"]}

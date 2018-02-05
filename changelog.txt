@@ -1,5 +1,3 @@
-autorun, proper plex metadata update for single video
-
 v3.7.0
  - Note: For info on new settings go to the github wiki
  - Added check and fix for invalid partial.json error.
@@ -19,6 +17,9 @@ v3.7.0
  - Added "repeatScript" setting
  - Fixed bug with reusing session data introduced in v3.1.0, Should remove the need to use forceLogin now
  - Updated Update.js for new settings
+ - Added "plexSection" setting
+ - Added "plexScannerInstall" setting
+ - Integrated plex library updates into the script, see settings wiki for more info
 
 
 v3.6.2
