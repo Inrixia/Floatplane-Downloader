@@ -61,10 +61,10 @@ To install manually continue to read below.
 If you want to change any other settings, you can do so now inside the settings.json file. More info on settings can be found here: **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**
 
 6. **Plex Update:**
+
+   If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can add this code to the bottom of the **Floatplane.bat** file.
    
    This is now integrated into the script and can be enabled under the settings. Read the **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)** for more info.
-
-   ~~If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can add this code to the bottom of the **Floatplane.bat** file.~~
 
    ~~```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --force --section 20```~~
 
