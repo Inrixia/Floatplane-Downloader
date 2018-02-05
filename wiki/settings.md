@@ -1,6 +1,8 @@
 # settings.json Info
 ---
-This covers what each setting is and what you can change it to. Note that "max" type settings apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
+This covers what each setting is and what you can change it to. 
+
+Note that "max" type settings apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
 [![https://gyazo.com/b33b198af7ea1bd2c07e58af973e12c2](https://i.gyazo.com/b33b198af7ea1bd2c07e58af973e12c2.png)](https://gyazo.com/b33b198af7ea1bd2c07e58af973e12c2)
 
 **version:**  
