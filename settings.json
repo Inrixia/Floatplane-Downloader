@@ -23,6 +23,7 @@
     "ips4_login_key": "",
     "ips4_device_key": "",
     "ips4_member_id": ""  },
+  "floatplaneServer": "https://Edge02-na.floatplaneclub.com:443",
   "video_res": 1080,
   "user": "",
   "password": "",

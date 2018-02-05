@@ -269,7 +269,8 @@ function findVideos() {
 						titlePrefix = thisChannel.formatted+' - S01E'+(thisChannel.episode_number + thisChannel.extra)
 						if (settings.formatWithEpisodes == false) { titlePrefix = thisChannel.formatted } // If we arent formatting with episode numbers then remove episode numbers
 						match = match.replace(thisChannel.replace, '') // Format its title based on the subchannel
-						match = match.replace('@CES', '') // Dirty fix for CES2018 content
+						match = match.replace('@CES', ' @CES') // Dirty fix for CES2018 content
+            match = match.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
 						match = sanitize(match);
 						match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
 						rawPath = settings.videoFolder+thisChannel.formatted+'/' // Create the rawPath variable that stores the path to the file
@@ -281,17 +282,15 @@ function findVideos() {
 						    fs.mkdirSync(rawPath); // If not create the folder needed
 						}
 						// Added replace cases for brackets as they are being interperted as regex and windows escaping is broken for glob
-						files = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
-						partialFiles = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
-
-		  				if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
-		  					return_title = title.replace(/:/g, ' -')
-					        console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
-					    } else {
-					    	title = title.replace(/:/g, ' -')
-					    	title = title.replace(thisChannel.replace, titlePrefix)
+						files = glob.sync(rawPath+'*'+match+"*.mp4") // Check if the video already exists based on the above match
+						partialFiles = glob.sync(rawPath+'*'+match+"*.mp4.part") // Check if the video is partially downloaded
+		  			if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
+		  				return_title = title.replace(/:/g, ' -')
+					    console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
+					  } else {
+					    title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
 							thisChannel.episode_number += 1 // Increment the episode number for this subChannel
-							title = title.replace('@CES', ' - CES') // Dirty fix for CES2018 content
+							title = title.replace('@CES ', ' @CES ') // Dirty fix for CES2018 content
 							title = sanitize(title);
 							if(vidID.indexOf('youtube') > -1) { // If its a youtube video then download via youtube
 					    		console.log('>--', title, '== \u001b[36mDOWNLOADING [Youtube 720p]\u001b[0m');
@@ -310,10 +309,10 @@ function findVideos() {
 									} else {
 										if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
 											process.stdout.write('>-- '+title+' == \u001b[33mRESUMING DOWNLOAD\u001b[0m');
-											resumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Download the video
+											resumeDownload(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Download the video
 										} else { // Otherwise add to queue
 											console.log('>-- '+title+' == \u001b[35mRESUME QUEUED\u001b[0m');
-											queueResumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Queue
+											queueResumeDownload(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Queue
 										}
 									}
 						    	}
@@ -322,10 +321,10 @@ function findVideos() {
 									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
 										process.stdout.write('>-- '+title+' == \u001b[1m\u001b[34mDOWNLOADING\u001b[0m');
-										download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
+										download(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
 									} else { // Otherwise add to queue
 										console.log('>-- '+title+' == \u001b[35mQUEUED\u001b[0m');
-										queueDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue
+										queueDownload(settings.floatplaneServer+'/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue
 									}
 							    }
 							}
