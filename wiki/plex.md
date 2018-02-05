@@ -23,6 +23,8 @@ Make sure you have Preview Thumbnails unticked or it wont use the proper Thumnai
 
 3. **Fix "Season 1" to show "LTT" or "TQ" etc, (Optional):**
 
+   **Note: This is pointless if you are using the settings "yearsAsSeasons": true, or "monthsAsSeasons": true, as with these the season will be the Year/Year+Month.**
+
    >Each LMG channel is listed as a Series with one season. Though we hid the seasons so that we can just go straight to the videos. However when looking at a "episode" plex will display this up the top:
    >[![https://gyazo.com/8b4513ea88e842581bf0b81586e9426d](https://i.gyazo.com/8b4513ea88e842581bf0b81586e9426d.png)](https://gyazo.com/8b4513ea88e842581bf0b81586e9426d)
 
