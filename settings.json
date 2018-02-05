@@ -21,8 +21,6 @@
     "Channel Super Fun": false
   },
   "repeatScript": "false",
-  "plexSection": 20,
-  "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe",
   "cookie": [],
   "cookies": {
 	"ips4_IPSSessionFront": "",
