@@ -100,7 +100,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 >Example:
 >"Linus Tech Tips - S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
 ```json 
-"formatWithDates": false
+"formatWithDate": false
 ```
 
 **downloadUpdateTime:**  
@@ -170,16 +170,19 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 >xUnits, where x is a number, and Units is the type
 >Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
 >
->Default: "**"false"**"  
+>Default: "**false**"  
 >Examples:
+Repeats every 2 minutes:
 ```json 
-"repeatScript": "2m" // Repeats every 2 minutes
+"repeatScript": "2m"
 ```
+Repeats every hour:
 ```json 
-"repeatScript": "1h" // Repeats every 1 hour
+"repeatScript": "1h"
 ```
+Repeats every day:
 ```json 
-"repeatScript": "1d" // Repeats every day
+"repeatScript": "1d"
 ```
 
 **cookie:**  
@@ -210,19 +213,19 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 **plexScannerInstall:**  
 >This only needs to be changed if plex is not installed to the default path or if your on linux. This defines where the scanner program for updating plex videos is located.
 >
->Default: "**"C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"**"  
+>Default: "**C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe**"
 >Example:
 ```json 
-"plexSection": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+"plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
 ```
 
 **floatplaneServer:**  
 >This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then rightclick the download button and copy the url. That url should start with the server that floatplane gives you by default.
 >
->Default: "**"https://Edge02-na.floatplaneclub.com:443"**"  
+>Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
 >Example:
 ```json 
-"plexSection": "https://Edge01-na.floatplaneclub.com:443" // For NA there are two at the moment Edge01-na & Edge02-na
+"floatplaneServer": "https://Edge01-na.floatplaneclub.com:443"
 ```
 
 **video_res:**  
