@@ -1,6 +1,6 @@
 # settings.json Info
 ---
-This covers what each setting is and what you can change it to. Note that max settings only apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
+This covers what each setting is and what you can change it to. Note that max settings applies seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
 [![https://gyazo.com/1e2a134c7780fb4f1ba84a62884477f4](https://i.gyazo.com/1e2a134c7780fb4f1ba84a62884477f4.png)](https://gyazo.com/1e2a134c7780fb4f1ba84a62884477f4)
 
 **version:**  
@@ -31,7 +31,7 @@ This covers what each setting is and what you can change it to. Note that max se
 >Default: "**false**"  
 >Example:
 ```json 
-"useBitWit": true
+"useBitWit": false
 ```
 
 **maxVideos:**  
@@ -74,12 +74,12 @@ This covers what each setting is and what you can change it to. Note that max se
 ```
 
 **forceLogin:**  
->Forces the script to login every time. For if storing the session is causing errors.
+>Forces the script to login every time. For if storing the session is causing errors. No longer really needed after v3.7.0
 >
 >Default: "**false**"  
 >Example:
 ```json 
-"forceLogin": true
+"forceLogin": false
 ```
 
 **formatWithEpisodes:**  
@@ -88,7 +88,17 @@ This covers what each setting is and what you can change it to. Note that max se
 >Default: "**true**"  
 >Example:
 ```json 
-"forceLogin": false
+"formatWithEpisodes": true
+```
+
+**formatWithDate:**  
+>If true will add the date the video was published to the filename. This might break plex ordering, so use at your own risk.
+>
+>Default: "**false**"  
+>Example:
+>"Linus Tech Tips - S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
+```json 
+"formatWithDates": false
 ```
 
 **downloadUpdateTime:**  
@@ -107,6 +117,26 @@ This covers what each setting is and what you can change it to. Note that max se
 >Example:
 ```json 
 "ignoreFolderStructure": false
+```
+
+**yearsAsSeasons:**  
+>If true the script will save all videos into a season folder based on the year they were released. This will cause plex to show a season for each year.
+>
+>Default: "**false**"  
+>Example:
+>"\Videos\Linus Tech Tips\2017\VideoTitle.mp4"
+```json 
+"yearsAsSeasons": false
+```
+
+**monthsAsSeasons:**  
+>If true the script will save all videos into a season folder based on the month+year they were released. This will cause plex to show a season for each month.
+>
+>Default: "**false**"  
+>Example:
+>"\Videos\Linus Tech Tips\201701\VideoTitle.mp4" (If the month is January)
+```json 
+"monthsAsSeasons": false
 ```
 
 
@@ -133,6 +163,23 @@ This covers what each setting is and what you can change it to. Note that max se
 }
 ```
 
+**repeatScript:**  
+>This lets you have the script auto run at a specific interval. The default is false which disables this functionality, otherwise you can set it to the following format:
+>xUnits, where x is a number, and Units is the type
+>Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
+>
+>Default: "**"false"**"  
+>Examples:
+```json 
+"repeatScript": "2m" // Repeats every 2 minutes
+```
+```json 
+"repeatScript": "1h" // Repeats every 1 hour
+```
+```json 
+"repeatScript": "1d" // Repeats every day
+```
+
 **cookie:**  
 >Variable used in the script to combine all the cookies for use. Ignore this.
 
@@ -147,6 +194,33 @@ This covers what each setting is and what you can change it to. Note that max se
     "ips4_member_id": "ips4_member_id=145544;",
     "ips4_login_key": "ips4_login_key=sdukhsdf56sdfjku4hfsdf6sdhjkhjkdf;"
 }
+```
+
+**plexSection:**  
+>This is the plex section id your videos are stored in for auto updating the secion when new videos are downloaded. You can find the plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on plex.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"plexSection": 20
+```
+
+**plexScannerInstall:**  
+>This only needs to be changed if plex is not installed to the default path or if your on linux. This defines where the scanner program for updating plex videos is located.
+>
+>Default: "**"C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"**"  
+>Example:
+```json 
+"plexSection": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+```
+
+**floatplaneServer:**  
+>This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then rightclick the download button and copy the url. That url should start with the server that floatplane gives you by default.
+>
+>Default: "**"https://Edge02-na.floatplaneclub.com:443"**"  
+>Example:
+```json 
+"plexSection": "https://Edge01-na.floatplaneclub.com:443" // For NA there are two at the moment Edge01-na & Edge02-na
 ```
 
 **video_res:**  
