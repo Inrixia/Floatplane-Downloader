@@ -212,7 +212,7 @@ function parseKey() { // Get the key used to download videos
 }
 
 function logEpisodeCount(){ // Print out the current number of "episodes" for each subchannel
-	console.log('\u001b[33m=== Episode Count ===\u001b[0m')
+	console.log('=== \u001b[95mEpisode Count\u001b[0m ===')
 	channels.forEach(function(channel){
 		console.log('\n>--'+channel.name)
 		channel.subChannels.forEach(function(subChannel){
@@ -231,12 +231,16 @@ function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
 		for(i=settings.maxPages; i >= 1; i--){ // For each page run this
 			req.get({
-			    url: channel.url+'/?page='+i,
-			    headers: {
-			        Cookie: settings.cookie
-			    }
-			  }, function(err, resp, body) {
-			  	if(i=settings.maxPages){console.log('\n==='+channel.name+'===')}
+			  url: channel.url+'/?page='+i,
+			  headers: {
+			    Cookie: settings.cookie
+			  }
+			}, function(err, resp, body) {
+        if(settings.maxPages > 1) {
+          console.log('\n===\u001b[96m'+channel.name+'\u001b[0m - \u001b[95mPage '+resp.request.uri.query.slice(-1)+'\u001b[0m===')
+        } else {
+          console.log('\n===\u001b[96m'+channel.name+'\u001b[0m===')
+        }
 				const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
 				var postArray = $('item').toArray().slice(0, settings.maxVideos).reverse()
 				postArray.forEach(function(element, i) { // For every "form post" on this page run the code below
