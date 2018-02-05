@@ -12,6 +12,7 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 
+/*
 process.on('uncaughtException', function(err) {
   if (err == "TypeError: Cannot read property '0' of undefined") {
   	console.log('\u001b[41mERROR> Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m')
@@ -33,6 +34,7 @@ process.on('uncaughtException', function(err) {
   	throw err
   }
 });
+*/
 
 const settings = require('./settings.json'); // File containing user settings
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
@@ -86,13 +88,39 @@ request.get({ // Check if there is a newer version avalible for download
 	}
 })
 
-start()
+if(settings.repeatScript != false && settings.repeatScript != 'false') {
+  var multipliers = {
+    "s": 1,
+    'm': 60,
+    'h': 3600,
+    'd': 86400,
+    'w': 604800
+  }
+  var countDown = settings.repeatScript.slice(0, -1)*multiplier
+  var time = settings.repeatScript.slice(0,-1)
+  var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()]
+  console.log('\u001b[41mRepeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.\u001b[0m');
+  start();
+  setInterval(() => {
+    start();
+  }, settings.repeatScript.slice(0, -1)*multiplier*1000);
+  setInterval(() => {
+    console.log(countDown+' Seconds until script restarts...');
+    if(countDown > 0) {
+      countDown--
+    } else {
+      countDown = settings.repeatScript.slice(0, -1)*multiplier
+    }
+  }, 1000);
+} else {
+  start();
+}
 
 function start() {
   if (settings.forceLogin) { // Check if we are forcing login or not and run stuff accordingly
-    getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+    getSession().then(doLogin).then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
   } else {
-    checkAuth().then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+    checkAuth().then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
   }
 }
 
@@ -143,7 +171,7 @@ function getSession() { // Go to the LTT homepage to get a session key
 	return new Promise((resolve, reject) => {
 		req.get({ // Generate the key used to download videos
 			url: 'https://linustechtips.com/',
-			'content-type': 'application/x-www-form-urlencoded'
+			'content-type': 'application/x-www-form-urlencoded',
 		}, function (error, resp, body) {
 			settings.cookies.ips4_IPSSessionFront = resp.headers["set-cookie"][0];
 			settings.csrfKey = body.split("csrfKey=")[1].split("'")[0];
@@ -248,9 +276,8 @@ function findVideos() {
 						return false
 					}
 					thisTitle = $(element).find('title').text() // Set the video title based off the post title
-					
-					dateTime = $(this).find('pubDate').text() //Set the video date based off the pubdate
-					dateTime = " - " + new Date(dateTime).toISOString().substring(0,10) //make it nice
+					dateTime = $(element).find('pubDate').text() // Set the video date based off the publish date
+					dateTime = " - " + new Date(dateTime).toISOString().substring(0,10) // Make it nice
 					$2 = cheerio.load($(element).find('description').text()) // Load the html for the embedded video to parse the video id
 					$2('iframe').each(function(iC, elem) { // For each of the embedded videos
 						iN = i + iC // Create a counter that does all videos
@@ -268,24 +295,41 @@ function findVideos() {
 								thisChannel = subChannel
 							}
 						});
+            rawPath = settings.videoFolder+thisChannel.formatted+'/' // Create the rawPath variable that stores the path to the file
+						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
+            if (!fs.existsSync(settings.videoFolder)) {
+              fs.mkdirSync(settings.videoFolder)
+            }
+            if (!fs.existsSync(rawPath)){ // Check if the first path exists
+						    fs.mkdirSync(rawPath); // If not create the folder needed
+						}
+            if(settings.monthsAsSeasons) {
+              var date = new Date(dateTime)
+              if(date.getMonth() < 10) {
+                var seasonNumber = date.getFullYear()+'0'+date.getMonth()
+                rawPath = rawPath + seasonNumber+'/'
+              } else {
+                var seasonNumber = date.getFullYear()+date.getMonth()
+                rawPath = rawPath + seasonNumber+'/'
+              }
+            } else if(settings.yearsAsSeasons) {
+              var date = new Date(dateTime)
+              var seasonNumber = date.getFullYear()
+              rawPath = rawPath + date.getFullYear()+'/'
+            }
+						if (!fs.existsSync(rawPath)){ // Check if the new path exists
+						    fs.mkdirSync(rawPath); // If not create the folder needed
+						}
 						if (settings.subChannelIgnore[thisChannel.formatted]) {return false} // If this video is part of a subChannel we are ignoring then break
 						titlePrefix = thisChannel.formatted
-						if (settings.formatWithEpisodes == true) { titlePrefix = titlePrefix + ' - S01E'+(thisChannel.episode_number) } // add Episode Number
-						if (settings.formatWithDate == true) { titlePrefix = titlePrefix + dateTime } //add the upload date to the filename
+						if (settings.formatWithEpisodes == true) { titlePrefix = titlePrefix + ' - S'+seasonNumber+'E'+(thisChannel.episode_number) } // add Episode Number
+						if (settings.formatWithDate == true) { titlePrefix = titlePrefix + dateTime } // Add the upload date to the filename
 						titlePrefix = titlePrefix  + thisChannel.extra;
 						match = match.replace(thisChannel.replace, '') // Format its title based on the subchannel
 						match = match.replace('@CES', ' @CES') // Dirty fix for CES2018 content
             match = match.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
 						match = sanitize(match);
 						match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
-						rawPath = settings.videoFolder+thisChannel.formatted+'/' // Create the rawPath variable that stores the path to the file
-						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
-						if (!fs.existsSync(settings.videoFolder)) {
-							fs.mkDirSync(settings.videoFolder)
-						}
-						if (!fs.existsSync(rawPath)){ // Check if the path exists
-						    fs.mkdirSync(rawPath); // If not create the folder needed
-						}
 						// Added replace cases for brackets as they are being interperted as regex and windows escaping is broken for glob
 						files = glob.sync(rawPath+'*'+match+"*.mp4") // Check if the video already exists based on the above match
 						partialFiles = glob.sync(rawPath+'*'+match+"*.mp4.part") // Check if the video is partially downloaded
@@ -469,29 +513,4 @@ function saveData() { // Function for saving partial data, just writes out the v
 	fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
     	if (err) console.log(err)
 	});
-}
-
-function getDateTime() {
-
-    var date = new Date();
-
-    var hour = date.getHours();
-    hour = (hour < 10 ? "0" : "") + hour;
-
-    var min  = date.getMinutes();
-    min = (min < 10 ? "0" : "") + min;
-
-    var sec  = date.getSeconds();
-    sec = (sec < 10 ? "0" : "") + sec;
-
-    var year = date.getFullYear();
-
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-
-    return year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec;
-
 }

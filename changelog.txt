@@ -1,3 +1,26 @@
+autorun, proper plex metadata update for single video
+
+v3.7.0
+ - Note: For info on new settings go to the github wiki
+ - Added check and fix for invalid partial.json error.
+ - Fixed Update.js for properly keeping settings from older versions and for updating from versions where settings dont exist
+ - Added some more colours
+ - Added page count when "maxPages" is larger than 1
+ - Fixed episode naming for plex sorting with dashes
+ - Changed default floatplaneServer to use Edge02-na.floatplaneclub.com vs Edge01-na.floatplaneclub.com (Seems to perform better)
+ - Added "floatplaneServer" setting
+ - Added "niceErrors" setting
+ - Added "formatWithDate" setting
+ - Fixed a issue with creating missing directories
+ - Added ability to sort episodes by Year or Month in plex as a fake season. Read updated plex guide for info
+ - Added "yearsAsSeasons" setting
+ - Added "monthsAsSeasons" setting
+ - Added ability to have the script auto repeat every x seconds, minutes, hours, days or weeks
+ - Added "repeatScript" setting
+ - Fixed bug with reusing session data introduced in v3.1.0, Should remove the need to use forceLogin now
+ - Updated Update.js for new settings
+
+
 v3.6.2
  - Added coloured console printouts
  - Fixed ffmpeg failing

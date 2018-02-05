@@ -47,6 +47,10 @@ function updateSettings(){
 		if(settings.user != null) {newSettings.user = settings.user}
 		if(settings.password != null) {newSettings.password = settings.password}
 		if(settings.floatplaneServer != null) {newSettings.floatplaneServer = settings.floatplaneServer}
+		if(settings.formatWithDate != null) {newSettings.formatWithDate = settings.formatWithDate}
+		if(settings.repeatScript != null) {newSettings.repeatScript = settings.repeatScript}
+		if(settings.yearsAsSeasons != null) {newSettings.yearsAsSeasons = settings.yearsAsSeasons}
+		if(settings.monthsAsSeasons != null) {newSettings.monthsAsSeasons = settings.monthsAsSeasons}
 		if(settings["Floatplane Exclusive"] != null) {newSettings["Floatplane Exclusive"] = settings["Floatplane Exclusive"]}
 		if(settings["Linus Tech Tips"] != null) {newSettings["Linus Tech Tips"] = settings["Linus Tech Tips"]}
 		if(settings["Techquickie"] != null) {newSettings["Techquickie"] = settings["Techquickie"]}

@@ -9,15 +9,18 @@
   "downloadArtwork": true,
   "forceLogin": false,
   "formatWithEpisodes": true,
-  "formatWithDate": true,
+  "formatWithDate": false,
   "downloadUpdateTime": 250,
   "ignoreFolderStructure": false,
+  "yearsAsSeasons": false,
+  "monthsAsSeasons": false,
   "subChannelIgnore": {
     "Floatplane Exclusive": false,
     "Linus Tech Tips": false,
     "Techquickie": false,
     "Channel Super Fun": false
   },
+  "repeatScript": "false",
   "cookie": [],
   "cookies": {
 	"ips4_IPSSessionFront": "",
