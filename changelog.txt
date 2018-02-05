@@ -20,6 +20,7 @@ v3.7.0
  - Added "plexSection" setting
  - Added "plexScannerInstall" setting
  - Integrated plex library updates into the script, see settings wiki for more info
+ - Commented all new code
 
 
 v3.6.2

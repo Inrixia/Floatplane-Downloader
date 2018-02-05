@@ -12,16 +12,16 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 const spawn = require('child_process').spawn;
+const AdmZip = require('adm-zip');
 
-/*
-process.on('uncaughtException', function(err) {
-  if (err == "TypeError: Cannot read property '0' of undefined") {
-  	console.log('\u001b[41mERROR> Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m')
+process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
+  if (err == "TypeError: Cannot read property '0' of undefined") { // If this error
+  	console.log('\u001b[41mERROR> Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m') // Then print out what the user should do
   } if (err == "ReferenceError: thisChannel is not defined") {
   	console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
-  } if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) {
+  } if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
     console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
-    fs.writeFile("./partial.json", '{}', 'utf8', function (error) {
+    fs.writeFile("./partial.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
         if (error) {
             console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
             process.exit()
@@ -35,7 +35,6 @@ process.on('uncaughtException', function(err) {
   	throw err
   }
 });
-*/
 
 const settings = require('./settings.json'); // File containing user settings
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
@@ -45,12 +44,10 @@ if(process.platform === 'win32'){ // If not using windows attempt to use linux f
 } else {
 	process.env.FFMPEG_PATH = "/usr/bin/ffmpeg"
 }
-var progressStates = [];
-var barArray = [];
-var loadCount = -1;
-var liveCount = 0;
-var channels = [];
-var updatePlex = false;
+var loadCount = -1; // Number of videos currently queued/downloading
+var liveCount = 0; // Number of videos actually downloading
+var channels = []; // Main array for storing all the channel info
+var updatePlex = false; // Defaults to false, and should stay false. This is automatically set to true when the last video is downloaded
 if (settings.useFloatplane == true){ // Create the array containing the details for each Channel and its SubChannels
 	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
 		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': new RegExp('.*FP.*-'), 'episode_number': 0, 'extra': ' -'},
@@ -77,8 +74,7 @@ req = request.defaults({
 
 // Finish Init, Sart Script
 
-// Check that the user is authenticated, then construct cookies, get the video key, log the current episodes and finally check for new videos
-// The below line triggers the main functions of the script
+// Firstly check if there is a new version and notify the user
 request.get({ // Check if there is a newer version avalible for download
 	url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
 }, function (err, resp, body) {
@@ -90,38 +86,44 @@ request.get({ // Check if there is a newer version avalible for download
 	}
 })
 
+// Check if repeating the script is enabled in settings, if not then skip to starting the script
 if(settings.repeatScript != false && settings.repeatScript != 'false') {
-  var multipliers = {
+  var multipliers = { // Contains the number of seconds for each time
     "s": 1,
     'm': 60,
     'h': 3600,
     'd': 86400,
     'w': 604800
   }
-  var countDown = settings.repeatScript.slice(0, -1)*multiplier
-  var time = settings.repeatScript.slice(0,-1)
-  var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()]
+  var countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // countDown is the number of minutes remaining until the script restarts
+  var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
   console.log('\u001b[41mRepeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.\u001b[0m');
-  start();
-  setInterval(() => {
+  start(); // Start the script for the first time
+  setInterval(() => { // Set a repeating function that is called every 1000 miliseconds times the number of seconds the user picked
     start();
-  }, settings.repeatScript.slice(0, -1)*multiplier*1000);
-  setInterval(() => {
-    console.log(countDown+' Seconds until script restarts...');
+  }, settings.repeatScript.slice(0, -1)*multiplier*1000); // Re above
+  setInterval(() => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
+    console.log(countDown+' Minutes until script restarts...');
     if(countDown > 0) {
-      countDown--
+      countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
     } else {
-      countDown = settings.repeatScript.slice(0, -1)*multiplier
+      countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
     }
-  }, 1000);
+  }, 60*1000);
 } else {
   start();
 }
 
-function start() {
+function start() { // This is the main function that triggeres everything else in the script
   if (settings.forceLogin) { // Check if we are forcing login or not and run stuff accordingly
+		// Get the users session details, try log them in using details provided, if login is successful then construct the cookies needed
+		// then save the cookies to the settings.json, then log the EpisodeCount to console, then run findVideos, the main function for downloading
+		// then print some lines because loading bars are buggy
     getSession().then(doLogin).then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
   } else {
+		// Just read above as to what each part does
+		// checkAuth checks if you have saved signin details and if not promts you for them, otherwise it proceeds to download Videos
+		// if you have saved session data or procedes to log you in if you have saved login details
     checkAuth().then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
   }
 }
@@ -261,14 +263,14 @@ function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
 		for(i=settings.maxPages; i >= 1; i--){ // For each page run this
 			req.get({
-			  url: channel.url+'/?page='+i,
+			  url: channel.url+'/?page='+i, // Request is different for each page
 			  headers: {
 			    Cookie: settings.cookie
 			  }
 			}, function(err, resp, body) {
-        if(settings.maxPages > 1) {
+        if(settings.maxPages > 1) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
           console.log('\n===\u001b[96m'+channel.name+'\u001b[0m - \u001b[95mPage '+resp.request.uri.query.slice(-1)+'\u001b[0m===')
-        } else {
+        } else { // Otherwise just log it normally
           console.log('\n===\u001b[96m'+channel.name+'\u001b[0m===')
         }
 				const $ = cheerio.load(body, { xmlMode: true }); // Load the XML of the form for the channel we are currently searching
@@ -299,28 +301,28 @@ function findVideos() {
 						});
             rawPath = settings.videoFolder+thisChannel.formatted+'/' // Create the rawPath variable that stores the path to the file
 						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
-            if (!fs.existsSync(settings.videoFolder)) {
+            if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
               fs.mkdirSync(settings.videoFolder)
             }
-            if (!fs.existsSync(rawPath)){ // Check if the first path exists
+            if (!fs.existsSync(rawPath)){ // Check if the first path exists (minus season folder)
 						    fs.mkdirSync(rawPath); // If not create the folder needed
 						}
-            var seasonNumber = '01'
-            if(settings.monthsAsSeasons) {
-              var date = new Date(dateTime)
-              if(date.getMonth() < 10) {
-                var seasonNumber = date.getFullYear()+'0'+date.getMonth()
-                rawPath = rawPath + seasonNumber+'/'
+            var seasonNumber = '01' // Set the season number to use if nothing special is being done to seasons
+            if(settings.monthsAsSeasons) { // If your formatting the videos with the YEAR+MONTH as the season then
+              var date = new Date(dateTime) // Generate a new date from the publish date pulled above
+              if(date.getMonth() < 10) { // If the month is less than 10 add a 0 to it
+                var seasonNumber = date.getFullYear()+'0'+date.getMonth() // Set the seasonNumber to be the YEAR+MONTH, eg 201801
+                rawPath = rawPath + seasonNumber+'/' // Set the raw path to include the new season folder
               } else {
                 var seasonNumber = date.getFullYear()+date.getMonth()
                 rawPath = rawPath + seasonNumber+'/'
               }
-            } else if(settings.yearsAsSeasons) {
+            } else if(settings.yearsAsSeasons) { // If your formatting the videos with the YEAR as the season then
               var date = new Date(dateTime)
-              var seasonNumber = date.getFullYear()
+              var seasonNumber = date.getFullYear() // Set the seasonNumber to be the YEAR, eg 2018
               rawPath = rawPath + date.getFullYear()+'/'
             }
-						if (!fs.existsSync(rawPath)){ // Check if the new path exists
+						if (!fs.existsSync(rawPath)){ // Check if the new path exists (plus season folder if enabled)
 						    fs.mkdirSync(rawPath); // If not create the folder needed
 						}
 						if (settings.subChannelIgnore[thisChannel.formatted]) {return false} // If this video is part of a subChannel we are ignoring then break
@@ -330,18 +332,18 @@ function findVideos() {
 						titlePrefix = titlePrefix  + thisChannel.extra;
 						match = match.replace(thisChannel.replace, '') // Format its title based on the subchannel
 						match = match.replace('@CES', ' @CES') // Dirty fix for CES2018 content
-            match = match.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
+            match = match.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -') // Cleaning up title and fixes for plex naming being weird
 						match = sanitize(match);
 						match = match.replace(/^.*[0-9].- /, '').replace('.mp4','') // Prepare it for matching files
 						// Added replace cases for brackets as they are being interperted as regex and windows escaping is broken for glob
-						files = glob.sync(rawPath+'*'+match+"*.mp4") // Check if the video already exists based on the above match
-						partialFiles = glob.sync(rawPath+'*'+match+"*.mp4.part") // Check if the video is partially downloaded
+						files = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
+						partialFiles = glob.sync(rawPath+'*'+match.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
 		  			if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
 		  				return_title = title.replace(/:/g, ' -')
 					    console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
 					  } else {
               updatePlex = true
-					    title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -')
+					    title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -') // Cleaning up title and fixes for plex naming being weird
 							thisChannel.episode_number += 1 // Increment the episode number for this subChannel
 							title = title.replace('@CES ', ' @CES ') // Dirty fix for CES2018 content
 							title = sanitize(title);
@@ -503,8 +505,8 @@ function ffmpegFormat(file, name, file2, recover) { // This function adds titles
     		if(err){ffmpegFormat(file, name, file2)}
     	}, 1000)
 	}).on('end', function() { // Save the title in metadata
-		if(loadCount == -1 && settings.plexScannerInstall != false) {
-			spawn(settings.plexScannerInstall,  ['--scan', '--refresh', '--force', '--section', settings.plexSection]);
+		if(loadCount == -1 && settings.plexScannerInstall != false) { // If we are at the last video then run a plex collection update, if the user has set their collection
+			spawn(settings.plexScannerInstall,  ['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
 		}
 		fs.rename(file2, file, function(){})
 	})
