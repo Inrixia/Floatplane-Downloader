@@ -172,6 +172,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 >
 >Default: "**false**"  
 >Examples:  
+
 Repeats every 2 minutes:
 ```json 
 "repeatScript": "2m"
