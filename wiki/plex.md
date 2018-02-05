@@ -13,7 +13,7 @@ Note: This only shows how to do this for LinusMediaGroup, for other channels jus
 [![https://gyazo.com/a45b1955e1eb92fcede4085f96663321](https://i.gyazo.com/a45b1955e1eb92fcede4085f96663321.gif)](https://gyazo.com/a45b1955e1eb92fcede4085f96663321)
 
 Make sure you have Preview Thumbnails unticked or it wont use the proper Thumnails for each video.
-[![https://gyazo.com/56dd4b0ac0b28d979ae927bd679b1ab6](https://i.gyazo.com/56dd4b0ac0b28d979ae927bd679b1ab6.png)](https://gyazo.com/56dd4b0ac0b28d979ae927bd679b1ab6)
+[![https://gyazo.com/4ea679c43fb978135b021a57c7cd39d4](https://i.gyazo.com/4ea679c43fb978135b021a57c7cd39d4.png)](https://gyazo.com/4ea679c43fb978135b021a57c7cd39d4)
 
 2. **Set the posters for each "Series":**
 
