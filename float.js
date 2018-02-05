@@ -14,7 +14,20 @@ const pad = require('pad');
 
 process.on('uncaughtException', function(err) {
   if (err == "TypeError: Cannot read property '0' of undefined") {
-  	console.log('\u001b[41m Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m')
+  	console.log('\u001b[41mERROR> Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m')
+  } if (err == "ReferenceError: thisChannel is not defined") {
+  	console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
+  } if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) {
+    console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
+    fs.writeFile("./partial.json", '{}', 'utf8', function (error) {
+        if (error) {
+            console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
+            process.exit()
+        } else {
+          console.log('\u001b[42mRecovered! Please restart script...\u001b[0m');
+          process.exit()
+        }
+    });
   } else {
   	//console.log(err)
   	throw err
@@ -73,10 +86,14 @@ request.get({ // Check if there is a newer version avalible for download
 	}
 })
 
-if (settings.forceLogin) { // Check if we are forcing login or not and run stuff accordingly
-	getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
-} else {
-	checkAuth().then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+start()
+
+function start() {
+  if (settings.forceLogin) { // Check if we are forcing login or not and run stuff accordingly
+    getSession().then(doLogin).then(constructCookie).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+  } else {
+    checkAuth().then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
+  }
 }
 
 function printLines() { // Printout spacing for download bars based on the number of videos downloading
@@ -292,7 +309,7 @@ function findVideos() {
 											resumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Download the video
 										} else { // Otherwise add to queue
 											console.log('>-- '+title+' == \u001b[35mRESUME QUEUED\u001b[0m');
-											queueResumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Queue 
+											queueResumeDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[match].title, thisChannel, match, rawPath) // Queue
 										}
 									}
 						    	}
@@ -304,7 +321,7 @@ function findVideos() {
 										download('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Download the video
 									} else { // Otherwise add to queue
 										console.log('>-- '+title+' == \u001b[35mQUEUED\u001b[0m');
-										queueDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue 
+										queueDownload('https://Edge01-na.floatplaneclub.com:443/Videos/'+vidID+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, title, thisChannel, match, rawPath) // Queue
 									}
 							    }
 							}
