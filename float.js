@@ -12,6 +12,7 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 const spawn = require('child_process').spawn;
+const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
   if (err == "TypeError: Cannot read property '0' of undefined") { // If this error
@@ -57,7 +58,7 @@ if (settings.useFloatplane == true){ // Create the array containing the details 
 }
 if (settings.useBitWit == true) {
 	channels.push({'url': 'https://linustechtips.com/main/forum/93-bitwit-ultra.xml', 'name': 'BitWit Ultra', 'subChannels': [
-		{'raw': '', 'formatted': 'BitWit Ultra', 'name': 'BitWit Ultra', 'replace': '', 'episode_number': 0, 'extra': ' - '}
+		{'raw': '', 'formatted': 'BitWit Ultra', 'name': 'BitWit Ultra', 'replace': '', 'episode_number': 0, 'extra': ''}
 	]})
 }
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
@@ -342,7 +343,11 @@ function findVideos() {
 					    console.log(return_title, '== \u001b[32mEXISTS\u001b[0m');
 					  } else {
               updatePlex = true
-					    title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -') // Cleaning up title and fixes for plex naming being weird
+							if(thisChannel.name != 'BitWit Ultra') { // Fix for bitwit with the new dash renaming for plex
+								title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' -') // Cleaning up title and fixes for plex naming being weird
+							} else {
+								title = title.replace(/:/g, ' -').replace(/ - /g, ' ').replace(/ – /g, ' ').replace(thisChannel.replace, titlePrefix+' - ') // Cleaning up title and fixes for plex naming being weird
+							}
 							thisChannel.episode_number += 1 // Increment the episode number for this subChannel
 							title = title.replace('@CES ', ' @CES ') // Dirty fix for CES2018 content
 							title = sanitize(title);
