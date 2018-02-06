@@ -12,7 +12,6 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 const spawn = require('child_process').spawn;
-const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
   if (err == "TypeError: Cannot read property '0' of undefined") { // If this error
