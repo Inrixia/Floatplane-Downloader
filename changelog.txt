@@ -7,7 +7,6 @@ v3.7.0
  - Fixed episode naming for plex sorting with dashes
  - Changed default floatplaneServer to use Edge02-na.floatplaneclub.com vs Edge01-na.floatplaneclub.com (Seems to perform better)
  - Added "floatplaneServer" setting
- - Added "niceErrors" setting
  - Added "formatWithDate" setting
  - Fixed a issue with creating missing directories
  - Added ability to sort episodes by Year or Month in plex as a fake season. Read updated plex guide for info
