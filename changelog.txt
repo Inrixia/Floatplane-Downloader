@@ -1,3 +1,7 @@
+v3.7.1
+ - Some small tweaks
+ - Colour fixes
+
 v3.7.0
  - Note: For info on new settings go to the github wiki
  - Added check and fix for invalid partial.json error.
