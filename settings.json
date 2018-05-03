@@ -3,7 +3,7 @@
   "videoFolder": "./videos/",
   "useFloatplane": true,
   "useBitWit": false,
-  "maxVideos": 30,
+  "maxVideos": 5,
   "maxPages": 1,
   "maxParallelDownloads": -1,
   "downloadArtwork": true,
