@@ -75,6 +75,8 @@ If you want to change any other settings, you can do so now inside the settings.
    
    For remote plex the script will prompt you to enter your plex username and password, these are not saved but just used to generate a token the script can use to remotely trigger a section update. This token is saved into settings.json. The script will also prompt you for the remote servers IP and PORT if you have not entered those. The IP is the ip of the plex server you are trying to connect to and the port only needs to be entered if you are not using the default.
    
+   For localPlex you also need to ensure that plexScannerInstall is correct, this should be correct by default unless you are not running Windows or have not installed plex to the default location.
+   
    There is more information about the plex settings in the **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**.
 
 7. **Profit?:**
