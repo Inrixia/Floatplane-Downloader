@@ -62,6 +62,8 @@ If you want to change any other settings, you can do so now inside the settings.
 
 6. **Plex Update:**
 
+   **Note:** This requires plex to have been setup already which is covered in the **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
+
    If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) set the localPlex setting to true if plex is installed on the same system the script is on, or set remotePlex to true if its installed on another PC.
    
    You can either fill out the other plex settings stated in the settings.json yourself now or run the script which will prompt you for what is needed.
