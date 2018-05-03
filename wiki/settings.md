@@ -3,7 +3,7 @@
 This covers what each setting is and what you can change it to. 
 
 Note that "max" type settings apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
-[![https://gyazo.com/b33b198af7ea1bd2c07e58af973e12c2](https://i.gyazo.com/b33b198af7ea1bd2c07e58af973e12c2.png)](https://gyazo.com/b33b198af7ea1bd2c07e58af973e12c2)
+[![https://gyazo.com/c2026a454bb321ff5da63d6a4bfd233b](https://i.gyazo.com/c2026a454bb321ff5da63d6a4bfd233b.png)](https://gyazo.com/c2026a454bb321ff5da63d6a4bfd233b)
 
 **version:**  
 >Variable used in the update script. Ignore this.
