@@ -62,13 +62,18 @@ If you want to change any other settings, you can do so now inside the settings.
 
 6. **Plex Update:**
 
-   If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can add this code to the bottom of the **Floatplane.bat** file.
+   If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) set the localPlex setting to true if plex is installed on the same system the script is on, or set remotePlex to true if its installed on another PC.
    
-   This is now integrated into the script and can be enabled under the settings. Read the **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)** for more info.
-
-   ~~```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --scan --refresh --force --section 20```~~
-
-   ~~You need to replace the **--section 10** with the section your Floatplane videos are in for Plex. You can find what section Floatplane is by using the command: ```"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list```~~
+   You can either fill out the other plex settings stated in the settings.json yourself now or run the script which will prompt you for what is needed.
+   
+   To get the plex section for Floatplane you can just do this:
+   [![https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c](https://i.gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c.gif)](https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c)
+   
+   Note that the script gets the ID from that url, just pasting the url into the settings.json will not work.
+   
+   For remote plex the script will prompt you to enter your plex username and password, these are not saved but just used to generate a token the script can use to remotely trigger a section update. This token is saved into settings.json. The script will also prompt you for the remote servers IP and PORT if you have not entered those. The IP is the ip of the plex server you are trying to connect to and the port only needs to be entered if you are not using the default.
+   
+   There is more information about the plex settings in the **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**.
 
 7. **Profit?:**
 
