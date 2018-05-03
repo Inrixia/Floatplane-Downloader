@@ -1,5 +1,8 @@
-CMD /C npm install request fs adm-zip fast-deep-equal --save
+CMD /C npm update
+CMD /C npm update
 node install.js
+del install.js
+del install.bat
 CMD /C npm update
 CMD /C npm update
 pause

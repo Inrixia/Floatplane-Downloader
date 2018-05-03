@@ -1,7 +1,10 @@
-CMD /C npm install request fast-deep-equal rimraf fs-extra json-schema-traverse adm-zip --save
+CMD /C npm update
+CMD /C npm update
 node update.js
 del scrape.js
-CMD /C npm update
-CMD /C npm update
+del update.js
+del update.bat
 rd /s /q update
+CMD /C npm update
+CMD /C npm update
 pause

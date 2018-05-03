@@ -8,6 +8,8 @@ v3.8.1
  - Changed plex update settings to be based off remotePlex and localPlex being true
  - Changed plexSection default to 0
  - Added prompt for some settings inscript
+ - Updated update.js for new settings
+ - Added beta option in update.js
 
 v3.7.1
  - Some small tweaks

@@ -4,12 +4,17 @@ const AdmZip = require('adm-zip')
 
 getUpdate().then(updateSettings).then(moveFiles).then(deleteFiles)
 
+var useBeta = false
+
 function getUpdate() {
 	return new Promise((resolve, reject) => {
 		request.get({
 			url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
 		}, function (err, resp, body) {
 			updateInfo = JSON.parse(body)
+			if (useBeta) {
+				updateInfo.version = updateInfo.beta
+			}
 			console.log('Now updating to version '+updateInfo.version+'\n\n')
 			request('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/'+updateInfo.version+'.zip').on('error', function (err) {
 				console.log(err);
@@ -57,6 +62,11 @@ function updateSettings(){
 		if(settings["Linus Tech Tips"] != null) {newSettings["Linus Tech Tips"] = settings["Linus Tech Tips"]}
 		if(settings["Techquickie"] != null) {newSettings["Techquickie"] = settings["Techquickie"]}
 		if(settings["Channel Super Fun"] != null) {newSettings["Channel Super Fun"] = settings["Channel Super Fun"]}
+		if(settings.remotePlex != null) {newSettings.remotePlex = settings.remotePlex}
+		if(settings.remotePlexIP != null) {newSettings.remotePlexIP = settings.remotePlexIP}
+		if(settings.remotePlexPort != null) {newSettings.remotePlexPort = settings.remotePlexPort}
+		if(settings.plexToken != null) {newSettings.plexToken = settings.plexToken}
+		if(settings.localPlex != null) {newSettings.localPlex = settings.localPlex}
 		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
 		})
