@@ -1,3 +1,8 @@
+v3.8.2
+ - Fixed update and install script dependency issues
+ - Update and install scripts now delete themselves on completion
+ - Tweaked the way both run slightly
+
 v3.8.1
  - Added remote plex server support
  - Added plexToken setting
