@@ -1,4 +1,6 @@
 v3.8.2
+ - Commented new code
+ - Enabled new refresh settings
  - Fixed update and install script dependency issues
  - Update and install scripts now delete themselves on completion
  - Tweaked the way both run slightly

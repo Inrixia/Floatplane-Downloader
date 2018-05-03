@@ -86,19 +86,19 @@ request.get({ // Check if there is a newer version avalible for download
 	}
 })
 
-// Earlybird functions, these are run before script start for things such as auto repeat and getting remote plex info
+// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
 getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
 
-function updateLibrary() {
+function updateLibrary() { // Function for updating plex libraries
 	return new Promise((resolve, reject) => {
-		if(settings.localPlex) {
+		if(settings.localPlex) { // Run if local plex is enabled
 			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
 		}
-		if (settings.remotePlex) {
-			request({ 
+		if (settings.remotePlex) { // Run if remote plex is enabled
+			request({ // Sends a request to update the remote library using the servers ip, port, section and plexToken
 				url: 'http://'+settings.remotePlexIP+':'+settings.remotePlexPort+'/library/sections/'+settings.plexSection+'/refresh?X-Plex-Token='+settings.plexToken,
 			}, function(err, resp, body){
-				if (body.indexOf('404') > -1) {
+				if (body.indexOf('404') > -1) { // If result is 404 then the section probably dosnt exist
 					console.log('\u001b[41m> remotePlex ERR: Cannot refresh... Invalid library section defined in settings!\u001b[0m')
 				} else {
 					console.log('\u001b[33m> Refreshed plex section!\u001b[0m')
@@ -109,7 +109,7 @@ function updateLibrary() {
 	})
 }
 
-function remotePlexCheck() {
+function remotePlexCheck() { // If remotePlex is enabled then this will ask the user for their plex server's IP and port numbers
 	return new Promise((resolve, reject) => {
 		if (settings.remotePlex && settings.remotePlexIP == "") {
 			console.log("> Please enter your remote plex server's ip address and port:");
@@ -131,12 +131,12 @@ function remotePlexCheck() {
 	})
 }
 
-function getPlexDetails() {
+function getPlexDetails() { // If remotePlex or localPlex is enabled and the section is the default "0" then ask the user for their section ID
 	return new Promise((resolve, reject) => {
 		if ((settings.remotePlex || settings.localPlex) && settings.plexSection == 0) {
 			console.log('> Plex updates enabled! Please enter your plex section details, leave empty for defaults:');
 			console.log('> Go to https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md for more info')
-			prompt.start();
+			prompt.start(); // This can either be the ID number or the url that links to the section in plex
 			prompt.get([{name: "Floatplane Plex URL or Section ID", required: true}], function (err, result) {
 				console.log('')
 				settings.plexSection = result['Floatplane Plex URL or Section ID'].split('%2F').reverse()[0]
@@ -148,7 +148,7 @@ function getPlexDetails() {
 	})
 }
 
-function getPlexToken() {
+function getPlexToken() { // If remoteplex is enabled then this asks the user for the plex username and password to generate a plexToken for remote refreshes
 	return new Promise((resolve, reject) => {
 		if (settings.remotePlex && settings.plexToken == "") {
 			console.log('> Remote plex enabled! Fetching library access token...');
@@ -156,7 +156,7 @@ function getPlexToken() {
 			prompt.start();
 			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
 				console.log('');
-				request.post({ 
+				request.post({ // Sends a post request to plex to generate the plexToken
 					url: 'https://plex.tv/users/sign_in.json?user%5Blogin%5D='+result['Email/Username']+'&user%5Bpassword%5D='+result.Password,
 					headers: {
 						'X-Plex-Client-Identifier': "FDS",
@@ -607,8 +607,8 @@ function ffmpegFormat(file, name, file2, recover) { // This function adds titles
 			if(err){ffmpegFormat(file, name, file2)}
 		}, 1000)
 	}).on('end', function() { // Save the title in metadata
-		if(loadCount == -1 && settings.plexScannerInstall != false && settings.plexScannerInstall != "") { // If we are at the last video then run a plex collection update, if the user has set their collection
-			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
+		if(loadCount == -1) { // If we are at the last video then run a plex collection update
+			updateLibrary();
 		}
 		fs.rename(file2, file, function(){})
 	})
