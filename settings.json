@@ -1,5 +1,5 @@
 {
-  "version": "3.7.1",
+  "version": "3.8.1",
   "videoFolder": "./videos/",
   "useFloatplane": true,
   "useBitWit": false,
@@ -28,7 +28,12 @@
     "ips4_device_key": "",
     "ips4_member_id": ""
   },
-  "plexSection": false,
+  "remotePlex": false,
+  "remotePlexIP": "",
+  "remotePlexPort": 32400,
+  "plexToken": "",
+  "localPlex": false,
+  "plexSection": 0,
   "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe",
   "floatplaneServer": "https://Edge02-na.floatplaneclub.com:443",
   "video_res": 1080,

@@ -86,32 +86,126 @@ request.get({ // Check if there is a newer version avalible for download
 	}
 })
 
-// Check if repeating the script is enabled in settings, if not then skip to starting the script
-if(settings.repeatScript != false && settings.repeatScript != 'false') {
-	var multipliers = { // Contains the number of seconds for each time
-	"s": 1,
-	'm': 60,
-	'h': 3600,
-	'd': 86400,
-	'w': 604800
-	}
-	var countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // countDown is the number of minutes remaining until the script restarts
-	var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
-	console.log('\u001b[41mRepeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.\u001b[0m');
-	start(); // Start the script for the first time
-	setInterval(() => { // Set a repeating function that is called every 1000 miliseconds times the number of seconds the user picked
-	start();
-	}, settings.repeatScript.slice(0, -1)*multiplier*1000); // Re above
-	setInterval(() => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
-	console.log(countDown+' Minutes until script restarts...');
-	if(countDown > 0) {
-		countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
+// Earlybird functions, these are run before script start for things such as auto repeat and getting remote plex info
+getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
+
+function updateLibrary() {
+	return new Promise((resolve, reject) => {
+		if(settings.localPlex) {
+			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
+		}
+		if (settings.remotePlex) {
+			request({ 
+				url: 'http://'+settings.remotePlexIP+':'+settings.remotePlexPort+'/library/sections/'+settings.plexSection+'/refresh?X-Plex-Token='+settings.plexToken,
+			}, function(err, resp, body){
+				if (body.indexOf('404') > -1) {
+					console.log('\u001b[41m> remotePlex ERR: Cannot refresh... Invalid library section defined in settings!\u001b[0m')
+				} else {
+					console.log('\u001b[33m> Refreshed plex section!\u001b[0m')
+				}
+			})
+		}
+		resolve()
+	})
+}
+
+function remotePlexCheck() {
+	return new Promise((resolve, reject) => {
+		if (settings.remotePlex && settings.remotePlexIP == "") {
+			console.log("> Please enter your remote plex server's ip address and port:");
+			console.log("> Leave port empty to use default")
+			prompt.start();
+			prompt.get([{name: "IP", required: true}, {name: "Port", required: false}], function (err, result) {
+				settings.remotePlexIP = result.IP
+				if (result.Port == "") {
+					settings.remotePlexPort = 32400
+				} else {
+					settings.remotePlexPort = result.port
+				}
+				console.log('');
+				resolve()
+			});
+		} else {
+			resolve()
+		}
+	})
+}
+
+function getPlexDetails() {
+	return new Promise((resolve, reject) => {
+		if ((settings.remotePlex || settings.localPlex) && settings.plexSection == 0) {
+			console.log('> Plex updates enabled! Please enter your plex section details, leave empty for defaults:');
+			console.log('> Go to https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md for more info')
+			prompt.start();
+			prompt.get([{name: "Floatplane Plex URL or Section ID", required: true}], function (err, result) {
+				console.log('')
+				settings.plexSection = result['Floatplane Plex URL or Section ID'].split('%2F').reverse()[0]
+				resolve()
+			});
+		} else {
+			resolve()
+		}
+	})
+}
+
+function getPlexToken() {
+	return new Promise((resolve, reject) => {
+		if (settings.remotePlex && settings.plexToken == "") {
+			console.log('> Remote plex enabled! Fetching library access token...');
+			console.log('> Please enter your plex login details:');
+			prompt.start();
+			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
+				console.log('');
+				request.post({ 
+					url: 'https://plex.tv/users/sign_in.json?user%5Blogin%5D='+result['Email/Username']+'&user%5Bpassword%5D='+result.Password,
+					headers: {
+						'X-Plex-Client-Identifier': "FDS",
+						'X-Plex-Product': "Floatplane Download Script",
+						'X-Plex-Version': "1"
+					}
+				}, function(err, resp, body){
+					console.log('\u001b[36mFetched!\u001b[0m\n');
+					settings.plexToken = JSON.parse(body).user.authToken
+					resolve()
+				})
+			});
+		} else if (settings.remotePlex && settings.plexToken != "") {
+			console.log("> Using saved plex token")
+			resolve()
+		} else {
+			resolve()
+		}
+	})
+}
+
+function repeatScript() {
+	// Check if repeating the script is enabled in settings, if not then skip to starting the script
+	if(settings.repeatScript != false && settings.repeatScript != 'false') {
+		var multipliers = { // Contains the number of seconds for each time
+			"s": 1,
+			'm': 60,
+			'h': 3600,
+			'd': 86400,
+			'w': 604800
+		}
+		var countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // countDown is the number of minutes remaining until the script restarts
+		var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
+		console.log('\u001b[41mRepeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.\u001b[0m');
+		start(); // Start the script for the first time
+		setInterval(() => { // Set a repeating function that is called every 1000 miliseconds times the number of seconds the user picked
+			start();
+		}, settings.repeatScript.slice(0, -1)*multiplier*1000); // Re above
+		setInterval(() => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
+		console.log(countDown+' Minutes until script restarts...');
+		if(countDown > 0) {
+			countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
+		} else {
+			countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
+		}
+		}, 60*1000);
 	} else {
-		countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
+		start();
 	}
-	}, 60*1000);
-} else {
-	start();
 }
 
 function start() { // This is the main function that triggeres everything else in the script
@@ -513,7 +607,7 @@ function ffmpegFormat(file, name, file2, recover) { // This function adds titles
 			if(err){ffmpegFormat(file, name, file2)}
 		}, 1000)
 	}).on('end', function() { // Save the title in metadata
-		if(loadCount == -1 && settings.plexScannerInstall != false) { // If we are at the last video then run a plex collection update, if the user has set their collection
+		if(loadCount == -1 && settings.plexScannerInstall != false && settings.plexScannerInstall != "") { // If we are at the last video then run a plex collection update, if the user has set their collection
 			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
 		}
 		fs.rename(file2, file, function(){})
