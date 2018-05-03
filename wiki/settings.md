@@ -226,7 +226,7 @@ Repeats every day:
 >Default: "32400"  
 >Example:
 ```json 
-"remotePlexIP": 32500
+"remotePlexPort": 32500
 ```
 
 **plexToken:**  
@@ -235,7 +235,7 @@ Repeats every day:
 >Default: ""  
 >Example:
 ```json 
-"remotePlexIP": asSsdfH76FsNfer
+"remotePlexToken": "asSsdfH76FsNfer"
 ```
 
 **localPlex:**  
@@ -244,7 +244,7 @@ Repeats every day:
 >Default: "**false**"  
 >Example:
 ```json 
-"remotePlex": true
+"localPlex": true
 ```
 
 **plexSection:**  
