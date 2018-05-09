@@ -39,9 +39,9 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 **maxVideos:**  
 >States how far down the latest video posts the script should look in number of posts. 30 Is the maximum posts per page you can set it to anything below this.
 >
->Note: This does not effect script performance, its only there if you only wanted to download a single video without downloading old ones.
+>Note: This does not effect script performance, or increase requests to the floatplane api.
 >
->Default: "**30**"  
+>Default: "**5**"  
 >Example:
 ```json 
 "maxVideos": 30
