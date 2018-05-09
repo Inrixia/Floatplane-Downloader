@@ -17,7 +17,7 @@ Make sure you have Preview Thumbnails unticked or it wont use the proper Thumnai
 
 2. **Set the posters for each "Series":**
 
-   >This is pretty self explanatory, the artwork for each LMG channel is in the videos folder.
+   >This is pretty self explanatory, the artwork for each LMG channel is in the videos folder under artwork.
 
 [![https://gyazo.com/9a427387f9249b201983bfb080ad1a38](https://i.gyazo.com/9a427387f9249b201983bfb080ad1a38.gif)](https://gyazo.com/9a427387f9249b201983bfb080ad1a38)
 
