@@ -39,6 +39,12 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 const settings = require('./settings.json'); // File containing user settings
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
 
+var floatRequest  = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
+    headers: {'User-Agent': "FloatplanePlex/"+settings.version+" (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)"},
+    jar: true, // Use the same cookies globally
+	rejectUnauthorized: false,
+})
+
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
 	process.env.FFMPEG_PATH = "./node_modules/ffmpeg-binaries/bin/ffmpeg.exe"
 } else {
@@ -50,10 +56,11 @@ var channels = []; // Main array for storing all the channel info
 var updatePlex = false; // Defaults to false, and should stay false. This is automatically set to true when the last video is downloaded
 if (settings.useFloatplane == true){ // Create the array containing the details for each Channel and its SubChannels
 	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
-		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': new RegExp('.*FP.*-'), 'episode_number': 0, 'extra': ' -'},
+		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': 'FP Exclusive', 'episode_number': 0, 'extra': ''},
 		{'raw': 'LTT', 'formatted': 'Linus Tech Tips', 'name': 'LTT', 'replace': 'LTT', 'episode_number': 0, 'extra': ''},
 		{'raw': 'TQ', 'formatted': 'Techquickie', 'name': 'Techquickie', 'replace': 'TQ', 'episode_number': 0, 'extra': ''},
-		{'raw': 'CSF', 'formatted': 'Channel Super Fun', 'name': 'CSF', 'replace': 'CSF', 'episode_number': 0, 'extra': ''}
+		{'raw': 'CSF', 'formatted': 'Channel Super Fun', 'name': 'CSF', 'replace': 'CSF', 'episode_number': 0, 'extra': ''},
+		{'raw': 'TechLinked', 'formatted': 'TechLinked', 'name': 'TechLinked', 'replace': '[TechLinked]', 'episode_number': 0, 'extra': ''}
 	]})
 }
 if (settings.useBitWit == true) {
@@ -66,16 +73,11 @@ if (files.length == -1) {
 	console.log('\u001b[41m You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
 	process.exit()
 }
-// Set request defaults
-req = request.defaults({
-	jar: true, // Use the same cookies globally
-	rejectUnauthorized: false,
-});
 
 // Finish Init, Sart Script
 
 // Firstly check if there is a new version and notify the user
-request.get({ // Check if there is a newer version avalible for download
+floatRequest.get({ // Check if there is a newer version avalible for download
 	url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
 }, function (err, resp, body) {
 	updateInfo = JSON.parse(body)
@@ -267,7 +269,7 @@ function constructCookie() { // Generate a array of cookies from the json object
 function getSession() { // Go to the LTT homepage to get a session key
 	console.log("> Fetching session")
 	return new Promise((resolve, reject) => {
-		req.get({ // Generate the key used to download videos
+		floatRequest.get({ // Generate the key used to download videos
 			url: 'https://linustechtips.com/',
 			'content-type': 'application/x-www-form-urlencoded',
 		}, function (error, resp, body) {
@@ -281,7 +283,7 @@ function getSession() { // Go to the LTT homepage to get a session key
 function doLogin() { // Login using the users credentials and save the cookies & session
 	console.log("> Logging in as", settings.user)
 	return new Promise((resolve, reject) => {
-		req.post({
+		floatRequest.post({
 			headers: {
 				Cookie: settings.cookies.ips4_IPSSessionFront,
 				'content-type': 'application/x-www-form-urlencoded',
@@ -317,7 +319,7 @@ function saveSettings() { // Saves all the settings from the current settings ob
 function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
 		console.log("> Fetching video key")
-		req.get({
+		floatRequest.get({
 			url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
 			headers: {
 				Cookie: settings.cookie,
@@ -356,10 +358,10 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
 		for(i=settings.maxPages; i >= 1; i--){ // For each page run this
-			req.get({
+			floatRequest.get({
 				url: channel.url+'/?page='+i, // Request is different for each page
 				headers: {
-				Cookie: settings.cookie
+					Cookie: settings.cookie
 				}
 			}, function(err, resp, body) {
 				if(settings.maxPages > 1) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
@@ -457,7 +459,7 @@ function findVideos() {
 								} else {
 									try{if(partial_data[match].failed){}}catch(err){partial_data[match] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
 									if(partialFiles.length > 0) { // If the video is partially downloaded
-										if(settings.downloadArtwork) { request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+partial_data[match].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+										if(settings.downloadArtwork) { floatRequest('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+partial_data[match].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
 										loadCount += 1
 										if (partial_data[match].failed) { // If the download failed then start from download normally
 											partialFiles.length = 1;
@@ -473,7 +475,7 @@ function findVideos() {
 										}
 									}
 									if (partialFiles.length <= 0){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-										if(settings.downloadArtwork) { request('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+										if(settings.downloadArtwork) { floatRequest('https://cms.linustechtips.com/get/thumbnails/by_guid/'+vidID).pipe(fs.createWriteStream(rawPath+title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
 										loadCount += 1
 										if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
 											process.stdout.write('>-- '+title+' == \u001b[1m\u001b[34mDOWNLOADING\u001b[0m');
@@ -533,7 +535,7 @@ function download(url, title, thisChannel, match, rawPath) { // The main downloa
 	var total = 0 // Define the total size as 0 becuase nothing has downlaoded yet
 	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,25), 29) // Set the title for being displayed and limit it to 25 characters
 	liveCount += 1 // Register that a video is beginning to download for maxParrallelDownloads
-	progress(request(url), {throttle: settings.downloadUpdateTime}).on('progress', function (state) { // Send the request to download the file, run the below code every downloadUpdateTime while downloading
+	progress(floatRequest(url), {throttle: settings.downloadUpdateTime}).on('progress', function (state) { // Send the request to download the file, run the below code every downloadUpdateTime while downloading
 		partial_data[match] = {failed: false, total: state.size.total, transferred: state.size.transferred, title: title} // Write out the details of the partial download
 		saveData() // Save the above data
 		if (state.speed == null) {state.speed = 0} // If the speed is null set it to 0
@@ -569,7 +571,7 @@ function resumeDownload(url, title, thisChannel, match, rawPath) { // This handl
 		total: 100
 	})
 	var displayTitle = pad(thisChannel.raw+title.replace(/.*- /,'>').slice(0,35), 36) // Set the title for being displayed and limit it to 25 characters
-	progress(request({ // Request to download the video
+	progress(floatRequest({ // Request to download the video
 		url: url,
 		headers: { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
 			Range: "bytes="+partial_data[match].transferred+"-"+partial_data[match].total

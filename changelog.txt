@@ -1,3 +1,9 @@
+v3.8.3
+ - Set default user-agent to identify script
+ - Added support for TechLinked
+ - Fixed issue with Floatplane Exclusive video sorting
+ - Added TechLinked artwork
+
 v3.8.2
  - Commented new code
  - Enabled new refresh settings
