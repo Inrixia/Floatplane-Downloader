@@ -60,7 +60,7 @@ if (settings.useFloatplane == true){ // Create the array containing the details 
 		{'raw': 'LTT', 'formatted': 'Linus Tech Tips', 'name': 'LTT', 'replace': 'LTT', 'episode_number': 0, 'extra': ''},
 		{'raw': 'TQ', 'formatted': 'Techquickie', 'name': 'Techquickie', 'replace': 'TQ', 'episode_number': 0, 'extra': ''},
 		{'raw': 'CSF', 'formatted': 'Channel Super Fun', 'name': 'CSF', 'replace': 'CSF', 'episode_number': 0, 'extra': ''},
-		{'raw': 'TechLinked', 'formatted': 'TechLinked', 'name': 'TechLinked', 'replace': '[TechLinked]', 'episode_number': 0, 'extra': ''}
+		{'raw': 'TL', 'formatted': 'TechLinked', 'name': 'TechLinked', 'replace': '[TL]', 'episode_number': 0, 'extra': ''}
 	]})
 }
 if (settings.useBitWit == true) {
