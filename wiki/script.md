@@ -42,7 +42,7 @@ To install manually continue to read below.
    >**To use the script you need to login to the Floatplane.com site.**
    >If you use the LinusTechTips.com form for floatplane, you can create a Floatplane.com account and link your form account, then use your Floatplane.com account details to login. You can login two ways:  
    >**Login when the script asks you to using either your email or username:**  
-   [![https://gyazo.com/338c4ab48e21da63a512394ff08ca413](https://i.gyazo.com/338c4ab48e21da63a512394ff08ca413.png)](https://gyazo.com/338c4ab48e21da63a512394ff08ca413)
+   [![https://gyazo.com/cea00e80c7546f73ba0705e22818a927](https://i.gyazo.com/cea00e80c7546f73ba0705e22818a927.png)](https://gyazo.com/cea00e80c7546f73ba0705e22818a927)
    >
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
