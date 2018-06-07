@@ -1,7 +1,7 @@
 # Floatplane Club - PlexDownloader
 
-![Plex Index](https://i.gyazo.com/83f1f94798659d1ce067cca7d2b814c5.png)
-![Plex LTT](https://i.gyazo.com/cabe7fe239e86759bc5bedd74f633b9b.jpg)
+![Plex Index](https://gyazo.com/482af53e0a8cc281c9a60dd66d5ade56.png)
+![Plex LTT](https://gyazo.com/d496b2d946d2e96c88ff94a18952f403.jpg)
 [![Script](https://i.gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6.png)](https://gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6)
 
 ### Basic Info:
