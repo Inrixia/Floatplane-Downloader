@@ -1,32 +1,21 @@
 {
-  "version": "3.8.3",
+  "version": "4.0.0",
   "videoFolder": "./videos/",
-  "useFloatplane": true,
-  "useBitWit": false,
   "maxVideos": 5,
-  "maxPages": 1,
   "maxParallelDownloads": -1,
   "downloadArtwork": true,
-  "forceLogin": false,
   "formatWithEpisodes": true,
   "formatWithDate": false,
   "downloadUpdateTime": 250,
   "ignoreFolderStructure": false,
   "yearsAsSeasons": false,
   "monthsAsSeasons": false,
-  "subChannelIgnore": {
-    "Floatplane Exclusive": false,
-    "Linus Tech Tips": false,
-    "Techquickie": false,
-    "Channel Super Fun": false
-  },
+  "subscriptions": [],
   "repeatScript": "false",
   "cookie": [],
   "cookies": {
-	"ips4_IPSSessionFront": "",
-    "ips4_login_key": "",
-    "ips4_device_key": "",
-    "ips4_member_id": ""
+	"__cfduid": "",
+    "sails.sid": ""
   },
   "remotePlex": false,
   "remotePlexIP": "",
@@ -39,5 +28,4 @@
   "video_res": 1080,
   "user": "",
   "password": "",
-  "csrfKey": ""
 }

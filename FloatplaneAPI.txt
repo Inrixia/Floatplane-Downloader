@@ -1,0 +1,47 @@
+https://www.floatplane.com/api/user/info?id=5a9f3a8a58f4340e5111544b
+
+&fetchAfter=0 -> 20Videos per page so ++ 20 for each new page of videos
+https://www.floatplane.com/api/creator/videos?creatorGUID=59f94c0bdd241b70349eb72b&fetchAfter=0
+
+https://cms.linustechtips.com/get/sprite/by_guid/Z81Xk5YZKY
+https://www.floatplane.com/api/creator/info?creatorGUID=59f94c0bdd241b70349eb72b
+https://www.floatplane.com/api/user/named?username=Inrix
+
+https://www.floatplane.com/api/user/subscriptions
+
+59f94c0bdd241b70349eb72b
+
+info: "creator/info",
+infoByName: "creator/named",
+videos: "creator/videos",
+playlists: "creator/playlists",
+list: "creator/list",
+subscription: "plan/info"
+
+uploadVideo: "/video/upload",
+submitVideo: "/video/submit",
+postVideoChunk: "/video/chunk/upload",
+checkVideoChunk: "/video/chunk/check",
+updateVideoInfo: "/video/update",
+uploadVideoThumbnail: "/video/upload/thumbnail",
+transcodingList: "/video/transcode/list",
+transcodeProgress: "/video/transcode/progress",
+readyList: "/video/ready/list",
+deleteVideos: "/video/delete",
+updateLiveConfig: "/live/config/update",
+uploadLiveThumbnail: "/live/thumbnail/upload"
+
+info: "video/info",
+comments: "video/comments",
+commentReplies: "video/comment/replies",
+addComment: "video/comment",
+deleteComment: "video/comment/remove",
+setInteraction: "video/comment/interaction/set",
+clearInteraction: "video/comment/interaction/clear",
+playlistVideos: "playlist/videos",
+relatedVideos: "video/related",
+getVideoUrl: "video/url",
+getStreamingEdges: "edges"
+
+
+https://www.floatplane.com/api/video/url?guid=YeM6cfNvIf&quality=1080
