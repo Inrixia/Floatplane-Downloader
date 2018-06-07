@@ -2,7 +2,7 @@
 
 ![Plex Index](https://i.gyazo.com/83f1f94798659d1ce067cca7d2b814c5.png)
 ![Plex LTT](https://i.gyazo.com/cabe7fe239e86759bc5bedd74f633b9b.jpg)
-![Script](https://i.imgur.com/Tn17jqM.png)
+[![Script](https://i.gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6.png)](https://gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6)
 
 ### Basic Info:
 
@@ -10,10 +10,7 @@
 
 This is a Node.js script to download the daily videos from the [LMG Floatplane](https://linustechtips.com/main/store/) and format them to be viewed in [Plex](https://www.plex.tv/). You can also  view the raw files in the download folder.
 
-This requires a **[Floatplane](https://linustechtips.com/main/store/)** subscription.
-
-**For BitWit Ultra you need to enable it by setting this line to true in the settings:**  
-[![https://gyazo.com/87c287a03d190ed5c863a5271c5e734e](https://i.gyazo.com/87c287a03d190ed5c863a5271c5e734e.png)](https://gyazo.com/87c287a03d190ed5c863a5271c5e734e)
+This requires a **[Floatplane](http://floatplane.com)** subscription.
 
 ### **Install Guide**
 
