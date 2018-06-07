@@ -1,5 +1,7 @@
 # Script Install Guide
 ---
+This is the install guide for for after version 4.0.0 Please go read this for pre 4.0.0: [Install Guide_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/script_pre_4.0.0.md). 
+
 Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system.
 
 **There is now a auto installer! You can download and run it here: [Install.zip](https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/releases/Install.zip)**
@@ -26,8 +28,7 @@ To install manually continue to read below.
    >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console rightclick), Note this might take a while... Just let it load.
    >
    >**npm install**
-
-[![https://gyazo.com/1988bad700edbc088895411916597558](https://i.gyazo.com/1988bad700edbc088895411916597558.gif)](https://gyazo.com/1988bad700edbc088895411916597558)
+   >[![https://gyazo.com/1988bad700edbc088895411916597558](https://i.gyazo.com/1988bad700edbc088895411916597558.gif)](https://gyazo.com/1988bad700edbc088895411916597558)
 
 3. **Install [ffmpeg](ffmpeg.org) (If not running Windows):**
 
@@ -35,11 +36,11 @@ To install manually continue to read below.
    >If you are running windows you dont need to install it its bundled with the script, however if you are using another OS or want to use a different version of ffmpeg then you need to change the reference inside the script.
    >
    >You can download ffmpeg from: **ffmpeg.org**
-
-[![https://gyazo.com/14763d29ff7ce685022de27304935276](https://i.gyazo.com/14763d29ff7ce685022de27304935276.png)](https://gyazo.com/14763d29ff7ce685022de27304935276)
+   >[![https://gyazo.com/14763d29ff7ce685022de27304935276](https://i.gyazo.com/14763d29ff7ce685022de27304935276.png)](https://gyazo.com/14763d29ff7ce685022de27304935276)
 
 4. **Login:**
-   >**To use the script you need to login, you can do this two ways.**
+   >**To use the script you need to login to the Floatplane.com site.**
+   >If you use the LinusTechTips.com form for floatplane, you can create a Floatplane.com account and link your form account, then use your Floatplane.com account details to login. You can login two ways:  
    >**Login when the script asks you to using either your email or username:**  
    [![https://gyazo.com/338c4ab48e21da63a512394ff08ca413](https://i.gyazo.com/338c4ab48e21da63a512394ff08ca413.png)](https://gyazo.com/338c4ab48e21da63a512394ff08ca413)
    >
@@ -49,14 +50,14 @@ To install manually continue to read below.
    >**If you dont login with a username/email & password or use 2Factor you may need to do this.**
 5. **Manually set your cookies [OPTIONAL]:**
 
-   >You need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.  
+   >You need to login to the Floatplane.com site and then inspect the page.  
    >
-   >**Open a page on the LTT forms after logging in and rightclick-inspect.**  
-[![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
+   >**Open a page on Floatplane.com after logging in and rightclick-inspect.**  
+[![https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77](https://i.gyazo.com/44dd4994520efd56311ab9c0b0f59a77.gif)](https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77)
 **Go to the Application TAB. (This is on Chrome)**
-[![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
-**Copy your ips4 cookies seen above into the settings cookies so it looks like this:**  
-[![https://gyazo.com/bcb242eb53622cdf642d310f18db3e78](https://i.gyazo.com/bcb242eb53622cdf642d310f18db3e78.png)](https://gyazo.com/bcb242eb53622cdf642d310f18db3e78)
+[![https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911](https://i.gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911.png)](https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911)
+**Copy your __cfduid from .floatplane.com and sails.sid cookie value seen above into the settings cookies so it looks like this:**  
+[![https://gyazo.com/ed8133694c080b150f7f4d97991d4785](https://i.gyazo.com/ed8133694c080b150f7f4d97991d4785.png)](https://gyazo.com/ed8133694c080b150f7f4d97991d4785)
 
 If you want to change any other settings, you can do so now inside the settings.json file. More info on settings can be found here: **[Settings Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/settings.md)**
 
