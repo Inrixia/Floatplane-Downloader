@@ -1,8 +1,21 @@
+v4.0.0
+ - Updated cookies for normal login
+ - Added login functionality for Floatplane.com
+ - Removed support for direct linustechtips.com use. Link your form account through Floatplane.com
+ - Removed forceLogin option
+ - Updated cookies in settings.json to use Floatplane.com values
+ - Removed csrfKey from settings.json
+ - Removed useFloatplane from settings.json
+ - Removed useBitWit from settings.json
+ - Added subscriptions in settings.json
+ - Removed maxPages from settings.json
+ - Updated maxVideos to work with any number
+ - Updated posters
+ - Rewrote subChannel detection code
+
 v3.8.3
  - Set default user-agent to identify script
  - Added support for TechLinked
- - Fixed issue with Floatplane Exclusive video sorting
- - Added TechLinked artwork
 
 v3.8.2
  - Commented new code

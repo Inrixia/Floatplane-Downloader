@@ -39,10 +39,40 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 const settings = require('./settings.json'); // File containing user settings
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
 
-var floatRequest  = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
+const subChannelIdentifiers = {
+	"Linus Tech Tips": [
+		{
+			title: 'Channel Super Fun',
+			check: 'https://twitter.com/channelsuperfun',
+			type: 'description',
+			colour: '\u001b[38;5;220m'
+		},
+		{
+			title: 'Floatplane Exclusive',
+			check: 'Exclusive',
+			type: 'title',
+			colour: '\u001b[38;5;200m'
+		},
+		{
+			title: 'TechLinked',
+			check: 'http://twitter.com/TechLinkedYT',
+			type: 'description',
+			colour: '\u001b[38;5;14m'
+		},
+		{
+			title: 'TechQuickie',
+			check: 'http://twitter.com/jmart604',
+			type: 'description',
+			colour: '\u001b[38;5;153m'
+		},
+	]
+}
+
+var floatRequest = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
     headers: {'User-Agent': "FloatplanePlex/"+settings.version+" (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)"},
     jar: true, // Use the same cookies globally
-	rejectUnauthorized: false,
+		rejectUnauthorized: false,
+		followAllRedirects: true
 })
 
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
@@ -52,22 +82,9 @@ if(process.platform === 'win32'){ // If not using windows attempt to use linux f
 }
 var loadCount = -1; // Number of videos currently queued/downloading
 var liveCount = 0; // Number of videos actually downloading
-var channels = []; // Main array for storing all the channel info
 var updatePlex = false; // Defaults to false, and should stay false. This is automatically set to true when the last video is downloaded
-if (settings.useFloatplane == true){ // Create the array containing the details for each Channel and its SubChannels
-	channels.push({'url': 'https://linustechtips.com/main/forum/91-lmg-floatplane.xml', 'name': 'Linus Media Group', 'subChannels': [
-		{'raw': 'FP', 'formatted': 'Floatplane Exclusive', 'name': 'Floatplane', 'replace': 'FP Exclusive', 'episode_number': 0, 'extra': ''},
-		{'raw': 'LTT', 'formatted': 'Linus Tech Tips', 'name': 'LTT', 'replace': 'LTT', 'episode_number': 0, 'extra': ''},
-		{'raw': 'TQ', 'formatted': 'Techquickie', 'name': 'Techquickie', 'replace': 'TQ', 'episode_number': 0, 'extra': ''},
-		{'raw': 'CSF', 'formatted': 'Channel Super Fun', 'name': 'CSF', 'replace': 'CSF', 'episode_number': 0, 'extra': ''},
-		{'raw': 'TL', 'formatted': 'TechLinked', 'name': 'TechLinked', 'replace': '[TL]', 'episode_number': 0, 'extra': ''}
-	]})
-}
-if (settings.useBitWit == true) {
-	channels.push({'url': 'https://linustechtips.com/main/forum/93-bitwit-ultra.xml', 'name': 'BitWit Ultra', 'subChannels': [
-		{'raw': '', 'formatted': 'BitWit Ultra', 'name': 'BitWit Ultra', 'replace': '', 'episode_number': 0, 'extra': ''}
-	]})
-}
+var seasonNumber = '01' // Set the season number to use if nothing special is being done to seasons
+
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
 if (files.length == -1) {
 	console.log('\u001b[41m You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
@@ -90,65 +107,6 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 
 // Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
 getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
-
-function updateLibrary() { // Function for updating plex libraries
-	return new Promise((resolve, reject) => {
-		if(settings.localPlex) { // Run if local plex is enabled
-			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
-		}
-		if (settings.remotePlex) { // Run if remote plex is enabled
-			request({ // Sends a request to update the remote library using the servers ip, port, section and plexToken
-				url: 'http://'+settings.remotePlexIP+':'+settings.remotePlexPort+'/library/sections/'+settings.plexSection+'/refresh?X-Plex-Token='+settings.plexToken,
-			}, function(err, resp, body){
-				if (body.indexOf('404') > -1) { // If result is 404 then the section probably dosnt exist
-					console.log('\u001b[41m> remotePlex ERR: Cannot refresh... Invalid library section defined in settings!\u001b[0m')
-				} else {
-					console.log('\u001b[33m> Refreshed plex section!\u001b[0m')
-				}
-			})
-		}
-		resolve()
-	})
-}
-
-function remotePlexCheck() { // If remotePlex is enabled then this will ask the user for their plex server's IP and port numbers
-	return new Promise((resolve, reject) => {
-		if (settings.remotePlex && settings.remotePlexIP == "") {
-			console.log("> Please enter your remote plex server's ip address and port:");
-			console.log("> Leave port empty to use default")
-			prompt.start();
-			prompt.get([{name: "IP", required: true}, {name: "Port", required: false}], function (err, result) {
-				settings.remotePlexIP = result.IP
-				if (result.Port == "") {
-					settings.remotePlexPort = 32400
-				} else {
-					settings.remotePlexPort = result.port
-				}
-				console.log('');
-				resolve()
-			});
-		} else {
-			resolve()
-		}
-	})
-}
-
-function getPlexDetails() { // If remotePlex or localPlex is enabled and the section is the default "0" then ask the user for their section ID
-	return new Promise((resolve, reject) => {
-		if ((settings.remotePlex || settings.localPlex) && settings.plexSection == 0) {
-			console.log('> Plex updates enabled! Please enter your plex section details, leave empty for defaults:');
-			console.log('> Go to https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md for more info')
-			prompt.start(); // This can either be the ID number or the url that links to the section in plex
-			prompt.get([{name: "Floatplane Plex URL or Section ID", required: true}], function (err, result) {
-				console.log('')
-				settings.plexSection = result['Floatplane Plex URL or Section ID'].split('%2F').reverse()[0]
-				resolve()
-			});
-		} else {
-			resolve()
-		}
-	})
-}
 
 function getPlexToken() { // If remoteplex is enabled then this asks the user for the plex username and password to generate a plexToken for remote refreshes
 	return new Promise((resolve, reject) => {
@@ -174,6 +132,45 @@ function getPlexToken() { // If remoteplex is enabled then this asks the user fo
 		} else if (settings.remotePlex && settings.plexToken != "") {
 			console.log("> Using saved plex token")
 			resolve()
+		} else {
+			resolve()
+		}
+	})
+}
+
+function getPlexDetails() { // If remotePlex or localPlex is enabled and the section is the default "0" then ask the user for their section ID
+	return new Promise((resolve, reject) => {
+		if ((settings.remotePlex || settings.localPlex) && settings.plexSection == 0) {
+			console.log('> Plex updates enabled! Please enter your plex section details, leave empty for defaults:');
+			console.log('> Go to https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md for more info')
+			prompt.start(); // This can either be the ID number or the url that links to the section in plex
+			prompt.get([{name: "Floatplane Plex URL or Section ID", required: true}], function (err, result) {
+				console.log('')
+				settings.plexSection = result['Floatplane Plex URL or Section ID'].split('%2F').reverse()[0]
+				resolve()
+			});
+		} else {
+			resolve()
+		}
+	})
+}
+
+function remotePlexCheck() { // If remotePlex is enabled then this will ask the user for their plex server's IP and port numbers
+	return new Promise((resolve, reject) => {
+		if (settings.remotePlex && settings.remotePlexIP == "") {
+			console.log("> Please enter your remote plex server's ip address and port:");
+			console.log("> Leave port empty to use default")
+			prompt.start();
+			prompt.get([{name: "IP", required: true}, {name: "Port", required: false}], function (err, result) {
+				settings.remotePlexIP = result.IP
+				if (result.Port == "") {
+					settings.remotePlexPort = 32400
+				} else {
+					settings.remotePlexPort = result.port
+				}
+				console.log('');
+				resolve()
+			});
 		} else {
 			resolve()
 		}
@@ -211,17 +208,8 @@ function repeatScript() {
 }
 
 function start() { // This is the main function that triggeres everything else in the script
-	if (settings.forceLogin) { // Check if we are forcing login or not and run stuff accordingly
-		// Get the users session details, try log them in using details provided, if login is successful then construct the cookies needed
-		// then save the cookies to the settings.json, then log the EpisodeCount to console, then run findVideos, the main function for downloading
-		// then print some lines because loading bars are buggy
-	getSession().then(doLogin).then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
-	} else {
-		// Just read above as to what each part does
-		// checkAuth checks if you have saved signin details and if not promts you for them, otherwise it proceeds to download Videos
-		// if you have saved session data or procedes to log you in if you have saved login details
-	checkAuth().then(constructCookie).then(saveSettings).then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
-	}
+	checkAuth().then(constructCookie).then(saveSettings).then(checkSubscriptions).then(getVideos)
+	//.then(parseKey).then(logEpisodeCount).then(findVideos).then(printLines)
 }
 
 function printLines() { // Printout spacing for download bars based on the number of videos downloading
@@ -235,23 +223,45 @@ function printLines() { // Printout spacing for download bars based on the numbe
 function checkAuth(forced) { // Check if the user is authenticated
 	return new Promise((resolve, reject) => {
 		// Check if a proper method of authentication exists if not get the users login details
-		if (forced || !settings.cookies.ips4_IPSSessionFront && (!settings.user || !settings.password)) {
+		if (forced || !settings.cookies.__cfduid && (!settings.user || !settings.password)) {
 			console.log('> Please enter your login details:');
 			prompt.start();
 			prompt.get([{name: "Email/Username", required: true}, {name: "Password", required: true, hidden: true, replace: '*'}], function (err, result) {
 				settings.user = result['Email/Username']
 				settings.password = result.Password
 				console.log('');
-				getSession().then(doLogin).then(resolve) // After getting the users details get their session and log them in. Then finish.
+				doLogin().then(resolve) // After getting the users details get their session and log them in. Then finish.
 			});
 			// If they have no session but do have login details then just get their session log them in and finish.
-		} else if((!settings.cookies.ips4_IPSSessionFront && (settings.user || settings.password))) {
-			getSession().then(doLogin).then(resolve)
+		} else if((!settings.cookies.__cfduid && (settings.user || settings.password))) {
+			doLogin().then(resolve)
 		}	else {
 			// They are already logged in with suficcent auth, just continue.
 			console.log('> Using saved login data');
 			resolve()
 		}
+	})
+}
+
+function doLogin() { // Login using the users credentials and save the cookies & session
+	console.log("> Logging in as", settings.user)
+	return new Promise((resolve, reject) => {
+		floatRequest.post({
+			method: 'POST',
+			json: {username: settings.user, password: settings.password},
+			url: 'https://www.floatplane.com/api/user/login',
+		}, function (error, resp, body) {
+			if (resp.headers['set-cookie']) { // If the server returns cookies then we have probably logged in
+				console.log('\u001b[32mLogged In!\u001b[0m\n');
+				settings.cookies.__cfduid = resp.headers['set-cookie'][0]
+				settings.cookies['sails.sid'] = resp.headers['set-cookie'][1]
+				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
+			} else {
+				console.log('\x1Bc');
+				console.log('\u001b[31mThere was a error while logging in...\u001b[0m\n');
+				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
+			}
+		}, reject)
 	})
 }
 
@@ -266,75 +276,12 @@ function constructCookie() { // Generate a array of cookies from the json object
 	})
 }
 
-function getSession() { // Go to the LTT homepage to get a session key
-	console.log("> Fetching session")
-	return new Promise((resolve, reject) => {
-		floatRequest.get({ // Generate the key used to download videos
-			url: 'https://linustechtips.com/',
-			'content-type': 'application/x-www-form-urlencoded',
-		}, function (error, resp, body) {
-			settings.cookies.ips4_IPSSessionFront = resp.headers["set-cookie"][0];
-			settings.csrfKey = body.split("csrfKey=")[1].split("'")[0];
-			resolve();
-		}, reject)
-	})
-}
-
-function doLogin() { // Login using the users credentials and save the cookies & session
-	console.log("> Logging in as", settings.user)
-	return new Promise((resolve, reject) => {
-		floatRequest.post({
-			headers: {
-				Cookie: settings.cookies.ips4_IPSSessionFront,
-				'content-type': 'application/x-www-form-urlencoded',
-			},
-			url: 'https://linustechtips.com/main/login/',
-			body: "login__standard_submitted=1&csrfKey=" + settings.csrfKey + "&auth=" + settings.user + "&password=" + settings.password + "&remember_me=1&remember_me_checkbox=1&signin_anonymous=0"
-		}, function (error, resp, body) {
-			if (resp.headers['set-cookie']) { // If the server returns cookies then we have probably logged in
-				console.log('\u001b[32mLogged In!\u001b[0m\n');
-				settings.cookies.ips4_device_key = resp.headers['set-cookie'][0]
-				settings.cookies.ips4_member_id = resp.headers['set-cookie'][1]
-				settings.cookies.ips4_login_key = resp.headers['set-cookie'][2]
-				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
-			} else {
-				console.log('\x1Bc');
-				console.log('\u001b[31mThere was a error while logging in...\u001b[0m\n');
-				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
-			}
-		}, reject)
-	})
-}
-
 function saveSettings() { // Saves all the settings from the current settings object back to the settings.json file
 	return new Promise((resolve, reject) => {
 		console.log('> Saving settings');
 		fs.writeFile("./settings.json", JSON.stringify(settings, null, 2), 'utf8', function (err) {
-		if (err) reject(err)
+			if (err) reject(err)
 			resolve()
-		});
-	})
-}
-
-function parseKey() { // Get the key used to download videos
-	return new Promise((resolve, reject) => {
-		console.log("> Fetching video key")
-		floatRequest.get({
-			url: 'https://linustechtips.com/main/applications/floatplane/interface/video_url.php?video_guid=a&video_quality=1080&download=1',
-			headers: {
-				Cookie: settings.cookie,
-			}
-		}, function (err, resp, body) {
-			if (body.includes('</html>')) { // Check if key is invalid
-				console.log('\u001b[31mInvalid Key! Attempting to re-authenticate...\u001b[0m');
-				settings.cookies.ips4_IPSSessionFront = ''
-				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
-				checkAuth().then(constructCookie).then(parseKey).then(resolve)
-			} else {
-				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
-				console.log('\u001b[36mFetched!\u001b[0m\n');
-				resolve()
-			}
 		});
 	})
 }
@@ -354,6 +301,79 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 		});
 	});
 }
+
+function checkSubscriptions() {
+	return new Promise((resolve, reject) => {
+		if (settings.subscriptions.length == 0) {
+			floatRequest.get({ // Generate the key used to download videos
+				headers: {
+					Cookie: settings.cookie,
+				},
+				url: 'https://www.floatplane.com/api/user/subscriptions'
+			}, function (error, resp, body) {
+				JSON.parse(body).forEach(function(subscription) {
+					settings.subscriptions.push({
+						id: subscription.plan.owner,
+						title: subscription.plan.title,
+						enabled: true
+					})
+				})
+				console.log('> Updated subscriptions!')
+				saveSettings().then(resolve())
+			}, reject)
+		} else {
+			console.log('> Using saved subscriptions')
+			resolve()
+		}
+	})
+}
+
+function getVideos() {
+	return new Promise((resolve, reject) => {
+		settings.subscriptions.forEach(function(subscription) {
+			for(i=1; i <= Math.ceil(settings.maxVideos/20); i++){
+				floatRequest.get({ // Generate the key used to download videos
+					headers: {
+						Cookie: settings.cookie,
+					},
+					url: 'https://www.floatplane.com/api/creator/videos?creatorGUID='+subscription.id+'&fetchAfter='+((i*20)-20)
+				}, function (error, resp, body) {
+					var page = resp.request.uri.query.slice(resp.request.uri.query.indexOf('&fetchAfter=')+12, resp.request.uri.query.length)/20
+					if(settings.maxVideos > 20) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
+						console.log('\n===\u001b[38;5;39m'+subscription.title+'\u001b[0m - \u001b[95mPage '+page+'\u001b[0m===')
+					} else { // Otherwise just log it normally
+						console.log('\n===\u001b[38;5;39m'+subscription.title+'\u001b[0m===')
+					}
+					JSON.parse(body).forEach(function(video, i) {
+						if (i+(page*20) >= settings.maxVideos) { // Break on max videos parsed
+							return false
+						}
+						video.subChannel = subscription.title
+						video.colour = '\u001b[38;5;208m'
+						video.releaseDate = " - " + new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
+						subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
+							if(video[subChannel.type].indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
+								video.subChannel = subChannel.title
+								video.colour = subChannel.colour
+							}
+						});
+						rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
+						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
+						if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
+							fs.mkdirSync(settings.videoFolder)
+						}
+						if (!fs.existsSync(rawPath)){ // Check if the first path exists (minus season folder)
+							fs.mkdirSync(rawPath); // If not create the folder needed
+						}
+						//console.log(video.colour+video.subChannel+'\u001b[0m>', video.title);
+						//console.log(video.title, video.guid, video.description, video.thumbnail.path)
+					})
+				})
+			}
+		})
+	})
+}
+
 
 function findVideos() {
 	channels.forEach(function(channel){ // Find videos for each channel
@@ -390,7 +410,7 @@ function findVideos() {
 								title = thisTitle+' #'+(iC+1)
 							} else {
 								title = thisTitle
-							}							
+							}
 							match = title.replace(/:/g, ' -') // Clean up the title for matching against existing videos to determine if they are already downloaded
 							// Determine what channel it is from
 							channel.subChannels.forEach(function(subChannel){ // For each subChannel in a channel
@@ -613,6 +633,26 @@ function ffmpegFormat(file, name, file2, recover) { // This function adds titles
 			updateLibrary();
 		}
 		fs.rename(file2, file, function(){})
+	})
+}
+
+function updateLibrary() { // Function for updating plex libraries
+	return new Promise((resolve, reject) => {
+		if(settings.localPlex) { // Run if local plex is enabled
+			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
+		}
+		if (settings.remotePlex) { // Run if remote plex is enabled
+			request({ // Sends a request to update the remote library using the servers ip, port, section and plexToken
+				url: 'http://'+settings.remotePlexIP+':'+settings.remotePlexPort+'/library/sections/'+settings.plexSection+'/refresh?X-Plex-Token='+settings.plexToken,
+			}, function(err, resp, body){
+				if (body.indexOf('404') > -1) { // If result is 404 then the section probably dosnt exist
+					console.log('\u001b[41m> remotePlex ERR: Cannot refresh... Invalid library section defined in settings!\u001b[0m')
+				} else {
+					console.log('\u001b[33m> Refreshed plex section!\u001b[0m')
+				}
+			})
+		}
+		resolve()
 	})
 }
 
