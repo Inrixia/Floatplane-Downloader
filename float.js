@@ -624,7 +624,7 @@ function resumeDownload(url, title, thisChannel, rawPath) { // This handles resu
 function ffmpegFormat(file, name, file2, recover) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
 		setTimeout(function(){ // If the formatting fails, wait a second and try again
-			console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
+			//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
 			if(err){ffmpegFormat(file, name, file2)}
 		}, 1000)
 	}).on('end', function() { // Save the title in metadata
