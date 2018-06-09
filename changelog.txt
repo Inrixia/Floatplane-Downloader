@@ -1,3 +1,6 @@
+v4.0.2
+ - Fixed subscription fetching due to API update
+
 v4.0.1
  - Fixed video's to be in the correct order when downloading
  - Fixed invalidLogin's not being handled with the new API

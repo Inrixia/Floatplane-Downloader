@@ -337,6 +337,7 @@ function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
 		if (settings.subscriptions.length == 0 || settings.checkForNewSubscriptions == true) {
 			settings.checkForNewSubscriptions = false
+			settings.subscriptions = []
 			floatRequest.get({ // Generate the key used to download videos
 				headers: {
 					Cookie: settings.cookie,
@@ -346,7 +347,7 @@ function checkSubscriptions() {
 				JSON.parse(body).forEach(function(subscription) {
 					if (subscription.plan.title == 'Linus Tech Tips') {
 						settings.subscriptions.push({
-							id: subscription.plan.owner,
+							id: subscription.creator,
 							title: subscription.plan.title,
 							enabled: true,
 							ignore: {
@@ -359,7 +360,7 @@ function checkSubscriptions() {
 						})
 					} else {
 						settings.subscriptions.push({
-							id: subscription.plan.owner,
+							id: subscription.creator,
 							title: subscription.plan.title,
 							enabled: true
 						})
