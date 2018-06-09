@@ -15,8 +15,8 @@ const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
-	if (err == "TypeError: Cannot read property '0' of undefined") { // If this error
-		console.log('\u001b[41mERROR> Using old session data is failing! Please set forceLogin to true in settings.json\u001b[0m') // Then print out what the user should do
+	if (err == "TypeError: JSON.parse(...).reverse is not a function") { // If this error
+		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
 	} if (err == "ReferenceError: thisChannel is not defined") {
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
@@ -384,7 +384,7 @@ function parseKey() { // Get the key used to download videos
 				Cookie: settings.cookie,
 			}
 		}, function (err, resp, body) {
-			if (body.includes('</html>')) { // Check if key is invalid
+			if (JSON.parse(body).message == "You must be logged-in to access this resource.") { // Check if key is invalid
 				console.log('\u001b[31mInvalid Key! Attempting to re-authenticate...\u001b[0m');
 				settings.cookies.__cfduid = ''
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
@@ -415,7 +415,7 @@ function getVideos() {
 					} else { // Otherwise just log it normally
 						console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m ===')
 					}
-					JSON.parse(body).forEach(function(video, i) {
+					JSON.parse(body).reverse().forEach(function(video, i) {
 						if (i+(page*20) >= settings.maxVideos) { // Break on max videos parsed
 							return false
 						}

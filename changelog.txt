@@ -1,3 +1,8 @@
+v4.0.1
+ - Fixed video's to be in the correct order when downloading
+ - Fixed invalidLogin's not being handled with the new API
+ 
+
 v4.0.0
  - Updated cookies for normal login
  - Added login functionality for Floatplane.com
@@ -12,16 +17,6 @@ v4.0.0
  - Updated maxVideos to work with any number
  - Updated posters
  - Rewrote subChannel detection code
- - Removed subChannelIgnore from settings.json
- - Updated episode counting
- - Added MOAR colours
- - Removed youtube support (For videos on the form that were from youtube)
- - Checked support for other Floatplane Creators
- - Fixed spacing for downloading videos
- - Updated printouts for downloads
- - Updated ffmpeg error printouts
- - Added checkForNewSubscriptions in settings.json
- - Added Tech Deals artwork
 
 v3.8.3
  - Set default user-agent to identify script
