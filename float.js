@@ -416,11 +416,7 @@ function getVideos() {
 					} else { // Otherwise just log it normally
 						console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m ===')
 					}
-					JSON.parse(body).reverse().forEach(function(video, i) {
-						if (i+(page*20) <= settings.maxVideos) { // Break on max videos parsed
-							return false
-						}
-
+					JSON.parse(body).slice(0, settings.maxVideos+page*20).reverse().forEach(function(video, i) {
 						// Set defaults for video
 						matchTitle = video.title
 						video.subChannel = subscription.title
