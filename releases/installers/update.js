@@ -37,6 +37,7 @@ function updateSettings(){
 	return new Promise((resolve, reject) => {
 		var newSettings = JSON.parse(fs.readFileSync('./update/settings.json', 'utf8'));
 		var settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
+		newSettings.version = updateInfo.version
 		if(settings.videoFolder != null) {newSettings.videoFolder = settings.videoFolder}
 		if(settings.maxVideos != null) {newSettings.maxVideos = settings.maxVideos}
 		if(settings.maxParallelDownloads != null) {newSettings.maxParallelDownloads = settings.maxParallelDownloads}
