@@ -57,12 +57,12 @@ const subChannelIdentifiers = {
 		},
 		{
 			title: 'Floatplane Exclusive',
-			check: 'Exclusive',
+			check: 'exclusive',
 			type: 'title',
 		},
 		{
 			title: 'TechLinked',
-			check: 'http://twitter.com/TechLinkedYT',
+			check: 'http://twitter.com/techlinkedyt',
 			type: 'description',
 		},
 		{
@@ -417,7 +417,7 @@ function getVideos() {
 						console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m ===')
 					}
 					JSON.parse(body).reverse().forEach(function(video, i) {
-						if (i+(page*20) >= settings.maxVideos) { // Break on max videos parsed
+						if (i+(page*20) <= settings.maxVideos) { // Break on max videos parsed
 							return false
 						}
 
@@ -429,7 +429,7 @@ function getVideos() {
 						// Identify what subChannel the video belongs to if any
 						if (subChannelIdentifiers[subscription.title]) {
 							subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
-								if(video[subChannel.type].indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
+								if(video[subChannel.type].toLowerCase().indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
 									video.subChannel = subChannel.title
 								}
 							});

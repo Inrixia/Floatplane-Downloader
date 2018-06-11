@@ -38,13 +38,9 @@ function updateSettings(){
 		var newSettings = JSON.parse(fs.readFileSync('./update/settings.json', 'utf8'));
 		var settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
 		if(settings.videoFolder != null) {newSettings.videoFolder = settings.videoFolder}
-		if(settings.useFloatplane != null) {newSettings.useFloatplane = settings.useFloatplane}
-		if(settings.useBitWit != null) {newSettings.useBitWit = settings.useBitWit}
 		if(settings.maxVideos != null) {newSettings.maxVideos = settings.maxVideos}
-		if(settings.maxPages != null) {newSettings.maxPages = settings.maxPages}
 		if(settings.maxParallelDownloads != null) {newSettings.maxParallelDownloads = settings.maxParallelDownloads}
 		if(settings.downloadArtwork != null) {newSettings.downloadArtwork = settings.downloadArtwork}
-		if(settings.forceLogin != null) {newSettings.forceLogin = settings.forceLogin}
 		if(settings.formatWithEpisodes != null) {newSettings.formatWithEpisodes = settings.formatWithEpisodes}
 		if(settings.downloadUpdateTime != null) {newSettings.downloadUpdateTime = settings.downloadUpdateTime}
 		if(settings.ignoreFolderStructure != null) {newSettings.ignoreFolderStructure = settings.ignoreFolderStructure}
@@ -58,15 +54,14 @@ function updateSettings(){
 		if(settings.monthsAsSeasons != null) {newSettings.monthsAsSeasons = settings.monthsAsSeasons}
 		if(settings.plexScannerInstall != null) {newSettings.plexScannerInstall = settings.plexScannerInstall}
 		if(settings.plexSection != null) {newSettings.plexSection = settings.plexSection}
-		if(settings["Floatplane Exclusive"] != null) {newSettings["Floatplane Exclusive"] = settings["Floatplane Exclusive"]}
-		if(settings["Linus Tech Tips"] != null) {newSettings["Linus Tech Tips"] = settings["Linus Tech Tips"]}
-		if(settings["Techquickie"] != null) {newSettings["Techquickie"] = settings["Techquickie"]}
-		if(settings["Channel Super Fun"] != null) {newSettings["Channel Super Fun"] = settings["Channel Super Fun"]}
 		if(settings.remotePlex != null) {newSettings.remotePlex = settings.remotePlex}
 		if(settings.remotePlexIP != null) {newSettings.remotePlexIP = settings.remotePlexIP}
 		if(settings.remotePlexPort != null) {newSettings.remotePlexPort = settings.remotePlexPort}
 		if(settings.plexToken != null) {newSettings.plexToken = settings.plexToken}
 		if(settings.localPlex != null) {newSettings.localPlex = settings.localPlex}
+		if(settings.subscriptions != null) {newSettings.subscriptions = settings.subscriptions}
+		if(settings.cookie != null) {newSettings.cookie = settings.cookie}
+		if(settings.cookies != null) {newSettings.cookies = settings.cookies}	
 		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
 		})

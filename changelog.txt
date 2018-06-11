@@ -1,3 +1,8 @@
+v4.0.3
+ - Fixed maxVideos not working correctly due to ordering update in 4.0.1
+ - Fixed matching for some subChannels not properly ignoring case
+ - Fixed update script to properly move new settings for 4.0.0
+
 v4.0.2
  - Fixed subscription fetching due to API update
 
