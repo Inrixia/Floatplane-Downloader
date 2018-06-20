@@ -15,7 +15,7 @@ const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
-	if (err == "TypeError: JSON.parse(...).reverse is not a function") { // If this error
+	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
 	} if (err == "ReferenceError: thisChannel is not defined") {
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
