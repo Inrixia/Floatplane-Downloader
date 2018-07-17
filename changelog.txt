@@ -1,8 +1,14 @@
+v4.0.5
+ - Fixed issue with script not handling site returning no videos
+
+v4.0.4
+ - Fixed login not working due to floatplane.com changes
+ - Fixed login checks to work with new login functionality
+
 v4.0.3
  - Fixed maxVideos not working correctly due to ordering update in 4.0.1
  - Fixed matching for some subChannels not properly ignoring case
  - Fixed update script to properly move new settings for 4.0.0
- - Fixed invalidLogin error
 
 v4.0.2
  - Fixed subscription fetching due to API update

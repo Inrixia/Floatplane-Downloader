@@ -15,7 +15,6 @@ const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
-  log(err)
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
 	} if (err == "ReferenceError: thisChannel is not defined") {
@@ -406,6 +405,7 @@ function parseKey() { // Get the key used to download videos
 	})
 }
 
+
 function getVideos() {
 	return new Promise((resolve, reject) => {
 		settings.subscriptions.forEach(function(subscription) {
@@ -417,109 +417,113 @@ function getVideos() {
 					},
 					url: 'https://www.floatplane.com/api/creator/videos?creatorGUID='+subscription.id+'&fetchAfter='+((i*20)-20)
 				}, function (error, resp, body) {
-					var page = resp.request.uri.query.slice(resp.request.uri.query.indexOf('&fetchAfter=')+12, resp.request.uri.query.length)/20
-					if(settings.maxVideos > 20) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
-						console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m - \u001b[95mPage '+page+'\u001b[0m ===')
-					} else { // Otherwise just log it normally
-						console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m ===')
-					}
-					JSON.parse(body).slice(0, settings.maxVideos+page*20).reverse().forEach(function(video, i) {
-						// Set defaults for video
-						matchTitle = video.title
-						video.subChannel = subscription.title
-						video.releaseDate = " - " + new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
-
-						// Identify what subChannel the video belongs to if any
-						if (subChannelIdentifiers[subscription.title]) {
-							subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
-								if(video[subChannel.type].toLowerCase().indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
-									video.subChannel = subChannel.title
-								}
-							});
-							if (subscription.ignore[video.subchannel]) {return false} // If this video is part of a subChannel we are ignoring then break
+					if (body == '[]') {
+						console.log('\n\u001b[31mNo Videos Returned! Please open Floatplane.com in a browser and login...\u001b[0m')
+					} else {
+						var page = resp.request.uri.query.slice(resp.request.uri.query.indexOf('&fetchAfter=')+12, resp.request.uri.query.length)/20
+						if(settings.maxVideos > 20) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
+							console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m - \u001b[95mPage '+page+'\u001b[0m ===')
+						} else { // Otherwise just log it normally
+							console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m ===')
 						}
+						JSON.parse(body).slice(0, settings.maxVideos+page*20).reverse().forEach(function(video, i) {
+							// Set defaults for video
+							matchTitle = video.title
+							video.subChannel = subscription.title
+							video.releaseDate = " - " + new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
 
-						// Manage paths for downloads
-						rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
-						if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
-						if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
-							fs.mkdirSync(settings.videoFolder)
-						}
-						if (!fs.existsSync(rawPath)){ // Check if the first path exists (minus season folder)
-							fs.mkdirSync(rawPath); // If not create the folder needed
-						}
-
-						// Manage paths for date based naming
-						var seasonNumber = '01' // Set the season number to use if nothing special is being done to seasons
-						if(settings.monthsAsSeasons) { // If your formatting the videos with the YEAR+MONTH as the season then
-							var date = new Date(video.releaseDate) // Generate a new date from the publish date pulled above
-							if(date.getMonth() < 10) { // If the month is less than 10 add a 0 to it
-								var seasonNumber = date.getFullYear()+'0'+date.getMonth() // Set the seasonNumber to be the YEAR+MONTH, eg 201801
-								rawPath = rawPath + seasonNumber+'/' // Set the raw path to include the new season folder
-							} else {
-								var seasonNumber = date.getFullYear()+date.getMonth()
-								rawPath = rawPath + seasonNumber+'/'
+							// Identify what subChannel the video belongs to if any
+							if (subChannelIdentifiers[subscription.title]) {
+								subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
+									if(video[subChannel.type].toLowerCase().indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
+										video.subChannel = subChannel.title
+									}
+								});
+								if (subscription.ignore[video.subchannel]) {return false} // If this video is part of a subChannel we are ignoring then break
 							}
-						} else if(settings.yearsAsSeasons) { // If your formatting the videos with the YEAR as the season then
-							var date = new Date(video.releaseDate)
-							var seasonNumber = date.getFullYear() // Set the seasonNumber to be the YEAR, eg 2018
-							rawPath = rawPath + date.getFullYear()+'/'
-						}
-						if (!fs.existsSync(rawPath)){ // Check if the new path exists (plus season folder if enabled)
-							fs.mkdirSync(rawPath); // If not create the folder needed
-						}
-						if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.subChannel+' - '+video.title }
-						if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 }
-						if (settings.formatWithEpisodes == true) { video.title = video.subChannel + ' - S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
-						if (settings.formatWithDate == true) { video.title = video.subChannel+video.releaseDate+' - '+video.title } // Add the upload date to the filename
 
-						//console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m>', video.title);
-						//console.log(video.title, video.guid, video.description, video.thumbnail.path)
+							// Manage paths for downloads
+							rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
+							if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
+							if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
+								fs.mkdirSync(settings.videoFolder)
+							}
+							if (!fs.existsSync(rawPath)){ // Check if the first path exists (minus season folder)
+								fs.mkdirSync(rawPath); // If not create the folder needed
+							}
 
-						// Check if video already exists
-						matchTitle = sanitize(matchTitle)
-						video.title = sanitize(video.title);
-						files = glob.sync(rawPath+'*'+matchTitle.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
-						partialFiles = glob.sync(rawPath+'*'+video.title.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
-						if (!colourList[video.subChannel]) { colourList[video.subChannel] = '\u001b[38;5;153m' }
-						if (i == Math.ceil(settings.maxVideos/20)) {
-							printLines()
-						}
-						if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
-							console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m> '+matchTitle, '== \u001b[32mEXISTS\u001b[0m');
-						} else {
-							updatePlex = true
-							episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
-							try{if(partial_data[video.title].failed){}}catch(err){partial_data[video.title] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
-							if(partialFiles.length > 0) { // If the video is partially downloaded
-								if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.title].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
-								loadCount += 1
-								if (partial_data[video.title].failed) { // If the download failed then start from download normally
-									partialFiles.length = 1;
-									loadCount -= 1
+							// Manage paths for date based naming
+							var seasonNumber = '01' // Set the season number to use if nothing special is being done to seasons
+							if(settings.monthsAsSeasons) { // If your formatting the videos with the YEAR+MONTH as the season then
+								var date = new Date(video.releaseDate) // Generate a new date from the publish date pulled above
+								if(date.getMonth() < 10) { // If the month is less than 10 add a 0 to it
+									var seasonNumber = date.getFullYear()+'0'+date.getMonth() // Set the seasonNumber to be the YEAR+MONTH, eg 201801
+									rawPath = rawPath + seasonNumber+'/' // Set the raw path to include the new season folder
 								} else {
+									var seasonNumber = date.getFullYear()+date.getMonth()
+									rawPath = rawPath + seasonNumber+'/'
+								}
+							} else if(settings.yearsAsSeasons) { // If your formatting the videos with the YEAR as the season then
+								var date = new Date(video.releaseDate)
+								var seasonNumber = date.getFullYear() // Set the seasonNumber to be the YEAR, eg 2018
+								rawPath = rawPath + date.getFullYear()+'/'
+							}
+							if (!fs.existsSync(rawPath)){ // Check if the new path exists (plus season folder if enabled)
+								fs.mkdirSync(rawPath); // If not create the folder needed
+							}
+							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.subChannel+' - '+video.title }
+							if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 }
+							if (settings.formatWithEpisodes == true) { video.title = video.subChannel + ' - S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
+							if (settings.formatWithDate == true) { video.title = video.subChannel+video.releaseDate+' - '+video.title } // Add the upload date to the filename
+
+							//console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m>', video.title);
+							//console.log(video.title, video.guid, video.description, video.thumbnail.path)
+
+							// Check if video already exists
+							matchTitle = sanitize(matchTitle)
+							video.title = sanitize(video.title);
+							files = glob.sync(rawPath+'*'+matchTitle.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
+							partialFiles = glob.sync(rawPath+'*'+video.title.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
+							if (!colourList[video.subChannel]) { colourList[video.subChannel] = '\u001b[38;5;153m' }
+							if (i == Math.ceil(settings.maxVideos/20)) {
+								printLines()
+							}
+							if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
+								console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m> '+matchTitle, '== \u001b[32mEXISTS\u001b[0m');
+							} else {
+								updatePlex = true
+								episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
+								try{if(partial_data[video.title].failed){}}catch(err){partial_data[video.title] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
+								if(partialFiles.length > 0) { // If the video is partially downloaded
+									if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.title].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+									loadCount += 1
+									if (partial_data[video.title].failed) { // If the download failed then start from download normally
+										partialFiles.length = 1;
+										loadCount -= 1
+									} else {
+										if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
+											process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m');
+											resumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Download the video
+										} else { // Otherwise add to queue
+											console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mRESUME QUEUED\u001b[0m');
+											queueResumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Queue
+										}
+									}
+								}
+								if (partialFiles.length <= 0){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
+									if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-										process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m');
-										resumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Download the video
+										process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[34mDOWNLOADING\u001b[0m');
+										download(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Download the video
 									} else { // Otherwise add to queue
-										console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mRESUME QUEUED\u001b[0m');
-										queueResumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Queue
+										console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mQUEUED\u001b[0m');
+										queueDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Queue
 									}
 								}
 							}
-							if (partialFiles.length <= 0){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-								if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
-								loadCount += 1
-								if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-									process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[34mDOWNLOADING\u001b[0m');
-									download(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Download the video
-								} else { // Otherwise add to queue
-									console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mQUEUED\u001b[0m');
-									queueDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Queue
-								}
-							}
-						}
-					})
+						})
+					}
 				})
 			}
 		})
