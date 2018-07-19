@@ -1,5 +1,6 @@
 v4.0.5
  - Fixed issue with script not handling site returning no videos
+ - Fixed issue with script not fetching subscriptions due to api update
 
 v4.0.4
  - Fixed login not working due to floatplane.com changes

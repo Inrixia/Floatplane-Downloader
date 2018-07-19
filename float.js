@@ -89,7 +89,9 @@ colourList = {
 var episodeList = {}
 
 var floatRequest = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
-    headers: {'User-Agent': "FloatplanePlex/"+settings.version+" (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)"},
+    headers: {
+    	'User-Agent': "FloatplanePlex/"+settings.version+" (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)"
+    },
     jar: true, // Use the same cookies globally
 		rejectUnauthorized: false,
 		followAllRedirects: true
@@ -347,6 +349,7 @@ function checkSubscriptions() {
 			floatRequest.get({ // Generate the key used to download videos
 				headers: {
 					Cookie: settings.cookie,
+					'accept': 'application/json'
 				},
 				url: 'https://www.floatplane.com/api/user/subscriptions'
 			}, function (error, resp, body) {
