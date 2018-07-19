@@ -1,3 +1,6 @@
+v4.0.6
+ - TBD
+
 v4.0.5
  - Fixed issue with script not handling site returning no videos
  - Fixed issue with script not fetching subscriptions due to api update
