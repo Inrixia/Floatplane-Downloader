@@ -1,9 +1,1 @@
-settings.json
-videos.json
-partial.json
-node_modules/
-videos/
-/**/desktop.ini
-releases/
-videos
-package-lock.json
+./**/desktop.ini
