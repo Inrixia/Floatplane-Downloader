@@ -21,10 +21,6 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 	} if (err == "ReferenceError: thisChannel is not defined") {
 		fLog('ERROR > Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
-	} if (err == "TypeError: Cannot read property 'title' of undefined") {
-		fLog('ERROR > Error with video.title reference doing a dirty restart...')
-		console.log('\u001b[41mERROR> Error with video.title reference doing a dirty restart...\u001b[0m')
-		pureStart();
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
 		flog('ERROR > partial.json > Corrupt partial.json file! Attempting to recover...')
 		console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
@@ -749,7 +745,7 @@ function ffmpegFormat(file, name, file2, video) { // This function adds titles t
 			setTimeout(function(){ // If the formatting fails, wait a second and try again
 				//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
 				fLog('ffmpeg > An error occoured for "'+video.title+'": '+err+" Retrying...")
-				if(err){ffmpegFormat(file, name, file2)}
+				if(err){ffmpegFormat(file, name, file2, video)}
 			}, 1000)
 		}).on('end', function() { // Save the title in metadata
 			if(loadCount == -1) { // If we are at the last video then run a plex collection update
