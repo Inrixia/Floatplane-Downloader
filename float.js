@@ -16,11 +16,15 @@ const AdmZip = require('adm-zip');
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
-		fLog("ERROR> Failed to login please check your login credentials!")
+		fLog("ERROR > Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
 	} if (err == "ReferenceError: thisChannel is not defined") {
-		fLog('ERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
+		fLog('ERROR > Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
+	} if (err == "TypeError: Cannot read property 'title' of undefined") {
+		fLog('ERROR > Error with video.title reference doing a dirty restart...')
+		console.log('\u001b[41mERROR> Error with video.title reference doing a dirty restart...\u001b[0m')
+		pureStart();
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
 		flog('ERROR > partial.json > Corrupt partial.json file! Attempting to recover...')
 		console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
