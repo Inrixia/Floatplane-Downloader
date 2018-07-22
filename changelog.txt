@@ -1,3 +1,8 @@
+v4.1.6
+ - Fixed issue with script failing on videos with no thumbnail
+ - Added videos.json to store downloaded videos
+ - Fixed subchannel Ignore not working
+
 v4.0.5
  - Fixed issue with script not handling site returning no videos
  - Fixed issue with script not fetching subscriptions due to api update

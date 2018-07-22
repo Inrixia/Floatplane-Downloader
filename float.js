@@ -37,6 +37,7 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 });
 
 const settings = require('./settings.json'); // File containing user settings
+const videos = require('./videos.json'); // Persistant storage of videos downloaded
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
 
 if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus season folder if enabled)
@@ -312,6 +313,13 @@ function saveSettings() { // Saves all the settings from the current settings ob
 	})
 }
 
+function saveVideoLog() { // Function for saving partial data, just writes out the variable to disk
+	fs.writeFile("./videos.json", JSON.stringify(videos), 'utf8', function (err) {
+		if (err) console.log(err)
+	});
+}
+
+
 function logEpisodeCount(){ // Print out the current number of "episodes" for each subchannel
 	return new Promise((resolve, reject) => {
 		console.log('\n\n=== \u001b[38;5;8mEpisode Count\u001b[0m ===')
@@ -442,8 +450,8 @@ function getVideos() {
 										video.subChannel = subChannel.title
 									}
 								});
-								if (subscription.ignore[video.subchannel]) {return false} // If this video is part of a subChannel we are ignoring then break
 							}
+							if (subscription.ignore[video.subChannel]) { return false } // If this video is part of a subChannel we are ignoring then break
 
 							// Manage paths for downloads
 							rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
@@ -485,45 +493,46 @@ function getVideos() {
 							// Check if video already exists
 							matchTitle = sanitize(matchTitle)
 							video.title = sanitize(video.title);
-							files = glob.sync(rawPath+'*'+matchTitle.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
-							partialFiles = glob.sync(rawPath+'*'+video.title.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
+							//files = glob.sync(rawPath+'*'+matchTitle.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
+							//partialFiles = glob.sync(rawPath+'*'+video.title.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
 							if (!colourList[video.subChannel]) { colourList[video.subChannel] = '\u001b[38;5;153m' }
 							if (i == Math.ceil(settings.maxVideos/20)) {
 								printLines()
 							}
-							if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
-								console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m> '+matchTitle, '== \u001b[32mEXISTS\u001b[0m');
-							} else {
+							//if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
+							if (videos[video.guid] == undefined){ videos[video.guid] = {title: video.title, partial: false, saved: false} }
+							if (!videos[video.guid].saved) {
 								updatePlex = true
 								episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
 								try{if(partial_data[video.title].failed){}}catch(err){partial_data[video.title] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
-								if(partialFiles.length > 0) { // If the video is partially downloaded
-									if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.title].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+								if (!videos[video.guid].partial){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
+									if(settings.downloadArtwork && video.thumbnail) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+									loadCount += 1
+									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
+										process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[34mDOWNLOADING\u001b[0m');
+										download(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath, video) // Download the video
+									} else { // Otherwise add to queue
+										console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mQUEUED\u001b[0m');
+										queueDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath, video) // Queue
+									}
+								} else { // The video is partially downloaded
+									if(settings.downloadArtwork && video.thumbnail) {floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.title].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (partial_data[video.title].failed) { // If the download failed then start from download normally
-										partialFiles.length = 1;
+										//partialFiles.length = 1;
 										loadCount -= 1
 									} else {
 										if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
 											process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m');
-											resumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Download the video
+											resumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath, video) // Download the video
 										} else { // Otherwise add to queue
 											console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mRESUME QUEUED\u001b[0m');
-											queueResumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath) // Queue
+											queueResumeDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, partial_data[video.title].title, video.subChannel, rawPath, video) // Queue
 										}
 									}
 								}
-								if (partialFiles.length <= 0){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-									if(settings.downloadArtwork) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
-									loadCount += 1
-									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-										process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[34mDOWNLOADING\u001b[0m');
-										download(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Download the video
-									} else { // Otherwise add to queue
-										console.log(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[35mQUEUED\u001b[0m');
-										queueDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath) // Queue
-									}
-								}
+							} else {
+								console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m> '+matchTitle, '== \u001b[32mEXISTS\u001b[0m');
 							}
 						})
 					}
@@ -533,27 +542,29 @@ function getVideos() {
 	})
 }
 
-function queueDownload(url, title, thisChannel, rawPath) { // Loop until current downloads is less than maxParallelDownloads and then download
+function queueDownload(url, title, thisChannel, rawPath, video) { // Loop until current downloads is less than maxParallelDownloads and then download
 	setTimeout(function(){
-		if (liveCount < settings.maxParallelDownloads) {
-			download(url, title, thisChannel, rawPath)
+		if (liveCount < settings.maxParallelDownloads, video) {
+			download(url, title, thisChannel, rawPath, video)
 		} else {
-			queueDownload(url, title, thisChannel, rawPath) // Run this function again continuing the loop
+			queueDownload(url, title, thisChannel, rawPath, video) // Run this function again continuing the loop
 		}
 	}, 500)
 }
 
-function queueResumeDownload(url, title, thisChannel, rawPath) { // Loop until current downloads is less than maxParallelDownloads and then download
+function queueResumeDownload(url, title, thisChannel, rawPath, video) { // Loop until current downloads is less than maxParallelDownloads and then download
 	setTimeout(function(){
 		if (liveCount < settings.maxParallelDownloads) {
-			resumeDownload(url, title, thisChannel, rawPath)
+			resumeDownload(url, title, thisChannel, rawPath, video)
 		} else {
-			queueResumeDownload(url, title, thisChannel, rawPath) // Run this function again continuing the loop
+			queueResumeDownload(url, title, thisChannel, rawPath, video) // Run this function again continuing the loop
 		}
 	}, 500)
 }
 
-function download(url, title, thisChannel, rawPath) { // The main download function, this is the guts of downloading stuff after the url is gotten from the form
+function download(url, title, thisChannel, rawPath, video) { // The main download function, this is the guts of downloading stuff after the url is gotten from the form
+	videos[video.guid].partial = true
+	saveVideoLog()
 	partial_data[title] = {failed: true, title: title} // Set the download failed to true and the title incase a download starts but crashes before the first partial write
 	var bar = multi.newBar(':title [:bar] :percent :stats', { // Format with ffmpeg for titles/plex support
 		complete: '\u001b[42m \u001b[0m',
@@ -586,11 +597,11 @@ function download(url, title, thisChannel, rawPath) { // The main download funct
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = (rawPath+'TEMP_'+title+'.mp4') // Specify the temp file to write the metadata to
-		ffmpegFormat(file, name, file2, {url: url, title: title, thisChannel: thisChannel}) // Format with ffmpeg for titles/plex support
+		ffmpegFormat(file, name, file2, video) // Format with ffmpeg for titles/plex support
 	});
 }
 
-function resumeDownload(url, title, thisChannel, rawPath) { // This handles resuming downloads, its very similar to the download function with some changes
+function resumeDownload(url, title, thisChannel, rawPath, video) { // This handles resuming downloads, its very similar to the download function with some changes
 	var total = partial_data[title].total // Set the total size to be equal to the stored value in the partial_data
 	var subTotal = partial_data[title].transferred // Set subTotal as the previous ammount transferred
 	var bar = multi.newBar(':title [:bar] :percent :stats', { // Create a new loading bar
@@ -628,11 +639,11 @@ function resumeDownload(url, title, thisChannel, rawPath) { // This handles resu
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = (rawPath+'TEMP_'+title+'.mp4') // Specify the temp file to write the metadata to
-		ffmpegFormat(file, name, file2, {url: url, title: title, thisChannel: thisChannel}) // Format with ffmpeg for titles/plex support
+		ffmpegFormat(file, name, file2, video) // Format with ffmpeg for titles/plex support
 	});
 }
 
-function ffmpegFormat(file, name, file2, recover) { // This function adds titles to videos using ffmpeg for compatibility with plex
+function ffmpegFormat(file, name, file2, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
 		setTimeout(function(){ // If the formatting fails, wait a second and try again
 			//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
@@ -642,7 +653,10 @@ function ffmpegFormat(file, name, file2, recover) { // This function adds titles
 		if(loadCount == -1) { // If we are at the last video then run a plex collection update
 			updateLibrary();
 		}
-		fs.rename(file2, file, function(){})
+		fs.rename(file2, file, function(){
+			videos[video.id].saved = true
+			saveVideoLog();
+		})
 	})
 }
 
