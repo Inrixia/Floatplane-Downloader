@@ -93,7 +93,7 @@ const subChannelIdentifiers = {
 			type: 'description',
 		},
 		{
-			title: 'TechQuickie',
+			title: 'Techquickie',
 			check: 'http://twitter.com/jmart604',
 			type: 'description',
 		}
@@ -105,7 +105,7 @@ colourList = {
 	'Channel Super Fun': '\u001b[38;5;220m',
 	'Floatplane Exclusive': '\u001b[38;5;200m',
 	'TechLinked': '\u001b[38;5;14m',
-	'TechQuickie': '\u001b[38;5;153m',
+	'Techquickie': '\u001b[38;5;153m',
 	'Tech Deals': '\u001b[38;5;10m',
 	'BitWit Ultra': '\u001b[38;5;105m'
 }
@@ -428,7 +428,7 @@ function checkSubscriptions() {
 				        "Channel Super Fun": false,
 				        "Floatplane Exclusive": false,
 				        "TechLinked": false,
-				        "TechQuickie": false
+				        "Techquickie": false
 							}
 						})
 					} else {
