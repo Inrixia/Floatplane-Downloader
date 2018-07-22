@@ -1,5 +1,6 @@
 v4.2.7
  - Error fixes galore
+ - Prettyfied videos.json
 
 v4.2.6
  - Added setting logging

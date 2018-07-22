@@ -368,7 +368,7 @@ function saveSettings() { // Saves all the settings from the current settings ob
 }
 
 function saveVideoLog() { // Function for saving partial data, just writes out the variable to disk
-	fs.writeFile("./videos.json", JSON.stringify(videos), 'utf8', function (err) {
+	fs.writeFile("./videos.json", JSON.stringify(videos, null, 2), 'utf8', function (err) {
 		if (err) console.log(err)
 	});
 }
