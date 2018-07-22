@@ -14,7 +14,7 @@ const pad = require('pad');
 const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
-/*process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
+process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR> Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
@@ -51,10 +51,10 @@ const AdmZip = require('adm-zip');
  		});
  	} else {
 		//console.log(err)
-		fLog("ERR > "+err)
+		fLog("UNHANDLED ERROR > "+err)
 		throw err
 	}
-});*/
+});
 
 const settings = require('./settings.json'); // File containing user settings
 const videos = require('./videos.json'); // Persistant storage of videos downloaded
@@ -165,7 +165,7 @@ function pureStart() { // Global wrapper for starting the script
 
 function checkExistingVideos() {
 	Object.keys(videos).forEach(function(key) {
-		if (!fs.existsSync(videos[key].file)){ // Check if the video still exists
+		if (videos[key].saved == true && !fs.existsSync(videos[key].file)){ // Check if the video still exists
 			delete videos[key]
 		}
 	});
@@ -277,7 +277,7 @@ function repeatScript() {
 
 function start() { // This is the main function that triggeres everything else in the script
 	fLog("Init > Starting Main Functions")
-	checkAuth().then(constructCookie).then(saveSettings).then(checkSubscriptions).then(parseKey).then(logEpisodeCount).then(getVideos)
+	checkAuth().then(constructCookie).then(checkSubscriptions).then(parseKey).then(saveSettings).then(logEpisodeCount).then(getVideos)
 }
 
 function printLines() { // Printout spacing for download bars based on the number of videos downloading
@@ -469,9 +469,12 @@ function parseKey() { // Get the key used to download videos
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
+				if (settings.autoFetchServer) {
+					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplaneclub.com')+18)
+				}
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")
-				console.log('\u001b[36mFetched!\u001b[0m');
+				console.log('\u001b[36mFetched! Using Server \u001b[0m[\u001b[38;5;208m'+settings.floatplaneServer+'\u001b[0m]');
 				resolve()
 			}
 		});
@@ -633,7 +636,7 @@ function getVideos() {
 
 function queueDownload(url, title, thisChannel, rawPath, video) { // Loop until current downloads is less than maxParallelDownloads and then download
 	setTimeout(function(){
-		if (liveCount < settings.maxParallelDownloads, video) {
+		if (liveCount < settings.maxParallelDownloads) {
 			download(url, title, thisChannel, rawPath, video)
 		} else {
 			queueDownload(url, title, thisChannel, rawPath, video) // Run this function again continuing the loop
@@ -731,27 +734,29 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = (rawPath+'TEMP_'+title+'.mp4') // Specify the temp file to write the metadata to
-		var video = video
 		ffmpegFormat(file, name, file2, video) // Format with ffmpeg for titles/plex support
 	});
 }
 
 function ffmpegFormat(file, name, file2, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
-	fLog('ffmpeg > Beginning ffmpeg title formatting for "'+video.title+'"')
-	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
-		setTimeout(function(){ // If the formatting fails, wait a second and try again
-			//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
-			fLog('ffmpeg > An error occoured for "'+video.title+'": '+err+" Retrying...")
-			if(err){ffmpegFormat(file, name, file2)}
-		}, 1000)
-	}).on('end', function() { // Save the title in metadata
-		if(loadCount == -1) { // If we are at the last video then run a plex collection update
-			updateLibrary();
-		}
-		fs.rename(file2, file, function(){
-			fLog('ffmpeg > Renamed "'+file2+"' to '"+file+'"')
+	if (settings.ffmpeg) {
+		fLog('ffmpeg > Beginning ffmpeg title formatting for "'+video.title+'"')
+		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
+			setTimeout(function(){ // If the formatting fails, wait a second and try again
+				//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
+				fLog('ffmpeg > An error occoured for "'+video.title+'": '+err+" Retrying...")
+				if(err){ffmpegFormat(file, name, file2)}
+			}, 1000)
+		}).on('end', function() { // Save the title in metadata
+			if(loadCount == -1) { // If we are at the last video then run a plex collection update
+				updateLibrary();
+			}
+			fs.rename(file2, file, function(){
+				fLog('ffmpeg > Renamed "'+file2+"' to '"+file+'"')
+			})
 		})
-	})
+	}
+	fLog('Download > Updated VideoStore for video "'+video.title+'"')
 	delete partial_data[video.guid] // Remove its partial data
 	videos[video.guid].file = file // Note the file that the video is saved to
 	videos[video.guid].saved = true // Set it to be saved

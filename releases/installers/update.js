@@ -56,6 +56,8 @@ function updateSettings(){
 		if(settings.cookie != null) {newSettings.cookie = settings.cookie}
 		if(settings.cookies != null) {newSettings.cookies = settings.cookies}
 
+		if(settings.ffmpeg != null) {newSettings.ffmpeg = settings.ffmpeg}
+
 		if(settings.logging != null) {newSettings.logging = settings.logging}	
 		if(settings.logFile != null) {newSettings.logFile = settings.logFile}
 
@@ -67,6 +69,7 @@ function updateSettings(){
 		if(settings.plexSection != null) {newSettings.plexSection = settings.plexSection}
 		if(settings.plexScannerInstall != null) {newSettings.plexScannerInstall = settings.plexScannerInstall}
 
+		if(settings.autoFetchServer != null) {newSettings.autoFetchServer = settings.autoFetchServer}
 		if(settings.floatplaneServer != null) {newSettings.floatplaneServer = settings.floatplaneServer}
 
 		if(settings.video_res != null) {newSettings.video_res = settings.video_res}

@@ -1,7 +1,11 @@
 v4.2.6
- - Added logging in settings.json
- - Added logFile in settings.json
- - Added logging enable in settings.json
+ - Added setting logging
+ - Added setting logFile
+ - Added logging to a file
+ - Added setting ffmpeg
+ - Added the ability to disable ffmpeg processing
+ - Added setting autoFetchServer
+ - Added the ability to automatically fetch download server for your region
 
 v4.1.6
  - Fixed issue with script failing on videos with no thumbnail

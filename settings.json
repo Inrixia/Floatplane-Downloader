@@ -17,6 +17,7 @@
     "__cfduid": "",
     "sails.sid": ""
   },
+  "ffmpeg": true,
   "logging": false,
   "logFile": "./float.log",
   "remotePlex": false,
@@ -26,6 +27,7 @@
   "localPlex": false,
   "plexSection": "0",
   "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe",
+  "autoFetchServer": true,
   "floatplaneServer": "https://Edge02-na.floatplaneclub.com:443",
   "video_res": 1080,
   "user": "",
