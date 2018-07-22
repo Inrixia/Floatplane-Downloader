@@ -185,6 +185,33 @@ Repeats every day:
 }
 ```
 
+**ffmpeg:**  
+>Enables ffmpeg processing of videos. Disabling this will break titles in plex.
+>
+>Default: "**true**" 
+>Example: 
+```json 
+"ffmpeg": false
+```
+
+**logging:**  
+>Will log script events to a logfile defined in the **logFile** setting.
+>
+>Default: "**false**" 
+>Example: 
+```json 
+"logging": true
+```
+
+**logFile:**  
+>Defines the file that will be used for logging if logging is enabled
+>
+>Default: "**./float.log**" 
+>Example: 
+```json 
+"logFile": ./myLogFile.log
+```
+
 **remotePlex:**  
 >This enables or disables remotely updating a plex library in the script.  
 >
@@ -254,6 +281,16 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 >Example:
 ```json 
 "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+```
+
+**autoFetchServer:**  
+>When this is enabled the script will automatically fetch the download server for your region
+>Disabling this will let you manually specify a download server in the **floatplaneServer** setting
+>
+>Default: "**true**"  
+>Example:
+```json 
+"autoFetchServer": false
 ```
 
 **floatplaneServer:**  
