@@ -14,38 +14,47 @@ const pad = require('pad');
 const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
-process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
+/*process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
+		fLog("ERROR> Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
 	} if (err == "ReferenceError: thisChannel is not defined") {
+		fLog('ERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
+		flog('ERROR > partial.json > Corrupt partial.json file! Attempting to recover...')
 		console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
 		fs.writeFile("./partial.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
 			if (error) {
+				fLog('ERROR > partial.json > Recovery failed! Error: '+error)
 				console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
 				process.exit()
 			} else {
+				fLog('ERROR > videos.json > Recovered! Restarting script...')
 				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
 				pureStart();
 			}
 		});
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
+		flog('ERROR > videos.json > Corrupt videos.json file! Attempting to recover...')
  		console.log('\u001b[41mERROR> Corrupt videos.json file! Attempting to recover...\u001b[0m');
  		fs.writeFile("./videos.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
  			if (error) {
+				fLog('ERROR > videos.json > Recovery failed! Error: '+error)
  				console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
  				process.exit()
  			} else {
+				fLog('ERROR > videos.json > Recovered! Restarting script...')
  				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
  				pureStart();
  			}
  		});
  	} else {
 		//console.log(err)
+		fLog("ERR > "+err)
 		throw err
 	}
-});
+});*/
 
 const settings = require('./settings.json'); // File containing user settings
 const videos = require('./videos.json'); // Persistant storage of videos downloaded
@@ -53,6 +62,12 @@ const partial_data = require('./partial.json'); // File for saving details of pa
 
 if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus season folder if enabled)
 	fs.mkdirSync(settings.videoFolder); // If not create the folder needed
+}
+
+const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
+
+function fLog(info) {
+	logstream.write(Date()+" == "+info+'\n');
 }
 
 const subChannelIdentifiers = {
@@ -90,7 +105,7 @@ colourList = {
 	'Channel Super Fun': '\u001b[38;5;220m',
 	'Floatplane Exclusive': '\u001b[38;5;200m',
 	'TechLinked': '\u001b[38;5;14m',
-	'Techquickie': '\u001b[38;5;153m',
+	'TechQuickie': '\u001b[38;5;153m',
 	'Tech Deals': '\u001b[38;5;10m',
 	'BitWit Ultra': '\u001b[38;5;105m'
 }
@@ -120,6 +135,7 @@ var updatePlex = false; // Defaults to false, and should stay false. This is aut
 
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
 if (files.length == -1) {
+	fLog('ERROR > You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...')
 	console.log('\u001b[41m You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
 	process.exit()
 }
@@ -132,6 +148,7 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 }, function (err, resp, body) {
 	updateInfo = JSON.parse(body)
 	if(updateInfo.version > settings.version) { // If the script is outdated
+		fLog("Pre-Init > "+'New Version Avalible: v'+updateInfo.version+' | Update with update.bat!')
 		console.log('\u001b[33mNew Version Avalible: v'+updateInfo.version+' | Update with update.bat!\u001b[0m')
 	} else if(updateInfo.version < settings.version) { // If the script is a beta version/nonpublic
 		console.log('\u001b[35mOhh, your running a hidden beta! Spooky...\u001b[0m')
@@ -140,6 +157,7 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 
 pureStart();
 function pureStart() { // Global wrapper for starting the script
+	fLog("\n\n\n=== Pre-Init > Started ===")
 	// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
 	getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
 }
@@ -147,6 +165,7 @@ function pureStart() { // Global wrapper for starting the script
 function getPlexToken() { // If remoteplex is enabled then this asks the user for the plex username and password to generate a plexToken for remote refreshes
 	return new Promise((resolve, reject) => {
 		if (settings.remotePlex && settings.plexToken == "") {
+			fLog("Plex-Init > Fetching Token")
 			console.log('> Remote plex enabled! Fetching library access token...');
 			console.log('> Please enter your plex login details:');
 			prompt.start();
@@ -160,12 +179,14 @@ function getPlexToken() { // If remoteplex is enabled then this asks the user fo
 						'X-Plex-Version': "1"
 					}
 				}, function(err, resp, body){
+					fLog("Plex-Init > Fetched Token")
 					console.log('\u001b[36mFetched!\u001b[0m\n');
 					settings.plexToken = JSON.parse(body).user.authToken
 					resolve()
 				})
 			});
 		} else if (settings.remotePlex && settings.plexToken != "") {
+			fLog("Plex-Init > Using Saved Token")
 			console.log("> Using saved plex token")
 			resolve()
 		} else {
@@ -225,18 +246,20 @@ function repeatScript() {
 		}
 		var countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // countDown is the number of minutes remaining until the script restarts
 		var multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
+		fLog("Init-Repeat > Script-Repeat Enabled! "+'Repeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.')
 		console.log('\u001b[41mRepeating for '+settings.repeatScript+' or '+settings.repeatScript.slice(0, -1)*multiplier+' Seconds.\u001b[0m');
 		start(); // Start the script for the first time
 		setInterval(() => { // Set a repeating function that is called every 1000 miliseconds times the number of seconds the user picked
+			fLog("Init-Repeat > Restarting!")
 			start();
 		}, settings.repeatScript.slice(0, -1)*multiplier*1000); // Re above
 		setInterval(() => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
-		console.log(countDown+' Minutes until script restarts...');
-		if(countDown > 0) {
-			countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
-		} else {
-			countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
-		}
+			console.log(countDown+' Minutes until script restarts...');
+			if(countDown > 0) {
+				countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
+			} else {
+				countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
+			}
 		}, 60*1000);
 	} else {
 		start();
@@ -244,6 +267,7 @@ function repeatScript() {
 }
 
 function start() { // This is the main function that triggeres everything else in the script
+	fLog("Init > Starting Main Functions")
 	checkAuth().then(constructCookie).then(saveSettings).then(checkSubscriptions).then(parseKey).then(logEpisodeCount).then(getVideos)
 }
 
@@ -272,6 +296,7 @@ function checkAuth(forced) { // Check if the user is authenticated
 			doLogin().then(resolve)
 		}	else {
 			// They are already logged in with suficcent auth, just continue.
+			fLog("Init-Auth > Using saved login data")
 			console.log('> Using saved login data');
 			resolve()
 		}
@@ -279,25 +304,29 @@ function checkAuth(forced) { // Check if the user is authenticated
 }
 
 function doLogin() { // Login using the users credentials and save the cookies & session
-	console.log("> Logging in as", settings.user)
 	return new Promise((resolve, reject) => {
+		authUrl = 'https://www.floatplane.com/api/auth/login'
+		fLog("Init-Login > Logging in as "+settings.user+" via "+authUrl)
+		console.log("> Logging in as", settings.user)
 		floatRequest.post({
 			method: 'POST',
 			json: {
 				username: settings.user,
 				password: settings.password
 			},
-			url: 'https://www.floatplane.com/api/auth/login',
+			url: authUrl,
 			headers: {
 				'accept': 'application/json'
 			}
 		}, function (error, resp, body) {
 			if (body.user) { // If the server returns a user then we have logged in
-				console.log('\u001b[32mLogged In!\u001b[0m\n');
+				fLog("Init-Login > Logged In as "+settings.user+"!")
+				console.log('\u001b[32mLogged In as '+settings.user+'!\u001b[0m\n');
 				settings.cookies.__cfduid = resp.headers['set-cookie'][0]
 				settings.cookies['sails.sid'] = resp.headers['set-cookie'][1]
 				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
 			} else {
+				fLog("Init-Login > There was a error while logging in...")
 				console.log('\x1Bc');
 				console.log('\u001b[31mThere was a error while logging in...\u001b[0m\n');
 				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
@@ -312,6 +341,7 @@ function constructCookie() { // Generate a array of cookies from the json object
 		for (k in settings.cookies) {
 			settings.cookie.push(settings.cookies[k])
 		}
+		fLog("Init-Cookie > Cookie Constructed")
 		console.log('> Cookie Constructed!');
 		resolve()
 	})
@@ -336,6 +366,7 @@ function saveVideoLog() { // Function for saving partial data, just writes out t
 
 function logEpisodeCount(){ // Print out the current number of "episodes" for each subchannel
 	return new Promise((resolve, reject) => {
+		fLog("Post-Init > Printing episode count")
 		console.log('\n\n=== \u001b[38;5;8mEpisode Count\u001b[0m ===')
 		if (!settings.ignoreFolderStructure) {
 			fs.readdirSync(settings.videoFolder).forEach(function(channel){
@@ -365,7 +396,9 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 
 function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
+		var subUrl = 'https://www.floatplane.com/api/user/subscriptions'
 		if (settings.subscriptions.length == 0 || settings.checkForNewSubscriptions == true) {
+			fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
 			settings.checkForNewSubscriptions = false
 			settings.subscriptions = []
 			floatRequest.get({ // Generate the key used to download videos
@@ -373,7 +406,7 @@ function checkSubscriptions() {
 					Cookie: settings.cookie,
 					'accept': 'application/json'
 				},
-				url: 'https://www.floatplane.com/api/user/subscriptions'
+				url: subUrl
 			}, function (error, resp, body) {
 				JSON.parse(body).forEach(function(subscription) {
 					if (subscription.plan.title == 'Linus Tech Tips') {
@@ -397,10 +430,12 @@ function checkSubscriptions() {
 						})
 					}
 				})
+				fLog("Init-Subs > Updated user subscriptions")
 				console.log('> Updated subscriptions!')
 				saveSettings().then(resolve())
 			}, reject)
 		} else {
+			fLog("Init-Subs > Using saved subscriptions")
 			console.log('> Using saved subscriptions')
 			resolve()
 		}
@@ -409,20 +444,24 @@ function checkSubscriptions() {
 
 function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
+		var keyUrl = 'https://www.floatplane.com/api/video/url?guid=YeM6cfNvIf&quality=1080'
+		fLog("Init-Key > Fetching video download key ("+keyUrl+")")
 		console.log("> Fetching video key")
 		floatRequest.get({
-			url: 'https://www.floatplane.com/api/video/url?guid=YeM6cfNvIf&quality=1080',
+			url: keyUrl,
 			headers: {
 				Cookie: settings.cookie,
 			}
 		}, function (err, resp, body) {
 			if (JSON.parse(body).message == "You must be logged-in to access this resource.") { // Check if key is invalid
+				fLog("Init-Key > Key Invalid! Attempting to re-auth")
 				console.log('\u001b[31mInvalid Key! Attempting to re-authenticate...\u001b[0m');
 				settings.cookies.__cfduid = ''
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
+				fLog("Init-Key > Key Fetched")
 				console.log('\u001b[36mFetched!\u001b[0m');
 				resolve()
 			}
@@ -433,16 +472,24 @@ function parseKey() { // Get the key used to download videos
 
 function getVideos() {
 	return new Promise((resolve, reject) => {
+		fLog("Videos-Init > Starting Main Function")
 		settings.subscriptions.forEach(function(subscription) {
-			if (!subscription.enabled) {return false} // If this subscription is disabled then dont download
+			if (!subscription.enabled) {
+				fLog("\nVideos-Init > "+subscription.title+" is disabled, skipping")
+				return false
+			} // If this subscription is disabled then dont download
 			for(i=1; i <= Math.ceil(settings.maxVideos/20); i++){
+				var vUrl = 'https://www.floatplane.com/api/creator/videos?creatorGUID='+subscription.id+'&fetchAfter='+((i*20)-20)
+				fLog("Videos-Init > Fetching "+vUrl)
 				floatRequest.get({ // Generate the key used to download videos
 					headers: {
 						Cookie: settings.cookie,
 					},
-					url: 'https://www.floatplane.com/api/creator/videos?creatorGUID='+subscription.id+'&fetchAfter='+((i*20)-20)
+					url: vUrl
 				}, function (error, resp, body) {
+					fLog("Videos-Init > Fetched "+vUrl)
 					if (body == '[]') {
+						fLog("Videos > No Video's Returned! Please open Floatplane.com in a browser and login...")
 						console.log('\n\u001b[31mNo Videos Returned! Please open Floatplane.com in a browser and login...\u001b[0m')
 					} else {
 						var page = resp.request.uri.query.slice(resp.request.uri.query.indexOf('&fetchAfter=')+12, resp.request.uri.query.length)/20
@@ -461,19 +508,25 @@ function getVideos() {
 							if (subChannelIdentifiers[subscription.title]) {
 								subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
 									if(video[subChannel.type].toLowerCase().indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
+										fLog('Videos-Subs > Matched "'+video.title+'" to subChannel "'+subChannel.title+'"')
 										video.subChannel = subChannel.title
 									}
 								});
 							}
-							if (subscription.ignore[video.subChannel]) { return false } // If this video is part of a subChannel we are ignoring then break
+							if (subscription.ignore[video.subChannel]) {
+								fLog('Videos-Subs > Subscription "'+video.subChannel+'" is set to ignore, skipping video "'+video.title+'"')
+								return false
+							} // If this video is part of a subChannel we are ignoring then break
 
 							// Manage paths for downloads
 							rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
 							if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
 							if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
+								fLog('Videos-FileSystem > "'+settings.videoFolder+'"'+" doesn't exit... Creating")
 								fs.mkdirSync(settings.videoFolder)
 							}
 							if (!fs.existsSync(rawPath)){ // Check if the first path exists (minus season folder)
+								fLog('Videos-FileSystem > "'+rawPath+'"'+" doesn't exit... Creating")
 								fs.mkdirSync(rawPath); // If not create the folder needed
 							}
 
@@ -494,6 +547,7 @@ function getVideos() {
 								rawPath = rawPath + date.getFullYear()+'/'
 							}
 							if (!fs.existsSync(rawPath)){ // Check if the new path exists (plus season folder if enabled)
+								fLog('Videos-FileSystem > "'+rawPath+'"'+" doesn't exit... Creating'")
 								fs.mkdirSync(rawPath); // If not create the folder needed
 							}
 							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.subChannel+' - '+video.title }
@@ -514,13 +568,19 @@ function getVideos() {
 								printLines()
 							}
 							//if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
-							if (videos[video.guid] == undefined){ videos[video.guid] = {title: video.title, subChannel: video.subChannel, partial: false, saved: false} }
+							if (videos[video.guid] == undefined){
+								fLog('Download-Init > "'+video.title+'" is new, creating meta in videos.json')
+								videos[video.guid] = {subChannel: video.subChannel, partial: false, saved: false}
+							}
 							if (!videos[video.guid].saved) {
 								updatePlex = true
 								episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
 								try{if(partial_data[video.guid].failed){}}catch(err){partial_data[video.guid] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
 								if (!videos[video.guid].partial){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
-									if(settings.downloadArtwork && video.thumbnail) { floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+									if(settings.downloadArtwork && video.thumbnail) {
+										fLog('Download-Init > Downloading "'+video.title+'" artwork')
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))
+									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
 										process.stdout.write(colourList[video.subChannel]+'>-- '+'\u001b[0m'+matchTitle+' == \u001b[34mDOWNLOADING\u001b[0m');
@@ -530,9 +590,14 @@ function getVideos() {
 										queueDownload(settings.floatplaneServer+'/Videos/'+video.guid+'/'+settings.video_res+'.mp4?wmsAuthSign='+settings.key, video.title, video.subChannel, rawPath, video) // Queue
 									}
 								} else { // The video is partially downloaded
-									if(settings.downloadArtwork && video.thumbnail) {floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.png'))} // Save the thumbnail with the same name as the video so plex will use it
+									fLog('Resume-Init > "'+video.title+'" is partially downloaded... Resuming')
+									if(settings.downloadArtwork && video.thumbnail) {
+										fLog('Download-Init > Downloading "'+video.title+'" artwork')
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.png'))
+									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (partial_data[video.guid].failed) { // If the download failed then start from download normally
+										fLog('Resume-Init > "'+video.title+'" partial data is corrupt, restarting as a fresh download')
 										//partialFiles.length = 1;
 										loadCount -= 1
 									} else {
@@ -546,6 +611,7 @@ function getVideos() {
 									}
 								}
 							} else {
+								fLog('Videos > Video "'+video.title+'"'+" exist's skipping")
 								console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m> '+matchTitle, '== \u001b[32mEXISTS\u001b[0m');
 							}
 						})
@@ -577,6 +643,7 @@ function queueResumeDownload(url, title, thisChannel, rawPath, video) { // Loop 
 }
 
 function download(url, title, thisChannel, rawPath, video) { // The main download function, this is the guts of downloading stuff after the url is gotten from the form
+	fLog('Download > Downloading "'+video.title+'"')
 	videos[video.guid].partial = true
 	saveVideoLog()
 	partial_data[video.guid] = {failed: true, title: title} // Set the download failed to true and the title incase a download starts but crashes before the first partial write
@@ -598,8 +665,10 @@ function download(url, title, thisChannel, rawPath, video) { // The main downloa
 		bar.tick({'title': displayTitle, 'stats': ((state.speed/100000)/8).toFixed(2)+'MB/s'+' '+(state.size.transferred/1024000).toFixed(0)+'/'+(state.size.total/1024000).toFixed(0)+'MB'+' '+'ETA: '+Math.floor(state.time.remaining/60) + 'm '+Math.floor(state.time.remaining)%60 + 's'})
 		total = (state.size.total/1024000).toFixed(0) // Update Total for when the download finishes
 	}).on('error', function(err, stdout, stderr) {
+		fLog('Download > An error occoured for "'+video.title+'": '+err)
 		console.log('An error occurred: ' + err.message, err, stderr); // If there was a error with the download log it
 	}).on('end', function () { // When the download finishes
+		fLog('Download > Finished downloading: "'+video.title+'"')
 		bar.update(1) // Set the download % to 100%
 		bar.tick({'title': displayTitle, 'stats': total+'/'+total+'MB'}) // Set the stats to be totalMB/totalMB
 		bar.terminate()
@@ -615,6 +684,7 @@ function download(url, title, thisChannel, rawPath, video) { // The main downloa
 }
 
 function resumeDownload(url, title, thisChannel, rawPath, video) { // This handles resuming downloads, its very similar to the download function with some changes
+	fLog('Resume > Resuming download for "'+video.title+'"')
 	var total = partial_data[video.guid].total // Set the total size to be equal to the stored value in the partial_data
 	var subTotal = partial_data[video.guid].transferred // Set subTotal as the previous ammount transferred
 	var bar = multi.newBar(':title [:bar] :percent :stats', { // Create a new loading bar
@@ -637,6 +707,7 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 		// Tick the bar same as above but the transferred value needs to take into account the previous amount.
 		bar.tick({'title': displayTitle, 'stats': ((state.speed/100000)/8).toFixed(2)+'MB/s'+' '+((subTotal+state.size.transferred)/1024000).toFixed(0)+'/'+(total/1024000).toFixed(0)+'MB'+' '+'ETA: '+Math.floor(state.time.remaining/60) + 'm '+Math.floor(state.time.remaining)%60 + 's'})
 	}).on('error', function(err, stdout, stderr) { // On a error log it
+		fLog("Resume > An error occoured for "+video.title+": "+err)
 		console.log('An error occurred: ' + err.message, err, stderr);
 	}).on('end', function () { // When done downloading
 		bar.update(1) // Set the progress bar to 100%
@@ -651,14 +722,17 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 		file = rawPath+title+'.mp4' // Specifies where the video is saved
 		name = title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
 		file2 = (rawPath+'TEMP_'+title+'.mp4') // Specify the temp file to write the metadata to
+		var video = video
 		ffmpegFormat(file, name, file2, video) // Format with ffmpeg for titles/plex support
 	});
 }
 
 function ffmpegFormat(file, name, file2, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
+	fLog('ffmpeg > Beginning ffmpeg title formatting for "'+video.title+'"')
 	ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
 		setTimeout(function(){ // If the formatting fails, wait a second and try again
 			//console.log(name+' \u001b[41mFFMPEG Encountered a Error!\u001b[0m')
+			fLog('ffmpeg > An error occoured for "'+video.title+'": '+err+" Retrying...")
 			if(err){ffmpegFormat(file, name, file2)}
 		}, 1000)
 	}).on('end', function() { // Save the title in metadata
@@ -666,25 +740,30 @@ function ffmpegFormat(file, name, file2, video) { // This function adds titles t
 			updateLibrary();
 		}
 		fs.rename(file2, file, function(){
-			delete partial_data[video.guid] // Remove its partial data
-			videos[video.guid].saved = true // Set it to be saved
-			saveVideoLog();
+			fLog('ffmpeg > Renamed "'+file2+"' to '"+file+'"')
 		})
 	})
+	delete partial_data[video.guid] // Remove its partial data
+	videos[video.guid].saved = true // Set it to be saved
+	saveVideoLog();
 }
 
 function updateLibrary() { // Function for updating plex libraries
 	return new Promise((resolve, reject) => {
 		if(settings.localPlex) { // Run if local plex is enabled
+			fLog("PlexUpdate > Updating Plex Section")
 			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
 		}
 		if (settings.remotePlex) { // Run if remote plex is enabled
+			fLog("PlexUpdate > Updating Plex Section")
 			request({ // Sends a request to update the remote library using the servers ip, port, section and plexToken
 				url: 'http://'+settings.remotePlexIP+':'+settings.remotePlexPort+'/library/sections/'+settings.plexSection+'/refresh?X-Plex-Token='+settings.plexToken,
 			}, function(err, resp, body){
 				if (body.indexOf('404') > -1) { // If result is 404 then the section probably dosnt exist
+					fLog("PlexUpdate > ERR: Cannot refresh... Invalid library section defined in settings!")
 					console.log('\u001b[41m> remotePlex ERR: Cannot refresh... Invalid library section defined in settings!\u001b[0m')
 				} else {
+					fLog("PlexUpdate > Refreshed Plex Section")
 					console.log('\u001b[38;5;226m> Refreshed plex section!\u001b[0m')
 				}
 			})

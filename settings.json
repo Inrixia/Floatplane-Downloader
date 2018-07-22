@@ -1,5 +1,5 @@
 {
-  "version": "4.0.5",
+  "version": "4.2.6",
   "videoFolder": "./videos/",
   "maxVideos": 5,
   "maxParallelDownloads": -1,
@@ -14,18 +14,22 @@
   "repeatScript": "false",
   "cookie": [],
   "cookies": {
-	"__cfduid": "",
+    "__cfduid": "",
     "sails.sid": ""
   },
+  "logging": false,
+  "logFile": "./float.log",
   "remotePlex": false,
   "remotePlexIP": "",
   "remotePlexPort": 32400,
   "plexToken": "",
   "localPlex": false,
-  "plexSection": 0,
+  "plexSection": "0",
   "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe",
   "floatplaneServer": "https://Edge02-na.floatplaneclub.com:443",
   "video_res": 1080,
   "user": "",
-  "password": ""
+  "password": "",
+  "checkForNewSubscriptions": true,
+  "key": ""
 }

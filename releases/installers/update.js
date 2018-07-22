@@ -42,27 +42,37 @@ function updateSettings(){
 		if(settings.maxVideos != null) {newSettings.maxVideos = settings.maxVideos}
 		if(settings.maxParallelDownloads != null) {newSettings.maxParallelDownloads = settings.maxParallelDownloads}
 		if(settings.downloadArtwork != null) {newSettings.downloadArtwork = settings.downloadArtwork}
+
 		if(settings.formatWithEpisodes != null) {newSettings.formatWithEpisodes = settings.formatWithEpisodes}
+		if(settings.formatWithDate != null) {newSettings.formatWithDate = settings.formatWithDate}
 		if(settings.downloadUpdateTime != null) {newSettings.downloadUpdateTime = settings.downloadUpdateTime}
 		if(settings.ignoreFolderStructure != null) {newSettings.ignoreFolderStructure = settings.ignoreFolderStructure}
+		if(settings.yearsAsSeasons != null) {newSettings.yearsAsSeasons = settings.yearsAsSeasons}
+		if(settings.monthsAsSeasons != null) {newSettings.monthsAsSeasons = settings.monthsAsSeasons}
+		if(settings.subscriptions != null) {newSettings.subscriptions = settings.subscriptions}
+
+		if(settings.repeatScript != null) {newSettings.repeatScript = settings.repeatScript}
+
+		if(settings.cookie != null) {newSettings.cookie = settings.cookie}
+		if(settings.cookies != null) {newSettings.cookies = settings.cookies}
+
+		if(settings.logging != null) {newSettings.logging = settings.logging}	
+		if(settings.logFile != null) {newSettings.logFile = settings.logFile}
+
+		if(settings.remotePlex != null) {newSettings.remotePlex = settings.remotePlex}
+		if(settings.remotePlexIP != null) {newSettings.remotePlexIP = settings.remotePlexIP}
+		if(settings.remotePlexPort != null) {newSettings.remotePlexPort = settings.remotePlexPort}	
+		if(settings.plexToken != null) {newSettings.plexToken = settings.plexToken}
+		if(settings.localPlex != null) {newSettings.localPlex = settings.localPlex}
+		if(settings.plexSection != null) {newSettings.plexSection = settings.plexSection}
+		if(settings.plexScannerInstall != null) {newSettings.plexScannerInstall = settings.plexScannerInstall}
+
+		if(settings.floatplaneServer != null) {newSettings.floatplaneServer = settings.floatplaneServer}
+
 		if(settings.video_res != null) {newSettings.video_res = settings.video_res}
 		if(settings.user != null) {newSettings.user = settings.user}
 		if(settings.password != null) {newSettings.password = settings.password}
-		if(settings.floatplaneServer != null) {newSettings.floatplaneServer = settings.floatplaneServer}
-		if(settings.formatWithDate != null) {newSettings.formatWithDate = settings.formatWithDate}
-		if(settings.repeatScript != null) {newSettings.repeatScript = settings.repeatScript}
-		if(settings.yearsAsSeasons != null) {newSettings.yearsAsSeasons = settings.yearsAsSeasons}
-		if(settings.monthsAsSeasons != null) {newSettings.monthsAsSeasons = settings.monthsAsSeasons}
-		if(settings.plexScannerInstall != null) {newSettings.plexScannerInstall = settings.plexScannerInstall}
-		if(settings.plexSection != null) {newSettings.plexSection = settings.plexSection}
-		if(settings.remotePlex != null) {newSettings.remotePlex = settings.remotePlex}
-		if(settings.remotePlexIP != null) {newSettings.remotePlexIP = settings.remotePlexIP}
-		if(settings.remotePlexPort != null) {newSettings.remotePlexPort = settings.remotePlexPort}
-		if(settings.plexToken != null) {newSettings.plexToken = settings.plexToken}
-		if(settings.localPlex != null) {newSettings.localPlex = settings.localPlex}
-		if(settings.subscriptions != null) {newSettings.subscriptions = settings.subscriptions}
-		if(settings.cookie != null) {newSettings.cookie = settings.cookie}
-		if(settings.cookies != null) {newSettings.cookies = settings.cookies}	
+			
 		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
 		})
