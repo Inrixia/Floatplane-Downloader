@@ -156,10 +156,19 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 })
 
 pureStart();
+checkExistingVideos();
 function pureStart() { // Global wrapper for starting the script
 	fLog("\n\n\n=== Pre-Init > Started ===")
 	// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
 	getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
+}
+
+function checkExistingVideos() {
+	Object.keys(videos).forEach(function(key) {
+		if (!fs.existsSync(videos[key].file)){ // Check if the video still exists
+			delete videos[key]
+		}
+	});
 }
 
 function getPlexToken() { // If remoteplex is enabled then this asks the user for the plex username and password to generate a plexToken for remote refreshes
@@ -744,6 +753,7 @@ function ffmpegFormat(file, name, file2, video) { // This function adds titles t
 		})
 	})
 	delete partial_data[video.guid] // Remove its partial data
+	videos[video.guid].file = file // Note the file that the video is saved to
 	videos[video.guid].saved = true // Set it to be saved
 	saveVideoLog();
 }

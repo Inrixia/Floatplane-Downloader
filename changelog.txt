@@ -6,6 +6,7 @@ v4.2.6
 v4.1.6
  - Fixed issue with script failing on videos with no thumbnail
  - Added videos.json to store downloaded videos
+ - Rewrote video detection code to use guid
  - Fixed subchannel Ignore not working
  - Fixed some files being mistaken for channels when doing a episode count
  - Better error handling & auto restart on partial failure
