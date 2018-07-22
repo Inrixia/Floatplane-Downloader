@@ -14,6 +14,9 @@ const pad = require('pad');
 const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
+const settings = require('./settings.json'); // File containing user settings
+const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
+
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR > Failed to login please check your login credentials!")
@@ -22,49 +25,46 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 		fLog('ERROR > Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
 	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
-		flog('ERROR > partial.json > Corrupt partial.json file! Attempting to recover...')
+		logstream.write(Date()+" == "+'ERROR > partial.json > Corrupt partial.json file! Attempting to recover...')
 		console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
 		fs.writeFile("./partial.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
 			if (error) {
-				fLog('ERROR > partial.json > Recovery failed! Error: '+error)
+				logstream.write(Date()+" == "+'ERROR > partial.json > Recovery failed! Error: '+error+'\n');
 				console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
 				process.exit()
 			} else {
-				fLog('ERROR > videos.json > Recovered! Restarting script...')
+				logstream.write(Date()+" == "+'ERROR > videos.json > Recovered! Restarting script...\n');
 				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
 				pureStart();
 			}
 		});
-	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
-		flog('ERROR > videos.json > Corrupt videos.json file! Attempting to recover...')
+	} if(err.toString().indexOf('Unexpected string in JSON') > -1 && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
+		logstream.write(Date()+" == "+'ERROR > videos.json > Corrupt videos.json file! Attempting to recover...')
  		console.log('\u001b[41mERROR> Corrupt videos.json file! Attempting to recover...\u001b[0m');
  		fs.writeFile("./videos.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
  			if (error) {
-				fLog('ERROR > videos.json > Recovery failed! Error: '+error)
+ 				logstream.write(Date()+" == "+'ERROR > videos.json > Recovery failed! Error: '+error)
  				console.log('\u001b[41mRecovery failed! Error: '+error+'\u001b[0m')
  				process.exit()
  			} else {
-				fLog('ERROR > videos.json > Recovered! Restarting script...')
+ 				logstream.write(Date()+" == "+'ERROR > videos.json > Recovered! Restarting script...')
  				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
  				pureStart();
  			}
  		});
  	} else {
-		//console.log(err)
-		fLog("UNHANDLED ERROR > "+err)
-		throw err
+		console.log(err)
+		logstream.write(Date()+" == "+"UNHANDLED ERROR > "+err)
+		//throw err
 	}
 });
 
-const settings = require('./settings.json'); // File containing user settings
 const videos = require('./videos.json'); // Persistant storage of videos downloaded
 const partial_data = require('./partial.json'); // File for saving details of partial downloads
 
 if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus season folder if enabled)
 	fs.mkdirSync(settings.videoFolder); // If not create the folder needed
 }
-
-const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
 
 function fLog(info) {
 	logstream.write(Date()+" == "+info+'\n');
@@ -157,6 +157,7 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 
 pureStart();
 checkExistingVideos();
+
 function pureStart() { // Global wrapper for starting the script
 	fLog("\n\n\n=== Pre-Init > Started ===")
 	// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
