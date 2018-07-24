@@ -15,9 +15,11 @@ const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
 const settings = require('./settings.json'); // File containing user settings
-const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
+const logStream = fs.createWriteStream(settings.logFile, {flags:'a'});
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
+	saveVideoLog()
+	saveData()
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR > Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
@@ -67,7 +69,9 @@ if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus
 }
 
 function fLog(info) {
-	logstream.write(Date()+" == "+info+'\n');
+	if (settings.logging) {
+		logStream.write(Date()+" == "+info+'\n');
+	}
 }
 
 const subChannelIdentifiers = {
@@ -740,6 +744,8 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 }
 
 function ffmpegFormat(file, name, file2, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
+	saveData()
+	saveVideoLog()
 	if (settings.ffmpeg) {
 		fLog('ffmpeg > Beginning ffmpeg title formatting for "'+video.title+'"')
 		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
@@ -788,8 +794,16 @@ function updateLibrary() { // Function for updating plex libraries
 	})
 }
 
+var partialLock = false
+
 function saveData() { // Function for saving partial data, just writes out the variable to disk
-	fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
-		if (err) console.log(err)
-	});
+	if (partialLock == false) {
+		fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
+			if (err) console.log(err)
+		});
+	}
+	partialLock = true
+	setTimeout(function(){
+		partialLock = false
+	}, 10)
 }

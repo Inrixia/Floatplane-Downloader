@@ -1,6 +1,6 @@
 v4.2.7
- - Error fixes galore
- - Prettyfied videos.json
+ - Changed videos.json and partial.json to have some locking for writing out files to avoid corruption
+ - Fixed logging setting not working
 
 v4.2.6
  - Added setting logging
