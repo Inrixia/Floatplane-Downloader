@@ -2,7 +2,7 @@
 ---
 This covers what each setting is and what you can change it to for after version 4.0.0 Please go read this for pre 4.0.0: [Settings_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings_pre_4.0.0.md). 
 
-Note that "max" type settings apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
+Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
 [![https://gyazo.com/c51709dc3746cfaaf10f7abbb5abae39](https://i.gyazo.com/c51709dc3746cfaaf10f7abbb5abae39.png)](https://gyazo.com/c51709dc3746cfaaf10f7abbb5abae39)
 
 **version:**  
@@ -21,7 +21,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 **maxVideos:**  
 >States how far down the latest video posts the script should look in number of posts. You can set it to as high as you want.
 >
->Note: This does not effect script performance, or increase requests to the floatplane api below 20. After that every increase by 20 will mean another page worth of videos is loaded.
+>Note: This does not effect script performance, or increase requests to the Floatplane API below 20. After that every increase by 20 will mean another page worth of videos is loaded.
 >
 >Default: "**5**"  
 >Example:
@@ -30,8 +30,8 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **maxParallelDownloads:**  
->Sets the maximum amount of downloads that can run cocurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
->Note: Using this option can cause issues and is not strictly reccomended.
+>Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
+>Note: Using this option can cause issues and is not strictly recommended.
 >
 >Default: "**-1**"  
 >Example:
@@ -40,7 +40,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **downloadArtwork:**  
->Sets wether the script downloads album artwork images for each video. These are required for nice thumbnails in plex.
+>Sets weather the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
 >
 >Default: "**true**"  
 >Example:
@@ -49,7 +49,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **formatWithEpisodes:**  
->If false will remove the SxxExx from the name of the videos. Will break plex support!
+>If false will remove the SxxExx from the name of the videos. Will break Plex support!
 >
 >Default: "**true**"  
 >Example:
@@ -58,7 +58,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **formatWithDate:**  
->If true will add the date the video was published to the filename. This might break plex ordering, so use at your own risk.
+>If true will add the date the video was published to the filename. This might break Plex ordering, so use at your own risk.
 >
 >Default: "**false**"  
 >Example:
@@ -68,7 +68,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **downloadUpdateTime:**  
->Sets the time inbetween download bar updates and saving of partial data to disk. A higher number will cause the script to write to the disk while downloading less, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
+>Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write to the disk while downloading less, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
 >
 >Default: "**250**"  
 >Example:
@@ -77,7 +77,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **ignoreFolderStructure:**  
->If true the script will save all videos directly into the videoFolder instead of organising into seperate ones for each subChannel.
+>If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
 >
 >Default: "**false**"  
 >Example:
@@ -86,7 +86,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **yearsAsSeasons:**  
->If true the script will save all videos into a season folder based on the year they were released. This will cause plex to show a season for each year.
+>If true the script will save all videos into a season folder based on the year they were released. This will cause Plex to show a season for each year.
 >
 >Default: "**false**"  
 >Example:
@@ -96,7 +96,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **monthsAsSeasons:**  
->If true the script will save all videos into a season folder based on the month+year they were released. This will cause plex to show a season for each month.
+>If true the script will save all videos into a season folder based on the month+year they were released. This will cause Plex to show a season for each month.
 >
 >Default: "**false**"  
 >Example:
@@ -115,7 +115,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **subscriptions:**  
->This contains all the Floatplane creators you are subscribed to and wheather you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the subchannels.
+>This contains all the Floatplane creators you are subscribed to and weather you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
 >Note: Using this with a maxVideos any lower than 30 will result in you missing videos!
 >
 >Default [Pre-First Run]:
@@ -186,7 +186,7 @@ Repeats every day:
 ```
 
 **ffmpeg:**  
->Enables ffmpeg processing of videos. Disabling this will break titles in plex.
+>Enables ffmpeg processing of videos. Disabling this will break titles in Plex.
 >
 >Default: "**true**" 
 >Example: 
@@ -195,7 +195,7 @@ Repeats every day:
 ```
 
 **logging:**  
->Will log script events to a logfile defined in the **logFile** setting.
+>Will log script events to a log file defined in the **logFile** setting.
 >
 >Default: "**false**" 
 >Example: 
@@ -213,7 +213,7 @@ Repeats every day:
 ```
 
 **remotePlex:**  
->This enables or disables remotely updating a plex library in the script.  
+>This enables or disables remotely updating a Plex library in the script.  
 >
 >Default: "**false**"  
 >Example:
@@ -222,7 +222,7 @@ Repeats every day:
 ```
 
 **remotePlexIP:**  
->This is the remote IP that the remote plex server is hosted on.
+>This is the remote IP that the remote Plex server is hosted on.
 >
 >Default: ""  
 >Example:
@@ -231,7 +231,7 @@ Repeats every day:
 ```
 
 **remotePlexPort:**  
->This is the remote Port that the remote plex server is hosted on. This only needs to be changed if your plex server is not running on the default port of 32400
+>This is the remote Port that the remote Plex server is hosted on. This only needs to be changed if your Plex server is not running on the default port of 32400
 >
 >Default: "32400"  
 >Example:
@@ -239,8 +239,8 @@ Repeats every day:
 "remotePlexPort": 32500
 ```
 
-**plexToken:**  
->This is the plex token generated from your login details for updating remote servers. It is only needed for remote updates and can only be generated by running the script, which will prompt the user to enter their plex username and password if plexToken is empty and remotePlex is enabled.
+**PlexToken:**  
+>This is the Plex token generated from your login details for updating remote servers. It is only needed for remote updates and can only be generated by running the script, which will prompt the user to enter their Plex username and password if PlexToken is empty and remotePlex is enabled.
 >
 >Default: ""  
 >Example:
@@ -249,7 +249,7 @@ Repeats every day:
 ```
 
 **localPlex:**  
->This enables or disables locally updating a plex library in the script. Enabling this requires plexSection and plexScannerInstall to be set correctly.  
+>This enables or disables locally updating a Plex library in the script. Enabling this requires PlexSection and PlexScannerInstall to be set correctly.  
 >
 >Default: "**false**"  
 >Example:
@@ -257,9 +257,9 @@ Repeats every day:
 "localPlex": true
 ```
 
-**plexSection:**  
->This is the plex section id your videos are stored in for auto updating the secion when new videos are downloaded. 
-If you are on windows you can find the plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on plex.
+**PlexSection:**  
+>This is the Plex section id your videos are stored in for auto updating the section when new videos are downloaded. 
+If you are on windows you can find the Plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on Plex.
 
 As of v3.8.2 the script now can generate the section id from the url for the section as can be seen below: [![https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c](https://i.gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c.gif)](https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c)
 
@@ -271,16 +271,16 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 >Default: "**0**"  
 >Example:
 ```json 
-"plexSection": 5
+"PlexSection": 5
 ```
 
-**plexScannerInstall:**  
->This only needs to be changed if plex is not installed to the default path or if your on linux. This defines where the scanner program for updating plex videos is located.
+**PlexScannerInstall:**  
+>This only needs to be changed if Plex is not installed to the default path or if your on linux. This defines where the scanner program for updating Plex videos is located.
 >
 >Default: "**C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe**"
 >Example:
 ```json 
-"plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+"PlexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
 ```
 
 **autoFetchServer:**  
@@ -294,7 +294,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 ```
 
 **floatplaneServer:**  
->This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then rightclick the download button and copy the url. That url should start with the server that floatplane gives you by default.
+>This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.
 >
 >Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
 >Example:
@@ -303,7 +303,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 ```
 
 **video_res:**  
->This defines the resoloution to download the videos in. Currently there are only four options you can set it to:  
+>This defines the resolution to download the videos in. Currently there are only four options you can set it to:  
 >**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
 >
 >Default: "**1080**"  

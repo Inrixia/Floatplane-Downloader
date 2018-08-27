@@ -23,7 +23,7 @@ To install manually continue to read below.
 
 2. **Install Node.js packages:**
 
-   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console rightclick), Note this might take a while... Just let it load.
+   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console right-click), Note this might take a while... Just let it load.
    >
    >**npm install**
 
@@ -49,9 +49,9 @@ To install manually continue to read below.
    >**If you dont login with a username/email & password or use 2Factor you may need to do this.**
 5. **Manually set your cookies [OPTIONAL]:**
 
-   >You need to login to the LTT fourms preferably with keep me logged in checked and then inspect a Floatplane form post page.  
+   >You need to login to the LTT forums preferably with keep me logged in checked and then inspect a Floatplane forum post page.  
    >
-   >**Open a page on the LTT forms after logging in and rightclick-inspect.**  
+   >**Open a page on the LTT forums after logging in and right-click-inspect.**  
 [![https://gyazo.com/9f4b227d3070875002c553aedd3a0e45](https://i.gyazo.com/9f4b227d3070875002c553aedd3a0e45.gif)](https://gyazo.com/9f4b227d3070875002c553aedd3a0e45)
 **Go to the Application TAB. (This is on Chrome)**
 [![https://gyazo.com/59c413af93a86b3dc9e46647b508e17f](https://i.gyazo.com/59c413af93a86b3dc9e46647b508e17f.png)](https://gyazo.com/59c413af93a86b3dc9e46647b508e17f)
@@ -62,7 +62,7 @@ If you want to change any other settings, you can do so now inside the settings.
 
 6. **Plex Update:**
 
-   **Note:** This requires plex to have been setup already which is covered in the **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
+   **Note:** This requires plex to have been set-up already which is covered in the **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
 
    If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) set the localPlex setting to true if plex is installed on the same system the script is on, or set remotePlex to true if its installed on another PC.
    
@@ -81,8 +81,8 @@ If you want to change any other settings, you can do so now inside the settings.
 
 7. **Profit?:**
 
-   At this point you should be completely setup and ready to go!  
+   At this point you should be completely set-up and ready to go!  
    To start the script all you need to do is run the **Floatplane.bat** file.  
    If you want to start the script from console yourself, just use "**node float.js**"  
 
-The script will download the videos into the videos folder along with their thumbnails. If you want to setup Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
+The script will download the videos into the videos folder along with their thumbnails. If you want to set-up Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
