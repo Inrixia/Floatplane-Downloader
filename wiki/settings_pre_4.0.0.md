@@ -2,7 +2,7 @@
 ---
 This covers what each setting is and what you can change it to. 
 
-Note that "max" type settings apply seperately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
+Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra, if you have both enabled.
 [![https://gyazo.com/c2026a454bb321ff5da63d6a4bfd233b](https://i.gyazo.com/c2026a454bb321ff5da63d6a4bfd233b.png)](https://gyazo.com/c2026a454bb321ff5da63d6a4bfd233b)
 
 **version:**  
@@ -19,7 +19,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **useFloatplane:**  
->Defines wether or not do download **Linus Media Group** videos true to download, false to not.
+>Defines weather or not do download **Linus Media Group** videos true to download, false to not.
 >
 >Default: "**true**"  
 >Example:
@@ -28,7 +28,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **useBitWit:**  
->Defines wether or not do download **BitWit** videos true to download, false to not.
+>Defines weather or not do download **BitWit** videos true to download, false to not.
 >
 >Default: "**false**"  
 >Example:
@@ -57,8 +57,8 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **maxParallelDownloads:**  
->Sets the maximum amount of downloads that can run cocurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
->Note: Using this option can cause issues and is not strictly reccomended.
+>Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
+>Note: Using this option can cause issues and is not strictly recommended.
 >
 >Default: "**-1**"  
 >Example:
@@ -67,7 +67,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **downloadArtwork:**  
->Sets wether the script downloads album artwork images for each video. These are required for nice thumbnails in plex.
+>Sets weather the script downloads album artwork images for each video. These are required for nice thumbnails in plex.
 >
 >Default: "**true**"  
 >Example:
@@ -104,7 +104,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **downloadUpdateTime:**  
->Sets the time inbetween download bar updates and saving of partial data to disk. A higher number will cause the script to write to the disk while downloading less, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
+>Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write to the disk while downloading less, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
 >
 >Default: "**250**"  
 >Example:
@@ -113,7 +113,7 @@ Note that "max" type settings apply seperately to each channel, so maxVideos set
 ```
 
 **ignoreFolderStructure:**  
->If true the script will save all videos directly into the videoFolder instead of organising into seperate ones for each subChannel.
+>If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
 >
 >Default: "**false**"  
 >Example:
@@ -248,8 +248,8 @@ Repeats every day:
 ```
 
 **plexSection:**  
->This is the plex section id your videos are stored in for auto updating the secion when new videos are downloaded. 
-If you are on windows you can find the plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on plex.
+>This is the Plex section id your videos are stored in for auto updating the section when new videos are downloaded. 
+If you are on Windows you can find the Plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on Plex.
 
 As of v3.8.2 the script now can generate the section id from the url for the section as can be seen below: [![https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c](https://i.gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c.gif)](https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c)
 
@@ -274,7 +274,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 ```
 
 **floatplaneServer:**  
->This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then rightclick the download button and copy the url. That url should start with the server that floatplane gives you by default.
+>This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.
 >
 >Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
 >Example:
@@ -283,7 +283,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 ```
 
 **video_res:**  
->This defines the resoloution to download the videos in. Currently there are only four options you can set it to:  
+>This defines the resolution to download the videos in. Currently there are only four options you can set it to:  
 >**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
 >
 >Default: "**1080**"  

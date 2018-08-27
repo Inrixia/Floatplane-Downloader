@@ -2,7 +2,7 @@
 ---
 Make sure you have **[Plex](https://www.plex.tv/)** installed on your system.
 
-Note: This is not how to install and setup Plex, this is only how to setup the LTT Library.
+Note: This is not how to install and set-up Plex, this is only how to set-up the LTT Library.
 Note: This only shows how to do this for LinusMediaGroup, for other channels just repeat the same steps for that channel.
 
 1. **Create a Library:**
@@ -12,7 +12,7 @@ Note: This only shows how to do this for LinusMediaGroup, for other channels jus
 [![https://gyazo.com/678c6e547a7620fe2c7e95234368374a](https://i.gyazo.com/678c6e547a7620fe2c7e95234368374a.gif)](https://gyazo.com/678c6e547a7620fe2c7e95234368374a)
 [![https://gyazo.com/a45b1955e1eb92fcede4085f96663321](https://i.gyazo.com/a45b1955e1eb92fcede4085f96663321.gif)](https://gyazo.com/a45b1955e1eb92fcede4085f96663321)
 
-Make sure you have Preview Thumbnails unticked or it wont use the proper Thumnails for each video.
+Make sure you have Preview Thumbnails unticked or it wont use the proper thumbnails for each video.
 [![https://gyazo.com/4ea679c43fb978135b021a57c7cd39d4](https://i.gyazo.com/4ea679c43fb978135b021a57c7cd39d4.png)](https://gyazo.com/4ea679c43fb978135b021a57c7cd39d4)
 
 2. **Set the posters for each "Series":**

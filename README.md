@@ -10,7 +10,7 @@
 
 **You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
 
-This is a Node.js script to download the daily videos from the [LMG Floatplane](https://linustechtips.com/main/store/) and format them to be viewed in [Plex](https://www.plex.tv/). You can also  view the raw files in the download folder.
+This is a Node.js script to download the daily videos from [LMG Floatplane](https://linustechtips.com/main/store/) and format them to be viewed in [Plex](https://www.plex.tv/). You can also  view the raw files in the download folder.
 
 This requires a **[Floatplane](http://floatplane.com)** subscription.
 
@@ -21,6 +21,7 @@ This requires a **[Floatplane](http://floatplane.com)** subscription.
  * If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) @Sir Inrix | <3#6950**.
 
 #### Links:
+ * [Screenshots](https://imgur.com/a/LdY1B)
  * [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
  * [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
  * [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
@@ -31,7 +32,5 @@ If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, Windows
 
 If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can read about the plex specific settings in **[Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
 
-**Note**: If anyone from LTT or Floatplane does not want me to have this publically avalible please just contact me and I will remove it.
+**Note**: If anyone from LTT or Floatplane does not want me to have this publicly available please just contact me and I will remove it.
 
----
-## [More Screenshots](https://imgur.com/a/LdY1B)

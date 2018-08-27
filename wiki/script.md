@@ -25,7 +25,7 @@ To install manually continue to read below.
 
 2. **Install Node.js packages:**
 
-   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console rightclick), Note this might take a while... Just let it load.
+   >You can just copy paste this command into console or powershell to install the packages. Make sure you are in the directory the script is in though! (To paste in console right-click), Note this might take a while... Just let it load.
    >
    >**npm install**
    >[![https://gyazo.com/1988bad700edbc088895411916597558](https://i.gyazo.com/1988bad700edbc088895411916597558.gif)](https://gyazo.com/1988bad700edbc088895411916597558)
@@ -63,7 +63,7 @@ If you want to change any other settings, you can do so now inside the settings.
 
 6. **Plex Update:**
 
-   **Note:** This requires plex to have been setup already which is covered in the **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
+   **Note:** This requires plex to have been set-up already which is covered in the **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
 
    If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) set the localPlex setting to true if plex is installed on the same system the script is on, or set remotePlex to true if its installed on another PC.
    
@@ -82,8 +82,8 @@ If you want to change any other settings, you can do so now inside the settings.
 
 7. **Profit?:**
 
-   At this point you should be completely setup and ready to go!  
+   At this point you should be completely set-up and ready to go!  
    To start the script all you need to do is run the **Floatplane.bat** file.  
    If you want to start the script from console yourself, just use "**node float.js**"  
 
-The script will download the videos into the videos folder along with their thumbnails. If you want to setup Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
+The script will download the videos into the videos folder along with their thumbnails. If you want to set-up Plex, read the guide here: **[Plex Guide](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)**
