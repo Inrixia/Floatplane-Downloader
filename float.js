@@ -447,7 +447,7 @@ function checkSubscriptions() {
 
 function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
-		var keyUrl = 'https://www.floatplane.com/api/video/url?guid=YeM6cfNvIf&quality=1080'
+		var keyUrl = 'https://www.floatplane.com/api/video/url?guid=MSjW9s3PiG&quality=1080'
 		fLog("Init-Key > Fetching video download key ("+keyUrl+")")
 		console.log("> Fetching video key")
 		floatRequest.get({
@@ -464,7 +464,7 @@ function parseKey() { // Get the key used to download videos
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				if (settings.autoFetchServer) {
-					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplaneclub.com')+18)
+					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplaneclub.com')+18).replace('Edge01', 'Edge02');
 				}
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")
