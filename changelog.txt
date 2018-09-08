@@ -1,3 +1,8 @@
+v4.7.8
+ - Prouser123 Helped with fixes & spelling
+ - Fixed issue with fetching subscriptions
+ - Removed setting checkForNewSubscriptions
+
 v4.2.7
  - Changed videos.json and partial.json to have some locking for writing out files to avoid corruption
  - Fixed logging setting not working

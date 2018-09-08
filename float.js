@@ -15,11 +15,9 @@ const spawn = require('child_process').spawn;
 const AdmZip = require('adm-zip');
 
 const settings = require('./settings.json'); // File containing user settings
-const logStream = fs.createWriteStream(settings.logFile, {flags:'a'});
+const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
-	saveVideoLog()
-	saveData()
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR > Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
@@ -69,9 +67,7 @@ if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus
 }
 
 function fLog(info) {
-	if (settings.logging) {
-		logStream.write(Date()+" == "+info+'\n');
-	}
+	logstream.write(Date()+" == "+info+'\n');
 }
 
 const subChannelIdentifiers = {
@@ -411,48 +407,41 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
 		var subUrl = 'https://www.floatplane.com/api/user/subscriptions'
-		if (settings.subscriptions.length == 0 || settings.checkForNewSubscriptions == true) {
-			fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
-			settings.checkForNewSubscriptions = false
-			settings.subscriptions = []
-			floatRequest.get({ // Generate the key used to download videos
-				headers: {
-					Cookie: settings.cookie,
-					'accept': 'application/json'
-				},
-				url: subUrl
-			}, function (error, resp, body) {
-				JSON.parse(body).forEach(function(subscription) {
-					if (subscription.plan.title == 'Linus Tech Tips') {
-						settings.subscriptions.push({
-							id: subscription.creator,
-							title: subscription.plan.title,
-							enabled: true,
-							ignore: {
-								"Linus Tech Tips": false,
-				        "Channel Super Fun": false,
-				        "Floatplane Exclusive": false,
-				        "TechLinked": false,
-				        "Techquickie": false
-							}
-						})
-					} else {
-						settings.subscriptions.push({
-							id: subscription.creator,
-							title: subscription.plan.title,
-							enabled: true
-						})
-					}
-				})
-				fLog("Init-Subs > Updated user subscriptions")
-				console.log('> Updated subscriptions!')
-				saveSettings().then(resolve())
-			}, reject)
-		} else {
-			fLog("Init-Subs > Using saved subscriptions")
-			console.log('> Using saved subscriptions')
-			resolve()
-		}
+		fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
+		settings.subscriptions = []
+		floatRequest.get({ // Generate the key used to download videos
+			headers: {
+				Cookie: settings.cookie,
+				'accept': 'application/json'
+			},
+			url: subUrl
+		}, function (error, resp, body) {
+			JSON.parse(body).forEach(function(subscription) {
+				if (subscription.plan.title == 'Linus Tech Tips') {
+					settings.subscriptions.push({
+						id: subscription.creator,
+						title: subscription.plan.title,
+						enabled: true,
+						ignore: {
+							"Linus Tech Tips": false,
+			        "Channel Super Fun": false,
+			        "Floatplane Exclusive": false,
+			        "TechLinked": false,
+			        "Techquickie": false
+						}
+					})
+				} else {
+					settings.subscriptions.push({
+						id: subscription.creator,
+						title: subscription.plan.title,
+						enabled: true
+					})
+				}
+			})
+			fLog("Init-Subs > Updated user subscriptions")
+			console.log('> Updated subscriptions!')
+			saveSettings().then(resolve())
+		}, reject)
 	})
 }
 
@@ -744,8 +733,6 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 }
 
 function ffmpegFormat(file, name, file2, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
-	saveData()
-	saveVideoLog()
 	if (settings.ffmpeg) {
 		fLog('ffmpeg > Beginning ffmpeg title formatting for "'+video.title+'"')
 		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(file2).on('error', function(err, stdout, stderr) { // Add title metadata
@@ -794,16 +781,8 @@ function updateLibrary() { // Function for updating plex libraries
 	})
 }
 
-var partialLock = false
-
 function saveData() { // Function for saving partial data, just writes out the variable to disk
-	if (partialLock == false) {
-		fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
-			if (err) console.log(err)
-		});
-	}
-	partialLock = true
-	setTimeout(function(){
-		partialLock = false
-	}, 10)
+	fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
+		if (err) console.log(err)
+	});
 }
