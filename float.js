@@ -424,17 +424,18 @@ function checkSubscriptions() {
 						enabled: true,
 						ignore: {
 							"Linus Tech Tips": false,
-			        "Channel Super Fun": false,
-			        "Floatplane Exclusive": false,
-			        "TechLinked": false,
-			        "Techquickie": false
+				        	"Channel Super Fun": false,
+				        	"Floatplane Exclusive": false,
+				        	"TechLinked": false,
+				        	"Techquickie": false
 						}
 					})
 				} else {
 					settings.subscriptions.push({
 						id: subscription.creator,
 						title: subscription.plan.title,
-						enabled: true
+						enabled: true,
+						ignore: {}
 					})
 				}
 			})
