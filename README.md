@@ -32,5 +32,4 @@ If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, Windows
 
 If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can read about the plex specific settings in **[Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
 
-**Note**: If anyone from LTT or Floatplane does not want me to have this publicly available please just contact me and I will remove it.
-
+**Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
