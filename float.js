@@ -489,7 +489,7 @@ function parseKey() { // Get the key used to download videos
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				if (settings.autoFetchServer) {
-					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplaneclub.com')+18).replace('Edge01', 'Edge02');
+					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplane.com')+18).replace('Edge01', 'Edge02');
 				}
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")

@@ -1,2 +1,20 @@
+# General (Windows)
+Thumbs.db
 desktop.ini
+
+# General (MacOS)
+.DS_Store
+._*
+
+# VSCode Directory
 .vscode/
+
+# Dependency directories
+node_modules/
+
+# Log
+float.log
+
+# User / Script generated settings
+videos.json
+partial.json
