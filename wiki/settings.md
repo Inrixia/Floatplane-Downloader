@@ -48,6 +48,15 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 "downloadArtwork": true
 ```
 
+**artworkFormat:**  
+>Sets the image format that artwork should be saved as.
+>
+>Default: "**"png"**"  
+>Example:
+```json 
+"downloadArtwork": "png"
+```
+
 **formatWithEpisodes:**  
 >If false will remove the SxxExx from the name of the videos. Will break Plex support!
 >
@@ -65,6 +74,16 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 >"Linus Tech Tips - S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
 ```json 
 "formatWithDate": false
+```
+
+**formatWithSubChannel:**  
+>If false will remove the subChannel name from the filename. Recommended to keep this true.
+>
+>Default: "**true**"  
+>Example:
+>"S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
+```json 
+"formatWithSubChannel": true
 ```
 
 **downloadUpdateTime:**  
