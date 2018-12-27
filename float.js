@@ -539,7 +539,7 @@ function getVideos() {
 							// Set defaults for video
 							matchTitle = video.title
 							video.subChannel = subscription.title
-							video.releaseDate = " - " + new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
+							video.releaseDate = new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
 
 							// Identify what subChannel the video belongs to if any
 							if (subChannelIdentifiers[subscription.title]) {
@@ -587,10 +587,11 @@ function getVideos() {
 								fLog('Videos-FileSystem > "'+rawPath+'"'+" doesn't exit... Creating'")
 								fs.mkdirSync(rawPath); // If not create the folder needed
 							}
-							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.subChannel+' - '+video.title }
+							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.title }
 							if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 }
-							if (settings.formatWithEpisodes == true) { video.title = video.subChannel + ' - S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
-							if (settings.formatWithDate == true) { video.title = video.subChannel+video.releaseDate+' - '+video.title } // Add the upload date to the filename
+							if (settings.formatWithEpisodes == true) { video.title = 'S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
+							if (settings.formatWithDate == true) { video.title = video.releaseDate+' - '+video.title } // Add the upload date to the filename
+							if (settings.formatWithSubChannel == true) { video.title = video.subChannel+' - '+video.title } // Add subChannel naming if requested
 
 							//console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m>', video.title);
 							//console.log(video.title, video.guid, video.description, video.thumbnail.path)

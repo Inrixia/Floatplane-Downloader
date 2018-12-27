@@ -6,6 +6,7 @@
   "downloadArtwork": true,
   "formatWithEpisodes": true,
   "formatWithDate": false,
+  "formatWithSubChannel": true,
   "downloadUpdateTime": 250,
   "ignoreFolderStructure": false,
   "yearsAsSeasons": false,
