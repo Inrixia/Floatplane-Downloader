@@ -432,6 +432,7 @@ function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
 		var subUrl = 'https://www.floatplane.com/api/user/subscriptions'
 		fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
+		var existingSubs = settings.subscriptions
 		settings.subscriptions = []
 		floatRequest.get({ // Generate the key used to download videos
 			headers: {
@@ -441,26 +442,31 @@ function checkSubscriptions() {
 			url: subUrl
 		}, function (error, resp, body) {
 			JSON.parse(body).forEach(function(subscription) {
-				if (subscription.plan.title == 'Linus Tech Tips') {
-					settings.subscriptions.push({
-						id: subscription.creator,
-						title: subscription.plan.title,
-						enabled: true,
-						ignore: {
-							"Linus Tech Tips": false,
-				        	"Channel Super Fun": false,
-				        	"Floatplane Exclusive": false,
-				        	"TechLinked": false,
-				        	"Techquickie": false
-						}
-					})
-				} else {
-					settings.subscriptions.push({
-						id: subscription.creator,
-						title: subscription.plan.title,
-						enabled: true,
-						ignore: {}
-					})
+				var existingIndex = existingSubs.findIndex(x => x.id == subscription.creator)
+				if (existingIndex == -1) { // Not an existing sub, so use defaults
+					if (subscription.plan.title == 'Linus Tech Tips') {
+						settings.subscriptions.push({
+							id: subscription.creator,
+							title: subscription.plan.title,
+							enabled: true,
+							ignore: {
+								"Linus Tech Tips": false,
+								"Channel Super Fun": false,
+								"Floatplane Exclusive": false,
+								"TechLinked": false,
+								"Techquickie": false
+							}
+						})
+					} else {
+						settings.subscriptions.push({
+							id: subscription.creator,
+							title: subscription.plan.title,
+							enabled: true,
+							ignore: {}
+						})
+					}
+				} else { // Existing sub, so use the saved settings
+					settings.subscriptions.push(existingSubs[existingIndex])
 				}
 			})
 			fLog("Init-Subs > Updated user subscriptions")
