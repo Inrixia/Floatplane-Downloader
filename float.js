@@ -113,7 +113,7 @@ const subChannelIdentifiers = {
 		},
 		{
 			title: 'TechLinked',
-			check: 'http://twitter.com/techlinkedyt',
+			check: 'news sources:',
 			type: 'description',
 		},
 		{
