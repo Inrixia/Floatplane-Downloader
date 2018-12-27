@@ -4,6 +4,7 @@
   "maxVideos": 5,
   "maxParallelDownloads": -1,
   "downloadArtwork": true,
+  "artworkFormat": "png",
   "formatWithEpisodes": true,
   "formatWithDate": false,
   "formatWithSubChannel": true,

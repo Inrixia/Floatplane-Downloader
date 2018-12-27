@@ -617,7 +617,7 @@ function getVideos() {
 								if (!videos[video.guid].partial){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
 									if(settings.downloadArtwork && video.thumbnail) {
 										fLog('Download-Init > Downloading "'+video.title+'" artwork')
-										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.'+settings.artworkFormat))
 									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
