@@ -631,7 +631,7 @@ function getVideos() {
 									fLog('Resume-Init > "'+video.title+'" is partially downloaded... Resuming')
 									if(settings.downloadArtwork && video.thumbnail) {
 										fLog('Download-Init > Downloading "'+video.title+'" artwork')
-										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.png'))
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.'+settings.artworkFormat))
 									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (partial_data[video.guid].failed) { // If the download failed then start from download normally
