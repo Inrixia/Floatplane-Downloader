@@ -469,6 +469,11 @@ function checkSubscriptions() {
 					settings.subscriptions.push(existingSubs[existingIndex])
 				}
 			})
+			if (settings.subscriptions.length < 1) { // No subs were found - most likely this is due to a issue with Floatplane
+				fLog("Init-Subs > No subscriptions found. Keeping existing list.")
+				console.log('\u001b[31m> No subscriptions found. Keeping existing list.\u001b[0m')
+				settings.subscriptions = existingSubs
+			}
 			fLog("Init-Subs > Updated user subscriptions")
 			console.log('> Updated subscriptions!')
 			saveSettings().then(resolve())
