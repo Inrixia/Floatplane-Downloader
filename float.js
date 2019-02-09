@@ -113,7 +113,7 @@ const subChannelIdentifiers = {
 		},
 		{
 			title: 'TechLinked',
-			check: 'http://twitter.com/techlinkedyt',
+			check: 'news sources:',
 			type: 'description',
 		},
 		{
@@ -432,6 +432,7 @@ function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
 		var subUrl = 'https://www.floatplane.com/api/user/subscriptions'
 		fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
+		var existingSubs = settings.subscriptions
 		settings.subscriptions = []
 		floatRequest.get({ // Generate the key used to download videos
 			headers: {
@@ -441,28 +442,38 @@ function checkSubscriptions() {
 			url: subUrl
 		}, function (error, resp, body) {
 			JSON.parse(body).forEach(function(subscription) {
-				if (subscription.plan.title == 'Linus Tech Tips') {
-					settings.subscriptions.push({
-						id: subscription.creator,
-						title: subscription.plan.title,
-						enabled: true,
-						ignore: {
-							"Linus Tech Tips": false,
-				        	"Channel Super Fun": false,
-				        	"Floatplane Exclusive": false,
-				        	"TechLinked": false,
-				        	"Techquickie": false
-						}
-					})
-				} else {
-					settings.subscriptions.push({
-						id: subscription.creator,
-						title: subscription.plan.title,
-						enabled: true,
-						ignore: {}
-					})
+				var existingIndex = existingSubs.findIndex(x => x.id == subscription.creator)
+				if (existingIndex == -1) { // Not an existing sub, so use defaults
+					if (subscription.plan.title == 'Linus Tech Tips') {
+						settings.subscriptions.push({
+							id: subscription.creator,
+							title: subscription.plan.title,
+							enabled: true,
+							ignore: {
+								"Linus Tech Tips": false,
+								"Channel Super Fun": false,
+								"Floatplane Exclusive": false,
+								"TechLinked": false,
+								"Techquickie": false
+							}
+						})
+					} else {
+						settings.subscriptions.push({
+							id: subscription.creator,
+							title: subscription.plan.title,
+							enabled: true,
+							ignore: {}
+						})
+					}
+				} else { // Existing sub, so use the saved settings
+					settings.subscriptions.push(existingSubs[existingIndex])
 				}
 			})
+			if (settings.subscriptions.length < 1) { // No subs were found - most likely this is due to a issue with Floatplane
+				fLog("Init-Subs > No subscriptions found. Keeping existing list.")
+				console.log('\u001b[31m> No subscriptions found. Keeping existing list.\u001b[0m')
+				settings.subscriptions = existingSubs
+			}
 			fLog("Init-Subs > Updated user subscriptions")
 			console.log('> Updated subscriptions!')
 			saveSettings().then(resolve())
@@ -489,7 +500,7 @@ function parseKey() { // Get the key used to download videos
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				if (settings.autoFetchServer) {
-					settings.floatplaneServer = body.slice(1, body.lastIndexOf('floatplane.com')+18).replace('Edge01', 'Edge02');
+					settings.floatplaneServer = body.replace('Edge01', 'Edge02').replace('floatplaneclub', 'floatplane').slice(1, body.lastIndexOf('floatplane')+14);
 				}
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")
@@ -533,7 +544,7 @@ function getVideos() {
 							// Set defaults for video
 							matchTitle = video.title
 							video.subChannel = subscription.title
-							video.releaseDate = " - " + new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
+							video.releaseDate = new Date(video.releaseDate).toISOString().substring(0,10) // Make it nice
 
 							// Identify what subChannel the video belongs to if any
 							if (subChannelIdentifiers[subscription.title]) {
@@ -581,10 +592,11 @@ function getVideos() {
 								fLog('Videos-FileSystem > "'+rawPath+'"'+" doesn't exit... Creating'")
 								fs.mkdirSync(rawPath); // If not create the folder needed
 							}
-							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.subChannel+' - '+video.title }
+							if (settings.formatWithEpisodes == false && settings.formatWithDate == false) { video.title = video.title }
 							if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 }
-							if (settings.formatWithEpisodes == true) { video.title = video.subChannel + ' - S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
-							if (settings.formatWithDate == true) { video.title = video.subChannel+video.releaseDate+' - '+video.title } // Add the upload date to the filename
+							if (settings.formatWithEpisodes == true) { video.title = 'S'+seasonNumber+'E'+(episodeList[video.subChannel])+' - '+video.title } // add Episode Number
+							if (settings.formatWithDate == true) { video.title = video.releaseDate+' - '+video.title } // Add the upload date to the filename
+							if (settings.formatWithSubChannel == true) { video.title = video.subChannel+' - '+video.title } // Add subChannel naming if requested
 
 							//console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m>', video.title);
 							//console.log(video.title, video.guid, video.description, video.thumbnail.path)
@@ -610,7 +622,7 @@ function getVideos() {
 								if (!videos[video.guid].partial){ // If it dosnt exist then format the title with the proper incremented episode number and log that its downloading in console
 									if(settings.downloadArtwork && video.thumbnail) {
 										fLog('Download-Init > Downloading "'+video.title+'" artwork')
-										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.png'))
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+video.title+'.'+settings.artworkFormat))
 									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
@@ -624,7 +636,7 @@ function getVideos() {
 									fLog('Resume-Init > "'+video.title+'" is partially downloaded... Resuming')
 									if(settings.downloadArtwork && video.thumbnail) {
 										fLog('Download-Init > Downloading "'+video.title+'" artwork')
-										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.png'))
+										floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(rawPath+partial_data[video.guid].title+'.'+settings.artworkFormat))
 									} // Save the thumbnail with the same name as the video so plex will use it
 									loadCount += 1
 									if (partial_data[video.guid].failed) { // If the download failed then start from download normally
