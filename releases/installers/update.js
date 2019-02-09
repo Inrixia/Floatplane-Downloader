@@ -75,6 +75,9 @@ function updateSettings(){
 		if(settings.video_res != null) {newSettings.video_res = settings.video_res}
 		if(settings.user != null) {newSettings.user = settings.user}
 		if(settings.password != null) {newSettings.password = settings.password}
+
+		if(settings.artworkFormat != null) {newSettings.artworkFormat = settings.artworkFormat}
+		if(settings.formatWithSubChannel != null) {newSettings.formatWithSubChannel = settings.formatWithSubChannel}
 			
 		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
