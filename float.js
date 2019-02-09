@@ -20,7 +20,10 @@ const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR > Failed to login please check your login credentials!")
-		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do
+		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do\
+		settings.cookie = [];
+		settings.cookies = {};
+		saveSettings().then(restartScript());
 	} if (err == "ReferenceError: thisChannel is not defined") {
 		fLog('ERROR > Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json')
 		console.log('\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than '+settings.maxVideos+' in settings.json\u001b[0m')
@@ -35,7 +38,7 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 			} else {
 				logstream.write(Date()+" == "+'ERROR > videos.json > Recovered! Restarting script...\n');
 				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
-				pureStart();
+				restartScript();
 			}
 		});
 	} if(err.toString().indexOf('Unexpected string in JSON') > -1 && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
@@ -49,7 +52,7 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
  			} else {
  				logstream.write(Date()+" == "+'ERROR > videos.json > Recovered! Restarting script...')
  				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
- 				pureStart();
+ 				restartScript();
  			}
  		});
  	} else {
@@ -59,25 +62,40 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 	}
 });
 
+function restartScript() {
+	// Spawn a new process of the script and pipe the output to the current cmd window
+	const newProcess = spawn('"'+process.argv.shift()+'"', process.argv, {
+	    cwd: process.cwd(),
+	    detached : false,
+	    stdio: "inherit",
+	    shell: true
+	});
+	// Force the old process to only close after the new one has been created by putting it in a synchronous call
+	if (!newProcess) process.exit();
+}
+
 // Check if videos file exists.
 if (!fs.existsSync('./videos.json')) {
 	// Create file
 	fs.appendFile('./videos.json', '{}', function (err) {
-		// Tell the user to restart the script (with colors)
-		console.log('\u001b[36mCreated videos.json. Restart the script to continue.\u001b[0m');
-	  });
+		// Tell the user the script is restarting (with colors)
+		fLog("Pre-Init > "+'videos.json does not exist! Created partial.json and restarting script...')
+		console.log('\u001b[33mCreated videos.json. Restarting script...\u001b[0m');
+		// Restart here to avoid node trying to recover when it loads partial.json
+		restartScript();
+	});
 }
 // Put partial detection in a timeout to avoid it quitting before the videos check
 setTimeout(function() {
-
 	// Check if partial file exists.
 	if (!fs.existsSync('./partial.json')) {
 		// Create file
 		fs.appendFile('./partial.json', '{}', function (err) {
-			// Tell the user to restart the script (with colors)
-			console.log('\u001b[33mCreated partial.json. Restart the script to continue.\u001b[0m');
-			// Exit here to avoid node trying to recover when it loads partial.json
-			process.exit();
+			// Tell the user the script is restarting (with colors)
+			fLog("Pre-Init > "+'partial.json does not exist! Created partial.json and restarting script...')
+			console.log('\u001b[33mCreated partial.json. Restarting script...\u001b[0m');
+			// Restart here to avoid node trying to recover when it loads partial.json
+			restartScript();
 		});
 	}
 }, 100);
@@ -91,7 +109,11 @@ if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus
 }
 
 function fLog(info) {
-	logstream.write(Date()+" == "+info+'\n');
+	if (settings.logging) logstream.write(Date()+" == "+info+'\n');	
+}
+
+function debug(stringOut) {
+	process.stdout.write("\n\n\u001b[41mDEBUG>\u001b[0m   "+stringOut+"\n\n");
 }
 
 const subChannelIdentifiers = {
@@ -102,9 +124,9 @@ const subChannelIdentifiers = {
 			type: 'description',
 		},
 		{
-			title: 'Channel Super Fun',
-			check: 'https://twitter.com/channelsuperfun',
-			type: 'description',
+			title: 'Channel Super Fun', // subChannel display title
+			check: 'https://twitter.com/channelsuperfun', // Text used to match against video description/title for subChannel identification
+			type: 'description', // What to match the check against
 		},
 		{
 			title: 'Floatplane Exclusive',
@@ -138,14 +160,13 @@ colourList = {
 // Colours Reference ^^
 
 var episodeList = {}
-
 var floatRequest = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
     headers: {
     	'User-Agent': "FloatplanePlex/"+settings.version+" (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)"
     },
     jar: true, // Use the same cookies globally
-		rejectUnauthorized: false,
-		followAllRedirects: true
+	rejectUnauthorized: false,
+	followAllRedirects: true
 })
 
 if(process.platform === 'win32'){ // If not using windows attempt to use linux ffmpeg
@@ -160,7 +181,7 @@ var updatePlex = false; // Defaults to false, and should stay false. This is aut
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
 if (files.length == -1) {
 	fLog('ERROR > You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...')
-	console.log('\u001b[41m You need to install ffmpeg! Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
+	console.log('\u001b[41m You need to install ffmpeg! Refer to the installation instructions... Type "npm install ffmpeg-binaries" in console inside the script folder...\u001b[0m');
 	process.exit()
 }
 
@@ -353,19 +374,58 @@ function doLogin() { // Login using the users credentials and save the cookies &
 				'accept': 'application/json'
 			}
 		}, function (error, resp, body) {
-			if (body.user) { // If the server returns a user then we have logged in
+			if (body.needs2FA) { // If the server returns needs2FA then we need to prompt and enter a 2Factor code
+				doTwoFactorLogin().then(resolve)
+			} else if (body.user) { // If the server returns a user then we have logged in
 				fLog("Init-Login > Logged In as "+settings.user+"!")
 				console.log('\u001b[32mLogged In as '+settings.user+'!\u001b[0m\n');
 				settings.cookies.__cfduid = resp.headers['set-cookie'][0]
 				settings.cookies['sails.sid'] = resp.headers['set-cookie'][1]
-				saveSettings().then(resolve()) // Save the new session info so we dont have to login again and finish
+				saveSettings().then(resolve) // Save the new session info so we dont have to login again and finish
+			} else if (body.message != undefined) {
+				console.log("\u001b[41mERROR> "+body.message+"\u001b[0m");
+				checkAuth(true).then(resolve)
 			} else {
 				fLog("Init-Login > There was a error while logging in...")
-				console.log('\x1Bc');
-				console.log('\u001b[31mThere was a error while logging in...\u001b[0m\n');
-				checkAuth(true) // Try to regain auth incase they entered the wrong details or their session is invalid
+				console.log('\u001b[41mThere was a error while logging in...\u001b[0m\n');
+				checkAuth(true).then(resolve) // Try to regain auth incase they entered the wrong details or their session is invalid
 			}
 		}, reject)
+	})
+}
+
+function doTwoFactorLogin() {
+	return new Promise((resolve, reject) => {
+		factorUrl = 'https://www.floatplane.com/api/auth/checkFor2faLogin'
+		console.log('> Please enter your 2 Factor authentication code:');
+		prompt.start();
+		prompt.get([{name: "2 Factor Code", required: true}], function (err, result) {
+			floatRequest.post({
+				method: 'POST',
+				json: {
+					token: result['2 Factor Code']
+				},
+				url: factorUrl,
+				headers: {
+					'accept': 'application/json'
+				}
+			}, function (error, resp, body) {
+				if (body.user) { // If the server returns a user then we have logged in
+					fLog("Init-Login > Logged In as "+settings.user+"!")
+					console.log('\u001b[32mLogged In as '+settings.user+'!\u001b[0m\n');
+					settings.cookies.__cfduid = resp.headers['set-cookie'][0]
+					settings.cookies['sails.sid'] = resp.headers['set-cookie'][1]
+					saveSettings().then(resolve) // Save the new session info so we dont have to login again and finish
+				} else if (body.message != undefined) {
+					console.log("\u001b[41mERROR> "+body.message+"\u001b[0m");
+					doTwoFactorLogin().then(resolve);
+				} else {
+					fLog("Init-Login > There was a error while logging in...")
+					console.log('\u001b[41mThere was a error while logging in...\u001b[0m\n');
+					checkAuth(true).then(resolve) // Try to regain auth incase they entered the wrong details or their session is invalid
+				}
+			});
+		});
 	})
 }
 
@@ -391,8 +451,14 @@ function saveSettings() { // Saves all the settings from the current settings ob
 	})
 }
 
-function saveVideoLog() { // Function for saving partial data, just writes out the variable to disk
+function saveVideoData() { // Function for saving partial data, just writes out the variable to disk
 	fs.writeFile("./videos.json", JSON.stringify(videos, null, 2), 'utf8', function (err) {
+		if (err) console.log(err)
+	});
+}
+
+function savePartialData() { // Function for saving partial data, just writes out the variable to disk
+	fs.writeFile("./partial.json", JSON.stringify(partial_data, null, 2), 'utf8', function (err) {
 		if (err) console.log(err)
 	});
 }
@@ -432,8 +498,22 @@ function checkSubscriptions() {
 	return new Promise((resolve, reject) => {
 		var subUrl = 'https://www.floatplane.com/api/user/subscriptions'
 		fLog("Init-Subs > Checking user subscriptions ("+subUrl+")")
-		var existingSubs = settings.subscriptions
-		settings.subscriptions = []
+
+		// If this settings.json file is using the old format of storing subscriptions, convert it to the new one
+		if (settings.subscriptions instanceof Array) {
+			fLog("Init-Subs > Converting old Subs to new format")
+			oldSubscriptions = settings.subscriptions;
+			settings.subscriptions = {};
+			// For each of the old subscriptions add them to the new subscriptions
+			oldSubscriptions.forEach(function(subscription) {
+				settings.subscriptions[subscription.id] = {
+					id: subscription.id,
+					title: subscription.title,
+					enabled: subscription.enabled,
+					ignore: subscription.ignore
+				}
+			})
+		}
 		floatRequest.get({ // Generate the key used to download videos
 			headers: {
 				Cookie: settings.cookie,
@@ -441,41 +521,41 @@ function checkSubscriptions() {
 			},
 			url: subUrl
 		}, function (error, resp, body) {
-			JSON.parse(body).forEach(function(subscription) {
-				var existingIndex = existingSubs.findIndex(x => x.id == subscription.creator)
-				if (existingIndex == -1) { // Not an existing sub, so use defaults
-					if (subscription.plan.title == 'Linus Tech Tips') {
-						settings.subscriptions.push({
-							id: subscription.creator,
-							title: subscription.plan.title,
-							enabled: true,
-							ignore: {
-								"Linus Tech Tips": false,
-								"Channel Super Fun": false,
-								"Floatplane Exclusive": false,
-								"TechLinked": false,
-								"Techquickie": false
+			if (JSON.parse(body).length == 0) { // No subs were found - Most likely a issue with Floatplane
+				fLog("Init-Subs > Floatplane returned no subscriptions! Keeping existing.")
+				console.log('\u001b[31m> Floatplane returned no subscriptions! Keeping existing.\u001b[0m')
+				return;
+			} else {
+				JSON.parse(body).forEach(function(subscription) {
+					// If this subscription does not exist in settings add it with defaults otherwise do nothing
+					if (settings.subscriptions[subscription.creator] == undefined) {
+						// If the subscription being added is LTT then add it with its special subChannel ignores
+						if (subscription.plan.title == 'Linus Tech Tips') {
+							settings.subscriptions[subscription.creator] = {
+								id: subscription.creator,
+								title: subscription.plan.title,
+								enabled: true,
+								ignore: {
+									"Linus Tech Tips": false,
+									"Channel Super Fun": false,
+									"Floatplane Exclusive": false,
+									"TechLinked": false,
+									"Techquickie": false
+								}
 							}
-						})
-					} else {
-						settings.subscriptions.push({
-							id: subscription.creator,
-							title: subscription.plan.title,
-							enabled: true,
-							ignore: {}
-						})
+						} else {
+							settings.subscriptions[subscription.creator] = {
+								id: subscription.creator,
+								title: subscription.plan.title,
+								enabled: true,
+								ignore: {}
+							}
+						}
 					}
-				} else { // Existing sub, so use the saved settings
-					settings.subscriptions.push(existingSubs[existingIndex])
-				}
-			})
-			if (settings.subscriptions.length < 1) { // No subs were found - most likely this is due to a issue with Floatplane
-				fLog("Init-Subs > No subscriptions found. Keeping existing list.")
-				console.log('\u001b[31m> No subscriptions found. Keeping existing list.\u001b[0m')
-				settings.subscriptions = existingSubs
+				})
+				fLog("Init-Subs > Updated user subscriptions")
+				console.log('> Updated subscriptions!')
 			}
-			fLog("Init-Subs > Updated user subscriptions")
-			console.log('> Updated subscriptions!')
 			saveSettings().then(resolve())
 		}, reject)
 	})
@@ -500,7 +580,8 @@ function parseKey() { // Get the key used to download videos
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
 				if (settings.autoFetchServer) {
-					settings.floatplaneServer = body.replace('Edge01', 'Edge02').replace('floatplaneclub', 'floatplane').slice(1, body.lastIndexOf('floatplane')+14);
+					// Fetches the API url used to download videos
+					settings.floatplaneServer = body.replace('floatplaneclub', 'floatplane').slice(1, body.lastIndexOf('floatplane')+14);
 				}
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")
@@ -515,11 +596,12 @@ function parseKey() { // Get the key used to download videos
 function getVideos() {
 	return new Promise((resolve, reject) => {
 		fLog("Videos-Init > Starting Main Function")
-		settings.subscriptions.forEach(function(subscription) {
-			if (!subscription.enabled) {
+		Object.keys(settings.subscriptions).forEach(function(key) {
+		  	var subscription = settings.subscriptions[key];
+			if (!subscription.enabled) { // If this subscription is disabled then dont download
 				fLog("\nVideos-Init > "+subscription.title+" is disabled, skipping")
 				return false
-			} // If this subscription is disabled then dont download
+			}
 			for(i=1; i <= Math.ceil(settings.maxVideos/20); i++){
 				var vUrl = 'https://www.floatplane.com/api/creator/videos?creatorGUID='+subscription.id+'&fetchAfter='+((i*20)-20)
 				fLog("Videos-Init > Fetching "+vUrl)
@@ -534,6 +616,7 @@ function getVideos() {
 						fLog("Videos > No Video's Returned! Please open Floatplane.com in a browser and login...")
 						console.log('\n\u001b[31mNo Videos Returned! Please open Floatplane.com in a browser and login...\u001b[0m')
 					} else {
+						// Determine the current page from the request uri
 						var page = resp.request.uri.query.slice(resp.request.uri.query.indexOf('&fetchAfter=')+12, resp.request.uri.query.length)/20
 						if(settings.maxVideos > 20) { // If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
 							console.log('\n\n=== \u001b[38;5;8m'+subscription.title+'\u001b[0m - \u001b[95mPage '+page+'\u001b[0m ===')
@@ -598,19 +681,13 @@ function getVideos() {
 							if (settings.formatWithDate == true) { video.title = video.releaseDate+' - '+video.title } // Add the upload date to the filename
 							if (settings.formatWithSubChannel == true) { video.title = video.subChannel+' - '+video.title } // Add subChannel naming if requested
 
-							//console.log(colourList[video.subChannel]+video.subChannel+'\u001b[0m>', video.title);
-							//console.log(video.title, video.guid, video.description, video.thumbnail.path)
-
 							// Check if video already exists
 							matchTitle = sanitize(matchTitle)
 							video.title = sanitize(video.title);
-							//files = glob.sync(rawPath+'*'+matchTitle.replace('(', '*').replace(')', '*')+".mp4") // Check if the video already exists based on the above match
-							//partialFiles = glob.sync(rawPath+'*'+video.title.replace('(', '*').replace(')', '*')+".mp4.part") // Check if the video is partially downloaded
 							if (!colourList[video.subChannel]) { colourList[video.subChannel] = '\u001b[38;5;153m' }
-							if (i == Math.ceil(settings.maxVideos/20)) {
-								printLines()
-							}
-							//if (files.length > 0) { // If it already exists then format the title nicely, log that it exists in console and end for this video
+
+							if (i == 0 || i == Math.ceil(settings.maxVideos/20)) printLines()
+
 							if (videos[video.guid] == undefined){
 								fLog('Download-Init > "'+video.title+'" is new, creating meta in videos.json')
 								videos[video.guid] = {subChannel: video.subChannel, partial: false, saved: false}
@@ -688,7 +765,7 @@ function queueResumeDownload(url, title, thisChannel, rawPath, video) { // Loop 
 function download(url, title, thisChannel, rawPath, video) { // The main download function, this is the guts of downloading stuff after the url is gotten from the form
 	fLog('Download > Downloading "'+video.title+'"')
 	videos[video.guid].partial = true
-	saveVideoLog()
+	saveVideoData()
 	partial_data[video.guid] = {failed: true, title: title} // Set the download failed to true and the title incase a download starts but crashes before the first partial write
 	var bar = multi.newBar(':title [:bar] :percent :stats', { // Format with ffmpeg for titles/plex support
 		complete: '\u001b[42m \u001b[0m',
@@ -701,7 +778,7 @@ function download(url, title, thisChannel, rawPath, video) { // The main downloa
 	liveCount += 1 // Register that a video is beginning to download for maxParrallelDownloads
 	progress(floatRequest(url), {throttle: settings.downloadUpdateTime}).on('progress', function (state) { // Send the request to download the file, run the below code every downloadUpdateTime while downloading
 		partial_data[video.guid] = {failed: false, total: state.size.total, transferred: state.size.transferred, title: title} // Write out the details of the partial download
-		saveData() // Save the above data
+		savePartialData() // Save the above data
 		if (state.speed == null) {state.speed = 0} // If the speed is null set it to 0
 		bar.update(state.percent) // Update the bar's percentage
 		// Tick the bar to update its stats including speed, transferred and eta
@@ -744,7 +821,7 @@ function resumeDownload(url, title, thisChannel, rawPath, video) { // This handl
 		}
 	}), {throttle: settings.downloadUpdateTime}).on('progress', function (state) { // Run the below code every downloadUpdateTime while downloading
 		partial_data[video.guid].transferred = state.size.transferred+subTotal // Set the amount transferred to be equal to the preious ammount plus the new ammount transferred (Since this is a "new" download from the origonal transferred starts at 0 again)
-		saveData() // Save this data
+		savePartialData() // Save this data
 		if (state.speed == null) {state.speed = 0} // If the speed is null set it to 0
 		bar.update((subTotal+state.size.transferred)/partial_data[video.guid].total) // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
 		// Tick the bar same as above but the transferred value needs to take into account the previous amount.
@@ -791,7 +868,7 @@ function ffmpegFormat(file, name, file2, video) { // This function adds titles t
 	delete partial_data[video.guid] // Remove its partial data
 	videos[video.guid].file = file // Note the file that the video is saved to
 	videos[video.guid].saved = true // Set it to be saved
-	saveVideoLog();
+	saveVideoData();
 }
 
 function updateLibrary() { // Function for updating plex libraries
@@ -816,10 +893,4 @@ function updateLibrary() { // Function for updating plex libraries
 		}
 		resolve()
 	})
-}
-
-function saveData() { // Function for saving partial data, just writes out the variable to disk
-	fs.writeFile("./partial.json", JSON.stringify(partial_data), 'utf8', function (err) {
-		if (err) console.log(err)
-	});
 }
