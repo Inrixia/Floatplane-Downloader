@@ -83,11 +83,11 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 >Example:
 >"S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
 ```json 
-"formatWithSubChannel": true
+"formatWithSubChannel": false
 ```
 
 **downloadUpdateTime:**  
->Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write to the disk while downloading less, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
+>Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write larger chunks of data to the disk, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
 >
 >Default: "**250**"  
 >Example:
@@ -130,21 +130,26 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 >
 >Default [Pre-First Run]:
 ```json
-"subscriptions": []
+"subscriptions": {}
 ```
 >**Example [Post-First Run] (Dont Download BitWit Ultra & Techquickie):**
 ```json 
-"subscriptions": [
+"subscriptions": {
+"5ae0f8114336369a2c3619b6": {
     {
       "id": "5ae0f8114336369a2c3619b6",
       "title": "Tech Deals",
       "enabled": true
     },
+},
+"59fa58f93acf6013471d5822": {
     {
       "id": "59fa58f93acf6013471d5822",
       "title": "BitWit Ultra",
       "enabled": false
     },
+},
+"59f94c0bdd241b70349eb72b": {
     {
       "id": "59f94c0bdd241b70349eb72b",
       "title": "Linus Tech Tips",
@@ -305,6 +310,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 
 **floatplaneServer:**  
 >This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.
+>You can see avalible edge servers by using this url: https://www.floatplane.com/api/edges
 >
 >Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
 >Example:
