@@ -177,6 +177,7 @@ if(process.platform === 'win32'){ // If not using windows attempt to use linux f
 var loadCount = -1; // Number of videos currently queued/downloading
 var liveCount = 0; // Number of videos actually downloading
 var updatePlex = false; // Defaults to false, and should stay false. This is automatically set to true when the last video is downloaded
+var bestEdge = {} // Variable used to store the best edge server determined by lat and long compared to the requesters ip address
 
 files = glob.sync("./node_modules/ffmpeg-binaries/bin/ffmpeg.exe") // Check if the video already exists based on the above match
 if (files.length == -1) {
@@ -290,6 +291,7 @@ function remotePlexCheck() { // If remotePlex is enabled then this will ask the 
 }
 
 function repeatScript() {
+	if (settings.autoFetchServer) findBestEdge();
 	// Check if repeating the script is enabled in settings, if not then skip to starting the script
 	if(settings.repeatScript != false && settings.repeatScript != 'false') {
 		var multipliers = { // Contains the number of seconds for each time
@@ -556,7 +558,7 @@ function checkSubscriptions() {
 				fLog("Init-Subs > Updated user subscriptions")
 				console.log('> Updated subscriptions!')
 			}
-			saveSettings().then(resolve())
+			resolve()
 		}, reject)
 	})
 }
@@ -565,7 +567,7 @@ function parseKey() { // Get the key used to download videos
 	return new Promise((resolve, reject) => {
 		var keyUrl = 'https://www.floatplane.com/api/video/url?guid=MSjW9s3PiG&quality=1080'
 		fLog("Init-Key > Fetching video download key ("+keyUrl+")")
-		console.log("> Fetching video key")
+		console.log("> Fetching download key")
 		floatRequest.get({
 			url: keyUrl,
 			headers: {
@@ -579,15 +581,40 @@ function parseKey() { // Get the key used to download videos
 				// If its invalid check authentication again, reconstruct the cookies and then try parsekey again if that goes through then resolve
 				checkAuth().then(constructCookie).then(parseKey).then(resolve)
 			} else {
-				if (settings.autoFetchServer) {
+				/*if (settings.autoFetchServer) {
 					// Fetches the API url used to download videos
 					settings.floatplaneServer = body.replace('floatplaneclub', 'floatplane').slice(1, body.lastIndexOf('floatplane')+14);
-				}
+				}*/
 				settings.key = body.replace(/.*wmsAuthSign=*/, '') // Strip everything except for the key from the generated url
 				fLog("Init-Key > Key Fetched")
-				console.log('\u001b[36mFetched! Using Server \u001b[0m[\u001b[38;5;208m'+settings.floatplaneServer+'\u001b[0m]');
+				console.log('\u001b[36mFetched download key!\u001b[0m');
 				resolve()
 			}
+		});
+	})
+}
+
+function findBestEdge() {
+	return new Promise((resolve, reject) => {
+		var edgeUrl = 'https://www.floatplane.com/api/edges'
+		fLog("Init-FindEdge > Fetching edge servers via ("+edgeUrl+")")
+		console.log("> Finding best edge server")
+		floatRequest.get({
+			url: edgeUrl,
+			headers: {
+				Cookie: settings.cookie,
+			}
+		}, function (err, resp, body) {
+			var edgeInfo = JSON.parse(body);
+			edgeInfo.edges.forEach(function(edge){
+				if (!edge.allowDownload) return false;
+				if (!bestEdge.edgeDistance) bestEdge = edge;
+				edge.edgeDistance = edge.datacenter.latitude-edgeInfo.client.latitude+edge.datacenter.longitude-edgeInfo.client.longitude;
+				if (edge.edgeDistance > bestEdge.edgeDistance) bestEdge = edge;
+			})
+			settings.floatplaneServer = "https://"+bestEdge.hostname;
+			console.log('\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m'+settings.floatplaneServer+'\u001b[0m]');
+			resolve();
 		});
 	})
 }

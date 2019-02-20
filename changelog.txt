@@ -1,3 +1,7 @@
+v4.5.0
+ - Added new function for determining best edge server to use
+ - Removed unnecessary settings save
+
 v4.4.0
  - Updated all dependencies to remove security vulnerabilities
  - Updated default floatplane API url to new formatting
