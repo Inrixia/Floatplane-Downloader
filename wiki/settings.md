@@ -124,6 +124,16 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 "monthsAsSeasons": false
 ```
 
+**TheWANShow:**  
+>If true the script will download the latest WAN show episodes from youtube.
+>
+>Default: "**false**"  
+>Example:
+>"**true**"
+```json 
+"TheWANShow": true
+```
+
 **subscriptions:**  
 >This contains all the Floatplane creators you are subscribed to and weather you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
 >Note: Using this with a maxVideos any lower than 30 will result in you missing videos!

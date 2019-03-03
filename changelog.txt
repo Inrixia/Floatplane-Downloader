@@ -1,6 +1,14 @@
 v4.5.0
+ - Variety of other rewrites/changes and fixes
+ - Added setting TheWANShow
+ - Added youtube download support for The WAN Show
+ - Rewrote download functions to consolidate code
+ - Changed Techquickie to determine subChannel by title identifier rather than description
+ - Rewrote most text concat to use new method
+ - Removed outdated/leftover code from older versions
  - Added new function for determining best edge server to use
  - Removed unnecessary settings save
+ - Added check to ensure script does not repeat if its still downloading
 
 v4.4.0
  - Updated all dependencies to remove security vulnerabilities

@@ -1,5 +1,5 @@
 {
-  "version": "4.4.0",
+  "version": "4.5.0",
   "videoFolder": "./videos/",
   "maxVideos": 5,
   "maxParallelDownloads": -1,
@@ -12,6 +12,7 @@
   "ignoreFolderStructure": false,
   "yearsAsSeasons": false,
   "monthsAsSeasons": false,
+  "TheWANShow": false,
   "subscriptions": {},
   "repeatScript": "false",
   "cookie": [],

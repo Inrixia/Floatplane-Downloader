@@ -78,6 +78,8 @@ function updateSettings(){
 
 		if(settings.artworkFormat != null) {newSettings.artworkFormat = settings.artworkFormat}
 		if(settings.formatWithSubChannel != null) {newSettings.formatWithSubChannel = settings.formatWithSubChannel}
+
+		if(settings.TheWANShow != null) {newSettings.TheWANShow = settings.TheWANShow}
 			
 		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
 			resolve()
