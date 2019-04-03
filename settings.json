@@ -5,6 +5,7 @@
   "maxParallelDownloads": -1,
   "downloadArtwork": true,
   "artworkFormat": "png",
+  "saveNfo": true,
   "formatWithEpisodes": true,
   "formatWithDate": false,
   "formatWithSubChannel": true,
