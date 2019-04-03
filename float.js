@@ -706,8 +706,6 @@ function getVideos () {
                 if (settings.saveNfo) {
                   let doc = builder.create('episodedetails').ele('title').text(video.episodeTitle).up().ele('showtitle').text(video.subChannel).up().ele('description').text(video.description).up().ele('aired').text(video.releaseDate).up().ele('season').text(video.seasonNumber).up().ele('episode').text(video.episodeNumber).up().end({pretty: true});
 
-                  fs.writeFile(video.rawPath + video.title + '.nfo', doc);
-
                   fs.writeFile(video.rawPath + video.title + '.nfo', doc, 'utf8', function (error) {});
                 }
 
