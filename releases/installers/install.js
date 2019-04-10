@@ -15,7 +15,7 @@ function getInstall() {
 				console.log(err);
 			}).pipe(fs.createWriteStream("./update.zip")).on('finish', function(){
 				AdmZip("./update.zip").extractAllTo("./update");
-				fs.unlink("./update.zip")
+				fs.unlinkSync("./update.zip")
 				resolve()
 			});
 		});
