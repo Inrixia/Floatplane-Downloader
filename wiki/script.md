@@ -47,15 +47,15 @@ To install manually continue to read below.
    >Note this stores your username and password in plaintext in settings.json. However you can manually delete them from settings.json, and the script will only ask you to log back in if your session stored in the settings expires.
    >
    >**Or manually set them yourself which is noted below.**  
-   >**If you dont login with a username/email & password or use 2Factor you may need to do this.**
+   >**As of version 4.4.0 there really shouldnt be any reason to do this**
 5. **Manually set your cookies [OPTIONAL]:**
 
    >You need to login to the Floatplane.com site and then inspect the page.  
    >
    >**Open a page on Floatplane.com after logging in and rightclick-inspect.**  
-[![https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77](https://i.gyazo.com/44dd4994520efd56311ab9c0b0f59a77.gif)](https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77)
+[![https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77](https://i.gyazo.com/44dd4994520efd56311ab9c0b0f59a77.gif)](https://gyazo.com/44dd4994520efd56311ab9c0b0f59a77)\
 **Go to the Application TAB. (This is on Chrome)**
-[![https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911](https://i.gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911.png)](https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911)
+[![https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911](https://i.gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911.png)](https://gyazo.com/dbe2de6f8de4b76fe5cf7ff6e1cd2911)\
 **Copy your __cfduid from .floatplane.com and sails.sid cookie value seen above into the settings cookies so it looks like this:**  
 [![https://gyazo.com/ed8133694c080b150f7f4d97991d4785](https://i.gyazo.com/ed8133694c080b150f7f4d97991d4785.png)](https://gyazo.com/ed8133694c080b150f7f4d97991d4785)
 
