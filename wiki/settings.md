@@ -3,7 +3,7 @@
 This covers what each setting is and what you can change it to for after version 4.0.0 Please go read this for pre 4.0.0: [Settings_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings_pre_4.0.0.md). 
 
 Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
-[![https://gyazo.com/3f962c3550b987ee3c3c0f297c1204fa](https://i.gyazo.com/3f962c3550b987ee3c3c0f297c1204fa.png)](https://gyazo.com/3f962c3550b987ee3c3c0f297c1204fa)
+[![https://gyazo.com/670b51fad1af4327ef25b28dd01afc68](https://i.gyazo.com/670b51fad1af4327ef25b28dd01afc68.png)](https://gyazo.com/670b51fad1af4327ef25b28dd01afc68)
 
 **version:**  
 >Variable used in the update script. Ignore this.
