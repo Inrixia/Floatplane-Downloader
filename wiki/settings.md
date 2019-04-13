@@ -3,7 +3,7 @@
 This covers what each setting is and what you can change it to for after version 4.0.0 Please go read this for pre 4.0.0: [Settings_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings_pre_4.0.0.md). 
 
 Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
-[![https://gyazo.com/c51709dc3746cfaaf10f7abbb5abae39](https://i.gyazo.com/c51709dc3746cfaaf10f7abbb5abae39.png)](https://gyazo.com/c51709dc3746cfaaf10f7abbb5abae39)
+[![https://gyazo.com/3f962c3550b987ee3c3c0f297c1204fa](https://i.gyazo.com/3f962c3550b987ee3c3c0f297c1204fa.png)](https://gyazo.com/3f962c3550b987ee3c3c0f297c1204fa)
 
 **version:**  
 >Variable used in the update script. Ignore this.
@@ -39,6 +39,27 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 "maxParallelDownloads": -1
 ```
 
+**repeatScript:**  
+>This lets you have the script auto run at a specific interval. The default is false which disables this functionality, otherwise you can set it to the following format:
+>xUnits, where x is a number, and Units is the type
+>Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
+>
+>Default: "**false**"  
+>Examples:  
+
+Repeats every 2 minutes:
+```json 
+"repeatScript": "2m"
+```
+Repeats every hour:
+```json 
+"repeatScript": "1h"
+```
+Repeats every day:
+```json 
+"repeatScript": "1d"
+```
+
 **downloadArtwork:**  
 >Sets weather the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
 >
@@ -55,6 +76,15 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 >Example:
 ```json 
 "downloadArtwork": "png"
+```
+
+**safeNfo:**  
+>Sets weather the script saves video metadata to nfo files alongside the video.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"safeNfo": true
 ```
 
 **formatWithEpisodes:**  
@@ -86,24 +116,6 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 "formatWithSubChannel": false
 ```
 
-**downloadUpdateTime:**  
->Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write larger chunks of data to the disk, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
->
->Default: "**250**"  
->Example:
-```json 
-"downloadUpdateTime": 250
-```
-
-**ignoreFolderStructure:**  
->If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
->
->Default: "**false**"  
->Example:
-```json 
-"ignoreFolderStructure": false
-```
-
 **yearsAsSeasons:**  
 >If true the script will save all videos into a season folder based on the year they were released. This will cause Plex to show a season for each year.
 >
@@ -122,6 +134,42 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
 >"\Videos\Linus Tech Tips\201701\VideoTitle.mp4" (If the month is January)
 ```json 
 "monthsAsSeasons": false
+```
+
+**ignoreFolderStructure:**  
+>If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"ignoreFolderStructure": false
+```
+
+**ffmpeg:**  
+>Enables ffmpeg processing of videos. Disabling this will break titles in Plex.
+>
+>Default: "**true**" 
+>Example: 
+```json 
+"ffmpeg": false
+```
+
+**downloadUpdateTime:**  
+>Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write larger chunks of data to the disk, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
+>
+>Default: "**250**"  
+>Example:
+```json 
+"downloadUpdateTime": 250
+```
+
+**checkForNewSubscriptions:**  
+>Will check for new subscriptions on your account when the script runs.
+>
+>Default: "**true**" 
+>Example: 
+```json 
+"checkForNewSubscriptions": true
 ```
 
 **TheWANShow:**  
@@ -175,48 +223,36 @@ Note that "max" type settings apply separately to each channel, so maxVideos set
   ]
 ```
 
-**repeatScript:**  
->This lets you have the script auto run at a specific interval. The default is false which disables this functionality, otherwise you can set it to the following format:
->xUnits, where x is a number, and Units is the type
->Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
+**autoFetchServer:**  
+>When this is enabled the script will automatically determine the closest download server to you
+>Disabling this will let you manually specify a download server in the **floatplaneServer** setting
 >
->Default: "**false**"  
->Examples:  
-
-Repeats every 2 minutes:
+>Default: "**true**"  
+>Example:
 ```json 
-"repeatScript": "2m"
-```
-Repeats every hour:
-```json 
-"repeatScript": "1h"
-```
-Repeats every day:
-```json 
-"repeatScript": "1d"
+"autoFetchServer": false
 ```
 
-**cookie:**  
->Variable used in the script to combine all the cookies for use. Ignore this.
-
-**cookies:**  
->Each of these are used for authentication. You shouldnt modify these unless you know what your doing otherwise ignore this.
+**floatplaneServer:**  
+>This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.\
+>You can see avalible edge servers by using this url: https://www.floatplane.com/api/edges
 >
->Example: 
+>**It is important to note that you can only download from edges that have the allowDownload flag set to true!**
+>
+>Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
+>Example:
 ```json 
-"cookies": {
-    "__cfduid": "__cfduid=sd3fhjkfgdfsdfgh34jbvdfsdfsdf;",
-    "sails.sid": "sails.sid=sdsdhjk1fgfsfghshj23khjhsdf;"
-}
+"floatplaneServer": "https://Edge01-na.floatplaneclub.com:443"
 ```
 
-**ffmpeg:**  
->Enables ffmpeg processing of videos. Disabling this will break titles in Plex.
+**video_res:**  
+>This defines the resolution to download the videos in. Currently there are only four options you can set it to:  
+>**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
 >
->Default: "**true**" 
->Example: 
+>Default: "**1080**"  
+>Example:
 ```json 
-"ffmpeg": false
+"video_res": 1080
 ```
 
 **logging:**  
@@ -237,51 +273,6 @@ Repeats every day:
 "logFile": ./myLogFile.log
 ```
 
-**remotePlex:**  
->This enables or disables remotely updating a Plex library in the script.  
->
->Default: "**false**"  
->Example:
-```json 
-"remotePlex": true
-```
-
-**remotePlexIP:**  
->This is the remote IP that the remote Plex server is hosted on.
->
->Default: ""  
->Example:
-```json 
-"remotePlexIP": 192.168.0.10
-```
-
-**remotePlexPort:**  
->This is the remote Port that the remote Plex server is hosted on. This only needs to be changed if your Plex server is not running on the default port of 32400
->
->Default: "32400"  
->Example:
-```json 
-"remotePlexPort": 32500
-```
-
-**PlexToken:**  
->This is the Plex token generated from your login details for updating remote servers. It is only needed for remote updates and can only be generated by running the script, which will prompt the user to enter their Plex username and password if PlexToken is empty and remotePlex is enabled.
->
->Default: ""  
->Example:
-```json 
-"remotePlexToken": "asSsdfH76FsNfer"
-```
-
-**localPlex:**  
->This enables or disables locally updating a Plex library in the script. Enabling this requires PlexSection and PlexScannerInstall to be set correctly.  
->
->Default: "**false**"  
->Example:
-```json 
-"localPlex": true
-```
-
 **PlexSection:**  
 >This is the Plex section id your videos are stored in for auto updating the section when new videos are downloaded. 
 If you are on windows you can find the Plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on Plex.
@@ -299,43 +290,58 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "PlexSection": 5
 ```
 
-**PlexScannerInstall:**  
+**remotePlex [remotePlexUpdates.enabled]:**  
+>This enables or disables remotely updating a Plex library in the script.  
+>
+>Default: "**false**"  
+>Example:
+```json 
+"remotePlex": true
+```
+
+**remotePlexIP [remotePlexUpdates.serverIPAddr]:**  
+>This is the remote IP that the remote Plex server is hosted on.
+>
+>Default: ""  
+>Example:
+```json 
+"remotePlexIP": 192.168.0.10
+```
+
+**remotePlexPort [remotePlexUpdates.serverPort]:**  
+>This is the remote Port that the remote Plex server is hosted on. This only needs to be changed if your Plex server is not running on the default port of 32400
+>
+>Default: "32400"  
+>Example:
+```json 
+"remotePlexPort": 32500
+```
+
+**plexToken:**  
+>This is the Plex token generated from your login details for updating remote servers. It is only needed for remote updates and can only be generated by running the script, which will prompt the user to enter their Plex username and password if PlexToken is empty and remotePlex is enabled.
+>
+>Default: ""  
+>Example:
+```json 
+"remotePlexToken": "asSsdfH76FsNfer"
+```
+
+**localPlex [localPlexUpdates.enabled]:**  
+>This enables or disables locally updating a Plex library in the script. Enabling this requires PlexSection and PlexScannerInstall to be set correctly.  
+>
+>Default: "**false**"  
+>Example:
+```json 
+"localPlex": true
+```
+
+**PlexScannerInstall [localPlexUpdates.PlexScannerInstall]:**  
 >This only needs to be changed if Plex is not installed to the default path or if your on linux. This defines where the scanner program for updating Plex videos is located.
 >
 >Default: "**C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe**"
 >Example:
 ```json 
 "PlexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
-```
-
-**autoFetchServer:**  
->When this is enabled the script will automatically fetch the download server for your region
->Disabling this will let you manually specify a download server in the **floatplaneServer** setting
->
->Default: "**true**"  
->Example:
-```json 
-"autoFetchServer": false
-```
-
-**floatplaneServer:**  
->This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.
->You can see avalible edge servers by using this url: https://www.floatplane.com/api/edges
->
->Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
->Example:
-```json 
-"floatplaneServer": "https://Edge01-na.floatplaneclub.com:443"
-```
-
-**video_res:**  
->This defines the resolution to download the videos in. Currently there are only four options you can set it to:  
->**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
->
->Default: "**1080**"  
->Example:
-```json 
-"video_res": 1080
 ```
 
 **user:**
@@ -360,4 +366,18 @@ OR
 >Example:
 ```json 
 "password": "YourPasswordHere"
+```
+
+**cookie:**  
+>Variable used in the script to combine all the cookies for use. Ignore this.
+
+**cookies:**  
+>Each of these are used for authentication. You shouldnt modify these unless you know what your doing otherwise ignore this.
+>
+>Example: 
+```json 
+"cookies": {
+    "__cfduid": "__cfduid=sd3fhjkfgdfsdfgh34jbvdfsdfsdf;",
+    "sails.sid": "sails.sid=sdsdhjk1fgfsfghshj23khjhsdf;"
+}
 ```
