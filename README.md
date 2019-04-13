@@ -7,7 +7,8 @@
 ### Basic Info:
 **This project is unofficial and not in any way affiliated with LMG**
 
-**We now have a discord! So head there if you need help... [Join Our Discord](https://discord.gg/aNTyMME)**
+**We now have a discord! So head there if you need help... [Join Our Discord](https://discord.gg/aNTyMME)**\
+If you wanna support what I do you can chuck some money to Inrixia@gmail.com on **[paypal.com](https://www.paypal.com/myaccount/transfer/homepage)**
 
 **You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
 
