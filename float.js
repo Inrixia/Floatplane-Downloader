@@ -12,12 +12,13 @@ const multi = new Multiprogress(process.stdout);
 const fs = require('fs');
 const pad = require('pad');
 const spawn = require('child_process').spawn;
-const AdmZip = require('adm-zip');
+const builder = require('xmlbuilder');
 
 const settings = require('./settings.json'); // File containing user settings
 const logstream = fs.createWriteStream(settings.logFile, {flags:'a'});
 
 process.on('uncaughtException', function(err) { // "Nice" Error handling, will obscure unknown errors, remove or comment for full debugging
+	let isJSONErr = (err.toString().indexOf('Unexpected string in JSON') > -1 || err.toString().indexOf('Unexpected end of JSON input') > -1 || err.toString().indexOf('Unexpected token') > -1)
 	if (err == "TypeError: JSON.parse(...).forEach is not a function") { // If this error
 		fLog("ERROR > Failed to login please check your login credentials!")
 		console.log('\u001b[41mERROR> Failed to login please check your login credentials!\u001b[0m') // Then print out what the user should do\
@@ -27,7 +28,7 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 	} if (err == "ReferenceError: thisChannel is not defined") {
 		fLog(`ERROR > Error with "maxVideos"! Please set "maxVideos" to something other than ${settings.maxVideos} in settings.json`)
 		console.log(`\u001b[41mERROR> Error with "maxVideos"! Please set "maxVideos" to something other than ${settings.maxVideos} in settings.json\u001b[0m`)
-	} if(err.toString().indexOf('Unexpected end of JSON input') > -1 && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
+	} if(isJSONErr && err.toString().indexOf('partial.json') > -1) { // If this error and the error is related to this file
 		logstream.write(`${Date()} == ERROR > partial.json > Corrupt partial.json file! Attempting to recover...`)
 		console.log('\u001b[41mERROR> Corrupt partial.json file! Attempting to recover...\u001b[0m');
 		fs.writeFile("./partial.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
@@ -41,21 +42,29 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 				restartScript();
 			}
 		});
-	} if(err.toString().indexOf('Unexpected string in JSON') > -1 && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
+	} if(isJSONErr && err.toString().indexOf('videos.json') > -1) { // If this error and the error is related to this file
 		logstream.write(`${Date()} == ERROR > videos.json > Corrupt videos.json file! Attempting to recover...`)
- 		console.log('\u001b[41mERROR> Corrupt videos.json file! Attempting to recover...\u001b[0m');
- 		fs.writeFile("./videos.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
- 			if (error) {
- 				logstream.write(`${Date()} == ERROR > videos.json > Recovery failed! Error: ${error}`)
- 				console.log(`\u001b[41mRecovery failed! Error: ${error}\u001b[0m`)
- 				process.exit()
- 			} else {
- 				logstream.write(`${Date()} == ERROR > videos.json > Recovered! Restarting script...`)
- 				console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
- 				restartScript();
- 			}
- 		});
- 	} else {
+		console.log('\u001b[41mERROR> Corrupt videos.json file! Attempting to recover...\u001b[0m');
+		try {
+			videos = require('./videos.json.backup')
+			saveVideoData();
+			logstream.write(`${Date()} == ERROR > videos.json > Recovered from backup! Restarting script...`)
+			console.log('\u001b[42mRecovered from backup! Restarting script...\u001b[0m');
+			restartScript();
+		} catch {
+			fs.writeFile("./videos.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
+				if (error) {
+					logstream.write(`${Date()} == ERROR > videos.json > Recovery failed! Error: ${error}`)
+					console.log(`\u001b[41mRecovery failed! Error: ${error}\u001b[0m`)
+					process.exit()
+				} else {
+					logstream.write(`${Date()} == ERROR > videos.json > Recovered! Restarting script...`)
+					console.log('\u001b[42mRecovered! Restarting script...\u001b[0m');
+					restartScript();
+				}
+			});
+		}
+	} else {
 		console.log(err)
 		logstream.write(`${Date()} == UNHANDLED ERROR > ${err}`)
 		//throw err
@@ -65,10 +74,10 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 function restartScript() {
 	// Spawn a new process of the script and pipe the output to the current cmd window
 	const newProcess = spawn(`"${process.argv.shift()}"`, process.argv, {
-	    cwd: process.cwd(),
-	    detached : false,
-	    stdio: "inherit",
-	    shell: true
+		cwd: process.cwd(),
+		detached : false,
+		stdio: "inherit",
+		shell: true
 	});
 	// Force the old process to only close after the new one has been created by putting it in a synchronous call
 	if (!newProcess) process.exit();
@@ -102,14 +111,13 @@ setTimeout(function() {
 
 
 const videos = require('./videos.json'); // Persistant storage of videos downloaded
-const partial_data = require('./partial.json'); // File for saving details of partial downloads	
 
 if (!fs.existsSync(settings.videoFolder)){ // Check if the new path exists (plus season folder if enabled)
 	fs.mkdirSync(settings.videoFolder); // If not create the folder needed
 }
 
 function fLog(info) {
-	if (settings.logging) logstream.write(Date()+" == "+info+'\n');	
+	if (settings.logging) logstream.write(Date()+" == "+info+'\n');
 }
 
 function debug(stringOut) {
@@ -139,7 +147,7 @@ const subChannelIdentifiers = {
 			type: 'description',
 		},
 		{
-			title: 'Techquickie',
+			title: 'TechQuickie',
 			check: 'tq:',
 			type: 'title',
 		}
@@ -152,7 +160,7 @@ colourList = {
 	'Channel Super Fun': '\u001b[38;5;220m',
 	'Floatplane Exclusive': '\u001b[38;5;200m',
 	'TechLinked': '\u001b[38;5;14m',
-	'Techquickie': '\u001b[38;5;153m',
+	'TechQuickie': '\u001b[38;5;153m',
 	'Tech Deals': '\u001b[38;5;10m',
 	'BitWit Ultra': '\u001b[38;5;105m'
 }
@@ -162,10 +170,10 @@ colourList = {
 
 var episodeList = {}
 var floatRequest = request.defaults({ // Sets the global requestMethod to be used, this maintains headers
-    headers: {
-    	'User-Agent': `FloatplanePlex/${settings.version} (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)`
-    },
-    jar: true, // Use the same cookies globally
+	headers: {
+		'User-Agent': `FloatplanePlex/${settings.version} (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)`
+	},
+	jar: true, // Use the same cookies globally
 	rejectUnauthorized: false,
 	followAllRedirects: true
 })
@@ -200,9 +208,9 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 	} else if(updateInfo.version < settings.version) { // If the script is a beta version/nonpublic
 		console.log('\u001b[35mOhh, your running a hidden beta! Spooky...\u001b[0m')
 	}
+	pureStart();
 })
 
-pureStart();
 checkExistingVideos();
 
 function pureStart() { // Global wrapper for starting the script
@@ -211,17 +219,21 @@ function pureStart() { // Global wrapper for starting the script
 	getPlexToken().then(getPlexDetails).then(remotePlexCheck).then(repeatScript)
 }
 
-function checkExistingVideos() {
-	Object.keys(videos).forEach(function(key) {
-		if (videos[key].saved == true && !fs.existsSync(videos[key].file)){ // Check if the video still exists
-			delete videos[key]
+function checkExistingVideos () {
+	Object.keys(videos).forEach(function (videoID) {
+		if (!fs.existsSync(videos[videoID].file)) { //  If the video does not exist remove it from videos.json
+			delete videos[videoID];
+			return;
 		}
+		let video = fs.statSync(videos[videoID].file);
+		if (videos[videoID].saved === true && video.size < 10000) delete videos[videoID]; // If the video is saved but its size is less than 10kb its failed and remove it.
+		if (videos[videoID].partial) videos[videoID].transferred = video.size;
 	});
 }
 
 function getPlexToken() { // If remoteplex is enabled then this asks the user for the plex username and password to generate a plexToken for remote refreshes
 	return new Promise((resolve, reject) => {
-		if (settings.remotePlex && settings.plexToken == "") {
+		if (settings.remotePlexUpdates.enabled && settings.remotePlexUpdates.plexToken == "") {
 			fLog("Plex-Init > Fetching Token")
 			console.log('> Remote plex enabled! Fetching library access token...');
 			console.log('> Please enter your plex login details:');
@@ -238,11 +250,11 @@ function getPlexToken() { // If remoteplex is enabled then this asks the user fo
 				}, function(err, resp, body){
 					fLog("Plex-Init > Fetched Token")
 					console.log('\u001b[36mFetched!\u001b[0m\n');
-					settings.plexToken = JSON.parse(body).user.authToken
+					settings.remotePlexUpdates.plexToken = JSON.parse(body).user.authToken
 					resolve()
 				})
 			});
-		} else if (settings.remotePlex && settings.plexToken != "") {
+		} else if (settings.remotePlexUpdates.enabled && settings.remotePlexUpdates.plexToken != "") {
 			fLog("Plex-Init > Using Saved Token")
 			console.log("> Using saved plex token")
 			resolve()
@@ -254,7 +266,7 @@ function getPlexToken() { // If remoteplex is enabled then this asks the user fo
 
 function getPlexDetails() { // If remotePlex or localPlex is enabled and the section is the default "0" then ask the user for their section ID
 	return new Promise((resolve, reject) => {
-		if ((settings.remotePlex || settings.localPlex) && settings.plexSection == 0) {
+		if ((settings.remotePlexUpdates.enabled || settings.localPlexUpdates.enabled) && settings.plexSection == 0) {
 			console.log('> Plex updates enabled! Please enter your plex section details, leave empty for defaults:');
 			console.log('> Go to https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md for more info')
 			prompt.start(); // This can either be the ID number or the url that links to the section in plex
@@ -271,16 +283,16 @@ function getPlexDetails() { // If remotePlex or localPlex is enabled and the sec
 
 function remotePlexCheck() { // If remotePlex is enabled then this will ask the user for their plex server's IP and port numbers
 	return new Promise((resolve, reject) => {
-		if (settings.remotePlex && settings.remotePlexIP == "") {
+		if (settings.remotePlexUpdates.enabled && settings.remotePlexUpdates.serverIPAddr == "") {
 			console.log("> Please enter your remote plex server's ip address and port:");
 			console.log("> Leave port empty to use default")
 			prompt.start();
 			prompt.get([{name: "IP", required: true}, {name: "Port", required: false}], function (err, result) {
-				settings.remotePlexIP = result.IP
+				settings.remotePlexUpdates.serverIPAddr = result.IP
 				if (result.Port == "") {
-					settings.remotePlexPort = 32400
+					settings.remotePlexUpdates.serverPort = 32400
 				} else {
-					settings.remotePlexPort = result.port
+					settings.remotePlexUpdates.serverPort = result.port
 				}
 				console.log('');
 				resolve()
@@ -337,7 +349,7 @@ function start() { // This is the main function that triggeres everything else i
 function printLines() { // Printout spacing for download bars based on the number of videos downloading
 	return new Promise((resolve, reject) => {
 		setTimeout(function(){
-			console.log('\n'.repeat(queueCount/2))
+			console.log('\n'.repeat(((settings.maxParallelDownloads != -1) ? settings.maxParallelDownloads : queueCount)/2))
 		},1500)
 	})
 }
@@ -465,8 +477,8 @@ function saveVideoData() { // Function for saving partial data, just writes out 
 	});
 }
 
-function savePartialData() { // Function for saving partial data, just writes out the variable to disk
-	fs.writeFile("./partial.json", JSON.stringify(partial_data, null, 2), 'utf8', function (err) {
+function backupVideoData() { // Function for saving partial data, just writes out the variable to disk
+	fs.writeFile("./videos.json.backup", JSON.stringify(videos, null, 2), 'utf8', function (err) {
 		if (err) console.log(err)
 	});
 }
@@ -476,7 +488,7 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 	return new Promise((resolve, reject) => {
 		fLog("Post-Init > Printing episode count")
 		console.log('\n\n=== \u001b[38;5;8mEpisode Count\u001b[0m ===')
-		if (!settings.ignoreFolderStructure) {
+		if (!settings.fileFormatting.ignoreFolderStructure) {
 			fs.readdirSync(settings.videoFolder).forEach(function(channel){
 				if (channel == 'artwork') { return false }
 				episodeList[channel] = (glob.sync(`${settings.videoFolder}*/*${channel}*.mp4`).length)
@@ -619,7 +631,7 @@ function findBestEdge() {
 				if (edge.edgeDistance > bestEdge.edgeDistance) bestEdge = edge;
 			})
 			settings.floatplaneServer = `https://${bestEdge.hostname}`;
-			console.log(`\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplaneServer}\u001b[0m]`);
+			console.log(`\n\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplaneServer}\u001b[0m]`);
 			resolve();
 		});
 	})
@@ -630,7 +642,7 @@ function getVideos() {
 	return new Promise((resolve, reject) => {
 		fLog("Videos-Init > Starting Main Function")
 		Object.keys(settings.subscriptions).forEach(function(key) {
-		  	var subscription = settings.subscriptions[key];
+			var subscription = settings.subscriptions[key];
 			if (!subscription.enabled) { // If this subscription is disabled then dont download
 				fLog(`\nVideos-Init > ${subscription.title} is disabled, skipping`)
 				return false
@@ -690,22 +702,35 @@ function getVideos() {
 
 							if (!videos[video.guid].saved) { // If the video is not already downloaded
 								episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
-								try{if(partial_data[video.guid].failed){}}catch(err){partial_data[video.guid] = {failed: true}} // Check if partialdata is corrupted and use a dirty fix if it is
 
-								if(settings.downloadArtwork && video.thumbnail) { // If downloading artwork is enabled download it
+								if(settings.extras.downloadArtwork && video.thumbnail) { // If downloading artwork is enabled download it
 									fLog(`Download-Init > Downloading "${video.title}" artwork`)
-									floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(video.rawPath+video.title+'.'+settings.artworkFormat))
+									floatRequest(video.thumbnail.path).pipe(fs.createWriteStream(video.rawPath+video.title+'.'+settings.extras.artworkFormat))
 								} // Save the thumbnail with the same name as the video so plex will use it
 
 								queueCount += 1 // Increase the queue count by 1
 								video.url = `${settings.floatplaneServer}/Videos/${video.guid}/${settings.video_res}.mp4?wmsAuthSign=${settings.key}`;
 
+								saveVideoData();
+
 								if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
+									if (videos[video.guid].partial) process.stdout.write(`\n${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m\n`);
+									else process.stdout.write(`\n${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[34mDOWNLOADING\u001b[0m\n`);
 									downloadVideo(video) // Download the video
 								} else { // Otherwise add to queue
-									console.log(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED\u001b[0m`);
+									if (videos[video.guid].partial) console.log(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED \u001b[38;5;226mRESUME\u001b[0m`);
+									else console.log(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED\u001b[0m`);
 									queueDownload(video) // Queue
 								}
+
+								if (settings.extras.saveNfo) {
+									fLog(`Download-Init > Saving "${video.title}".nfo`)
+                  let doc = builder.create('episodedetails').ele('title').text(video.shortTitle).up().ele('showtitle').text(video.subChannel).up().ele('description').text(video.description).up().ele('aired').text(video.releaseDate).up().ele('season').text(video.seasonNumber).up().ele('episode').text(video.episodeNumber).up().end({pretty: true});
+                  fs.writeFile(video.rawPath + video.title + '.nfo', doc, 'utf8', function (error) {
+										fLog(`Download-Init > Error Saving "${video.title}".nfo!! ${error}`)
+									});
+                }
+
 							} else {
 								fLog(`Videos > Video "${video.title}" exist's skipping`)
 								console.log(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m> ${video.title} == \u001b[32mEXISTS\u001b[0m`);
@@ -718,14 +743,27 @@ function getVideos() {
 	})
 }
 
+function queueDownload(video) { // Loop until current downloads is less than maxParallelDownloads and then download
+	setTimeout(function(){
+		if (liveCount < settings.maxParallelDownloads) {
+			downloadVideo(video)
+		} else {
+			queueDownload(video) // Run this function again continuing the loop
+		}
+	}, 500)
+}
+
 function doTitleFormatting(video) {
 	/*
 	/ Title Formatting
 	*/
+	video.shortTitle = video.title;
+	video.episodeNumber = episodeList[video.subChannel];
+
 	if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 } // If this subchannel does not exist in the episodeList then create one and set it to 0
-	if (settings.formatWithEpisodes == true) { video.title = `S${video.seasonNumber}E${(episodeList[video.subChannel])} - ${video.title}` } // Add Episode Number
-	if (settings.formatWithDate == true) { video.title = `${video.releaseDate} - ${video.title}` } // Add the upload date to the filename
-	if (settings.formatWithSubChannel == true) { video.title = `${video.subChannel} - ${video.title}` } // Add subChannel naming if requested
+	if (settings.fileFormatting.formatWithEpisodes == true) { video.title = `S${video.seasonNumber}E${(episodeList[video.subChannel])} - ${video.title}` } // Add Episode Number
+	if (settings.fileFormatting.formatWithDate == true) { video.title = `${video.releaseDate} - ${video.title}` } // Add the upload date to the filename
+	if (settings.fileFormatting.formatWithSubChannel == true) { video.title = `${video.subChannel} - ${video.title}` } // Add subChannel naming if requested
 
 	video.title = sanitize(video.title);
 
@@ -738,7 +776,7 @@ function doPathChecks(video) {
 	*/
 	var rawPath = settings.videoFolder+video.subChannel+'/' // Create the rawPath variable that stores the path to the file
 
-	if (settings.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
+	if (settings.fileFormatting.ignoreFolderStructure) { rawPath = settings.videoFolder } // If we are ignoring folder structure then set the rawPath to just be the video folder
 	if (!fs.existsSync(settings.videoFolder)) { // If the root video folder dosnt exist create it
 		fLog(`Videos-FileSystem > "${settings.videoFolder}" doesn't exit... Creating`)
 		fs.mkdirSync(settings.videoFolder)
@@ -752,7 +790,7 @@ function doPathChecks(video) {
 	/ Special folder formatting
 	*/
 	var seasonNumber = '01' // Set the season number to use if nothing special is being done to seasons
-	if(settings.monthsAsSeasons) { // If your formatting the videos with the YEAR+MONTH as the season then
+	if(settings.fileFormatting.monthsAsSeasons) { // If your formatting the videos with the YEAR+MONTH as the season then
 		var date = new Date(video.releaseDate) // Generate a new date from the publish date pulled above
 		if(date.getMonth() < 10) { // If the month is less than 10 add a 0 to it
 			var seasonNumber = date.getFullYear()+'0'+date.getMonth() // Set the seasonNumber to be the YEAR+MONTH, eg 201801
@@ -761,7 +799,7 @@ function doPathChecks(video) {
 			var seasonNumber = date.getFullYear()+date.getMonth()
 			rawPath = rawPath + seasonNumber+'/'
 		}
-	} else if(settings.yearsAsSeasons) { // If your formatting the videos with the YEAR as the season then
+	} else if(settings.fileFormatting.yearsAsSeasons) { // If your formatting the videos with the YEAR as the season then
 		var date = new Date(video.releaseDate)
 		var seasonNumber = date.getFullYear() // Set the seasonNumber to be the YEAR, eg 2018
 		rawPath = rawPath + date.getFullYear()+'/'
@@ -779,7 +817,10 @@ function doPathChecks(video) {
 
 function getWAN() {
 	return new Promise((resolve, reject) => {
-		if (!settings.TheWANShow) resolve();
+		if (!settings.TheWANShow) {
+      resolve();
+      return;
+    }
 		fLog(`WAN-Init > Fetching LTT youtube videos...`)
 		floatRequest.get({ // Generate the key used to download videos
 			url: "https://www.youtube.com/user/LinusTechTips/videos"
@@ -793,9 +834,9 @@ function getWAN() {
 						var video = { subChannel: "The WAN Show", releaseDate: new Date(), title: $(this).text(), url: $(this).attr('href')};
 						episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
 						video = doTitleFormatting(doPathChecks(video));
-						if(settings.downloadArtwork) { // If downloading artwork is enabled download it
+						if(settings.extras.downloadArtwork) { // If downloading artwork is enabled download it
 							fLog(`WAN > Downloading "${video.title}" artwork`)
-							floatRequest(`https://i.ytimg.com/vi/${ytdl.getVideoID(video.url)}/hqdefault.jpg`).pipe(fs.createWriteStream(video.rawPath+video.title+'.'+settings.artworkFormat))
+							floatRequest(`https://i.ytimg.com/vi/${ytdl.getVideoID(video.url)}/hqdefault.jpg`).pipe(fs.createWriteStream(video.rawPath+video.title+'.'+settings.extras.artworkFormat))
 						} // Save the thumbnail with the same name as the video so plex will use it
 						downloadYoutube(video);
 					} else {
@@ -807,16 +848,6 @@ function getWAN() {
 			resolve();
 		});
 	});
-}
-
-function queueDownload(video) { // Loop until current downloads is less than maxParallelDownloads and then download
-	setTimeout(function(){
-		if (liveCount < settings.maxParallelDownloads) {
-			download(video)
-		} else {
-			queueDownload(video) // Run this function again continuing the loop
-		}
-	}, 500)
 }
 
 function downloadYoutube(video) {
@@ -855,46 +886,46 @@ function downloadYoutube(video) {
 }
 
 function downloadVideo(video) { // This handles resuming downloads, its very similar to the download function with some changes
-	var total = 0 // Define the total size as 0 becuase nothing has downlaoded yet
-	var previousTotal = 0; // Variable used if part of the video was previously downloaded
-	var headers = {};
-	var fileOptions = {};
-	if (videos[video.guid].partial && !partial_data[video.guid].failed) { // If this video was partially downloaded
-		fileOptions = {start: previousTotal, flags: 'r+'}
+	liveCount += 1;
+	var total = videos[video.guid].size ? videos[video.guid].size : 0 // // Set the total size to be equal to the stored total or 0
+	var previousTransferred = videos[video.guid].transferred ? videos[video.guid].transferred : 0; // Set previousTransferred as the previous ammount transferred or 0
+	var fileOptions = { start: previousTransferred, flags: videos[video.guid].file ? 'r+' : 'w' };
+	var displayTitle = '';
+	if (videos[video.guid].partial) { // If this video was partially downloaded
 		fLog(`Resume > Resuming download for "${video.title}`)
-		process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m`);								
-		total = partial_data[video.guid].total // Set the total size to be equal to the stored value in the partial_data
-		previousTotal = partial_data[video.guid].transferred // Set previousTotal as the previous ammount transferred
-		var displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,35)}`, 36) // Set the title for being displayed and limit it to 25 characters
-		headers = { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
-			Range: `bytes=${partial_data[video.guid].transferred}-${partial_data[video.guid].total}`
-		}
+		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,35)}`, 36) // Set the title for being displayed and limit it to 25 characters
 	} else {
 		fLog(`Download > Downloading "${video.title}"`)
-		process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[34mDOWNLOADING\u001b[0m`);
-		videos[video.guid].partial = true
-		saveVideoData()
-		partial_data[video.guid] = {failed: true, title: video.title} // Set the download failed to true and the title incase a download starts but crashes before the first partial write
-		var displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,25)}`, 29) // Set the title for being displayed and limit it to 25 characters
+		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,25)}`, 29) // Set the title for being displayed and limit it to 25 characters
 	}
-	var bar = multi.newBar(':title [:bar] :percent :stats', { // Create a new loading bar
+	let bar = multi.newBar(':title [:bar] :percent :stats', { // Create a new loading bar
 		complete: '\u001b[42m \u001b[0m',
 		incomplete: '\u001b[41m \u001b[0m',
 		width: 30,
 		total: 100
 	})
+	console.log(videos[video.guid].partial)
+	console.log((total/1024000).toFixed(3))
+	console.log((previousTransferred/1024000).toFixed(3))
 	progress(floatRequest({ // Request to download the video
 		url: video.url,
-		headers: headers
+		headers: (videos[video.guid].partial) ? { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
+			Range: `bytes=${videos[video.guid].transferred}-${videos[video.guid].size}`
+		} : {}
 	}), {throttle: settings.downloadUpdateTime}).on('progress', function (state) { // Run the below code every downloadUpdateTime while downloading
-		partial_data[video.guid] = {total: state.size.total, transferred: state.size.transferred+previousTotal} // Write out the details of the partial download
+		if (!videos[video.guid].size) {
+			videos[video.guid].size = state.size.total;
+			videos[video.guid].partial = true
+			videos[video.guid].file = video.rawPath+video.title+'.mp4.part';
+			saveVideoData();
+		}
 		// Set the amount transferred to be equal to the preious ammount plus the new ammount transferred (Since this is a "new" download from the origonal transferred starts at 0 again)
-		savePartialData() // Save this data
 		if (state.speed == null) {state.speed = 0} // If the speed is null set it to 0
-		bar.update((previousTotal+state.size.transferred)/partial_data[video.guid].total) // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
+		bar.update((previousTransferred+state.size.transferred)/videos[video.guid].size) // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
 		// Tick the bar same as above but the transferred value needs to take into account the previous amount.
-		bar.tick({'title': displayTitle, 'stats': `${((state.speed/100000)/8).toFixed(2)}MB/s ${((previousTotal+state.size.transferred)/1024000).toFixed(0)}/${(total/1024000).toFixed(0)}MB ETA: ${Math.floor(state.time.remaining/60)}m ${Math.floor(state.time.remaining)%60}s`})
-		total = (state.size.total/1024000).toFixed(0) // Update Total for when the download finishes
+		bar.tick({'title': displayTitle, 'stats': `${((state.speed/100000)/8).toFixed(2)}MB/s ${((previousTransferred+state.size.transferred)/1024000).toFixed(0)}/${((previousTransferred+state.size.total)/1024000).toFixed(0)}MB ETA: ${Math.floor(state.time.remaining/60)}m ${Math.floor(state.time.remaining)%60}s`})
+		total = (previousTransferred+state.size.total/1024000).toFixed(0) // Update Total for when the download finishes
+		//savePartialData(); // Save this data
 	}).on('error', function(err, stdout, stderr) { // On a error log it
 		if (videos[video.guid].partial) fLog(`Resume > An error occoured for "${video.title}": ${err}`)
 		else fLog('Download > An error occoured for "'+video.title+'": '+err)
@@ -904,37 +935,45 @@ function downloadVideo(video) { // This handles resuming downloads, its very sim
 		bar.update(1) // Set the progress bar to 100%
 		// Tick the progress bar to display the totalMB/totalMB
 		bar.tick({'title': displayTitle, 'stats': `${(total/1024000).toFixed(0)}/${(total/1024000).toFixed(0)}MB`})
-		bar.terminate()
+		bar.terminate();
+		videos[video.guid].partial = false;
+    videos[video.guid].saved = true;
+    saveVideoData();
 		queueCount -= 1 // Reduce queueCount and liveCount by 1
 		liveCount -= 1
 	// Write out the file to the partial file previously saved. But write with read+ and set the starting byte number (Where to start wiriting to the file from) to the previous amount transferred
 	}).pipe(fs.createWriteStream(video.rawPath+video.title+'.mp4.part', fileOptions)).on('finish', function(){ // When done writing out the file
-		fs.rename(video.rawPath+video.title+'.mp4.part', video.rawPath+video.title+'.mp4', function(){}); // Rename it without .part
-		file = video.rawPath+video.title+'.mp4' // Specifies where the video is saved
-		name = video.title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
-		temp_file = video.rawPath+'TEMP_'+video.title+'.mp4' // Specify the temp file to write the metadata to
-		ffmpegFormat(file, name, temp_file, video) // Format with ffmpeg for titles/plex support
+		fs.rename(video.rawPath+video.title+'.mp4.part', video.rawPath+video.title+'.mp4', function(){
+			videos[video.guid].file = video.rawPath+video.title+'.mp4';
+			saveVideoData();
+			file = video.rawPath+video.title+'.mp4' // Specifies where the video is saved
+			name = video.title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
+			temp_file = video.rawPath+'TEMP_'+video.title+'.mp4' // Specify the temp file to write the metadata to
+			ffmpegFormat(file, name, temp_file, video) // Format with ffmpeg for titles/plex support
+		}); // Rename it without .part
 	});
 }
 
 function ffmpegFormat(file, name, temp_file, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	if (settings.ffmpeg) {
 		fLog(`ffmpeg > Beginning ffmpeg title formatting for "${video.title}"`)
-		ffmpeg(file).outputOptions("-metadata", "title="+name, "-map", "0", "-codec", "copy").saveToFile(temp_file).on('error', function(err, stdout, stderr) { // Add title metadata
+		ffmpeg(file).outputOptions("-metadata", "title="+name, "-metadata", "AUTHOR="+video.subChannel, "-metadata", "YEAR="+Date(video.releaseDate), "-metadata", "description="+video.description, "-metadata", "synopsis="+video.description, "-c:a", "copy", "-c:v", "copy").saveToFile(temp_file).on('error', function(err, stdout, stderr) { // Add title metadata
 			setTimeout(function(){ // If the formatting fails, wait a second and try again
 				fLog(`ffmpeg > An error occoured for "${video.title}": ${err} Retrying...`)
 				if(err){ffmpegFormat(file, name, temp_file, video)}
 			}, 1000)
 		}).on('end', function() { // Save the title in metadata
 			fs.rename(temp_file, file, function() {
-				if(queueCount == -1) updateLibrary(); // If we are at the last video then run a plex collection update
+				if(queueCount == -1) {
+					updateLibrary(); // If we are at the last video then run a plex collection update
+					backupVideoData();
+				}
 				fLog(`ffmpeg > Renamed "${temp_file}" to "${file}"`)
 			})
 		})
 	}
 	if (!video.guid) video.guid = video.url;
 	if (!videos[video.guid]) videos[video.guid] = {};
-	delete partial_data[video.guid] // Remove its partial data
 	videos[video.guid].file = file // Note the file that the video is saved to
 	videos[video.guid].saved = true // Set it to be saved
 	saveVideoData();
@@ -943,14 +982,14 @@ function ffmpegFormat(file, name, temp_file, video) { // This function adds titl
 
 function updateLibrary() { // Function for updating plex libraries
 	return new Promise((resolve, reject) => {
-		if(settings.localPlex) { // Run if local plex is enabled
+		if(settings.localPlexUpdates.enabled) { // Run if local plex is enabled
 			fLog("PlexUpdate > Updating Plex Section")
-			spawn(settings.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
+			spawn(settings.localPlexUpdates.plexScannerInstall,	['--scan', '--refresh', '--force', '--section', settings.plexSection]); // Run the plex update command
 		}
-		if (settings.remotePlex) { // Run if remote plex is enabled
+		if (settings.remotePlexUpdates.enabled) { // Run if remote plex is enabled
 			fLog("PlexUpdate > Updating Plex Section")
 			request({ // Sends a request to update the remote library using the servers ip, port, section and plexToken
-				url: `http://${settings.remotePlexIP}:${settings.remotePlexPort}/library/sections/${settings.plexSection}/refresh?X-Plex-Token=${settings.plexToken}`,
+				url: `http://${settings.remotePlexUpdates.serverIPAddr}:${settings.remotePlexUpdates.serverPort}/library/sections/${settings.plexSection}/refresh?X-Plex-Token=${settings.remotePlexUpdates.plexToken}`,
 			}, function(err, resp, body){
 				if (body.indexOf('404') > -1) { // If result is 404 then the section probably dosnt exist
 					fLog("PlexUpdate > ERR: Cannot refresh... Invalid library section defined in settings!")
