@@ -51,7 +51,7 @@ process.on('uncaughtException', function(err) { // "Nice" Error handling, will o
 			logstream.write(`${Date()} == ERROR > videos.json > Recovered from backup! Restarting script...`)
 			console.log('\u001b[42mRecovered from backup! Restarting script...\u001b[0m');
 			restartScript();
-		} catch {
+		} catch (error) {
 			fs.writeFile("./videos.json", '{}', 'utf8', function (error) { // Just write over the corrupted file with {}
 				if (error) {
 					logstream.write(`${Date()} == ERROR > videos.json > Recovery failed! Error: ${error}`)
