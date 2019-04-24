@@ -198,6 +198,8 @@ if (files.length == -1) {
 // Finish Init, Sart Script
 
 // Firstly check if there is a new version and notify the user
+// Also check existing videos and update videos.json properly
+checkExistingVideos();
 floatRequest.get({ // Check if there is a newer version avalible for download
 	url: 'https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json',
 }, function (err, resp, body) {
@@ -211,8 +213,6 @@ floatRequest.get({ // Check if there is a newer version avalible for download
 	pureStart();
 })
 
-checkExistingVideos();
-
 function pureStart() { // Global wrapper for starting the script
 	fLog("\n\n\n=== Pre-Init > Started ===")
 	// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
@@ -221,13 +221,26 @@ function pureStart() { // Global wrapper for starting the script
 
 function checkExistingVideos () {
 	Object.keys(videos).forEach(function (videoID) {
-		if (!fs.existsSync(videos[videoID].file)) { //  If the video does not exist remove it from videos.json
-			delete videos[videoID];
-			return;
+		if (videos[videoID].subChannel == "The WAN Show") {
+			if (videos[videoID].partial) {
+				if (fs.existsSync(videos[videoID].file)) fs.unlinkSync(videos[videoID].file);
+				if (fs.existsSync(videos[videoID].artworkFile)) fs.unlinkSync(videos[videoID].artworkFile);
+				if (fs.existsSync(videos[videoID].videoFile)) fs.unlinkSync(videos[videoID].videoFile);
+				if (fs.existsSync(videos[videoID].audioFile)) fs.unlinkSync(videos[videoID].audioFile);
+			}
+			if (!fs.existsSync(videos[videoID].file) && !fs.existsSync(videos[videoID].videoFile) && !fs.existsSync(videos[videoID].audioFile)) { //  If the video does not exist remove it from videos.json
+				delete videos[videoID];
+				return;
+			}
+		}	else {
+			if (!fs.existsSync(videos[videoID].file)) { //  If the video does not exist remove it from videos.json
+				delete videos[videoID];
+				return;
+			}
+			let video = fs.statSync(videos[videoID].file);
+			if (videos[videoID].saved === true && video.size < 10000) delete videos[videoID]; // If the video is saved but its size is less than 10kb its failed and remove it.
+			if (videos[videoID].partial) videos[videoID].transferred = video.size; // If the video is partially downloaded set its transferred size to its current size
 		}
-		let video = fs.statSync(videos[videoID].file);
-		if (videos[videoID].saved === true && video.size < 10000) delete videos[videoID]; // If the video is saved but its size is less than 10kb its failed and remove it.
-		if (videos[videoID].partial) videos[videoID].transferred = video.size;
 	});
 }
 
@@ -321,7 +334,7 @@ function repeatScript() {
 		start(); // Start the script for the first time
 		setInterval(() => { // Set a repeating function that is called every 1000 miliseconds times the number of seconds the user picked
 			fLog("Init-Repeat > Restarting!")
-			 start();
+		 	start();
 		}, settings.repeatScript.slice(0, -1)*multiplier*1000); // Re above
 		setInterval(() => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
 			console.log(`${countDown} Minutes until script restarts...`);
@@ -337,12 +350,14 @@ function repeatScript() {
 }
 
 function start() { // This is the main function that triggeres everything else in the script
-	if (queueCount == -1) {
+	if (queueCount <= 0 && liveCount <= 0) {
 		fLog("Init > Starting Main Functions")
 		checkAuth().then(constructCookie).then(checkSubscriptions).then(parseKey).then(saveSettings).then(logEpisodeCount).then(getWAN).then(getVideos)
 	} else { // If the script is busy downloading then wait for it to finish before continuing
-		setTimeout(start(), 1000);
-		fLog("Init > Script busy, delaying start for 1 second...")
+		setTimeout(() => {
+			start();
+		}, 1000)
+		fLog("Init > Script busy, delaying restart for 1 second...")
 	}
 }
 
@@ -817,7 +832,7 @@ function doPathChecks(video) {
 
 function getWAN() {
 	return new Promise((resolve, reject) => {
-		if (!settings.TheWANShow) {
+		if (!settings.TheWANShow.enabled) {
       resolve();
       return;
     }
@@ -826,15 +841,15 @@ function getWAN() {
 			url: "https://www.youtube.com/user/LinusTechTips/videos"
 		}, function (error, resp, body) {
 			fLog(`WAN-Init > Searching videos for WAN...`)
-			var $ = cheerio.load(body);
+			let $ = cheerio.load(body);
 			$('a').filter(function() {
 				if ($(this).text().indexOf('WAN') > -1) { // If the element contains the text WAN and is not already downloaded
 					fLog(`WAN > Found "${$(this).text()}"`);
-					if (Object.keys(videos).indexOf($(this).attr("href")) == -1) {
-						var video = { subChannel: "The WAN Show", releaseDate: new Date(), title: $(this).text(), url: $(this).attr('href')};
+					if (!(videos[$(this).attr("href")]||{}).saved) {
+						let video = { subChannel: "The WAN Show", title: $(this).text(), url: $(this).attr('href') };
 						episodeList[video.subChannel] += 1 // Increment the episode number for this subChannel
 						video = doTitleFormatting(doPathChecks(video));
-						if(settings.extras.downloadArtwork) { // If downloading artwork is enabled download it
+						if (settings.TheWANShow.downloadArtwork) { // If downloading artwork is enabled download it
 							fLog(`WAN > Downloading "${video.title}" artwork`)
 							floatRequest(`https://i.ytimg.com/vi/${ytdl.getVideoID(video.url)}/hqdefault.jpg`).pipe(fs.createWriteStream(video.rawPath+video.title+'.'+settings.extras.artworkFormat))
 						} // Save the thumbnail with the same name as the video so plex will use it
@@ -851,52 +866,203 @@ function getWAN() {
 }
 
 function downloadYoutube(video) {
-	var bar = multi.newBar(':title [:bar] :percent :stats', { // Format with ffmpeg for titles/plex support
-		complete: '\u001b[42m \u001b[0m',
-		incomplete: '\u001b[41m \u001b[0m',
-		width: 30,
-		total: 100
-	})
-	var displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel} \u001b[38;5;196mYT\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,35)}`, 36) // Set the title for being displayed and limit it to 25 characters
-	var total = 0 // Define the total size as 0 becuase nothing has downlaoded yet
-	var timePassed = 0;
-	ytdl(video.url, {quality: 'highest'}).on('progress', function (length, bytesDownloaded, totalBytes) { // Send the request to download the file, run the below code every downloadUpdateTime while downloading
-		if (timePassed == settings.downloadUpdateTime) {
-			timePassed = 0;
-			bar.update(bytesDownloaded/totalBytes) // Update the bar's percentage
-			// Tick the bar to update its stats including speed, transferred and eta
-			bar.tick({'title': displayTitle, 'stats': (bytesDownloaded/1024000).toFixed(0)+'/'+(totalBytes/1024000).toFixed(0)+'MB'})
-			total = (totalBytes/1024000).toFixed(0) // Update Total for when the download finishes
-		} else timePassed += 1;
-	}).on('error', function(err, stdout, stderr) {
-		fLog(`Download > An error occoured for "${video.title}": ${err}`)
-		console.log(`An error occurred: ${err.message} ${err} ${stderr}`); // If there was a error with the download log it
-	}).on('end', function () { // When the download finishes
-		fLog(`Download > Finished downloading: "${video.title}"`)
-		bar.update(1) // Set the download % to 100%
-		bar.tick({'title': displayTitle, 'stats': `${total}/${total}MB`}) // Set the stats to be totalMB/totalMB
-		bar.terminate()
-	}).pipe(fs.createWriteStream(video.rawPath+video.title+'.mp4.part')).on('finish', function(){ // Save the downloaded video using the title generated
-		fs.rename(video.rawPath+video.title+'.mp4.part', video.rawPath+video.title+'.mp4', function(){}); // Rename the .part file to a .mp4 file
-		file = video.rawPath+video.title+'.mp4' // Specifies where the video is saved
-		name = video.title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
-		temp_file = video.rawPath+'TEMP_'+video.title+'.mp4' // Specify the temp file to write the metadata to
-		ffmpegFormat(file, name, temp_file, video) // Format with ffmpeg for titles/plex support
+	liveCount += 1;
+
+	let videoPart = video.rawPath+video.title+'.video.mp4';
+	let audioPart = video.rawPath+video.title+'.audio.mp3';
+
+	let displayTitleVideo = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[38;5;196m YT-Video>\u001b[0m${video.shortTitle.slice(0,25)}`, 36) // Set the title for being displayed and limit it to 25 characters
+	let displayTitleAudio = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[38;5;196m YT-Audio>\u001b[0m${video.shortTitle.slice(0,25)}`, 36) // Set the title for being displayed and limit it to 25 characters
+
+	ytdl.getInfo(video.url, (err, info) => {
+		video.description = info.description;
+		video.releaseDate = new Date(info.published);
+		videos[video.url] = {
+			file: video.rawPath+video.title+'.mp4', // Specifies where the video is saved,
+			videoFile: videoPart,
+			audioFile: audioPart,
+			artworkFile: video.rawPath+video.title+'.'+settings.extras.artworkFormat,
+			partial: true,
+			subChannel: video.subChannel,
+			releaseDate: new Date(info.published)
+		}
+		saveVideoData();
+	  if (err) fLog(`WAN > ytdl > An error occoured for "${video.title}": ${err}`)
+		let videoThreadPromises = [];
+		let audioThreadPromises = [];
+
+		let videoDisplayInterval = null;
+		let audioDisplayInterval = null;
+
+	  let bestAudio = ytdl.chooseFormat(ytdl.filterFormats(info.formats, 'audioonly'), { quality: settings.TheWANShow.audio.quality });
+		let bestVideo = ytdl.chooseFormat(ytdl.filterFormats(info.formats, 'videoonly'), { quality: settings.TheWANShow.video.quality });
+
+		let cLenVideo = bestVideo.clen/settings.TheWANShow.downloadThreads;
+		let cLenAudio = bestAudio.clen/settings.TheWANShow.downloadThreads;
+
+		let videoState = {
+			transferred: [0],
+			speed: [0],
+			total: [0],
+			timeRemaining: [0]
+		};
+		let audioState = {
+			transferred: [0],
+			speed: [0],
+			total: [0],
+			timeRemaining: [0]
+		};
+
+		let videoBar = multi.newBar(':title [:bar] :percent :stats', { // Format with ffmpeg for titles/plex support
+			complete: '\u001b[42m \u001b[0m',
+			incomplete: '\u001b[41m \u001b[0m',
+			width: 30,
+			total: 100
+		})
+		let audioBar = multi.newBar(':title [:bar] :percent :stats', { // Format with ffmpeg for titles/plex support
+			complete: '\u001b[42m \u001b[0m',
+			incomplete: '\u001b[41m \u001b[0m',
+			width: 30,
+			total: 100
+		})
+
+		if (settings.TheWANShow.audio.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) {
+			for(let i = 0; i < settings.TheWANShow.downloadThreads; i++) {
+				audioThreadPromises.push(
+					new Promise(function(resolve, reject){
+						progress(request({
+							url: bestAudio.url,
+							headers: {
+								Range: `bytes=${Math.floor(cLenAudio*i)}-${Math.floor(((cLenAudio*i)+cLenAudio))}`
+							}
+						}), { throttle: 250 }).on('progress', function (state) { // Run the below code every downloadUpdateTime while downloading
+							audioState.transferred[i] = state.size.transferred;
+							audioState.speed[i] = state.speed;
+							audioState.total[i] = state.size.total;
+							audioState.timeRemaining[i] = state.time.remaining;
+						}).on('end', function () { resolve(); }).pipe(fs.createWriteStream(audioPart, { start: Math.floor(cLenAudio*i), flags: 'w+' })).on('finish', function(){});
+					})
+				);
+			}
+		}
+
+		if (settings.TheWANShow.video.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) {
+			for(let i = 0; i < settings.TheWANShow.downloadThreads; i++) {
+				videoThreadPromises.push(
+					new Promise(function(resolve, reject){
+						progress(request({
+							url: bestVideo.url,
+							headers: {
+								Range: `bytes=${Math.floor(cLenVideo*i)}-${Math.floor(((cLenVideo*i)+cLenVideo))}`
+							}
+						}), { throttle: 250 }).on('progress', function (state) { // Run the below code every downloadUpdateTime while downloading
+							videoState.transferred[i] = state.size.transferred;
+							videoState.speed[i] = state.speed;
+							videoState.total[i] = state.size.total;
+							videoState.timeRemaining[i] = state.time.remaining;
+						}).on('end', function () { resolve(); }).pipe(fs.createWriteStream(videoPart, { start: Math.floor(cLenVideo*i), flags: 'w+' })).on('finish', function(){});
+					})
+				);
+			}
+		}
+
+		if (settings.TheWANShow.video.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) videoDisplayInterval = setInterval(function(){
+			let videoSum = {
+				transferred: videoState.transferred.reduce((a, b) => a+b),
+				speed: videoState.speed.reduce((a, b) => a+b),
+				total: videoState.total.reduce((a, b) => a+b),
+				timeRemaining: videoState.timeRemaining.reduce((a, b) => a+b)
+			}
+			if (videoSum.speed == null) {videoSum.speed = 0} // If the speed is null set it to 0
+			videoBar.update(videoSum.transferred/videoSum.total) // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
+			videoBar.tick({'title': displayTitleVideo, 'stats': `${(((videoSum.speed)/1024000)).toFixed(2)}MB/s ${(((videoSum.transferred)/1024000)).toFixed(0)}/${(videoSum.total/1024000).toFixed(0)}MB ETA: ${Math.floor(videoSum.timeRemaining/60)}m ${Math.floor(videoSum.timeRemaining)%60}s`})
+		}, settings.downloadUpdateTime)
+
+		if (settings.TheWANShow.audio.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) audioDisplayInterval = setInterval(function(){
+			let audioSum = {
+				transferred: audioState.transferred.reduce((a, b) => a+b),
+				speed: audioState.speed.reduce((a, b) => a+b),
+				total: audioState.total.reduce((a, b) => a+b),
+				timeRemaining: audioState.timeRemaining.reduce((a, b) => a+b)
+			}
+			if (audioSum.speed == null) {audioSum.speed = 0} // If the speed is null set it to 0
+			audioBar.update(audioSum.transferred/audioSum.total) // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
+			audioBar.tick({'title': displayTitleAudio, 'stats': `${(((audioSum.speed)/1024000)).toFixed(2)}MB/s ${(((audioSum.transferred)/1024000)).toFixed(0)}/${(audioSum.total/1024000).toFixed(0)}MB ETA: ${Math.floor(audioSum.timeRemaining/60)}m ${Math.floor(audioSum.timeRemaining)%60}s`})
+		}, settings.downloadUpdateTime)
+
+		Promise.all(audioThreadPromises).then(() => {
+			clearInterval(audioDisplayInterval);
+			if (settings.TheWANShow.audio.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) {
+				audioBar.update(1) // Set the progress bar to 100%
+				audioBar.tick({'title': displayTitleAudio, 'stats': `${(bestAudio.clen/1024000).toFixed(0)}/${(bestAudio.clen/1024000).toFixed(0)}MB`})
+				audioBar.terminate();
+			}
+			Promise.all(videoThreadPromises).then((values) => {
+			  clearInterval(videoDisplayInterval);
+				if (settings.TheWANShow.video.saveSeperately || settings.TheWANShow.combineAndSaveAudioVideo) {
+					videoBar.update(1) // Set the progress bar to 100%
+					videoBar.tick({'title': displayTitleVideo, 'stats': `${(bestVideo.clen/1024000).toFixed(0)}/${(bestVideo.clen/1024000).toFixed(0)}MB`})
+					videoBar.terminate();
+				}
+				if (settings.TheWANShow.combineAndSaveAudioVideo) {
+					ffmpeg()
+					.input(videoPart)
+					.videoCodec('copy')
+		      .input(audioPart)
+		      .audioCodec('copy')
+					.outputOptions("-metadata", "title="+video.shortTitle, "-metadata", "AUTHOR="+video.subChannel, "-metadata", "YEAR="+Date(video.releaseDate), "-metadata", "description="+video.description, "-metadata", "synopsis="+video.description, "-strict", "-2")
+					.saveToFile(videos[video.url].file)
+					.on('error', function(err, stdout, stderr) { // Add title metadata
+						fLog(`ffmpeg > An error occoured for "${video.title}": ${err}`)
+					}).on('end', () => {
+						liveCount -= 1;
+						videos[video.url].partial = false;
+						videos[video.url].saved = true;
+						saveVideoData();
+						if(queueCount == -1) {
+							updateLibrary(); // If we are at the last video then run a plex collection update
+							backupVideoData();
+						}
+			      if (!settings.TheWANShow.audio.saveSeperately) fs.unlink(audioPart, err => {
+			        if(err) {
+								fLog(`[1024] WAN > ffmpeg > An error occoured while unlinking "${audioPart}": ${err}`)
+								console.log(`[1025] An error occoured while unlinking "${audioPart}": ${err}`)
+							}
+			      });
+						if (!settings.TheWANShow.video.saveSeperately) fs.unlink(videoPart, err => {
+			        if(err) {
+								fLog(`[1030] WAN > ffmpeg > An error occoured while unlinking "${videoPart}": ${err}`)
+								console.log(`[1031] An error occoured while unlinking "${videoPart}": ${err}`)
+							}
+			      });
+			    });
+				} else {
+					liveCount -= 1;
+					videos[video.url].partial = false;
+					videos[video.url].saved = true;
+					saveVideoData();
+					if(queueCount == -1) {
+						updateLibrary(); // If we are at the last video then run a plex collection update
+						backupVideoData();
+					}
+				}
+			});
+		});
 	});
 }
 
 function downloadVideo(video) { // This handles resuming downloads, its very similar to the download function with some changes
 	liveCount += 1;
-	var total = videos[video.guid].size ? videos[video.guid].size : 0 // // Set the total size to be equal to the stored total or 0
-	var previousTransferred = videos[video.guid].transferred ? videos[video.guid].transferred : 0; // Set previousTransferred as the previous ammount transferred or 0
-	var fileOptions = { start: previousTransferred, flags: videos[video.guid].file ? 'r+' : 'w' };
-	var displayTitle = '';
+	let total = videos[video.guid].size ? videos[video.guid].size : 0 // // Set the total size to be equal to the stored total or 0
+	let previousTransferred = videos[video.guid].transferred ? videos[video.guid].transferred : 0; // Set previousTransferred as the previous ammount transferred or 0
+	let fileOptions = { start: previousTransferred, flags: videos[video.guid].file ? 'r+' : 'w' };
+	let displayTitle = '';
 	if (videos[video.guid].partial) { // If this video was partially downloaded
 		fLog(`Resume > Resuming download for "${video.title}`)
-		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,35)}`, 36) // Set the title for being displayed and limit it to 25 characters
+		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m> ${video.shortTitle.slice(0,35)}`, 36) // Set the title for being displayed and limit it to 25 characters
 	} else {
 		fLog(`Download > Downloading "${video.title}"`)
-		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m${video.title.replace(/.*- /,'> ').slice(0,25)}`, 29) // Set the title for being displayed and limit it to 25 characters
+		displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m> ${video.shortTitle.slice(0,25)}`, 29) // Set the title for being displayed and limit it to 25 characters
 	}
 	let bar = multi.newBar(':title [:bar] :percent :stats', { // Create a new loading bar
 		complete: '\u001b[42m \u001b[0m',
@@ -904,9 +1070,6 @@ function downloadVideo(video) { // This handles resuming downloads, its very sim
 		width: 30,
 		total: 100
 	})
-	console.log(videos[video.guid].partial)
-	console.log((total/1024000).toFixed(3))
-	console.log((previousTransferred/1024000).toFixed(3))
 	progress(floatRequest({ // Request to download the video
 		url: video.url,
 		headers: (videos[video.guid].partial) ? { // Specify the range of bytes we want to download as from the previous ammount transferred to the total, meaning we skip what is already downlaoded
@@ -939,42 +1102,41 @@ function downloadVideo(video) { // This handles resuming downloads, its very sim
 		videos[video.guid].partial = false;
     videos[video.guid].saved = true;
     saveVideoData();
-		queueCount -= 1 // Reduce queueCount and liveCount by 1
-		liveCount -= 1
+		queueCount -= 1 // Reduce queueCount by 1
 	// Write out the file to the partial file previously saved. But write with read+ and set the starting byte number (Where to start wiriting to the file from) to the previous amount transferred
 	}).pipe(fs.createWriteStream(video.rawPath+video.title+'.mp4.part', fileOptions)).on('finish', function(){ // When done writing out the file
 		fs.rename(video.rawPath+video.title+'.mp4.part', video.rawPath+video.title+'.mp4', function(){
-			videos[video.guid].file = video.rawPath+video.title+'.mp4';
+			videos[video.guid].file = video.rawPath+video.title+'.mp4'; // Specifies where the video is saved
 			saveVideoData();
-			file = video.rawPath+video.title+'.mp4' // Specifies where the video is saved
-			name = video.title.replace(/^.*[0-9].- /, '').replace('- ', '') // Generate the name used for the title in metadata (This is for plex so "episodes" have actual names over Episode1...)
-			temp_file = video.rawPath+'TEMP_'+video.title+'.mp4' // Specify the temp file to write the metadata to
-			ffmpegFormat(file, name, temp_file, video) // Format with ffmpeg for titles/plex support
+			let temp_file = video.rawPath+'TEMP_'+video.title+'.mp4' // Specify the temp file to write the metadata to
+			ffmpegFormat(temp_file, video) // Format with ffmpeg for titles/plex support
 		}); // Rename it without .part
 	});
 }
 
-function ffmpegFormat(file, name, temp_file, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
+function ffmpegFormat(temp_file, video) { // This function adds titles to videos using ffmpeg for compatibility with plex
 	if (settings.ffmpeg) {
 		fLog(`ffmpeg > Beginning ffmpeg title formatting for "${video.title}"`)
-		ffmpeg(file).outputOptions("-metadata", "title="+name, "-metadata", "AUTHOR="+video.subChannel, "-metadata", "YEAR="+Date(video.releaseDate), "-metadata", "description="+video.description, "-metadata", "synopsis="+video.description, "-c:a", "copy", "-c:v", "copy").saveToFile(temp_file).on('error', function(err, stdout, stderr) { // Add title metadata
+		ffmpeg(videos[video.guid].file).outputOptions("-metadata", "title="+video.shortTitle, "-metadata", "AUTHOR="+video.subChannel, "-metadata", "YEAR="+Date(video.releaseDate), "-metadata", "description="+video.description, "-metadata", "synopsis="+video.description, "-c:a", "copy", "-c:v", "copy")
+		.saveToFile(temp_file)
+		.on('error', function(err, stdout, stderr) { // Add title metadata
 			setTimeout(function(){ // If the formatting fails, wait a second and try again
 				fLog(`ffmpeg > An error occoured for "${video.title}": ${err} Retrying...`)
-				if(err){ffmpegFormat(file, name, temp_file, video)}
+				if(err){ffmpegFormat(videos[video.guid].file, video.shortTitle, temp_file, video)}
 			}, 1000)
 		}).on('end', function() { // Save the title in metadata
-			fs.rename(temp_file, file, function() {
+			fs.rename(temp_file, videos[video.guid].file, function() {
+				liveCount -= 1;
 				if(queueCount == -1) {
 					updateLibrary(); // If we are at the last video then run a plex collection update
 					backupVideoData();
 				}
-				fLog(`ffmpeg > Renamed "${temp_file}" to "${file}"`)
+				fLog(`ffmpeg > Renamed "${temp_file}" to "${videos[video.guid].file}"`)
 			})
 		})
 	}
 	if (!video.guid) video.guid = video.url;
 	if (!videos[video.guid]) videos[video.guid] = {};
-	videos[video.guid].file = file // Note the file that the video is saved to
 	videos[video.guid].saved = true // Set it to be saved
 	saveVideoData();
 	fLog(`Download > Updated VideoStore for video "${video.title}"`)

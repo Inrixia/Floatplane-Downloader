@@ -20,10 +20,23 @@
   "ffmpeg": true,
   "downloadUpdateTime": 250,
   "checkForNewSubscriptions": true,
-  "TheWANShow": false,
+  "TheWANShow": {
+    "enabled": false,
+    "audio": {
+      "quality": "highest",
+      "saveSeperately": false
+    },
+    "video": {
+      "quality": "highest",
+      "saveSeperately": false
+    },
+    "combineAndSaveAudioVideo": true,
+    "downloadThreads": 32,
+    "downloadArtwork": true
+  },
   "subscriptions": {},
   "autoFetchServer": true,
-  "floatplaneServer": "https://edge02-na.floatplane.com",
+  "floatplaneServer": "https://edge01-na.floatplane.com",
   "video_res": 1080,
   "logging": false,
   "logFile": "./float.log",

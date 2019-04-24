@@ -1,3 +1,32 @@
+v4.6.0
+ - Added videos.json recovery to avoid having to redownload on corruption
+ - Fixed maxParallelDownloads not properly affecting queue size
+ - Fixed TechQuickie not properly matching/colouring
+ - Fixed logging for upcoming downloads - queued, queued resume, resuming download and downloading
+ - Fixed printlines being too long when using queueing downloads
+ - Fixed issues with Nfo data
+ - Added metadata tagging for description and year for plex support
+ - Fixed partial downloads not saving data correctly
+ - Fixed partial videos not having a file property set
+ - Fixed partial transfer info not being properly set in a request in new download logic
+ - Changed partial data to be based off the file itself rather than saving progress, goodbye partial.json
+ - Stopped script from auto restarting while a file is still being downloaded.
+ - Rewrote youtube download functions
+ - Added settings TheWANShow, TheWANShow.enabled, TheWANShow.downloadThreads, TheWanShow.downloadArtwork
+   TheWANShow.video.quality, TheWANShow.video.saveSeperately,
+	 TheWANShow.audio.quality, TheWANShow.audio.saveSeperately,
+	 TheWANShow.combineAndSaveAudioVideo
+ - Fixed issue with error handling
+ 
+v4.5.1
+ - Updated package dependencies and removed outdates ones
+ - Added .nfo metadata, for easier metadata importing - Thanks @Mochaka
+ - Added setting saveNfo - Thanks @Mochaka
+ - Write the videos.json file more frequently to properly capture data changes - Thanks @Mochaka
+ - Fixes for existing file detection - Thanks @Mochaka
+ - Fix WanShow being downloaded even if TheWanShow is set to false in settings - Thanks @Mochaka
+ - Organised settings.json to be slightly easier to read
+
 v4.5.0
  - Variety of other rewrites/changes and fixes
  - Added setting TheWANShow
@@ -79,7 +108,7 @@ v4.0.2
 v4.0.1
  - Fixed video's to be in the correct order when downloading
  - Fixed invalidLogin's not being handled with the new API
- 
+
 
 v4.0.0
  - Updated cookies for normal login
