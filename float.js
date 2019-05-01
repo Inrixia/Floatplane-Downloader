@@ -773,10 +773,10 @@ function doTitleFormatting(video) {
 	/ Title Formatting
 	*/
 	video.shortTitle = video.title;
-	video.episodeNumber = episodeList[video.subChannel];
+	video.episodeNumber = episodeList[video.subChannel] ? episodeList[video.subChannel]+1 : 1;
 
 	if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 } // If this subchannel does not exist in the episodeList then create one and set it to 0
-	if (settings.fileFormatting.formatWithEpisodes == true) { video.title = `S${video.seasonNumber}E${(episodeList[video.subChannel])} - ${video.title}` } // Add Episode Number
+	if (settings.fileFormatting.formatWithEpisodes == true) { video.title = `S${video.seasonNumber}E${(video.episodeNumber)} - ${video.title}` } // Add Episode Number
 	if (settings.fileFormatting.formatWithDate == true) { video.title = `${video.releaseDate} - ${video.title}` } // Add the upload date to the filename
 	if (settings.fileFormatting.formatWithSubChannel == true) { video.title = `${video.subChannel} - ${video.title}` } // Add subChannel naming if requested
 
