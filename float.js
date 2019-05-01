@@ -777,8 +777,10 @@ function doTitleFormatting(video) {
 	/*
 	/ Title Formatting
 	*/
+	if (settings.fileFormatting.countFromOne) episodeList[video.subChannel] += 1;
+
 	video.shortTitle = video.title;
-	video.episodeNumber = episodeList[video.subChannel] ? episodeList[video.subChannel]+1 : 1;
+	video.episodeNumber = episodeList[video.subChannel] ? episodeList[video.subChannel] : 0;
 
 	if (!episodeList[video.subChannel]) { episodeList[video.subChannel] = 0 } // If this subchannel does not exist in the episodeList then create one and set it to 0
 	if (settings.fileFormatting.formatWithEpisodes == true) { video.title = `S${video.seasonNumber}E${(video.episodeNumber)} - ${video.title}` } // Add Episode Number

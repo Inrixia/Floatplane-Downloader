@@ -60,6 +60,7 @@ function updateSettings(){
 			if (settings.fileFormatting.yearsAsSeasons != null) newSettings.fileFormatting.yearsAsSeasons = settings.fileFormatting.yearsAsSeasons
 			if (settings.fileFormatting.monthsAsSeasons != null) newSettings.fileFormatting.monthsAsSeasons = settings.fileFormatting.monthsAsSeasons
 			if (settings.fileFormatting.ignoreFolderStructure != null) newSettings.fileFormatting.ignoreFolderStructure = settings.fileFormatting.ignoreFolderStructure
+			if (settings.fileFormatting.countFromOne != null) newSettings.fileFormatting.countFromOne = settings.fileFormatting.countFromOne
 		} else { // Support for pre 4.6.0 settings rewrite
 			if (settings.formatWithEpisodes != null) newSettings.fileFormatting.formatWithEpisodes = settings.formatWithEpisodes
 			if (settings.formatWithDate != null) newSettings.fileFormatting.formatWithDate = settings.formatWithDate
@@ -67,6 +68,7 @@ function updateSettings(){
 			if (settings.yearsAsSeasons != null) newSettings.fileFormatting.yearsAsSeasons = settings.yearsAsSeasons
 			if (settings.monthsAsSeasons != null) newSettings.fileFormatting.monthsAsSeasons = settings.monthsAsSeasons
 			if (settings.ignoreFolderStructure != null) newSettings.fileFormatting.ignoreFolderStructure = settings.ignoreFolderStructure
+			if (settings.countFromOne != null) newSettings.fileFormatting.countFromOne = settings.countFromOne
 		}
 		if (settings.ffmpeg != null) newSettings.ffmpeg = settings.ffmpeg
 		if (settings.downloadUpdateTime != null) newSettings.downloadUpdateTime = settings.downloadUpdateTime
