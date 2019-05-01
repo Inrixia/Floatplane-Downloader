@@ -150,6 +150,11 @@ const subChannelIdentifiers = {
 			title: 'TechQuickie',
 			check: 'tq:',
 			type: 'title',
+		},
+		{
+			title: 'TalkLinked',
+			check: 'talklinked',
+			type: 'description'
 		}
 	]
 }

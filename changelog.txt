@@ -1,3 +1,5 @@
+v4.6.1
+ - Seperated TalkLinked into its own channel
 v4.6.0
  - Added videos.json recovery to avoid having to redownload on corruption
  - Fixed maxParallelDownloads not properly affecting queue size
@@ -17,7 +19,7 @@ v4.6.0
 	 TheWANShow.audio.quality, TheWANShow.audio.saveSeperately,
 	 TheWANShow.combineAndSaveAudioVideo
  - Fixed issue with error handling
- 
+
 v4.5.1
  - Updated package dependencies and removed outdates ones
  - Added .nfo metadata, for easier metadata importing - Thanks @Mochaka
