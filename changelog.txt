@@ -1,6 +1,8 @@
 v4.6.1
  - Seperated TalkLinked into its own channel
  - Option to start episode count at 1 - Thanks @Mochaka
+ - Fixed issue with episode spacing
+ - Added colour for TalkLinked formatting
 v4.6.0
  - Added videos.json recovery to avoid having to redownload on corruption
  - Fixed maxParallelDownloads not properly affecting queue size

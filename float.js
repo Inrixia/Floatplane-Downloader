@@ -159,7 +159,7 @@ const subChannelIdentifiers = {
 	]
 }
 
-colourList = {
+var colourList = {
 	'Linus Tech Tips': '\u001b[38;5;208m',
 	'The WAN Show': '\u001b[38;5;208m',
 	'Channel Super Fun': '\u001b[38;5;220m',
@@ -167,7 +167,8 @@ colourList = {
 	'TechLinked': '\u001b[38;5;14m',
 	'TechQuickie': '\u001b[38;5;153m',
 	'Tech Deals': '\u001b[38;5;10m',
-	'BitWit Ultra': '\u001b[38;5;105m'
+	'BitWit Ultra': '\u001b[38;5;105m',
+	'TalkLinked': '\u001b[36m'
 }
 
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
@@ -734,12 +735,12 @@ function getVideos() {
 								saveVideoData();
 
 								if (liveCount < settings.maxParallelDownloads || settings.maxParallelDownloads == -1) { // If we havent hit the maxParallelDownloads or there isnt a limit then download
-									if (videos[video.guid].partial) process.stdout.write(`\n${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m\n`);
-									else process.stdout.write(`\n${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[34mDOWNLOADING\u001b[0m\n`);
+									if (videos[video.guid].partial) process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[38;5;226mRESUMING DOWNLOAD\u001b[0m`);
+									else process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[34mDOWNLOADING\u001b[0m`);
 									downloadVideo(video) // Download the video
 								} else { // Otherwise add to queue
-									if (videos[video.guid].partial) console.log(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED \u001b[38;5;226mRESUME\u001b[0m`);
-									else console.log(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED\u001b[0m`);
+									if (videos[video.guid].partial) process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED \u001b[38;5;226mRESUME\u001b[0m`);
+									else process.stdout.write(`${colourList[video.subChannel]}>-- \u001b[0m${video.title} == \u001b[35mQUEUED\u001b[0m`);
 									queueDownload(video) // Queue
 								}
 
