@@ -32,7 +32,7 @@
       "saveSeperately": false
     },
     "combineAndSaveAudioVideo": true,
-    "downloadThreads": 32,
+    "downloadThreads": 5,
     "downloadArtwork": true
   },
   "subscriptions": {},
