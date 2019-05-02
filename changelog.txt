@@ -1,3 +1,6 @@
+v4.6.2
+ - Fix for episode count when using season/year based folder formatting
+
 v4.6.1
  - Seperated TalkLinked into its own channel
  - Option to start episode count at 1 - Thanks @Mochaka

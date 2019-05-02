@@ -512,7 +512,7 @@ function logEpisodeCount(){ // Print out the current number of "episodes" for ea
 		if (!settings.fileFormatting.ignoreFolderStructure) {
 			fs.readdirSync(settings.videoFolder).forEach(function(channel){
 				if (channel == 'artwork') { return false }
-				episodeList[channel] = (glob.sync(`${settings.videoFolder}*/*${channel}*.mp4`).length)
+				episodeList[channel] = (glob.sync(`${settings.videoFolder}/${channel}/**/*.mp4`).length)
 				if (channel.indexOf(".") == -1) { console.log(colourList[channel]+channel+'\u001b[0m:', episodeList[channel]) }
 			})
 		} else {
