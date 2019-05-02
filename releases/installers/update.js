@@ -25,7 +25,7 @@ function getUpdate() {
 					    zip.extractEntryTo(zipEntry.entryName, './update', false, true)
 					}
 				});
-				fs.unlink("./update.zip")
+				fs.unlinkSync("./update.zip")
 				resolve()
 			});
 		});
