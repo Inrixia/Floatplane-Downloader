@@ -3,7 +3,7 @@
 This covers what each setting is and what you can change it to for after version 4.0.0 Please go read this for pre 4.0.0: [Settings_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings_pre_4.0.0.md). 
 
 Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
-[![https://gyazo.com/670b51fad1af4327ef25b28dd01afc68](https://i.gyazo.com/670b51fad1af4327ef25b28dd01afc68.png)](https://gyazo.com/670b51fad1af4327ef25b28dd01afc68)
+[![https://gyazo.com/922be47524caa2425c640c509e90ad94](https://i.gyazo.com/922be47524caa2425c640c509e90ad94.png)](https://gyazo.com/922be47524caa2425c640c509e90ad94)
 
 **version:**  
 >Variable used in the update script. Ignore this.
@@ -60,7 +60,7 @@ Repeats every day:
 "repeatScript": "1d"
 ```
 
-**downloadArtwork:**  
+**extras.downloadArtwork:**  
 >Sets weather the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
 >
 >Default: "**true**"  
@@ -69,7 +69,7 @@ Repeats every day:
 "downloadArtwork": true
 ```
 
-**artworkFormat:**  
+**extras.artworkFormat:**  
 >Sets the image format that artwork should be saved as.
 >
 >Default: "**"png"**"  
@@ -78,7 +78,7 @@ Repeats every day:
 "downloadArtwork": "png"
 ```
 
-**safeNfo:**  
+**extras.safeNfo:**  
 >Sets weather the script saves video metadata to nfo files alongside the video.
 >
 >Default: "**false**"  
@@ -87,7 +87,7 @@ Repeats every day:
 "safeNfo": true
 ```
 
-**formatWithEpisodes:**  
+**fileFormatting.formatWithEpisodes:**  
 >If false will remove the SxxExx from the name of the videos. Will break Plex support!
 >
 >Default: "**true**"  
@@ -96,7 +96,7 @@ Repeats every day:
 "formatWithEpisodes": true
 ```
 
-**formatWithDate:**  
+**fileFormatting.formatWithDate:**  
 >If true will add the date the video was published to the filename. This might break Plex ordering, so use at your own risk.
 >
 >Default: "**false**"  
@@ -106,7 +106,7 @@ Repeats every day:
 "formatWithDate": false
 ```
 
-**formatWithSubChannel:**  
+**fileFormatting.formatWithSubChannel:**  
 >If false will remove the subChannel name from the filename. Recommended to keep this true.
 >
 >Default: "**true**"  
@@ -116,7 +116,7 @@ Repeats every day:
 "formatWithSubChannel": false
 ```
 
-**yearsAsSeasons:**  
+**fileFormatting.yearsAsSeasons:**  
 >If true the script will save all videos into a season folder based on the year they were released. This will cause Plex to show a season for each year.
 >
 >Default: "**false**"  
@@ -126,7 +126,7 @@ Repeats every day:
 "yearsAsSeasons": false
 ```
 
-**monthsAsSeasons:**  
+**fileFormatting.monthsAsSeasons:**  
 >If true the script will save all videos into a season folder based on the month+year they were released. This will cause Plex to show a season for each month.
 >
 >Default: "**false**"  
@@ -136,13 +136,22 @@ Repeats every day:
 "monthsAsSeasons": false
 ```
 
-**ignoreFolderStructure:**  
+**fileFormatting.ignoreFolderStructure:**  
 >If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
 >
 >Default: "**false**"  
 >Example:
 ```json 
 "ignoreFolderStructure": false
+```
+
+**fileFormatting.countFromOne:**  
+>If true episode numbering will begin from one instead of 0.
+>
+>Default: "**false**"  
+>Example:
+```json 
+"countFromOne": true
 ```
 
 **ffmpeg:**  
@@ -172,15 +181,61 @@ Repeats every day:
 "checkForNewSubscriptions": true
 ```
 
-**TheWANShow:**  
+**TheWANShow.enabled:**  
 >If true the script will download the latest WAN show episodes from youtube.
 >
 >Default: "**false**"  
 >Example:
 >"**true**"
-```json 
-"TheWANShow": true
-```
+
+**TheWANShow.audio.quality:**  
+>Audio quality to download. Can be an [ytdl itag value](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats) or highest/lowest. Default is highest which is best quality.
+>
+>Default: "**highest**"  
+>Example:
+>"**lowest**"
+
+**TheWANShow.audio.saveSeperately:**  
+>Enabling this will save the audio as its own file.
+>
+>Default: "**false**"  
+>Example:
+>"**true**"
+
+**TheWANShow.video.quality:**  
+>Video quality to download. Can be an [ytdl itag value](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats) or highest/lowest. Default is highest which is best quality.
+>
+>Default: "**highest**"  
+>Example:
+>"**lowest**"
+
+**TheWANShow.video.saveSeperately:**  
+>Enabling this will save the video as its own file (Without Audio).
+>
+>Default: "**false**"
+>Example:
+>"**true**"
+
+**TheWANShow.combineAndSaveAudioVideo:**  
+>Combine video and audio files into one file. This can be disabled if you say only wanted to download the audio and not the video.
+>
+>Default: "**true**"
+>Example:
+>"**false**"
+
+**TheWANShow.downloadThreads:**  
+>The number of simultanious connections to use for youtube downloads. Generally with 32 you can hit 500mb/s+. But I have been able to get 1gb/s down on 32 or higher. Best to leave this at 32 as youtube throttles downloads hard causing very slow download times when using few threads.
+>
+>Default: "**32**"
+>Example:
+>"**64**"
+
+**TheWANShow.downloadArtwork:**  
+>Same as extras.downloadArtwork, determines if the artwork/thumbnail for the video is saved (Generally for plex thumbs)
+>
+>Default: "**true**"
+>Example:
+>"**false**"
 
 **subscriptions:**  
 >This contains all the Floatplane creators you are subscribed to and weather you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
@@ -290,7 +345,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "PlexSection": 5
 ```
 
-**remotePlex [remotePlexUpdates.enabled]:**  
+**remotePlexUpdates.remotePlex:**  
 >This enables or disables remotely updating a Plex library in the script.  
 >
 >Default: "**false**"  
@@ -299,7 +354,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "remotePlex": true
 ```
 
-**remotePlexIP [remotePlexUpdates.serverIPAddr]:**  
+**remotePlexUpdates.remotePlexIP:**  
 >This is the remote IP that the remote Plex server is hosted on.
 >
 >Default: ""  
@@ -308,7 +363,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "remotePlexIP": 192.168.0.10
 ```
 
-**remotePlexPort [remotePlexUpdates.serverPort]:**  
+**remotePlexUpdates.remotePlexPort:**  
 >This is the remote Port that the remote Plex server is hosted on. This only needs to be changed if your Plex server is not running on the default port of 32400
 >
 >Default: "32400"  
@@ -326,7 +381,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "remotePlexToken": "asSsdfH76FsNfer"
 ```
 
-**localPlex [localPlexUpdates.enabled]:**  
+**localPlexUpdates.localPlex:**  
 >This enables or disables locally updating a Plex library in the script. Enabling this requires PlexSection and PlexScannerInstall to be set correctly.  
 >
 >Default: "**false**"  
@@ -335,7 +390,7 @@ You can also just enter the ID into the prompt the script gives, this prompt wil
 "localPlex": true
 ```
 
-**PlexScannerInstall [localPlexUpdates.PlexScannerInstall]:**  
+**localPlexUpdates.PlexScannerInstall:**  
 >This only needs to be changed if Plex is not installed to the default path or if your on linux. This defines where the scanner program for updating Plex videos is located.
 >
 >Default: "**C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe**"
