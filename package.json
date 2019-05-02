@@ -8,6 +8,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "child_process": "^1.0.2",
+    "ffmpeg": "0.0.4",
+    "ffmpeg-binaries": "^4.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
     "glob": "^7.1.3",
