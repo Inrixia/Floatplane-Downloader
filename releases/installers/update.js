@@ -1,5 +1,5 @@
 const request = require('request')
-const fs = require('fs-extra')
+const fs = require('fs')
 const AdmZip = require('adm-zip')
 
 getUpdate().then(updateSettings).then(moveFiles).then(deleteFiles)
@@ -128,7 +128,7 @@ function updateSettings(){
 		if (settings.cookie != null) newSettings.cookie = settings.cookie
 		if (settings.cookies != null) newSettings.cookies = settings.cookies
 
-		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8').then(() => {
+		fs.writeFile("./update/settings.json", JSON.stringify(newSettings, null, 2), 'utf8', () => {
 			resolve()
 		})
 	})
