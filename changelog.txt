@@ -1,3 +1,7 @@
+v4.6.3
+ - Fix for queue and live counts never hitting 0 stopping script from restarting automatically
+ - Fix for new LTT Supporter (OG) subscription.
+
 v4.6.2
  - Fix for episode count when using season/year based folder formatting
 

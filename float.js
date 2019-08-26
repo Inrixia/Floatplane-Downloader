@@ -361,9 +361,11 @@ function start() { // This is the main function that triggeres everything else i
 		checkAuth().then(constructCookie).then(checkSubscriptions).then(parseKey).then(saveSettings).then(logEpisodeCount).then(getWAN).then(getVideos)
 	} else { // If the script is busy downloading then wait for it to finish before continuing
 		setTimeout(() => {
+			queueCount = queueCount>0?queueCount-1:0
+			liveCount = liveCount>0?liveCount-1:0
 			start();
-		}, 1000)
-		fLog("Init > Script busy, delaying restart for 1 second...")
+		}, 60*1000)
+		fLog("Init > Script busy, delaying restart for 1 minute...")
 	}
 }
 
@@ -571,7 +573,7 @@ function checkSubscriptions() {
 					// If this subscription does not exist in settings add it with defaults otherwise do nothing
 					if (settings.subscriptions[subscription.creator] == undefined) {
 						// If the subscription being added is LTT then add it with its special subChannel ignores
-						if (subscription.plan.title == 'Linus Tech Tips') {
+						if (subscription.plan.title == 'Linus Tech Tips' || subscription.plan.title == 'LTT Supporter (OG)') {
 							settings.subscriptions[subscription.creator] = {
 								id: subscription.creator,
 								title: subscription.plan.title,
