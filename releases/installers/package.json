@@ -1,11 +1,12 @@
 {
   "name": "Floatplane-PlexDownloader",
-  "version": "4.6.1",
+  "version": "4.6.3",
   "private": true,
   "scripts": {
     "start": "node float.js pause"
   },
   "dependencies": {
+    "adm-zip": "^0.4.13",
     "cheerio": "^1.0.0-rc.3",
     "child_process": "^1.0.2",
     "ffmpeg": "0.0.4",
