@@ -125,7 +125,7 @@ function debug(stringOut) {
 }
 
 const subChannelIdentifiers = {
-	"Linus Tech Tips": [
+	"linus tech tips": [
 		{
 			title: 'Linus Tech Tips',
 			check: null,
@@ -143,8 +143,40 @@ const subChannelIdentifiers = {
 		},
 		{
 			title: 'TechLinked',
-			check: 'news sources:',
+			check: 'tl:',
+			type: 'title',
+		},
+		{
+			title: 'TechQuickie',
+			check: 'tq:',
+			type: 'title',
+		},
+		{
+			title: 'TalkLinked',
+			check: 'talklinked',
+			type: 'description'
+		}
+	],
+	"ltt supporter (og)": [
+		{
+			title: 'Linus Tech Tips',
+			check: null,
 			type: 'description',
+		},
+		{
+			title: 'Channel Super Fun', // subChannel display title
+			check: 'https://twitter.com/channelsuperfun', // Text used to match against video description/title for subChannel identification MUST BE LOWERCASE
+			type: 'description', // What to match the check against [description, title]
+		},
+		{
+			title: 'Floatplane Exclusive',
+			check: 'exclusive',
+			type: 'title',
+		},
+		{
+			title: 'TechLinked',
+			check: 'tl:',
+			type: 'title',
 		},
 		{
 			title: 'TechQuickie',
@@ -699,9 +731,10 @@ function getVideos() {
 							/*
 							/ Subchannel Matching
 							*/
-							if (subChannelIdentifiers[subscription.title]) {
+							if (subChannelIdentifiers[subscription.title.toLowerCase()]) {
 								fLog(`Videos-Subs > Attempting to match "${video.title}" to a subChannel..."`)
-								subChannelIdentifiers[subscription.title].forEach(function(subChannel){ // For each subChannel in a channel
+								subChannelIdentifiers[subscription.title.toLowerCase()].forEach(function(subChannel){ // For each subChannel in a channel
+									//console.log(video[subChannel.type].toLowerCase().indexOf(subChannel.check), subChannel.type, subChannel.check)
 									if(video[subChannel.type].toLowerCase().indexOf(subChannel.check) > -1) { // Check if this video is part of a subchannel
 										fLog(`Videos-Subs > Matched "${video.title}" to subChannel "${subChannel.title}"`)
 										video.subChannel = subChannel.title
