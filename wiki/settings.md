@@ -61,7 +61,7 @@ Repeats every day:
 ```
 
 **extras.downloadArtwork:**  
->Sets weather the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
+>Sets whether the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
 >
 >Default: "**true**"  
 >Example:
@@ -79,7 +79,7 @@ Repeats every day:
 ```
 
 **extras.safeNfo:**  
->Sets weather the script saves video metadata to nfo files alongside the video.
+>Sets whether the script saves video metadata to nfo files alongside the video.
 >
 >Default: "**false**"  
 >Example:
@@ -238,7 +238,7 @@ Repeats every day:
 >"**false**"
 
 **subscriptions:**  
->This contains all the Floatplane creators you are subscribed to and weather you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
+>This contains all the Floatplane creators you are subscribed to and whether you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
 >Note: Using this with a maxVideos any lower than 30 will result in you missing videos!
 >
 >Default [Pre-First Run]:
