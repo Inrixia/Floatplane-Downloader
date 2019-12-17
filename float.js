@@ -605,7 +605,7 @@ function checkSubscriptions() {
 					// If this subscription does not exist in settings add it with defaults otherwise do nothing
 					if (settings.subscriptions[subscription.creator] == undefined) {
 						// If the subscription being added is LTT then add it with its special subChannel ignores
-						if (subscription.plan.title == 'Linus Tech Tips' || subscription.plan.title == 'LTT Supporter (OG)') {
+						if (subscription.plan.title == 'Linus Tech Tips' || subscription.plan.title == 'LTT Supporter (OG)' || subscription.plan.title == 'LTT Supporter (1080p)') {
 							settings.subscriptions[subscription.creator] = {
 								id: subscription.creator,
 								title: subscription.plan.title,
