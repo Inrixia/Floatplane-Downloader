@@ -1,0 +1,2 @@
+#!/bin/sh
+exec npm start --prefix /app
