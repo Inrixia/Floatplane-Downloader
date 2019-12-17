@@ -188,6 +188,38 @@ const subChannelIdentifiers = {
 			check: 'talklinked',
 			type: 'description'
 		}
+	],
+	"ltt supporter (1080p)": [
+		{
+			title: 'Linus Tech Tips',
+			check: null,
+			type: 'description',
+		},
+		{
+			title: 'Channel Super Fun', // subChannel display title
+			check: 'https://twitter.com/channelsuperfun', // Text used to match against video description/title for subChannel identification MUST BE LOWERCASE
+			type: 'description', // What to match the check against [description, title]
+		},
+		{
+			title: 'Floatplane Exclusive',
+			check: 'exclusive',
+			type: 'title',
+		},
+		{
+			title: 'TechLinked',
+			check: 'tl:',
+			type: 'title',
+		},
+		{
+			title: 'TechQuickie',
+			check: 'tq:',
+			type: 'title',
+		},
+		{
+			title: 'TalkLinked',
+			check: 'talklinked',
+			type: 'description'
+		}
 	]
 }
 
