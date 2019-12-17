@@ -1,5 +1,4 @@
 FROM alpine
-LABEL maintainer="rob1998"
 
 # Env variables
 ENV GIT_URL "https://github.com/Inrixia/Floatplane-Downloader.git"
