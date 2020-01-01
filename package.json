@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node float.js pause",
-    "build": "pkg . --out-path=./build -t node10-linux-x64,node10-macos-x64,node10-win-x64"
+    "build": "pkg . --out-path=./build -t node10-linux-x64,node10-macos-x64,node10-win-x64",
+    "release": "./release.sh"
   },
+  "bin": "./float.js",
   "dependencies": {
     "adm-zip": "^0.4.13",
     "cheerio": "^1.0.0-rc.3",
