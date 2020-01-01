@@ -3,8 +3,11 @@
   "version": "4.6.3",
   "private": true,
   "scripts": {
-    "start": "node float.js pause"
+    "start": "node float.js pause",
+    "build": "pkg . --out-path=./build -t node10-linux-x64,node10-macos-x64,node10-win-x64",
+    "release": "./release.sh"
   },
+  "bin": "./float.js",
   "dependencies": {
     "adm-zip": "^0.4.13",
     "cheerio": "^1.0.0-rc.3",
@@ -16,11 +19,20 @@
     "glob": "^7.1.3",
     "multi-progress": "^2.0.0",
     "pad": "^2.3.0",
+    "pkg": "^4.4.2",
     "prompt": "^1.0.0",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
     "sanitize-filename": "^1.6.1",
     "xmlbuilder": "^12.0.0",
     "ytdl-core": "^0.29.1"
+  },
+  "pkg": {
+    "scripts": "./float.js",
+    "targets": [
+      "node10-linux-x64",
+      "node10-macos-x64",
+      "node10-win-x64"
+    ]
   }
 }
