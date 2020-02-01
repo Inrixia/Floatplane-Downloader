@@ -1,8 +1,9 @@
 {
-  "version": "4.6.3",
+  "version": "5.0.0",
   "videoFolder": "./videos/",
-  "maxVideos": 5,
+  "maxVideos": 21,
   "maxParallelDownloads": -1,
+  "encryptLoginDetails": true,
   "repeatScript": "false",
   "extras": {
     "downloadArtwork": true,
@@ -16,7 +17,7 @@
     "yearsAsSeasons": false,
     "monthsAsSeasons": false,
     "ignoreFolderStructure": false,
-		"countFromOne": false
+    "countFromOne": false
   },
   "ffmpeg": true,
   "downloadUpdateTime": 250,
@@ -35,12 +36,23 @@
     "downloadThreads": 5,
     "downloadArtwork": true
   },
-  "subscriptions": {},
+  "subscriptions": {
+    "59f94c0bdd241b70349eb72b": {
+      "id": "59f94c0bdd241b70349eb72b",
+      "title": "LTT Supporter (OG)",
+      "enabled": true,
+      "ignore": {
+        "Linus Tech Tips": false,
+        "Channel Super Fun": false,
+        "Floatplane Exclusive": false,
+        "TechLinked": false,
+        "Techquickie": false
+      }
+    }
+  },
   "autoFetchServer": true,
   "floatplaneServer": "https://edge01-na.floatplane.com",
   "video_res": 1080,
-  "logging": false,
-  "logFile": "./float.log",
   "plexSection": "0",
   "remotePlexUpdates": {
     "enabled": false,
@@ -52,9 +64,47 @@
     "enabled": false,
     "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
   },
-  "user": "",
-  "password": "",
-  "key": "",
-  "cookie": [],
-  "cookies": {}
+  "subChannelIdentifiers": [
+    {
+      "title": "Linus Tech Tips",
+      "check": "null",
+      "type": "description"
+    },
+    {
+      "title": "Channel Super Fun",
+      "check": "https://twitter.com/channelsuperfun",
+      "type": "description"
+    },
+    {
+      "title": "Floatplane Exclusive",
+      "check": "exclusive",
+      "type": "title"
+    },
+    {
+      "title": "TechLinked",
+      "check": "tl:",
+      "type": "title"
+    },
+    {
+      "title": "TechQuickie",
+      "check": "tq:",
+      "type": "title"
+    },
+    {
+      "title": "TalkLinked",
+      "check": "talklinked",
+      "type": "description"
+    }
+  ],
+  "colourList": {
+    "Linus Tech Tips": "\u001b[38;5;208m",
+    "The WAN Show": "\u001b[38;5;208m",
+    "Channel Super Fun": "\u001b[38;5;220m",
+    "Floatplane Exclusive": "\u001b[38;5;200m",
+    "TechLinked": "\u001b[38;5;14m",
+    "TechQuickie": "\u001b[38;5;153m",
+    "Tech Deals": "\u001b[38;5;10m",
+    "BitWit Ultra": "\u001b[38;5;105m",
+    "TalkLinked": "\u001b[36m"
+  }
 }
