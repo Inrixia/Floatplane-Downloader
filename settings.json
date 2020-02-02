@@ -16,8 +16,7 @@
     "formatWithSubChannel": true,
     "yearsAsSeasons": false,
     "monthsAsSeasons": false,
-    "ignoreFolderStructure": false,
-    "countFromOne": false
+    "ignoreFolderStructure": false
   },
   "ffmpeg": true,
   "downloadUpdateTime": 250,
@@ -64,7 +63,7 @@
     "enabled": false,
     "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
   },
-  "subChannelIdentifiers": [
+  "channelIdentifiers": [
     {
       "title": "Linus Tech Tips",
       "check": "null",
@@ -105,6 +104,7 @@
     "TechQuickie": "\u001b[38;5;153m",
     "Tech Deals": "\u001b[38;5;10m",
     "BitWit Ultra": "\u001b[38;5;105m",
-    "TalkLinked": "\u001b[36m"
+    "TalkLinked": "\u001b[36m",
+    "LTT Supporter (OG)": "\u001b[38;5;153m"
   }
 }

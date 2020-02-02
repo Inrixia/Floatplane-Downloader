@@ -32,7 +32,12 @@ const start = async () => { // This is the main function that triggeres everythi
 	if (settings.autoFetchServer) await floatplaneApi.findBestEdge();
 	await floatplaneApi.fetchSubscriptions()
 	await videoManager.displayVideosDetails()
-	await getSubscriptionVideos()
+	const subscriptionsToProcess = await getVideos()
+	const videosToDownload = subscriptionsToProcess.flatMap(sub =>
+		sub.subscriptionVideos.sort((a, b) => new Date(b.releaseDate)-new Date(a.releaseDate))
+		.map(video => videoManager.processVideo(video, sub.subscription))
+	).filter(video => video != false)
+	console.log(videosToDownload.map(video => video.fileName))
 }
 
 const repeat = async () => {
@@ -61,20 +66,19 @@ const repeat = async () => {
 	} else await start()
 }
 
-const getSubscriptionVideos = async () => {
+const getVideos = async () => {
 	const subscriptionVideos = await Promise.all(Object.keys(settings.subscriptions).map(async key => {
 		const subscription = settings.subscriptions[key];
 		let subscriptionVideos = []
 		if (!subscription.enabled) return // If this subscription is disabled then dont download
 		let fetchAfter = 0;
 		while (fetchAfter < settings.maxVideos) {
+			subscriptionVideos = subscriptionVideos.concat(await floatplaneApi.fetchVideos(subscription, fetchAfter))
 			// If the maxPages is more than 1 then log the === LinusTechTips === as === LinusTechTips - Page x ===
-			if(settings.maxVideos > 20) console.log(`\n\n=== \u001b[38;5;8m${subscription.title}\u001b[0m - \u001b[95mPage ${fetchAfter/20}\u001b[0m ===`)
-			else console.log(`\n\n=== \u001b[38;5;8m${subscription.title}\u001b[0m ===`) // Otherwise just log it normally
-			subscriptionVideos.push(await floatplaneApi.fetchVideos(subscription))
+			if(settings.maxVideos > 20) console.log(`=== \u001b[38;5;8m${subscription.title}\u001b[0m - \u001b[95mPage ${fetchAfter/20} Fetched\u001b[0m ===`)
 			fetchAfter += 20
 		}
 		return { subscription, subscriptionVideos }
 	}))
-	console.log(subscriptionVideos[0].subscriptionVideos.map(subs => subs.length))
+	return subscriptionVideos
 }
