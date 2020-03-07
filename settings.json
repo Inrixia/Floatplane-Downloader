@@ -50,7 +50,7 @@
     }
   },
   "autoFetchServer": true,
-  "floatplaneServer": "https://edge01-na.floatplane.com",
+  "floatplaneServer": "https://edge02-na.floatplane.com",
   "video_res": 1080,
   "plexSection": "0",
   "remotePlexUpdates": {
@@ -63,38 +63,61 @@
     "enabled": false,
     "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
   },
-  "channelIdentifiers": [
-    {
-      "title": "Linus Tech Tips",
-      "check": "null",
-      "type": "description"
-    },
-    {
-      "title": "Channel Super Fun",
-      "check": "https://twitter.com/channelsuperfun",
-      "type": "description"
-    },
-    {
-      "title": "Floatplane Exclusive",
-      "check": "exclusive",
-      "type": "title"
-    },
-    {
-      "title": "TechLinked",
-      "check": "tl:",
-      "type": "title"
-    },
-    {
-      "title": "TechQuickie",
-      "check": "tq:",
-      "type": "title"
-    },
-    {
-      "title": "TalkLinked",
-      "check": "talklinked",
-      "type": "description"
+  "subChannels": {
+    "Linus Tech Tips": {
+      "channelIdentifiers": [
+        {
+          "title": "Linus Tech Tips",
+          "check": "null",
+          "type": "description"
+        },
+        {
+          "title": "Channel Super Fun",
+          "check": "CSF:",
+          "type": "title"
+        },
+        {
+          "title": "Floatplane Exclusive",
+          "check": "FP EXCLUSIVE",
+          "type": "title"
+        },
+        {
+          "title": "TechLinked",
+          "check": "QUICK BITS",
+          "type": "description"
+        },
+        {
+          "title": "TechQuickie",
+          "check": "tq:",
+          "type": "title"
+        },
+        {
+          "title": "TalkLinked",
+          "check": "talklinked",
+          "type": "description"
+        },
+        {
+          "title": "Carpool Critics",
+          "check": "CC:",
+          "type": "title"
+        },
+        {
+          "title": "ShortCircut",
+          "check": "SC:",
+          "type": "title"
+        }
+      ],
+      "ignoreDefaults": {
+        "Linus Tech Tips": false,
+        "Channel Super Fun": false,
+        "Floatplane Exclusive": false,
+        "TechLinked": false,
+        "Techquickie": false,
+        "Carpool Critics": false,
+        "ShortCircut": false
+      }
     }
-  ],
+  },
   "colourList": {
     "Linus Tech Tips": "\u001b[38;5;208m",
     "The WAN Show": "\u001b[38;5;208m",

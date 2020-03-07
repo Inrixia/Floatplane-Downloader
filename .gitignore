@@ -12,12 +12,8 @@ desktop.ini
 # Dependency directories
 node_modules/
 
-# Log
-float.log
-
-# User / Script generated settings
-videos.json
-partial.json
-
 # videos folder
 videos/
+
+# db ignores
+db/auth.json
