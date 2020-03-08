@@ -39,7 +39,7 @@ const start = async () => { // This is the main function that triggeres everythi
 	if (settings.autoFetchServer) await floatplaneApi.findBestEdge();
 	const channels = (await floatplaneApi.fetchSubscriptions()).map(sub => new Channel(sub))
 	for (let i = 0; i < channels.length; i++) {
-		channels[i].fetchVideos()
+		await channels[i].fetchVideos()
 		if (channels[i].enabled) channels[i].downloadVideos()
 	}
 }

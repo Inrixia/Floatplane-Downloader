@@ -13,7 +13,7 @@
   "fileFormatting": {
     "formatWithEpisodes": true,
     "formatWithDate": false,
-    "formatWithSubChannel": true,
+    "formatWithChannel": true,
     "yearsAsSeasons": false,
     "monthsAsSeasons": false,
     "ignoreFolderStructure": false
@@ -50,7 +50,7 @@
     }
   },
   "autoFetchServer": true,
-  "floatplaneServer": "https://edge02-na.floatplane.com",
+  "floatplaneServer": "https://edge01-na.floatplane.com",
   "video_res": 1080,
   "plexSection": "0",
   "remotePlexUpdates": {
@@ -64,13 +64,8 @@
     "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
   },
   "subChannels": {
-    "Linus Tech Tips": {
+    "linus tech tips": {
       "channelIdentifiers": [
-        {
-          "title": "Linus Tech Tips",
-          "check": "null",
-          "type": "description"
-        },
         {
           "title": "Channel Super Fun",
           "check": "CSF:",
