@@ -17,3 +17,5 @@ videos/
 
 # db ignores
 db/auth.json
+db/channels.json
+db/videos.json
