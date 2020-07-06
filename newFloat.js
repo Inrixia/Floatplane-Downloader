@@ -1,13 +1,27 @@
-const settings = require('./lib/settings.js')
-const plex = require('./lib/plex.js')
-const floatplaneApi = require('./lib/floatplane/api.js')
-const auth = require('./lib/floatplane/auth.js')
-
-const Channel = require('./lib/Channel.js')
-
 const progress = require('request-progress');
 const Multiprogress = require("multi-progress");
 const multi = new Multiprogress(process.stdout);
+
+const settings = require('./lib/settings.js')
+
+const Subscription = require('./lib/Channel.js')
+
+const PlexAPI = require("plex-api");
+let plexClient;
+
+const FloAPI = require('./lib/floatplane/api.js')
+let floatplaneAPI;
+
+const RequestDEFAULTS = { // Sets the global requestMethod to be used, this maintains headers
+	headers: {
+		'User-Agent': `FloatplanePlex/${settings.version} (Inrix, +https://linustechtips.com/main/topic/859522-floatplane-download-plex-script-with-code-guide/)`
+	},
+	jar: true, // Use the same cookies globally
+	rejectUnauthorized: false,
+	followAllRedirects: true
+}
+
+const auth = new db('auth', null, settings.encryptAuthenticationDB?'goAwaehOrIShallTauntYouASecondTiem':null)
 
 // Firstly check if there is a new version and notify the user
 // request.get({ // Check if there is a newer version avalible for download
@@ -25,24 +39,122 @@ const multi = new Multiprogress(process.stdout);
 
 // Async start
 ;(async () => {
-	// Earlybird functions, these are run before script start for things such as auto repeat and getting plex info
-	// await videoManager.init()
-	await plex.init()
+	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
+
+	// Get Plex details of not saved
+	if (settings.plex.local.enabled || settings.plex.remote.enabled) {
+		if (settings.plex.sectionsToUpdate == []) settings.plex.sectionsToUpdate = await promptForPlexSection()
+		else if (settings.plex.remote.enabled) {
+			if (!auth.plex.user || !auth.plex.password || !settings.plex.remote.ip || !settings.plex.remote.port) [
+				auth.plex.user, 
+				auth.plex.password, 
+				settings.plex.remote.ip,
+				settings.plex.remote.port
+			] = await promptForRemotePlexDetails() // If the user has not specified login details prompt for them
+			plexClient = new PlexAPI({ 
+				hostname: settings.plex.ip, 
+				port: settings.plex.port, 
+				username: auth.plex.user, 
+				password: auth.plex.password 
+			})
+		}
+	}
+
+	// Get Floatplane credentials if not saved
+	if (!auth.fp.user || !auth.fp.password) [
+		auth.fp.user, 
+		auth.fp.password, 
+		auth.fp.token
+	] = await promptForFloatplaneCredentials() // If the user has not specified login details prompt for them
+	else console.log('> Using saved login details...');
+
+	floatplaneClient = new FloAPI(auth.fp, RequestDEFAULTS)
+
 	await repeat()
-})()
+})().catch(err => {
+	console.log(`An error occurred:`)
+	console.log(err)
+	process.exit(1)
+})
 
 /**
- * Login, fetch info and download new videos.
+ * Prompts user for credentials if none are saved.
  */
-const start = async () => { // This is the main function that triggeres everything else in the script
-	await auth.init()
-	if (settings.autoFetchServer) await floatplaneApi.findBestEdge();
-	const channels = (await floatplaneApi.fetchSubscriptions()).map(sub => new Channel(sub))
-	for (let i = 0; i < channels.length; i++) {
-		await channels[i].fetchVideos()
-		if (channels[i].enabled) channels[i].downloadVideos()
-	}
-}
+const promptForPlexSection = () => new Promise((resolve, reject) => {
+	console.log('> Please enter the ID or URL for the section(s) you wish to refresh:');
+	console.log('Examples:')
+	console.log('	"10, 12, 16" for multiple sections.')
+	console.log('	"10" for a single section.')
+	console.log('	"https://app.plex.tv/desktop#!/media/2g35g/com.plexapp.plugins.library?key=%2Fgsdr%2Fsections%2F4" for a single section using URL.')
+	const PromptOptions = [{
+		name: "Plex Section(s) ID or URL",
+		required: true
+	}]
+	prompt.start();
+	prompt.get(PromptOptions, (err, result) => {
+		if (err) reject(err)
+		if (!result) reject("You must enter Plex Section(s) ID or URL!")
+		resolve(result['Plex Section(s) ID or URL'].replace(/ /g, '').split(','))
+	})
+})
+
+/**
+ * Prompts user for credentials if none are saved.
+ */
+const promptForRemotePlexDetails = () => new Promise((resolve, reject) => {
+	console.log('> Please enter your plex details:');
+	const PromptOptions = [{
+		name: "Email/Username",
+		required: true
+	}, {
+		name: "Password",
+		required: true,
+		hidden: true,
+		replace: '*'
+	}, {
+		name: "Plex Server IP",
+		required: true
+	}, {
+		name: "Plex Server Port",
+		required: true
+	}]
+	prompt.start();
+	prompt.get(PromptOptions, (err, result) => {
+		if (err) reject(err)
+		if (!result) reject("You must enter a Email/Username, Password, IP and Port!")
+		resolve([
+			result['Email/Username'], 
+			result['password'], 
+			result['Plex Server IP'], 
+			result['Plex Server Port']
+		])
+	})
+})
+
+/**
+ * Prompts user for credentials if none are saved.
+ */
+const promptForFloatplaneCredentials = () => new Promise((resolve, reject) => {
+	console.log('> Please enter your login details:');
+	const PromptOptions = [{
+		name: "Email/Username",
+		required: true
+	}, {
+		name: "Password",
+		required: true,
+		hidden: true,
+		replace: '*'
+	}, {
+		name: "2Factor (if required)",
+		required: true
+	}]
+	prompt.start();
+	prompt.get(PromptOptions, (err, result) => {
+		if (err) reject(err)
+		if (!result) reject("You must enter a Email/Username, Password and/or 2Factor code!")
+		resolve([result['Email/Username'], result['password'], result['2Factor (if required)']])
+	})
+})
 
 /**
  * Excute fetch & download if repeating is enabled in settings.
@@ -50,27 +162,50 @@ const start = async () => { // This is the main function that triggeres everythi
 const repeat = async () => {
 	// Check if repeating the script is enabled in settings, if not then skip to starting the script
 	if (settings.repeatScript != false && settings.repeatScript != 'false') {
-		const multipliers = { // Contains the number of seconds for each time
+		const MULTIPLIERS = { // Contains the number of seconds for each time
 			"s": 1,
 			'm': 60,
 			'h': 3600,
 			'd': 86400,
 			'w': 604800
 		}
-		let countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // countDown is the number of minutes remaining until the script restarts
-		const multiplier = multipliers[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
-		console.log(`\u001b[41mRepeating for ${settings.repeatScript} or ${settings.repeatScript.slice(0, -1)*multiplier} Seconds.\u001b[0m`);
-		await start(); // Start the script for the first time
+		let countDown = settings.repeatScript.slice(0, -1)*MULTI/60 // countDown is the number of minutes remaining until the script restarts
+		const MULTI = MULTIPLIERS[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
+		console.log(`\u001b[41mRepeating for ${settings.repeatScript} or ${settings.repeatScript.slice(0, -1)*MULTI} Seconds.\u001b[0m`);
+		await start(); // Run the script
 		setInterval(async () => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
 			console.log(`${countDown} Minutes until script restarts...`);
-			if(countDown > 0) countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
+			if (countDown > 0) countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
 			else {
 				console.log(`Script auto restarting...\n`)
-				countDown = settings.repeatScript.slice(0, -1)*multiplier/60 // If it is 0 then the script has restarted so reset it
+				countDown = settings.repeatScript.slice(0, -1)*MULTI/60 // If it is 0 then the script has restarted so reset it
 				await start();
 			}
 		}, 60*1000);
-	} else await start()
+	} else await start() // If settings.repeatScript is false then just run the script once
+}
+
+/**
+ * Main function that triggeres everything else in the script
+ */
+const start = async () => {
+	if (settings.autoFetchServer) {
+		console.log("> Finding best edge server")
+		settings.floatplane.server = `https://${await floatplaneApi.findBestEdge()}`;
+		console.log(`\n\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.server}\u001b[0m]`);
+	}
+	const Subs = (await floatplaneApi.fetchSubscriptions()).map(sub => new Subscription(sub))
+	// if (
+	// 	subscription.plan.title == 'Linus Tech Tips' ||
+	// 	subscription.plan.title == 'LTT Supporter (OG)' ||
+	// 	subscription.plan.title == 'LTT Supporter (1080p)' ||
+	// 	subscription.plan.title == 'LTT Supporter Plus'
+	// ) subscription.plan.title = 'Linus Tech Tips'
+	// console.log('> Updated subscriptions!')
+	// for (let i = 0; i < channels.length; i++) {
+	// 	await channels[i].fetchVideos()
+	// 	if (channels[i].enabled) channels[i].downloadVideos()
+	// }
 }
 
 const getVideos = async () => {

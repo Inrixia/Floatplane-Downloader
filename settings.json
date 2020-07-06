@@ -1,40 +1,24 @@
 {
   "version": "5.0.0",
   "videoFolder": "./videos/",
-  "maxVideos": 21,
+  "maxVideos": 20,
   "maxParallelDownloads": -1,
-  "encryptLoginDetails": true,
+  "floatplane": {
+    "findBestSerer": true,
+    "server": "https://edge01-na.floatplane.com",
+    "videoResolution": 1080
+  },
+  "_fileFormattingOPTIONS": ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
+  "fileFormatting": "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
+  "encryptAuthenticationDB": true,
   "repeatScript": "false",
   "extras": {
     "downloadArtwork": true,
     "artworkFormat": "png",
     "saveNfo": false
   },
-  "fileFormatting": {
-    "formatWithEpisodes": true,
-    "formatWithDate": false,
-    "formatWithChannel": true,
-    "yearsAsSeasons": false,
-    "monthsAsSeasons": false,
-    "ignoreFolderStructure": false
-  },
-  "ffmpeg": true,
   "downloadUpdateTime": 250,
   "checkForNewSubscriptions": true,
-  "TheWANShow": {
-    "enabled": false,
-    "audio": {
-      "quality": "highest",
-      "saveSeperately": false
-    },
-    "video": {
-      "quality": "highest",
-      "saveSeperately": false
-    },
-    "combineAndSaveAudioVideo": true,
-    "downloadThreads": 5,
-    "downloadArtwork": true
-  },
   "subscriptions": {
     "59f94c0bdd241b70349eb72b": {
       "id": "59f94c0bdd241b70349eb72b",
@@ -49,19 +33,17 @@
       }
     }
   },
-  "autoFetchServer": true,
-  "floatplaneServer": "https://edge01-na.floatplane.com",
-  "video_res": 1080,
-  "plexSection": "0",
-  "remotePlexUpdates": {
-    "enabled": false,
-    "serverIPAddr": "",
-    "serverPort": 32400,
-    "plexToken": ""
-  },
-  "localPlexUpdates": {
-    "enabled": false,
-    "plexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+  "plex": {
+    "sectionsToUpdate": [],
+    "remote": {
+      "enabled": false,
+      "ip": "",
+      "port": 32400
+    },
+    "local": {
+      "enabled": false,
+      "scannerExeInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
+    }
   },
   "subChannels": {
     "linus tech tips": {
