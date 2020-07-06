@@ -1,14 +1,23 @@
 {
   "version": "5.0.0",
+  "firstLaunch": true,
+  "debug": true,
   "videoFolder": "./videos/",
   "maxVideos": 20,
   "maxParallelDownloads": -1,
   "floatplane": {
     "findBestSerer": true,
-    "server": "https://edge01-na.floatplane.com",
-    "videoResolution": 1080
+    "videoResolution": 1080,
+    "server": "edge01-na.floatplane.com",
+    "findBestServer": true
   },
-  "_fileFormattingOPTIONS": ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
+  "_fileFormattingOPTIONS": [
+    "%channelTitle%",
+    "%episodeNumber%",
+    "%videoTitle%",
+    "%year%",
+    "%month%"
+  ],
   "fileFormatting": "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
   "encryptAuthenticationDB": true,
   "repeatScript": "false",
@@ -24,13 +33,64 @@
       "id": "59f94c0bdd241b70349eb72b",
       "title": "LTT Supporter (OG)",
       "enabled": true,
-      "ignore": {
-        "Linus Tech Tips": false,
-        "Channel Super Fun": false,
-        "Floatplane Exclusive": false,
-        "TechLinked": false,
-        "Techquickie": false
-      }
+      "subchannels": [
+        {
+          "title": "Floatplane Exclusive",
+          "ignore": false,
+          "identifier": {
+            "check": "FP EXCLUSIVE",
+            "type": "title"
+          }
+        },
+        {
+          "title": "TechLinked",
+          "ignore": false,
+          "identifier": {
+            "check": "QUICK BITS",
+            "type": "description"
+          }
+        },
+        {
+          "title": "TechQuickie",
+          "ignore": false,
+          "identifier": {
+            "check": "tq:",
+            "type": "title"
+          }
+        },
+        {
+          "title": "TalkLinked",
+          "ignore": false,
+          "identifier": {
+            "check": "talklinked",
+            "type": "description"
+          }
+        },
+        {
+          "title": "Carpool Critics",
+          "ignore": false,
+          "identifier": {
+            "check": "CC:",
+            "type": "title"
+          }
+        },
+        {
+          "title": "ShortCircut",
+          "ignore": false,
+          "identifier": {
+            "check": "SC:",
+            "type": "title"
+          }
+        },
+        {
+          "title": "Linus Tech Tips",
+          "ignore": false,
+          "identifier": {
+            "check": "",
+            "type": ""
+          }
+        }
+      ]
     }
   },
   "plex": {
@@ -43,56 +103,6 @@
     "local": {
       "enabled": false,
       "scannerExeInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
-    }
-  },
-  "subChannels": {
-    "linus tech tips": {
-      "channelIdentifiers": [
-        {
-          "title": "Channel Super Fun",
-          "check": "CSF:",
-          "type": "title"
-        },
-        {
-          "title": "Floatplane Exclusive",
-          "check": "FP EXCLUSIVE",
-          "type": "title"
-        },
-        {
-          "title": "TechLinked",
-          "check": "QUICK BITS",
-          "type": "description"
-        },
-        {
-          "title": "TechQuickie",
-          "check": "tq:",
-          "type": "title"
-        },
-        {
-          "title": "TalkLinked",
-          "check": "talklinked",
-          "type": "description"
-        },
-        {
-          "title": "Carpool Critics",
-          "check": "CC:",
-          "type": "title"
-        },
-        {
-          "title": "ShortCircut",
-          "check": "SC:",
-          "type": "title"
-        }
-      ],
-      "ignoreDefaults": {
-        "Linus Tech Tips": false,
-        "Channel Super Fun": false,
-        "Floatplane Exclusive": false,
-        "TechLinked": false,
-        "Techquickie": false,
-        "Carpool Critics": false,
-        "ShortCircut": false
-      }
     }
   },
   "colourList": {
