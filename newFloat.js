@@ -1,13 +1,15 @@
+const PlexAPI = require("plex-api");
 const Multiprogress = require("multi-progress");
 const multi = Multiprogress(process.stdout);
-const prompts = require('prompts');
 
 const settings = require('./lib/settings.js')
-const subchanneDefaults = require('./lib/subchannelDefaults.json')
-
 const Subscription = require('./lib/subscription.js')
 
-const PlexAPI = require("plex-api");
+const prompt = require('./lib/prompt.js')
+const helpers = require('./lib/helpers.js')
+
+const subchanneDefaults = require('./lib/subchannelDefaults.json')
+
 let plexClient;
 
 const gotDEFAULTS = { // Sets the global requestMethod to be used, this maintains headers
@@ -21,12 +23,14 @@ const gotDEFAULTS = { // Sets the global requestMethod to be used, this maintain
 	followAllRedirects: true
 }
 
+
 const FloAPI = new require('./lib/floatplane/api.js')
 const floatplaneAPI = new FloAPI(gotDEFAULTS);
 
-const db = require('./lib/db.js')
+const encryptionKey = 'goAwaehOrIShallTauntYouASecondTiem'
 
-let auth = new db('auth', null, settings.encryptAuthenticationDB?'goAwaehOrIShallTauntYouASecondTiem':null)
+const db = require('./lib/db.js')
+const auth = new db('auth', null, settings.encryptAuthenticationDB?encryptionKey:null)
 
 // Firstly check if there is a new version and notify the user
 // request.get({ // Check if there is a newer version avalible for download
@@ -202,149 +206,36 @@ const getSubscriptionVideos = async (subscriptionID, maxVideos=20) => {
 	return subscriptionVideos
 }
 
-/**
- * Prompts a user for input, onCancel tries again `maxDepth` times.
- * @param {object} question Question to ask
- * @param {Number} maxDepth Maximum times to ask the question 
- * @param {string} cancelPrompt String to sent to stdout when the user cancels (omitted on last cancel).
- */
-const requiredPrompts = (question, maxDepth=2, cancelPrompt=`\nAnswering this question is required to continue.\n`, depth=0) => {
-	if (depth > 0 && depth < maxDepth) process.stdout.write(cancelPrompt)
-	if (depth >= maxDepth) process.exit(1)
-	const onCancel = () => new Promise(async (resolve, reject) => resolve(await requiredPrompts(question, maxDepth, cancelPrompt, depth+=1)))
-	return prompts(question, { onCancel })
-}
-
-/**
- * Prompts user for credentials if none are saved.
- */
-const promptForPlexSection = () => new Promise((resolve, reject) => {
-	console.log('> Please enter the ID or URL for the section(s) you wish to refresh:');
-	console.log('Examples:')
-	console.log('	"10, 12, 16" for multiple sections.')
-	console.log('	"10" for a single section.')
-	console.log('	"https://app.plex.tv/desktop#!/media/2g35g/com.plexapp.plugins.library?key=%2Fgsdr%2Fsections%2F4" for a single section using URL.')
-	const PromptOptions = [{
-		name: "Plex Section(s) ID or URL",
-		required: true
-	}]
-	prompt.start();
-	prompt.get(PromptOptions, (err, result) => {
-		if (err) reject(err)
-		if (!result) reject("You must enter Plex Section(s) ID or URL!")
-		resolve(result['Plex Section(s) ID or URL'].replace(/ /g, '').split(','))
-	})
-})
-
-/**
- * Prompts user for credentials if none are saved.
- */
-const promptForRemotePlexDetails = () => {
-	console.log('> Please enter your plex details:');
-	return prompts([{
-		type: 'text',
-		name: 'username',
-		message: 'Plex account email/username:'
-	}, {
-		type: 'password',
-		name: 'password',
-		message: 'Plex account password:'
-	}, {
-		type: 'text',
-		name: 'ip',
-		message: "Plex server ip:"
-		
-	}, {
-		type: 'text',
-		name: 'port',
-		message: "Plex server port:"
-	}])
-}
-
-/**
- * Prompts user for floatplane user/pass.
- * @returns {{ username:string, password:string }}
- */
-const promptForFloatplaneCredentials = () => requiredPrompts([
-	{
-		type: 'text',
-		name: 'username',
-		message: 'Please enter your floatplane email/username'
-	}, {
-		type: 'password',
-		name: 'password',
-		message: 'Please enter your floatplane password'
-	}
-])
-
-/**
- * Prompts user for floatplane token.
- * @returns {{ token:string }}
- */
-const promptForFloatplaneToken = () => requiredPrompts({
-	type: 'text',
-	name: 'token',
-	message: "Please enter your floatplane 2Factor authentication token"
-})
-
-/**
- * Recursively runs `func` and handles errors with `errorHandler` until `func` successfully finishes.
- * @param {Function} func 
- * @param {Function} errorHandler 
- */
-const loopError = (func, errorHandler=()=>{}) => new Promise(async (resolve, reject) => {
-	resolve(await func().catch(async err => {
-		if (settings.debug) console.log(err)
-		await errorHandler(err);
-		resolve(loopError(func, errorHandler))
-	}))
-})
-
-
 const doFloatplaneLogin = async () => {
-	let loopy = await loopError(async () => {
-		const userPass = await promptForFloatplaneCredentials()
-		const user = await floatplaneAPI.login(userPass.username, userPass.password)
-		return { userPass, user }
+	let userDetails = await helpers.loopError(async () => {
+		const { username, password } = await prompt.floatplaneCredentials()
+		const user = await floatplaneAPI.login(username, password)
+		return { username, password, user }
 	}, async err => console.log('\nLooks like those login details didnt work, Please try again...'))
 
-	const username = loopy.userPass.username
-	const password = loopy.userPass.password
+	const username = userDetails.username
+	const password = userDetails.password
 
-	if (loopy.user.needs2FA) {
+	if (userDetails.user.needs2FA) {
 		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`)
 
-		loopy = await loopError(async () => {
-			const token = (await promptForFloatplaneToken()).token
+		userDetails = await loopError(async () => {
+			const token = await prompt.floatplaneToken()
 			const user = await floatplaneAPI.twoFactorLogin(token)
 			return { token, user }
 		}, async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
 	}
 
-	const token = loopy.token
-	const user = loopy.user
+	const token = userDetails.token
+	const user = userDetails.user
 
 	console.log(`\nSigned in as ${user.username}!\n`)
 
 	console.log(`Username/Password/Token does not need to be saved, cookies can re-used.`)
 	console.log(`However you may need to login again at some point in the future if you dont save them...`)
-	if ((await prompts({
-		type: 'toggle',
-		name: 'save',
-		message: 'Save your login details?',
-		initial: false,
-		active: 'Yes',
-		inactive: 'No'
-	})).save) {
-		settings.encryptAuthenticationDB = (await prompts({
-			type: 'toggle',
-			name: 'crypt',
-			message: 'Encrypt authentication database (recommended)?',
-			initial: true,
-			active: 'Yes',
-			inactive: 'No'
-		})).crypt
-		if (!settings.encryptAuthenticationDB) auth = new db('auth', null, settings.encryptAuthenticationDB?'goAwaehOrIShallTauntYouASecondTiem':null)
+	if (await prompt.saveLoginDetails()) {
+		settings.encryptAuthenticationDB = await promopt.encryptAuthDB()
+		if (!settings.encryptAuthenticationDB) auth = new db('auth', null, settings.encryptAuthenticationDB?encryptionKey:null)
 		auth.fp.username = username
 		auth.fp.password = password
 		auth.fp.token = token
@@ -352,68 +243,37 @@ const doFloatplaneLogin = async () => {
 	}
 }
 
+const firstLaunch = async () => {
+	console.log(`Welcome to Floatplane Downloader! Thanks for checking it out <3.`)
+	console.log(`According to your settings.json this is your first launch! So lets go through the basic setup...\n`)
+
+	// Prompt & Set videoFolder
+	const videoFolder = await prompt.videoFolder(); 
+	if (videoFolder != undefined) settings.videoFolder = videoFolder
+
+	// Prompt & Set maxVideos
+	const maxVideos = await prompt.maxVideos();
+	if (maxVideos != undefined) settings.maxVideos = maxVideos
+
+	// Prompt & Set maxParallelDownloads
+	const maxParallelDownloads = await prompt.maxParallelDownloads();
+	if (maxParallelDownloads != undefined) settings.maxParallelDownloads = maxParallelDownloads
+
+	console.log(`\nNext we are going to login to floatplane...`)
+	await doFloatplaneLogin();
+
+	// Set floatplane.findBestServer
+	if (await prompt.findBestServer()) settings.floatplane.server = await floatplaneAPI.findBestEdge()
+	console.log(`Best Edge server found is: "${settings.floatplane.server}"\n`)
+
+	settings.floatplane.findBestServer = await autoFindBestServer()
+}
+
 // Async start
 ;(async () => {
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
-	if (settings.firstLaunch) {
-		console.log(`Welcome to Floatplane Downloader! Thanks for checking it out <3.`)
-		console.log(`According to your settings.json this is your first launch! So lets go through the basic setup...\n`)
+	if (settings.firstLaunch) await firstLaunch();
 
-		let answer;
-
-		// Set videoFolder
-		answer = await prompts({
-			type: 'text',
-			name: 'videoFolder',
-			message: 'What folder do you want to save videos?',
-			initial: settings.videoFolder
-		})
-		if (answer.videoFolder != undefined) settings.videoFolder = answer.videoFolder
-
-		// Set maxVideos
-		answer = await prompts({
-			type: 'number',
-			name: 'maxVideos',
-			message: 'How many videos do you want to search through for ones to download?',
-			initial: settings.maxVideos,
-			min: 0
-		})
-		if (answer.maxVideos != undefined) settings.maxVideos = answer.maxVideos
-
-		// Set maxParallelDownloads
-		answer = await prompts({
-			type: 'number',
-			name: 'maxParallelDownloads',
-			message: 'What is the maximum number of parallel downloads you want to have running?',
-			initial: settings.maxParallelDownloads,
-			min: -1
-		})
-		if (answer.maxParallelDownloads != undefined) settings.maxParallelDownloads = answer.maxParallelDownloads
-
-		console.log(`\nNext we are going to login to floatplane...`)
-		await doFloatplaneLogin();
-
-		// Set floatplane.findBestServer
-		answer = await prompts({
-			type: 'toggle',
-			name: 'findBestServer',
-			message: 'Would you like to try find the best download server?',
-			initial: true,
-			active: 'Yes',
-			inactive: 'No'
-		})
-		if (answer) settings.floatplane.server = await floatplaneAPI.findBestEdge()
-		console.log(`Best Edge server found is: "${settings.floatplane.server}"\n`)
-
-		settings.floatplane.findBestServer = (await prompts({
-			type: 'toggle',
-			name: 'bestEdge',
-			message: 'Automatically check for the best server in the future?',
-			initial: true,
-			active: 'Yes',
-			inactive: 'No'
-		})).bestEdge
-	}
 	process.exit(1);
 
 	// Get Plex details of not saved
@@ -425,7 +285,7 @@ const doFloatplaneLogin = async () => {
 				auth.plex.password, 
 				settings.plex.remote.ip,
 				settings.plex.remote.port
-			] = await promptForRemotePlexDetails() // If the user has not specified login details prompt for them
+			] = await prompt.remotePlexDetails() // If the user has not specified login details prompt for them
 			plexClient = new PlexAPI({ 
 				hostname: settings.plex.ip, 
 				port: settings.plex.port, 
@@ -433,7 +293,7 @@ const doFloatplaneLogin = async () => {
 				password: auth.plex.password 
 			})
 		}
-		if (settings.plex.sectionsToUpdate == []) settings.plex.sectionsToUpdate = await promptForPlexSection()
+		if (settings.plex.sectionsToUpdate == []) settings.plex.sectionsToUpdate = await prompt.plexSection()
 	}
 
 	// Get Floatplane credentials if not saved
@@ -442,7 +302,7 @@ const doFloatplaneLogin = async () => {
 		auth.fp.user, 
 		auth.fp.password, 
 		auth.fp.token
-	] = await promptForFloatplaneCredentials() // If the user has not specified login details prompt for them
+	] = await prompt.floatplaneCredentials() // If the user has not specified login details prompt for them
 	else console.log('> Using saved login details...');
 
 	await repeat()
