@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node float.js",
-    "build": "pkg . --out-path=./build -t node10-linux-x64,node10-macos-x64,node10-win-x64",
+    "build": "pkg . --out-path=./build -t node14-win-x64",
     "release": "./release.sh",
     "test": "jest"
   },
@@ -12,7 +12,7 @@
   "dependencies": {
     "@inrixia/db": "^1.1.2",
     "@inrixia/helpers": "^1.7.9",
-    "floatplane": "^1.1.1",
+    "floatplane": "^1.1.3",
     "got": "^11.6.0",
     "multi-progress": "^3.0.0",
     "plex-api": "^5.3.1",

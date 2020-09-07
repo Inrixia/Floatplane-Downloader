@@ -9,13 +9,14 @@ const prompts = require('./lib/prompts/')
 
 const multiprogress = (require("multi-progress"))(process.stdout);
 
-const settings = new db(path.join(__dirname, `./config/settings.json`))
-console.log(path.join(__dirname, `./config/settings.json`))
-const auth = new db('./db/auth.json', settings.auth.encrypt?settings.auth.encryptionKey:null)
-
 const defaults = require('./lib/defaults.json')
 
-let plexClient;
+let settings = new db(`./config/settings.json`)
+if (Object.keys(settings).length === 0) for (key in defaults.settings) settings[key] = defaults.settings[key]
+
+const auth = new db('./db/auth.json', settings.auth.encrypt?settings.auth.encryptionKey:null)
+
+let plexApi;
 
 const fApi = new (require('floatplane'))
 fApi.headers['User-Agent'] = `FloatplaneDownloader/${require('./package.json').version} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader)`
@@ -49,10 +50,13 @@ const findClosestEdge = edges => edges.edges.filter(edge => edge.allowDownload).
  */
 const start = async () => {
 	if (settings.floatplane.findClosestEdge) {
-		console.log("> Finding closest edge server")
+		process.stdout.write("> Finding closest edge server...")
 		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
-		console.log(`\n\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]`);
+		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n\n`);
 	}
+
+	console.log(`OwO Fwetch Videos <3...\n`)
+	return;
 
 	// Fetch subscriptions from floatplane
 	const SUBS = (await floatplaneClient.fetchSubscriptions()).map(subscription => {
@@ -159,11 +163,11 @@ const downloadVideo = video => { // This handles resuming downloads, its very si
 }
 
 const promptFloatplaneLogin = async () => {
-	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplane.credentials())), async err => console.log('\nLooks like those login details didnt work, Please try again...'))
+	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplane.credentials())), async err => console.log(`\nLooks like those login details didnt work, Please try again... ${err}`))
 
 	if (user.needs2FA) {
 		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`);
-		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplane.token()), async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
+		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplane.token()), async err => console.log(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`))
 	}
 
 	console.log(`\nSigned in as ${user.user.username}!\n`)
@@ -178,20 +182,21 @@ const promptPlexLogin = async () => {
 		username, 
 		password 
 	})
-	settings.plex.token = await new Promise((res, rej) => plexApi.authenticator.authenticate(plexApi, (err, token) => err?rej(err):res(token)))
-	console.log(`Fetched plex token: ${settings.plex.token}\n`)
+	auth.plexToken = await new Promise((res, rej) => plexApi.authenticator.authenticate(plexApi, (err, token) => err?rej(err):res(token)))
+	console.log(`Fetched plex token: ${auth.plexToken}\n`)
 }
 
 const promptPlexSections = async () => {
-	settings.plex.sectionsToUpdate = (await prompts.plex.sections(settings.plex.sectionsToUpdate.join(", "))).splice(array.indexOf(""), 1)||settings.plex.sectionsToUpdate
+	settings.plex.sectionsToUpdate = (await prompts.plex.sections(settings.plex.sectionsToUpdate.join(", ")))||settings.plex.sectionsToUpdate
+	settings.plex.sectionsToUpdate.splice(settings.plex.sectionsToUpdate.indexOf(""), 1)
 	if (settings.plex.sectionsToUpdate.length === 0) {
-		console.log(`You didnt specify any plex sections to update! Disabling plex integration...`)
+		console.log(`You didnt specify any plex sections to update! Disabling plex integration...\n`)
 		settings.plex.enabled = false
 		return false
 	}
 }
 
-const firstLaunch = async (settings, fApi) => {
+const firstLaunch = async () => {
 	console.log(`Welcome to Floatplane Downloader! Thanks for checking it out <3.`)
 	console.log(`According to your settings.json this is your first launch! So lets go through the basic setup...\n`)
 	console.log(`\n== General ==\n`)
@@ -240,6 +245,8 @@ const firstLaunch = async (settings, fApi) => {
 	if (settings.firstLaunch) await firstLaunch();
 	settings.firstLaunch = false
 
+	console.log(`\n== All Setup! ==\n`)
+
 	// Get Plex details of not saved
 	if (settings.plex.enabled) {
 		if (settings.plex.sectionsToUpdate.length === 0) {
@@ -252,7 +259,7 @@ const firstLaunch = async (settings, fApi) => {
 		} if (!settings.plex.remote.port) {
 			console.log(`You have plex integration enabled but have not specified a port!`)
 			settings.plex.port = await prompts.plex.port(settings.plex.port)||settings.plex.port
-		} if (!settings.plex.token) {
+		} if (!auth.plexToken) {
 			console.log(`You have plex integration enabled but have not specified a token!`)
 			await promptPlexLogin()
 		}

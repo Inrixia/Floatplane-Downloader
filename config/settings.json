@@ -1,5 +1,4 @@
 {
-  "version": "5.0.0",
   "firstLaunch": true,
   "videoFolder": "./videos/",
   "downloadThreads": -1,
@@ -21,7 +20,7 @@
     "encrypt": true,
     "encryptionKey": "goAwaehOrIShallTauntYouASecondTiem"
   },
-  "repeeat": {
+  "repeat": {
     "enabled": true,
     "interval": "00:05:00"
   },
@@ -99,8 +98,7 @@
     "sectionsToUpdate": [],
     "enabled": true,
     "hostname": "",
-    "port": "32400",
-    "token": "yZP7MDTzCvMzfzsVs3SS"
+    "port": "32400"
   },
   "colourList": {
     "Linus Tech Tips": "\u001b[38;5;208m",
