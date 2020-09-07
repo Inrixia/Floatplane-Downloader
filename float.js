@@ -3,22 +3,24 @@ const db = require('@inrixia/db')
 const Subscription = require('./lib/subscription.js')
 
 const path = require('path')
-const { loopError } = require('@inrixia/helpers/object')
+const { loopError, objectify } = require('@inrixia/helpers/object')
 const { getDistance } = require('@inrixia/helpers/geo')
 const prompts = require('./lib/prompts.js')
 
 const multiprogress = (require("multi-progress"))(process.stdout);
 
-const settings = new db('settings', path.join(__dirname, `./config/settings.json`))
-const auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
-
-const fApi = new (require('floatplane'))
+const settings = new db(path.join(__dirname, `./config/settings.json`))
+console.log(path.join(__dirname, `./config/settings.json`))
+const auth = new db('./db/auth.json', settings.auth.encrypt?settings.auth.encryptionKey:null)
+auth.fp = auth.fp||{} // Initalize defaults
 
 const defaults = require('./lib/defaults.json')
 
 let plexClient;
 
+const fApi = new (require('floatplane'))
 fApi.headers['User-Agent'] = `FloatplaneDownloader/${require('./package.json').version} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader)`
+fApi.cookie = auth.fp?.cookie||''
 
 /**
  * Determine the edge closest to the client
@@ -189,56 +191,16 @@ const downloadVideo = video => { // This handles resuming downloads, its very si
 	});
 }
 
-/**
- * Fetches new videos for a given subscription.
- * @param {string} subscriptionID
- * @param {int} maxVideos Maximum videos to fetch (Increments of 20)
- */
-const getSubscriptionVideos = async (subscriptionID, maxVideos=20) => {
-	let subscriptionVideos = []
-	let fetchAfter = 0;
-	while (fetchAfter < settings.maxVideos) {
-		subscriptionVideos = subscriptionVideos.concat(await fAPI.fetchVideos(subscriptionID, fetchAfter))
-		fetchAfter += 20
-	}
-	return subscriptionVideos
-}
+const promptFloatplaneLogin = async () => {
+	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplaneCredentials())), async err => console.log('\nLooks like those login details didnt work, Please try again...'))
 
-const doFloatplaneLogin = async () => {
-	let userDetails = await loopError(async () => {
-		const { username, password } = await prompts.floatplaneCredentials()
-		const user = await fAPI.login(username, password)
-		return { username, password, user }
-	}, async err => console.log('\nLooks like those login details didnt work, Please try again...'))
-
-	const username = userDetails.username
-	const password = userDetails.password
-
-	if (userDetails.user.needs2FA) {
-		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`)
-
-		userDetails = await loopError(async () => {
-			const token = await prompts.floatplaneToken()
-			const user = await fAPI.twoFactorLogin(token)
-			return { token, user }
-		}, async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
+	if (user.needs2FA) {
+		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`);
+		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplaneToken()), async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
 	}
 
-	const token = userDetails.token
-	const user = userDetails.user
-
-	console.log(`\nSigned in as ${user.username}!\n`)
-
-	console.log(`Username/Password/Token does not need to be saved, cookies can re-used.`)
-	console.log(`However you may need to login again at some point in the future if you dont save them...`)
-	if (await prompts.saveLoginDetails()) {
-		settings.encryptAuthenticationDB = await prompts.encryptAuthDB()
-		if (!settings.encryptAuthenticationDB) auth = new db('auth', null, settings.authenticationDB.encrypt?settings.authenticationDB.encryptionKey:null)
-		auth.fp.username = username
-		auth.fp.password = password
-		auth.fp.token = token
-		console.log(`Saved login details!\n`)
-	}
+	console.log(`\nSigned in as ${user.user.username}!\n`)
+	auth.fp.cookie = fApi.cookie
 }
 
 const firstLaunch = async () => {
@@ -255,23 +217,29 @@ const firstLaunch = async () => {
 	settings.maxParallelDownloads = await prompts.maxParallelDownloads(settings.maxParallelDownloads)||settings.maxParallelDownloads
 
 	// Prompt & Set videoResolution
-	settings.videoResolution = await prompts.videoResolution()||settings.videoResolution
+	settings.floatplane.videoResolution = await prompts.videoResolution(settings.floatplane.videoResolution, defaults.resolutions)||settings.floatplane.videoResolution
 
 	// Prompt & Set fileFormatting
 	settings.fileFormatting = await prompts.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS)||settings.fileFormatting
 
 	// Prompt & Set Extras
-	settings.extras = await prompts.extras(settings.extras)||settings.extras
+	const extras = await prompts.extras(settings.extras)||settings.extras
+	for (extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false
+
+	// Encrypt authentication db
+	settings.auth.encrypt = await prompts.encryptAuthDB(settings.auth.encrypt)||settings.auth.encrypt
+	if (!settings.auth.encrypt) auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
+	auth.fp = {}
 
 	console.log(`\nNext we are going to login to floatplane...`)
-	settings.floatplane.videoResolution = await doFloatplaneLogin(settings.floatplane.videoResolution)||settings.floatplane.videoResolution;
+	await promptFloatplaneLogin();
 
 	// Prompt to find best edge server for downloading
-	if (await prompts.findBestServerNow()) settings.floatplane.edge = await fAPI.findBestEdge()
-	console.log(`Best Edge server found is: "${settings.floatplane.edge}"\n`)
+	if (await prompts.findClosestServerNow()) settings.floatplane.edge = findClosestEdge(await fApi.api.edges()).hostname
+	console.log(`Closest edge server found is: "${settings.floatplane.edge}"\n`)
 
 	// Prompt & Set auto finding best edge server
-	settings.floatplane.findBestServer = await autoFindBestServer()||settings.floatplane.findBestServer
+	settings.floatplane.findClosestEdge = await prompts.autoFindClosestServer(settings.floatplane.findClosestEdge)||settings.floatplane.findClosestEdge
 }
 
 // Async start

@@ -1,0 +1,68 @@
+{
+  "subChannels": {
+    "linus tech tips": [
+      {
+        "title": "Floatplane Exclusive",
+        "ignore": false,
+        "identifier": {
+          "check": "FP EXCLUSIVE",
+          "type": "title"
+        }
+      },
+      {
+        "title": "TechLinked",
+        "ignore": false,
+        "identifier": {
+          "check": "QUICK BITS",
+          "type": "description"
+        }
+      },
+      {
+        "title": "TechQuickie",
+        "ignore": false,
+        "identifier": {
+          "check": "tq:",
+          "type": "title"
+        }
+      },
+      {
+        "title": "TalkLinked",
+        "ignore": false,
+        "identifier": {
+          "check": "talklinked",
+          "type": "description"
+        }
+      },
+      {
+        "title": "Carpool Critics",
+        "ignore": false,
+        "identifier": {
+          "check": "CC:",
+          "type": "title"
+        }
+      },
+      {
+        "title": "ShortCircut",
+        "ignore": false,
+        "identifier": {
+          "check": "SC:",
+          "type": "title"
+        }
+      },
+      {
+        "title": "Linus Tech Tips",
+        "ignore": false,
+        "identifier": {
+          "check": "",
+          "type": ""
+        }
+      }
+    ]
+  },
+  "resolutions": [
+    360,
+    720,
+    1080,
+    2160
+  ]
+}

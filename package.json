@@ -3,14 +3,15 @@
   "version": "4.6.3",
   "private": true,
   "scripts": {
-    "start": "node float.js pause",
+    "start": "node float.js",
     "build": "pkg . --out-path=./build -t node10-linux-x64,node10-macos-x64,node10-win-x64",
-    "release": "./release.sh"
+    "release": "./release.sh",
+    "test": "jest"
   },
   "bin": "./float.js",
   "dependencies": {
-    "@inrixia/db": "^1.0.1",
-    "@inrixia/helpers": "^1.7.7",
+    "@inrixia/db": "^1.1.2",
+    "@inrixia/helpers": "^1.7.9",
     "floatplane": "^1.1.1",
     "got": "^11.6.0",
     "multi-progress": "^3.0.0",
@@ -24,5 +25,8 @@
       "node10-macos-x64",
       "node10-win-x64"
     ]
+  },
+  "devDependencies": {
+    "jest": "^26.4.2"
   }
 }

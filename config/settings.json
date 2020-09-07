@@ -8,7 +8,7 @@
   "floatplane": {
     "findClosestEdge": true,
     "videoResolution": 1080,
-    "edge": "https://edge01-na.floatplane.com"
+    "edge": "edge01-na.floatplane.com"
   },
   "_fileFormattingOPTIONS": [
     "%channelTitle%",
