@@ -19,12 +19,14 @@
     "%month%"
   ],
   "fileFormatting": "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
-  "encryptAuthenticationDB": true,
+  "authenticationDB": {
+    "encrypt": true,
+    "encryptionKey": "goAwaehOrIShallTauntYouASecondTiem"
+  },
   "repeatScript": "false",
   "extras": {
     "downloadArtwork": true,
-    "artworkFormat": "png",
-    "saveNfo": false
+    "saveNfo": true
   },
   "downloadUpdateTime": 250,
   "checkForNewSubscriptions": true,
