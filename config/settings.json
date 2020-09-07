@@ -6,10 +6,9 @@
   "maxVideos": 20,
   "maxParallelDownloads": -1,
   "floatplane": {
-    "findBestSerer": true,
+    "findClosestEdge": true,
     "videoResolution": 1080,
-    "server": "edge01-na.floatplane.com",
-    "findBestServer": true
+    "edge": "https://edge01-na.floatplane.com"
   },
   "_fileFormattingOPTIONS": [
     "%channelTitle%",
@@ -19,7 +18,7 @@
     "%month%"
   ],
   "fileFormatting": "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
-  "authenticationDB": {
+  "auth": {
     "encrypt": true,
     "encryptionKey": "goAwaehOrIShallTauntYouASecondTiem"
   },

@@ -1,34 +1,57 @@
 const PlexAPI = require("plex-api");
-const Multiprogress = require("multi-progress");
-const multi = Multiprogress(process.stdout);
-
 const db = require('@inrixia/db')
+const Subscription = require('./lib/subscription.js')
+
+const path = require('path')
 const { loopError } = require('@inrixia/helpers/object')
+const { getDistance } = require('@inrixia/helpers/geo')
 const prompts = require('./lib/prompts.js')
 
-const settings = new db('settings', path.join(__dirname, `../config/settings.json`))
-const auth = new db('auth', null, settings.authenticationDB.encrypt?settings.authenticationDB.encryptionKey:null)
+const multiprogress = (require("multi-progress"))(process.stdout);
+
+const settings = new db('settings', path.join(__dirname, `./config/settings.json`))
+const auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
 
 const fApi = new (require('floatplane'))
 
-const Subscription = require('./lib/subscription.js')
-
-
-
-const subchanneDefaults = require('./lib/floatplane/subchannelDefaults.json')
+const defaults = require('./lib/defaults.json')
 
 let plexClient;
 
 fApi.headers['User-Agent'] = `FloatplaneDownloader/${require('./package.json').version} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader)`
 
 /**
+ * Determine the edge closest to the client
+ * @param {{
+		edges: Array<{
+			hostname: string,
+			allowDownload: boolean,
+			datacenter: {
+				latitude: number,
+				longitude: number
+			}
+		}>,
+		client: {
+			latitude: number,
+			longitude: number,
+		}
+	}} edges 
+ */
+const findClosestEdge = edges => edges.edges.filter(edge => edge.allowDownload).reduce((bestEdge, edge) => {
+	edge.distanceToClient = getDistance(edge.datacenter, edges.client)
+	if (bestEdge === null) bestEdge = edge
+	return (edge.distanceToClient < bestEdge.distanceToClient)?edge:bestEdge
+}, null)
+
+
+/**
  * Main function that triggeres everything else in the script
  */
 const start = async () => {
-	if (settings.autoFetchServer) {
-		console.log("> Finding best edge server")
-		settings.floatplane.server = `https://${await floatplaneClient.findBestEdge()}`;
-		console.log(`\n\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.server}\u001b[0m]`);
+	if (settings.floatplane.findClosestEdge) {
+		console.log("> Finding closest edge server")
+		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
+		console.log(`\n\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]`);
 	}
 
 	// Fetch subscriptions from floatplane
@@ -244,8 +267,8 @@ const firstLaunch = async () => {
 	settings.floatplane.videoResolution = await doFloatplaneLogin(settings.floatplane.videoResolution)||settings.floatplane.videoResolution;
 
 	// Prompt to find best edge server for downloading
-	if (await prompts.findBestServerNow()) settings.floatplane.server = await fAPI.findBestEdge()
-	console.log(`Best Edge server found is: "${settings.floatplane.server}"\n`)
+	if (await prompts.findBestServerNow()) settings.floatplane.edge = await fAPI.findBestEdge()
+	console.log(`Best Edge server found is: "${settings.floatplane.edge}"\n`)
 
 	// Prompt & Set auto finding best edge server
 	settings.floatplane.findBestServer = await autoFindBestServer()||settings.floatplane.findBestServer
