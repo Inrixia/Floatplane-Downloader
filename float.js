@@ -3,16 +3,15 @@ const db = require('@inrixia/db')
 const Subscription = require('./lib/subscription.js')
 
 const path = require('path')
-const { loopError, objectify } = require('@inrixia/helpers/object')
+const { loopError } = require('@inrixia/helpers/object')
 const { getDistance } = require('@inrixia/helpers/geo')
-const prompts = require('./lib/prompts.js')
+const prompts = require('./lib/prompts/')
 
 const multiprogress = (require("multi-progress"))(process.stdout);
 
 const settings = new db(path.join(__dirname, `./config/settings.json`))
 console.log(path.join(__dirname, `./config/settings.json`))
 const auth = new db('./db/auth.json', settings.auth.encrypt?settings.auth.encryptionKey:null)
-auth.fp = auth.fp||{} // Initalize defaults
 
 const defaults = require('./lib/defaults.json')
 
@@ -20,7 +19,7 @@ let plexClient;
 
 const fApi = new (require('floatplane'))
 fApi.headers['User-Agent'] = `FloatplaneDownloader/${require('./package.json').version} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader)`
-fApi.cookie = auth.fp?.cookie||''
+fApi.cookie = auth.cookie||''
 
 /**
  * Determine the edge closest to the client
@@ -44,7 +43,6 @@ const findClosestEdge = edges => edges.edges.filter(edge => edge.allowDownload).
 	if (bestEdge === null) bestEdge = edge
 	return (edge.distanceToClient < bestEdge.distanceToClient)?edge:bestEdge
 }, null)
-
 
 /**
  * Main function that triggeres everything else in the script
@@ -100,37 +98,6 @@ const start = async () => {
 	// 	if (channels[i].enabled) channels[i].downloadVideos()
 	// }
 }
-
-/**
- * Excute fetch & download if repeating is enabled in settings.
- */
-const repeat = async () => {
-	// Check if repeating the script is enabled in settings, if not then skip to starting the script
-	if (settings.repeatScript != false && settings.repeatScript != 'false') {
-		const MULTIPLIERS = { // Contains the number of seconds for each time
-			"s": 1,
-			'm': 60,
-			'h': 3600,
-			'd': 86400,
-			'w': 604800
-		}
-		let countDown = settings.repeatScript.slice(0, -1)*MULTI/60 // countDown is the number of minutes remaining until the script restarts
-		const MULTI = MULTIPLIERS[String(settings.repeatScript.slice(-1)).toLowerCase()] // This is the multiplier selected based on that the user states, eg 60 if they put m at the end
-		console.log(`\u001b[41mRepeating for ${settings.repeatScript} or ${settings.repeatScript.slice(0, -1)*MULTI} Seconds.\u001b[0m`);
-		await start(); // Run the script
-		setInterval(async () => { // Set a repeating function that is called every 60 seconds to notify the user how long until a script run
-			console.log(`${countDown} Minutes until script restarts...`);
-			if (countDown > 0) countDown-- // If countDown isnt 0 then drop the remaining minutes by 1
-			else {
-				console.log(`Script auto restarting...\n`)
-				countDown = settings.repeatScript.slice(0, -1)*MULTI/60 // If it is 0 then the script has restarted so reset it
-				await start();
-			}
-		}, 60*1000);
-	} else await start() // If settings.repeatScript is false then just run the script once
-}
-
-
 
 const downloadVideo = video => { // This handles resuming downloads, its very similar to the download function with some changes
 	let videoSize = videos[video.guid].size ? videos[video.guid].size : 0 // // Set the total size to be equal to the stored total or 0
@@ -192,46 +159,61 @@ const downloadVideo = video => { // This handles resuming downloads, its very si
 }
 
 const promptFloatplaneLogin = async () => {
-	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplaneCredentials())), async err => console.log('\nLooks like those login details didnt work, Please try again...'))
+	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplane.credentials())), async err => console.log('\nLooks like those login details didnt work, Please try again...'))
 
 	if (user.needs2FA) {
 		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`);
-		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplaneToken()), async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
+		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplane.token()), async err => console.log('\nLooks like that 2Factor token didnt work, Please try again...'))
 	}
 
 	console.log(`\nSigned in as ${user.user.username}!\n`)
-	auth.fp.cookie = fApi.cookie
+	auth.cookie = fApi.cookie
 }
 
-const firstLaunch = async () => {
+const promptPlexLogin = async () => {
+	console.log('\nPlease enter your plex details. (Username and Password is not saved, only used to generate a token.)');
+	const username = await prompts.plex.username()
+	const password = await prompts.plex.password()
+	plexApi = new PlexAPI({
+		username, 
+		password 
+	})
+	settings.plex.token = await new Promise((res, rej) => plexApi.authenticator.authenticate(plexApi, (err, token) => err?rej(err):res(token)))
+	console.log(`Fetched plex token: ${settings.plex.token}\n`)
+}
+
+const promptPlexSections = async () => {
+	settings.plex.sectionsToUpdate = (await prompts.plex.sections(settings.plex.sectionsToUpdate.join(", "))).splice(array.indexOf(""), 1)||settings.plex.sectionsToUpdate
+	if (settings.plex.sectionsToUpdate.length === 0) {
+		console.log(`You didnt specify any plex sections to update! Disabling plex integration...`)
+		settings.plex.enabled = false
+		return false
+	}
+}
+
+const firstLaunch = async (settings, fApi) => {
 	console.log(`Welcome to Floatplane Downloader! Thanks for checking it out <3.`)
 	console.log(`According to your settings.json this is your first launch! So lets go through the basic setup...\n`)
+	console.log(`\n== General ==\n`)
 
-	// Prompt & Set videoFolder
-	settings.videoFolder = await prompts.videoFolder(settings.videoFolder)||settings.videoFolder
+	settings.videoFolder = await prompts.settings.videoFolder(settings.videoFolder)||settings.videoFolder
+	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch)||settings.floatplane.videosToSearch
+	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads)||settings.downloadThreads
+	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaults.resolutions)||settings.floatplane.videoResolution
+	settings.fileFormatting = await prompts.settings.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS)||settings.fileFormatting
 
-	// Prompt & Set maxVideos
-	settings.maxVideos = await prompts.maxVideos(settings.maxVideos)||settings.maxVideos
-
-	// Prompt & Set maxParallelDownloads
-	settings.maxParallelDownloads = await prompts.maxParallelDownloads(settings.maxParallelDownloads)||settings.maxParallelDownloads
-
-	// Prompt & Set videoResolution
-	settings.floatplane.videoResolution = await prompts.videoResolution(settings.floatplane.videoResolution, defaults.resolutions)||settings.floatplane.videoResolution
-
-	// Prompt & Set fileFormatting
-	settings.fileFormatting = await prompts.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS)||settings.fileFormatting
-
-	// Prompt & Set Extras
-	const extras = await prompts.extras(settings.extras)||settings.extras
+	const extras = await prompts.settings.extras(settings.extras)||settings.extras
 	for (extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false
 
-	// Encrypt authentication db
-	settings.auth.encrypt = await prompts.encryptAuthDB(settings.auth.encrypt)||settings.auth.encrypt
-	if (!settings.auth.encrypt) auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
-	auth.fp = {}
+	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled)||settings.repeat.enabled
+	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval)||settings.repeat.interval
 
-	console.log(`\nNext we are going to login to floatplane...`)
+	// Encrypt authentication db
+	settings.auth.encrypt = await prompts.settings.encryptAuthDB(settings.auth.encrypt)||settings.auth.encrypt
+	if (!settings.auth.encrypt) auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
+
+	console.log(`\n== Floatplane ==\n`)
+	console.log(`Next we are going to login to floatplane...`)
 	await promptFloatplaneLogin();
 
 	// Prompt to find best edge server for downloading
@@ -239,48 +221,70 @@ const firstLaunch = async () => {
 	console.log(`Closest edge server found is: "${settings.floatplane.edge}"\n`)
 
 	// Prompt & Set auto finding best edge server
-	settings.floatplane.findClosestEdge = await prompts.autoFindClosestServer(settings.floatplane.findClosestEdge)||settings.floatplane.findClosestEdge
+	settings.floatplane.findClosestEdge = await prompts.settings.autoFindClosestServer(settings.floatplane.findClosestEdge)||settings.floatplane.findClosestEdge
+
+	console.log(`\n== Plex ==\n`)
+	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled)||settings.plex.enabled
+	if (settings.plex.enabled) {
+		if (await promptPlexSections()) {
+			await promptPlexLogin()
+			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname)||settings.plex.hostname
+			settings.plex.port = await prompts.plex.port(settings.plex.port)||settings.plex.port
+		}
+	}
 }
 
 // Async start
 ;(async () => {
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.firstLaunch) await firstLaunch();
-
-	process.exit(1);
+	settings.firstLaunch = false
 
 	// Get Plex details of not saved
-	if (settings.plex.local.enabled || settings.plex.remote.enabled) {
-		if (settings.plex.remote.enabled) {
-			if (!auth.plex) auth.plex = {}
-			if (!auth.plex.user || !auth.plex.password || !settings.plex.remote.ip || !settings.plex.remote.port) [
-				auth.plex.user, 
-				auth.plex.password, 
-				settings.plex.remote.ip,
-				settings.plex.remote.port
-			] = await prompts.remotePlexDetails() // If the user has not specified login details prompt for them
-			plexClient = new PlexAPI({ 
-				hostname: settings.plex.ip, 
-				port: settings.plex.port, 
-				username: auth.plex.user, 
-				password: auth.plex.password 
-			})
+	if (settings.plex.enabled) {
+		if (settings.plex.sectionsToUpdate.length === 0) {
+			console.log(`You have plex integration enabled but no sections set for updating!`)
+			await promptPlexSections()
 		}
-		if (settings.plex.sectionsToUpdate == []) settings.plex.sectionsToUpdate = await prompts.plexSection()
+		if (!settings.plex.remote.hostname) {
+			console.log(`You have plex integration enabled but have not specified a hostname!`)
+			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname)||settings.plex.hostname
+		} if (!settings.plex.remote.port) {
+			console.log(`You have plex integration enabled but have not specified a port!`)
+			settings.plex.port = await prompts.plex.port(settings.plex.port)||settings.plex.port
+		} if (!settings.plex.token) {
+			console.log(`You have plex integration enabled but have not specified a token!`)
+			await promptPlexLogin()
+		}
 	}
 
 	// Get Floatplane credentials if not saved
-	if (!auth.fp) auth.fp = {}
-	if (!auth.fp.user || !auth.fp.password) [
-		auth.fp.user, 
-		auth.fp.password, 
-		auth.fp.token
-	] = await prompts.floatplaneCredentials() // If the user has not specified login details prompt for them
-	else console.log('> Using saved login details...');
+	if (!auth.cookie) {
+		console.log(`No floatplane cookies found! Please re-enter floatplane details...`)
+		await promptFloatplaneLogin()
+	}
 
-	await repeat()
+	if (settings.repeat.enabled) {
+		const interval = settings.repeat.interval.split(":").map(s => parseInt(s))
+		console.log(`\u001b[41mRepeating every ${interval[0]}H, ${interval[1]}m, ${interval[2]}s...\u001b[0m`);
+		await start(); // Run
+		const SECS = interval[2]
+		const MINS = 60*interval[1]
+		const HRS = 60*60*interval[0]
+		let remaining = SECS+MINS+HRS
+		setInterval(async () => {
+			if (remaining === false) return;
+			remaining--
+			if (remaining <= 0) {
+				console.log(`Auto restarting...\n`)
+				remaining = false
+				await start();
+				remaining = SECS+MINS+HRS
+			} else if (remaining%10 === 0) console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until restart...`);
+		}, 1000)
+	} else await start() // If settings.repeatScript is -1 then just run once
 })().catch(err => {
-	console.log(`An error occurred:`)
+	console.log(`An error occurred!`)
 	console.log(err)
 	process.exit(1)
 })

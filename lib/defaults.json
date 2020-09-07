@@ -1,4 +1,10 @@
 {
+  "resolutions": [
+    360,
+    720,
+    1080,
+    2160
+  ],
   "subChannels": {
     "linus tech tips": [
       {
@@ -58,11 +64,5 @@
         }
       }
     ]
-  },
-  "resolutions": [
-    360,
-    720,
-    1080,
-    2160
-  ]
+  }
 }

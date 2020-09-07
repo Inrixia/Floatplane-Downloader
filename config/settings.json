@@ -1,14 +1,13 @@
 {
   "version": "5.0.0",
   "firstLaunch": true,
-  "debug": true,
   "videoFolder": "./videos/",
-  "maxVideos": 20,
-  "maxParallelDownloads": -1,
+  "downloadThreads": -1,
   "floatplane": {
     "findClosestEdge": true,
     "videoResolution": 1080,
-    "edge": "edge01-na.floatplane.com"
+    "edge": "edge02-na.floatplane.com",
+    "videosToSearch": 5
   },
   "_fileFormattingOPTIONS": [
     "%channelTitle%",
@@ -22,13 +21,15 @@
     "encrypt": true,
     "encryptionKey": "goAwaehOrIShallTauntYouASecondTiem"
   },
-  "repeatScript": "false",
+  "repeeat": {
+    "enabled": true,
+    "interval": "00:05:00"
+  },
   "extras": {
     "downloadArtwork": true,
     "saveNfo": true
   },
   "downloadUpdateTime": 250,
-  "checkForNewSubscriptions": true,
   "subscriptions": {
     "59f94c0bdd241b70349eb72b": {
       "id": "59f94c0bdd241b70349eb72b",
@@ -96,15 +97,10 @@
   },
   "plex": {
     "sectionsToUpdate": [],
-    "remote": {
-      "enabled": false,
-      "ip": "",
-      "port": 32400
-    },
-    "local": {
-      "enabled": false,
-      "scannerExeInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
-    }
+    "enabled": true,
+    "hostname": "",
+    "port": "32400",
+    "token": "yZP7MDTzCvMzfzsVs3SS"
   },
   "colourList": {
     "Linus Tech Tips": "\u001b[38;5;208m",
