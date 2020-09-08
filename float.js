@@ -20,7 +20,7 @@ let plexApi;
 
 const fApi = new (require('floatplane'))
 fApi.headers['User-Agent'] = `FloatplaneDownloader/${require('./package.json').version} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader)`
-fApi.cookie = auth.cookie||''
+fApi.cookie = auth.cookie||[]
 
 /**
  * Determine the edge closest to the client
@@ -163,11 +163,11 @@ const downloadVideo = video => { // This handles resuming downloads, its very si
 }
 
 const promptFloatplaneLogin = async () => {
-	let user = await loopError(async () => fApi.auth.login(...Object.values(await prompts.floatplane.credentials())), async err => console.log(`\nLooks like those login details didnt work, Please try again... ${err}`))
+	let user = await loopError(async () => fApi.auth.login(await prompts.floatplane.username(), await prompts.floatplane.password()), async err => console.log(`\nLooks like those login details didnt work, Please try again... ${err}`))
 
 	if (user.needs2FA) {
 		console.log(`Looks like you have 2Factor authentication enabled. Nice!\n`);
-		user = await loopError(async () => await fApi.auth.factor(await prompts.floatplane.token()), async err => console.log(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`))
+		user = await loopError(async () => fApi.auth.factor(await prompts.floatplane.token()), async err => console.log(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`))
 	}
 
 	console.log(`\nSigned in as ${user.user.username}!\n`)
@@ -210,11 +210,11 @@ const firstLaunch = async () => {
 	const extras = await prompts.settings.extras(settings.extras)||settings.extras
 	for (extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false
 
-	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled)||settings.repeat.enabled
+	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled)
 	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval)||settings.repeat.interval
 
 	// Encrypt authentication db
-	settings.auth.encrypt = await prompts.settings.encryptAuthDB(settings.auth.encrypt)||settings.auth.encrypt
+	settings.auth.encrypt = await prompts.settings.encryptAuthDB(settings.auth.encrypt)
 	if (!settings.auth.encrypt) auth = new db('auth', null, settings.auth.encrypt?settings.auth.encryptionKey:null)
 
 	console.log(`\n== Floatplane ==\n`)
@@ -229,7 +229,7 @@ const firstLaunch = async () => {
 	settings.floatplane.findClosestEdge = await prompts.settings.autoFindClosestServer(settings.floatplane.findClosestEdge)||settings.floatplane.findClosestEdge
 
 	console.log(`\n== Plex ==\n`)
-	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled)||settings.plex.enabled
+	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled)
 	if (settings.plex.enabled) {
 		if (await promptPlexSections()) {
 			await promptPlexLogin()
