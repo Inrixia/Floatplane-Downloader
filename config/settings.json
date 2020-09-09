@@ -1,11 +1,11 @@
 {
-  "firstLaunch": true,
+  "firstLaunch": false,
   "videoFolder": "./videos/",
   "downloadThreads": -1,
   "floatplane": {
     "findClosestEdge": true,
     "videoResolution": 1080,
-    "edge": "edge02-na.floatplane.com",
+    "edge": "https://edge01-na.floatplane.com",
     "videosToSearch": 5
   },
   "_fileFormattingOPTIONS": [
@@ -32,9 +32,9 @@
   "subscriptions": {
     "59f94c0bdd241b70349eb72b": {
       "id": "59f94c0bdd241b70349eb72b",
-      "title": "LTT Supporter (OG)",
-      "enabled": true,
-      "subchannels": [
+      "title": "Linus Tech Tips",
+      "skip": false,
+      "channels": [
         {
           "title": "Floatplane Exclusive",
           "ignore": false,
@@ -96,7 +96,7 @@
   },
   "plex": {
     "sectionsToUpdate": [],
-    "enabled": true,
+    "enabled": false,
     "hostname": "",
     "port": "32400"
   },

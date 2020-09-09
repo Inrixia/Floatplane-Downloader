@@ -10,10 +10,10 @@
   },
   "bin": "./float.js",
   "dependencies": {
-    "@inrixia/db": "^1.1.2",
+    "@inrixia/db": "^1.2.0",
     "@inrixia/helpers": "^1.7.9",
     "floatplane": "^1.1.6",
-    "got": "^11.6.0",
+    "got": "^11.6.1",
     "multi-progress": "^3.0.0",
     "npm": "^6.14.8",
     "plex-api": "^5.3.1",
