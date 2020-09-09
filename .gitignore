@@ -12,10 +12,5 @@ desktop.ini
 # Dependency directories
 node_modules/
 
-# videos folder
-videos/
-
 # db ignores
-db/auth.json
-db/channels.json
-db/videos.json
+db/

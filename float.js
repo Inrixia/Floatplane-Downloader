@@ -3,7 +3,7 @@ const db = require('@inrixia/db')
 const Subscription = require('./lib/subscription.js')
 
 const path = require('path')
-const { loopError } = require('@inrixia/helpers/object')
+const { loopError, nPad, objectify } = require('@inrixia/helpers/object')
 const { getDistance } = require('@inrixia/helpers/geo')
 const prompts = require('./lib/prompts/')
 
@@ -55,45 +55,25 @@ const start = async () => {
 		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n\n`);
 	}
 
-	console.log(`OwO Fwetch Videos <3...\n`)
-	return;
-
-	// Fetch subscriptions from floatplane
-	const SUBS = (await floatplaneClient.fetchSubscriptions()).map(subscription => {
-		if (
-			subscription.plan.title == 'Linus Tech Tips' ||
-			subscription.plan.title == 'LTT Supporter (OG)' ||
-			subscription.plan.title == 'LTT Supporter (1080p)' ||
-			subscription.plan.title == 'LTT Supporter Plus'
-		) subscription.plan.title = 'Linus Tech Tips'
+	for (subscription of (await fApi.user.subscriptions())) {
+		subscription.plan.title = defaults.subscriptions.aliases[subscription.plan.title.toLowerCase()]
 
 		// Add the subscription to settings if it doesnt exist
-		if (settings.subscriptions[subscription.creator] == undefined) {
+		if (settings.subscriptions[subscription.creator] === undefined) {
 			settings.subscriptions[subscription.creator] = {
 				id: subscription.creator,
 				title: subscription.plan.title,
-				enabled: true,
-				subchannels: subchanneDefaults[subscription.plan.title.toLowerCase()]
+				skip: false,
+				channels: defaults.subscriptions[subscription.plan.title].channels
 			}
 		}
-		if (!subscription.enabled) return null
+		subscription = new Subscription({ ...subscription, channels: settings.subscriptions[subscription.creator].channels })
 
-		subscription.enabled = settings.subscriptions[subscription.creator].enabled
-		subscription.subchannels = settings.subscriptions[subscription.creator].subchannels
+		// for await (const video of fApi.creator.videosIterable(subscription.creator)) {
+		// 	if (videos.length === settings.floatplane.videosToSearch) break;
 
-		return new Subscription(subscription)
-	}).filter(SUB => SUB!=null)
-
-	console.log(SUBS)
-
-
-	// 	await Promise.all(Object.keys(settings.subscriptions).map(async key => {
-	// 		const subscription = settings.subscriptions[key];
-	// })
-	
-	
-	
-
+		// }
+	}
 
 	
 	// console.log('> Updated subscriptions!')
@@ -101,6 +81,7 @@ const start = async () => {
 	// 	await channels[i].fetchVideos()
 	// 	if (channels[i].enabled) channels[i].downloadVideos()
 	// }
+	console.log("DONE")
 }
 
 const downloadVideo = video => { // This handles resuming downloads, its very similar to the download function with some changes

@@ -10,7 +10,7 @@
   },
   "bin": "./float.js",
   "dependencies": {
-    "@inrixia/db": "^1.2.0",
+    "@inrixia/db": "^1.2.1",
     "@inrixia/helpers": "^1.7.9",
     "floatplane": "^1.1.6",
     "got": "^11.6.1",
