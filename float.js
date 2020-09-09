@@ -287,7 +287,7 @@ const firstLaunch = async () => {
 				remaining = false
 				await start();
 				remaining = SECS+MINS+HRS
-			} else if (remaining%10 === 0) console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until restart...`);
+			} else if (remaining%10 === 0) console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${nPad(remaining%60)}s until restart...`);
 		}, 1000)
 	} else await start() // If settings.repeatScript is -1 then just run once
 })().catch(err => {
