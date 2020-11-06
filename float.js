@@ -10,7 +10,7 @@ const multiprogress = (require("multi-progress"))(process.stdout);
 
 const defaults = require('./lib/defaults.json')
 
-let settings = new db(`./config/settings.json`)
+const settings = new db(`./config/settings.json`)
 if (Object.keys(settings).length === 0) for (key in defaults.settings) settings[key] = defaults.settings[key]
 
 const auth = new db('./db/auth.json', settings.auth.encrypt?settings.auth.encryptionKey:null)
