@@ -78,6 +78,8 @@ const start = async () => {
 		const videos = []
 		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
 			if (videosSearched === videosToSearch || video.guid === lastSeenVideo) break;
+			// Give video access to the floatplane api for internal use, not great but it works
+			video.fApi = fApi
 			videos.push(video)
 			videosSearched++
 		}
