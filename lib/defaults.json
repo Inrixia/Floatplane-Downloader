@@ -56,14 +56,6 @@
             "check": "SC:",
             "type": "title"
           }
-        },
-        {
-          "title": "Linus Tech Tips",
-          "ignore": false,
-          "identifier": {
-            "check": "",
-            "type": ""
-          }
         }
       ]
     }

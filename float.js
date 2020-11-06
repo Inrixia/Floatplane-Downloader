@@ -1,9 +1,8 @@
 const PlexAPI = require("plex-api");
 const db = require('@inrixia/db')
-const Subscription = require('./lib/subscription.js')
+const Subscription = require('./lib/Subscription.js')
 
-const path = require('path')
-const { loopError, nPad, objectify } = require('@inrixia/helpers/object')
+const { loopError, nPad } = require('@inrixia/helpers/object')
 const { getDistance } = require('@inrixia/helpers/geo')
 const prompts = require('./lib/prompts/')
 
@@ -56,23 +55,36 @@ const start = async () => {
 	}
 
 	for (subscription of (await fApi.user.subscriptions())) {
-		subscription.plan.title = defaults.subscriptions.aliases[subscription.plan.title.toLowerCase()]
-
 		// Add the subscription to settings if it doesnt exist
 		if (settings.subscriptions[subscription.creator] === undefined) {
 			settings.subscriptions[subscription.creator] = {
-				id: subscription.creator,
-				title: subscription.plan.title,
+				creator: subscription.creator,
+				title: defaults.subscriptions.aliases[subscription.plan.title.toLowerCase()],
 				skip: false,
-				channels: defaults.subscriptions[subscription.plan.title].channels
+				channels: defaults.subscriptions[subscription.plan.title]?.channels
 			}
 		}
-		subscription = new Subscription({ ...subscription, channels: settings.subscriptions[subscription.creator].channels })
 
-		// for await (const video of fApi.creator.videosIterable(subscription.creator)) {
-		// 	if (videos.length === settings.floatplane.videosToSearch) break;
+		if (settings.subscriptions[subscription.creator].skip === true) continue;
 
-		// }
+		const sub = new Subscription(subscription, settings.subscriptions[subscription.creator].channels)
+		const lastSeenVideo = sub.lastSeenVideo
+
+		// Search infinitely if we are resuming. Otherwise only grab the latest `settings.floatplane.videosToSearch` videos
+		const videosToSearch = -1
+		if (lastSeenVideo === undefined) videosToSearch = settings.floatplane.videosToSearch
+
+		const videosSearched = 0
+		const videos = []
+		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
+			if (videosSearched === videosToSearch || video.guid === lastSeenVideo) break;
+			videos.push(video)
+			videosSearched++
+		}
+		// Make sure videos are in correct order for episode numbering
+		for (const video of videos.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))) {
+			sub.addVideo(video)
+		}
 	}
 
 	
