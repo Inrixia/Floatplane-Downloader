@@ -1,5 +1,5 @@
 {
-  "name": "Floatplane-PlexDownloader",
+  "name": "FloatplanePlexDownloader",
   "version": "4.6.3",
   "private": true,
   "scripts": {
@@ -8,16 +8,20 @@
     "release": "./release.sh",
     "test": "jest"
   },
-  "bin": "./float.js",
+  "bin": {
+    "Floatplane-PlexDownloader": "float.js"
+  },
   "dependencies": {
-    "@inrixia/db": "^1.2.1",
-    "@inrixia/helpers": "^1.7.9",
-    "floatplane": "^1.1.6",
-    "got": "^11.6.1",
-    "multi-progress": "^3.0.0",
-    "npm": "^6.14.8",
-    "plex-api": "^5.3.1",
-    "prompts": "^2.3.2"
+    "@ctrl/plex": "^1.1.0",
+    "@inrixia/db": "^1.4.0",
+    "@inrixia/helpers": "^1.15.0",
+    "@types/prompts": "^2.0.9",
+    "floatplane": "^2.0.0",
+    "got": "^11.8.1",
+    "multi-progress": "^4.0.0",
+    "npm": "^7.3.0",
+    "prompts": "^2.4.0",
+    "sanitize-filename": "^1.6.3"
   },
   "pkg": {
     "scripts": "./float.js",
@@ -28,6 +32,9 @@
     ]
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.10.0",
+    "@typescript-eslint/parser": "^4.10.0",
+    "eslint": "^7.16.0",
     "jest": "^26.4.2"
   }
 }
