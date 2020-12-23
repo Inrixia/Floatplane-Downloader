@@ -26,7 +26,7 @@ export const repeat = async (initial: boolean): Promise<boolean> => (await promp
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).repeat;
+})).crypt;
 
 /**
  * Prompts user to set the interval to auto repeat
