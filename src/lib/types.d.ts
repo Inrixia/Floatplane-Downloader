@@ -35,7 +35,7 @@ export type PlexSettings = {
 
 export type Extras = { [key: string]: boolean }
 export type Settings = {
-	firstLaunch: boolean;
+	runQuickstartPrompts: boolean;
 	videoFolder: string;
 	downloadThreads: number;
 	floatplane: {

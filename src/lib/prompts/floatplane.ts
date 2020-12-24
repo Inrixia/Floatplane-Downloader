@@ -19,7 +19,7 @@ export const password = async (): Promise<string> => (await requiredPrompts({
 	type: "password",
 	name: "password",
 	message: "Please enter your floatplane password"
-})).passwor;
+})).password;
 
 /**
  * Prompts user to set videos to search through for downloads.
@@ -29,7 +29,7 @@ export const password = async (): Promise<string> => (await requiredPrompts({
 export const videosToSearch = async (initial: number): Promise<number> => (await prompts({
 	type: "number",
 	name: "videosToSearch",
-	message: "How many videos do you want to search through for ones to download?",
+	message: "How many videos back from the latest do you want to search through for ones to download?",
 	initial,
 	min: 0
 })).videosToSearch||initial;

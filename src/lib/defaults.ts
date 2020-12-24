@@ -69,7 +69,7 @@ export const defaultSubChannels: SubChannels = {
 	},
 };
 export const defaultSettings: Settings = {
-	firstLaunch: true,
+	runQuickstartPrompts: true,
 	videoFolder: "./videos/",
 	downloadThreads: -1,
 	floatplane: {

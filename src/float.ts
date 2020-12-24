@@ -153,11 +153,11 @@ const start = async () => {
 // };
 
 const promptFloatplaneLogin = async () => {
-	let user = await loopError(async () => fApi.auth.login(await prompts.floatplane.username(), await prompts.floatplane.password()), async err => console.log(`\nLooks like those login details didnt work, Please try again... ${err}`));
+	let user = await loopError(async () => fApi.auth.login(await prompts.floatplane.username(), await prompts.floatplane.password()), async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`));
 
 	if (user.needs2FA) {
 		console.log("Looks like you have 2Factor authentication enabled. Nice!\n");
-		user = await loopError(async () => fApi.auth.factor(await prompts.floatplane.token()), async err => console.log(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`));
+		user = await loopError(async () => fApi.auth.factor(await prompts.floatplane.token()), async err => console.error(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`));
 	}
 	console.log(`\nSigned in as ${user.user.username}!\n`);
 };
@@ -227,8 +227,8 @@ const firstLaunch = async () => {
 // Async start
 ;(async () => {
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
-	if (settings.firstLaunch) await firstLaunch();
-	settings.firstLaunch = false;
+	if (settings.runQuickstartPrompts) await firstLaunch();
+	settings.runQuickstartPrompts = false;
 
 	console.log("\n== All Setup! ==\n");
 
@@ -276,7 +276,7 @@ const firstLaunch = async () => {
 		}, 1000);
 	} else await start(); // If settings.repeatScript is -1 then just run once
 })().catch(err => {
-	console.log("An error occurred!");
-	console.log(err);
+	console.error("An error occurred!");
+	console.error(err);
 	process.exit(1);
 });

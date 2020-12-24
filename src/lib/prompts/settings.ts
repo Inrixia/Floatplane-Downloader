@@ -65,7 +65,7 @@ export const videoFolder = async (initial: string): Promise<string> => (await pr
 export const downloadThreads = async (initial: number): Promise<number> => (await prompts({
 	type: "number",
 	name: "downloadThreads",
-	message: "What is the number of threads to use for downloads? -1 for unlimited.",
+	message: "What is the number of threads to use for downloads? (-1 for unlimited).",
 	initial,
 	min: -1
 })).downloadThreads||initial;
