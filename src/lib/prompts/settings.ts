@@ -46,10 +46,10 @@ export const repeatInterval = async (initial: string): Promise<string> => {
 
 /**
  * Prompts user for the folder to save videos.
- * @param {boolean} initial Default value
+ * @param {string} initial Default value
  * @returns {Promise<string>} Folder path to save videos
  */
-export const videoFolder = async (initial: boolean): Promise<string> => (await prompts({
+export const videoFolder = async (initial: string): Promise<string> => (await prompts({
 	type: "text",
 	name: "videoFolder",
 	message: "What folder do you want to save videos?",

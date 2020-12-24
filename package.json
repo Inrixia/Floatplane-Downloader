@@ -13,15 +13,17 @@
   },
   "dependencies": {
     "@ctrl/plex": "^1.1.0",
-    "@inrixia/db": "^1.4.0",
-    "@inrixia/helpers": "^1.15.0",
+    "@inrixia/db": "^1.5.0",
+    "@inrixia/helpers": "^1.15.1",
     "@types/prompts": "^2.0.9",
-    "floatplane": "^2.0.0",
+    "floatplane": "^2.0.3",
     "got": "^11.8.1",
     "multi-progress": "^4.0.0",
     "npm": "^7.3.0",
     "prompts": "^2.4.0",
-    "sanitize-filename": "^1.6.3"
+    "sanitize-filename": "^1.6.3",
+    "tough-cookie": "^4.0.0",
+    "tough-cookie-file-store": "^2.0.2"
   },
   "pkg": {
     "scripts": "./float.js",
@@ -32,6 +34,8 @@
     ]
   },
   "devDependencies": {
+    "@types/multi-progress": "^2.0.3",
+    "@types/tough-cookie-file-store": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.10.0",
     "@typescript-eslint/parser": "^4.10.0",
     "eslint": "^7.16.0",

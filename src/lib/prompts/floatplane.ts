@@ -36,12 +36,10 @@ export const videosToSearch = async (initial: number): Promise<number> => (await
 
 /**
  * Prompts user for floatplane token.
- * @param {number} initial Default value
  * @returns {Promise<string>} Floatplane OAuth Token
  */
-export const token = async (initial: string): Promise<string> => (await requiredPrompts({
+export const token = async (): Promise<string> => (await requiredPrompts({
 	type: "text",
 	name: "token",
-	message: "Please enter your floatplane 2Factor authentication token",
-	initial
+	message: "Please enter your floatplane 2Factor authentication token"
 })).token;

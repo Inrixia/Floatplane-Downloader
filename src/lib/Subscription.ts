@@ -1,7 +1,7 @@
 import db from "@inrixia/db";
 import Channel from "./Channel";
 
-import type { ChannelOptions } from "./Channel";
+import type { ChannelOptions } from "./types";
 
 import type { Subscription as fApiSubscription } from "floatplane/user";
 import type { Video as fApiVideo } from "floatplane/creator";
@@ -29,6 +29,10 @@ export default class Subscription {
 			identifier: { check: "", type: "title" }
 		});
 		this._db = db<SubscriptionDB>(`./db/subscriptions/${subscription.creator}.json`, { lastSeenVideo: "" });
+	}
+
+	get lastSeenVideo() {
+		return this._db.lastSeenVideo;
 	}
 
 	/**

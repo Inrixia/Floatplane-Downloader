@@ -2,22 +2,13 @@ import db from "@inrixia/db";
 import Video from "./Video";
 
 import type { Video as fApiVideo } from "floatplane/creator";
+import type { ChannelOptions } from "./types"
 
 // e = episodeNo, d = downloaded, p = progress (download progress if previously started downloading)
 export type VideoDBEntry = { e: number, d: boolean, f?: string }
 export type ChannelDB = {
 	videos: { [key: string]: VideoDBEntry },
 	episodeNo: number
-}
-
-export type ChannelOptions = {
-	creator: fApiVideo["creator"],
-	title: string,
-	skip: boolean,
-	identifier: {
-		check: string,
-		type: keyof fApiVideo;
-	}
 }
 
 export default class Channel {

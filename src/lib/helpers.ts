@@ -1,6 +1,10 @@
 import db from "@inrixia/db";
 
-import defaults from "./defaults.json";
+import type { Settings, ChannelAliases, SubChannels } from "./types"
+import { defaultSettings, defaultSubChannels, defaultChannelAliases } from "./defaults";
 
-export const writeableSettings = db<typeof defaults.settings>("./config/settings", defaults.settings);
-export const settings = writeableSettings as Readonly<typeof writeableSettings>;
+export const writeableSettings = db<Settings>("./config/settings", defaultSettings);
+export const settings = writeableSettings as Readonly<Settings>;
+
+export const channelAliases = db<ChannelAliases>("./config/channelAliases", defaultChannelAliases) as Readonly<ChannelAliases>;
+export const subChannels = db<SubChannels>("./config/subChannels", defaultSubChannels) as Readonly<SubChannels>;
