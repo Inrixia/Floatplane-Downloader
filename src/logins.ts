@@ -6,7 +6,7 @@ import type FloatplaneApi from "floatplane";
 
 import { floatplane, plex } from "./lib/prompts";
 
-export const loginFloatplane = async (fApi: FloatplaneApi) => {
+export const loginFloatplane = async (fApi: FloatplaneApi): Promise<void> => {
 	let loginResponse = await loopError(async () => fApi.auth.login(await floatplane.username(), await floatplane.password()), async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`));
 
 	if (loginResponse.needs2FA) {
@@ -16,7 +16,7 @@ export const loginFloatplane = async (fApi: FloatplaneApi) => {
 	console.log(`\nSigned in as ${loginResponse.user.username}!\n`);
 };
 
-export const loginPlex = async (plexHostname: string, plexPort: number) => {
+export const loginPlex = async (plexHostname: string, plexPort: number): Promise<string> => {
 	console.log("\nPlease enter your plex details. (Username and Password is not saved, only used to generate a token.)");
 	const username = await plex.username();
 	const password = await plex.password();

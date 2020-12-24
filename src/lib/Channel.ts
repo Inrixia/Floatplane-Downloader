@@ -2,7 +2,7 @@ import db from "@inrixia/db";
 import Video from "./Video";
 
 import type { Video as fApiVideo } from "floatplane/creator";
-import type { ChannelOptions } from "./types"
+import type { ChannelOptions } from "./types";
 
 // e = episodeNo, d = downloaded, p = progress (download progress if previously started downloading)
 export type VideoDBEntry = { e: number, d: boolean, f?: string }
@@ -30,7 +30,7 @@ export default class Channel {
 		this._db = db<ChannelDB>(`./db/channels/${channel.creatorId}/${channel.title}.json`, { videos: {}, episodeNo: 1 });
 	}
 
-	public addVideo = (video: fApiVideo) => {
+	public addVideo = (video: fApiVideo): Video => {
 		// Set the episode number
 		this._db.videos[video.guid] ??= { e: this._db.episodeNo++, d: false };
 		return new Video(video, this.title, this._db.videos[video.guid]);

@@ -1,17 +1,15 @@
-import { plex as plexPrompts } from "./lib/prompts";
-
-import { writeableSettings as settings, findClosestEdge, autoRepeat } from "./lib/helpers"
+import { writeableSettings as settings, findClosestEdge, autoRepeat } from "./lib/helpers";
 
 import { FileCookieStore } from "tough-cookie-file-store";
 import { CookieJar } from "tough-cookie";
-const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"))
+const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"));
 
-import FloatplaneApi from "floatplane"
+import FloatplaneApi from "floatplane";
 const fApi = new FloatplaneApi(cookieJar);
 
-import { quickStart, promptPlexSections } from "./quickStart";
+import { quickStart, validatePlexSettings } from "./quickStart";
 
-import { loginFloatplane, loginPlex } from "./logins";
+import { loginFloatplane } from "./logins";
 
 import { fetchNewSubscriptionVideos } from "./fetchers";
 
@@ -26,37 +24,20 @@ const startFetching = async () => {
 	}
 
 	process.stdout.write("> Fetching user subscriptions...");
-	const userSubscriptions = await fApi.user.subscriptions()
+	const userSubscriptions = await fApi.user.subscriptions();
 	process.stdout.write("\u001b[36m Done!\u001b[0m\n\n");
 
-	console.log(await fetchNewSubscriptionVideos(userSubscriptions, fApi))
+	console.log(await fetchNewSubscriptionVideos(userSubscriptions, fApi));
 };
 
 // Async start
-;(async () => {
+(async () => {
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart(settings, fApi);
 	settings.runQuickstartPrompts = false;
 
 	// Get Plex details of not saved
-	if (settings.plex.enabled) {
-		if (settings.plex.sectionsToUpdate.length === 0) {
-			console.log("You have plex integration enabled but no sections set for updating!");
-			await promptPlexSections(settings.plex);
-		}
-		if (!settings.plex.hostname) {
-			console.log("You have plex integration enabled but have not specified a hostname!");
-			settings.plex.hostname = await plexPrompts.hostname(settings.plex.hostname);
-		} 
-		if (!settings.plex.port) {
-			console.log("You have plex integration enabled but have not specified a port!");
-			settings.plex.port = await plexPrompts.port(settings.plex.port);
-		} 
-		if (!settings.plex.token) {
-			console.log("You have plex integration enabled but no token exists!");
-			await loginPlex(settings.plex.hostname, settings.plex.port);
-		}
-	}
+	await validatePlexSettings(settings.plex, true);
 
 	// Get Floatplane credentials if not saved
 	if (cookieJar.toJSON().cookies.length === 0) {
@@ -64,7 +45,7 @@ const startFetching = async () => {
 		await loginFloatplane(fApi);
 	}
 
-	if (settings.repeat.enabled === true) autoRepeat(startFetching)
+	if (settings.repeat.enabled === true) autoRepeat(startFetching);
 	else await startFetching();
 })().catch(err => {
 	console.error("An error occurred!");

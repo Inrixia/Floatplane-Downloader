@@ -90,7 +90,7 @@ export const defaultSettings: Settings = {
 	plex: {
 		sectionsToUpdate: [],
 		enabled: true,
-		hostname: "",
+		hostname: "https://127.0.0.1",
 		port: 32400,
 		token: "",
 	},

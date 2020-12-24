@@ -1,24 +1,45 @@
 import type FloatplaneApi from "floatplane";
 import type { PlexSettings, Settings } from "./lib/types";
 
-import * as prompts from "./lib/prompts"
+import * as prompts from "./lib/prompts";
 
 import { defaultResoulutions } from "./lib/defaults";
 
-import { loginFloatplane, loginPlex } from "./logins"
+import { loginFloatplane, loginPlex } from "./logins";
 import { findClosestEdge } from "./lib/helpers";
 
-export const promptPlexSections = async (plexSettings: PlexSettings) => {
-	plexSettings.sectionsToUpdate = (await prompts.plex.sections(plexSettings.sectionsToUpdate.join(", ")));
-	plexSettings.sectionsToUpdate.splice(plexSettings.sectionsToUpdate.indexOf(""), 1);
-	if (plexSettings.sectionsToUpdate.length === 0) {
-		console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
-		plexSettings.enabled = false;
-		return false;
+import { MyPlexAccount } from "@ctrl/plex";
+export const promptPlexSections = async (plexSettings: PlexSettings): Promise<void> => {
+	const plexApi = await (new MyPlexAccount(`${plexSettings.hostname}:${plexSettings.port}`, undefined, undefined, plexSettings.token).connect());
+	console.log(plexApi.PLEXSERVERS);
+	process.exit(0);
+	// plexSettings.sectionsToUpdate = (await prompts.plex.sections(plexSettings.sectionsToUpdate.join(", ")));
+	// plexSettings.sectionsToUpdate.splice(plexSettings.sectionsToUpdate.indexOf(""), 1);
+	// if (plexSettings.sectionsToUpdate.length === 0) {
+	// 	console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
+	// 	plexSettings.enabled = false;
+	// 	return false;
+	// }
+};
+
+export const validatePlexSettings = async (plexSettings: PlexSettings, promptOnMissing: boolean): Promise<void> => {
+	if (plexSettings.enabled) {
+		if (plexSettings.hostname === "") {
+			if (promptOnMissing) console.log("Missing plex hostname!");
+			plexSettings.hostname = await prompts.plex.hostname(plexSettings.hostname);
+		}
+		if (plexSettings.token === "") {
+			if (promptOnMissing) console.log("Missing plex token!");
+			await loginPlex(plexSettings.hostname, plexSettings.port);
+		}
+		if (plexSettings.sectionsToUpdate.length === 0) {
+			if (promptOnMissing) console.log("No plex sections specified to update!");
+			await promptPlexSections(plexSettings);
+		}
 	}
 };
 
-export const quickStart = async (settings: Settings, fApi: FloatplaneApi) => {
+export const quickStart = async (settings: Settings, fApi: FloatplaneApi): Promise<void> => {
 	console.log("Welcome to Floatplane Downloader! Thanks for checking it out <3.");
 	console.log("According to your settings.json this is your first launch! So lets go through the basic setup...\n");
 	console.log("\n== General ==\n");
@@ -49,11 +70,10 @@ export const quickStart = async (settings: Settings, fApi: FloatplaneApi) => {
 	console.log("\n== Plex ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);
 	if (settings.plex.enabled) {
-		if (await promptPlexSections(settings.plex)) {
-			settings.plex.token = await loginPlex(settings.plex.hostname, settings.plex.port);
-			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname);
-			settings.plex.port = await prompts.plex.port(settings.plex.port);
-		}
+		settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname);
+		settings.plex.port = await prompts.plex.port(settings.plex.port);
+		settings.plex.token = await loginPlex(settings.plex.hostname, settings.plex.port);
+		await promptPlexSections(settings.plex);
 	}
 	console.log("\n== All Setup! ==\n");
-}
+};

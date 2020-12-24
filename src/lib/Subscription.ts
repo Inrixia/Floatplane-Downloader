@@ -31,14 +31,14 @@ export default class Subscription {
 		this._db = db<SubscriptionDB>(`./db/subscriptions/${subscription.creator}.json`, { lastSeenVideo: "" });
 	}
 
-	get lastSeenVideo() {
+	get lastSeenVideo(): SubscriptionDB["lastSeenVideo"] {
 		return this._db.lastSeenVideo;
 	}
 
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo = (video: fApiVideo) => {
+	public addVideo = (video: fApiVideo): (ReturnType<Channel["addVideo"]> | null) => {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (video[channel.identifier.type].toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {
@@ -48,4 +48,4 @@ export default class Subscription {
 		}
 		return this.ownChannel.addVideo(video);
 	}
-};
+}

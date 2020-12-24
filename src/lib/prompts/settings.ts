@@ -3,10 +3,10 @@ import type { Extras } from "../types";
 
 /**
  * Prompts if user wants to encrypt their authentication details.
- * @param {boolean} initial Default value
+ * @param initial Default value
  * @returns {Promise<boolean>} True of False
  */
-export const encryptAuthDB = async (initial: boolean=true): Promise<boolean> => (await prompts({
+export const encryptAuthDB = async (initial=true): Promise<boolean> => (await prompts({
 	type: "toggle",
 	name: "crypt",
 	message: "Encrypt authentication database (recommended)?",

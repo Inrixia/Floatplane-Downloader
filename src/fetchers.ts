@@ -1,15 +1,15 @@
-import type { Subscription as fApiSubscription } from "floatplane/user"
+import type { Subscription as fApiSubscription } from "floatplane/user";
 import type FloatplaneApi from "floatplane";
 import type Video from "./lib/Video";
 
-import { writeableSettings as settings, subChannels, channelAliases } from "./lib/helpers"
+import { writeableSettings as settings, subChannels, channelAliases } from "./lib/helpers";
 import Subscription from "./lib/Subscription";
 
 export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {
-	const videosToDownload: Video[] = []
+	const videosToDownload: Video[] = [];
 	for (const subscription of userSubscriptions) {
 		// Add the subscription to settings if it doesnt exist
-		const title = channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title
+		const title = channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title;
 		settings.subscriptions[subscription.creator] ??= {
 			creatorId: subscription.creator,
 			title,
@@ -34,11 +34,11 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 			videos.push(video);
 			videosSearched++;
 		}
-		process.stdout.write(` Fetched ${videos.length} videos!\n`)
+		process.stdout.write(` Fetched ${videos.length} videos!\n`);
 		// Make sure videos are in correct order for episode numbering
 		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
-			if (video !== null && !await video.isDownloaded()) videosToDownload.push(video)
+			if (video !== null && !await video.isDownloaded()) videosToDownload.push(video);
 		}
 	}
 	return videosToDownload;
-}
+};
