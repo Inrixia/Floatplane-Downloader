@@ -4,8 +4,8 @@ import Video from "./Video";
 import type { Video as fApiVideo } from "floatplane/creator";
 import type { ChannelOptions } from "./types";
 
-// e = episodeNo, d = downloaded, p = progress (download progress if previously started downloading)
-export type VideoDBEntry = { e: number, d: boolean, f?: string }
+// e = episodeNo, d = downloaded, s = filesize in bytes, f = file
+export type VideoDBEntry = { e: number, d: boolean, s?: number, f?: string }
 export type ChannelDB = {
 	videos: { [key: string]: VideoDBEntry },
 	episodeNo: number

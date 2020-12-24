@@ -1,11 +1,6 @@
 import { writeableSettings as settings, findClosestEdge, autoRepeat } from "./lib/helpers";
 
-import { FileCookieStore } from "tough-cookie-file-store";
-import { CookieJar } from "tough-cookie";
-const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"));
-
-import FloatplaneApi from "floatplane";
-const fApi = new FloatplaneApi(cookieJar);
+import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
 import { quickStart, validatePlexSettings } from "./quickStart";
 
@@ -18,14 +13,14 @@ import { fetchNewSubscriptionVideos } from "./fetchers";
  */
 const startFetching = async () => {
 	if (settings.floatplane.findClosestEdge) {
-		process.stdout.write("> Finding closest edge server...");
+		process.stdout.write("> Finding closest edge server... ");
 		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
-		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n`);
+		process.stdout.write(`\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n`);
 	}
 
-	process.stdout.write("> Fetching user subscriptions...");
+	process.stdout.write("> Fetching user subscriptions... ");
 	const userSubscriptions = await fApi.user.subscriptions();
-	process.stdout.write("\u001b[36m Done!\u001b[0m\n\n");
+	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
 	console.log(await fetchNewSubscriptionVideos(userSubscriptions, fApi));
 };

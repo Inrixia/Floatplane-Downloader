@@ -14,7 +14,7 @@ export const defaultSubChannels: SubChannels = {
 				title: "Floatplane Exclusive",
 				skip: false,
 				identifier: {
-					check: "FP EXCLUSIVE",
+					check: "FP Exclusive",
 					type: "title",
 				},
 			},
@@ -22,7 +22,7 @@ export const defaultSubChannels: SubChannels = {
 				title: "TechLinked",
 				skip: false,
 				identifier: {
-					check: "QUICK BITS",
+					check: "NEWS SOURCES",
 					type: "description",
 				},
 			},
@@ -30,7 +30,7 @@ export const defaultSubChannels: SubChannels = {
 				title: "TechQuickie",
 				skip: false,
 				identifier: {
-					check: "tq:",
+					check: "TQ:",
 					type: "title",
 				},
 			},

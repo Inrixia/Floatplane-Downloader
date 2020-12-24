@@ -53,8 +53,8 @@ export default class Video {
 			if (this._db.f === undefined) return this._db.d = false;
 			else {
 				try {
-					await fs.stat(this.file);
-					return true;
+					if (await this.fileSize() === this._db.s) return true;
+					else return false;
 				} catch (err) { 
 					return false; 
 				}
@@ -62,8 +62,15 @@ export default class Video {
 		} else return false;
 	}
 
-	public download = async (fApi: FloatplaneAPI, force: boolean): Promise<Request> => {
-		if (await this.isDownloaded() && force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
+	public fileSize = async (): Promise<number>  => {
+		return (await fs.stat(this.file)).size;
+	}
+
+	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
+		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
+
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		const downloadedBytes = await this.fileSize().catch(() => {});
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.file.split("/").slice(0, -1).join("/"));
@@ -84,10 +91,10 @@ export default class Video {
 				.end({ pretty: true });
 			await fs.writeFile(`${this.file}.nfo`, nfo, "utf8");
 		}
-
+		
 		// Download video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString());
-		downloadRequest.pipe(createWriteStream(this.file));
+		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this._db.s}` }:{});
+		downloadRequest.pipe(createWriteStream(this.file, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
 		return downloadRequest;
 	}
 }

@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@ctrl/plex": "file:src/submodules/plex",
-    "@inrixia/db": "^1.6.2",
+    "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
     "@types/prompts": "^2.0.9",
-    "floatplane": "^2.0.3",
+    "floatplane": "^2.1.0",
     "got": "^11.8.1",
     "multi-progress": "^4.0.0",
     "npm": "^7.3.0",

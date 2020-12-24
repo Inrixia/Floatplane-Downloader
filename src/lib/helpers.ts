@@ -6,8 +6,8 @@ import { defaultSettings, defaultSubChannels, defaultChannelAliases } from "./de
 export const writeableSettings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
 export const settings = writeableSettings as Readonly<Settings>;
 
-export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases) as Readonly<ChannelAliases>;
-export const subChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels) as Readonly<SubChannels>;
+export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases, { forceCreate: true, pretty: true }) as Readonly<ChannelAliases>;
+export const subChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels, { forceCreate: true, pretty: true }) as Readonly<SubChannels>;
 
 
 import type { Edge, EdgesResponse } from "floatplane/api";
