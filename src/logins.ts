@@ -13,14 +13,12 @@ export const loginFloatplane = async (fApi: FloatplaneApi): Promise<void> => {
 		console.log("Looks like you have 2Factor authentication enabled. Nice!\n");
 		loginResponse = await loopError(async () => fApi.auth.factor(await floatplane.token()), async err => console.error(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`));
 	}
-	console.log(`\nSigned in as ${loginResponse.user.username}!\n`);
+	console.log(`\nSigned in as \u001b[36m${loginResponse.user.username}\u001b[0m!\n`);
 };
 
-export const loginPlex = async (plexHostname: string, plexPort: number): Promise<string> => {
+export const loginPlex = async (): Promise<string> => {
 	console.log("\nPlease enter your plex details. (Username and Password is not saved, only used to generate a token.)");
-	const username = await plex.username();
-	const password = await plex.password();
-	const plexToken = (await new MyPlexAccount(`${plexHostname}:${plexPort}`, username, password).connect()).token as string;
-	console.log(`Fetched plex token: ${plexToken}\n`);
-	return plexToken;
+	const plexToken = await loopError(async () => (await new MyPlexAccount(undefined, await plex.username(), await plex.password()).connect()).token, async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`));
+	console.log(`Fetched plex token: \u001b[36m${plexToken}\u001b[0m!\n`);
+	return plexToken as string;
 };

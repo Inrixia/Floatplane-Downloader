@@ -32,7 +32,7 @@ export const sections = async (initial: string): Promise<Array<string>> => (awai
  * @param {string} initial 
  * @returns {Promise<string>}
  */
-export const username = async (): Promise<string> => (await prompts({
+export const username = async (): Promise<string> => (await requiredPrompts({
 	type: "text",
 	name: "username",
 	message: "Plex account email/username:",
@@ -43,7 +43,7 @@ export const username = async (): Promise<string> => (await prompts({
  * @param {string} initial 
  * @returns {Promise<string>}
  */
-export const password = async (): Promise<string> => (await prompts({
+export const password = async (): Promise<string> => (await requiredPrompts({
 	type: "password",
 	name: "password",
 	message: "Plex account password:",
