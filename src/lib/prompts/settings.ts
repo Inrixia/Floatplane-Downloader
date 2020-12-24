@@ -1,4 +1,5 @@
 import prompts from "prompts";
+import type { Extras } from "../types";
 
 /**
  * Prompts if user wants to encrypt their authentication details.
@@ -12,7 +13,7 @@ export const encryptAuthDB = async (initial: boolean=true): Promise<boolean> => 
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).crypt;
+})).crypt||initial;
 
 /**
  * Prompts if user wants to have auto repeating enabled.
@@ -21,12 +22,12 @@ export const encryptAuthDB = async (initial: boolean=true): Promise<boolean> => 
  */
 export const repeat = async (initial: boolean): Promise<boolean> => (await prompts({
 	type: "toggle",
-	name: "crypt",
+	name: "repeat",
 	message: "Auto repeat video fetching?",
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).crypt;
+})).repeat||initial;
 
 /**
  * Prompts user to set the interval to auto repeat
@@ -54,7 +55,7 @@ export const videoFolder = async (initial: string): Promise<string> => (await pr
 	name: "videoFolder",
 	message: "What folder do you want to save videos?",
 	initial
-})).videoFolder;
+})).videoFolder||initial;
 
 /**
  * Prompts user to set the max number of parallel downloads.
@@ -67,7 +68,7 @@ export const downloadThreads = async (initial: number): Promise<number> => (awai
 	message: "What is the number of threads to use for downloads? -1 for unlimited.",
 	initial,
 	min: -1
-})).downloadThreads;
+})).downloadThreads||initial;
 
 /**
  * Prompts user for the video resolution they want to download in.
@@ -81,7 +82,7 @@ export const videoResolution = async (initial: number, resolutions: Array<number
 	message: "What resolution would you like to download in?",
 	choices: resolutions.map(res => ({ title: `${res}p`, value: res, disabled: false })),
 	initial: resolutions.indexOf(initial)
-})).resolution;
+})).resolution||initial;
 
 /**
  * Prompts user to specify the file formatting to use for saving videos. Options avalible for use are created from `options`
@@ -94,20 +95,20 @@ export const fileFormatting = async (initial: string, options: Array<string>): P
 	name: "fileFormatting",
 	message: "What format should be used for saving videos? The following values can be used:\n"+options.reduce((str, option) => `${str} - ${option}\n`, ""),
 	initial
-})).fileFormatting;
+})).fileFormatting||initial;
 
 /**
  * Prompts user to set any extra boolean settings
  * @param options Object containing extra settings
  * @returns {Promise<Array<string>>} Keynames of enabled extras
  */
-export const extras = async (options: { [key: string]: boolean; }): Promise<Array<string>> => (await prompts({
+export const extras = async (initial: Extras): Promise<Array<string>> => (await prompts({
 	type: "multiselect",
 	name: "extras",
 	message: "Enable/Disable Extra Options:",
-	choices: Object.keys(options).map(option => ({ title: option, value: option, selected: options[option] })),
+	choices: Object.keys(initial).map(option => ({ title: option, value: option, selected: initial[option] })),
 	hint: "- Space to select. Return to submit"
-})).extras;
+})).extras||initial;
 
 /**
  * Proompts user if they want to find the closest download server automatically in the future.
@@ -121,4 +122,4 @@ export const autoFindClosestServer = async (initial: boolean): Promise<boolean> 
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).bestEdge;
+})).bestEdge||initial;

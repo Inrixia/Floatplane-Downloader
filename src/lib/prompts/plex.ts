@@ -13,7 +13,7 @@ export const usePlex = async (initial: boolean): Promise<boolean> => (await prom
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).usePlex;
+})).usePlex||initial;
 
 /**
  * Prompts user for the plex sections they want to automatically refresh
@@ -25,7 +25,7 @@ export const sections = async (initial: string): Promise<Array<string>> => (awai
 	name: "sections",
 	message: "Please enter the plex section id's you want to refresh.",
 	initial
-})).sections;
+})).sections||initial;
 
 /**
  * Prompts user for their plex username.
@@ -37,7 +37,7 @@ export const username = async (initial: string): Promise<string> => (await promp
 	name: "username",
 	message: "Plex account email/username:",
 	initial
-})).username;
+})).username||initial;
 
 /**
  * Prompts user for their plex password.
@@ -49,7 +49,7 @@ export const password = async (initial: string): Promise<string> => (await promp
 	name: "password",
 	message: "Plex account password:",
 	initial
-})).password;
+})).password||initial;
 
 /**
  * Prompts user for their plex server hosname.
@@ -61,7 +61,7 @@ export const hostname = async (initial: string): Promise<string> => (await promp
 	name: "hostname",
 	message: "Plex server IP/Hostname:",
 	initial
-})).hostname;
+})).hostname||initial;
 
 /**
  * Prompts user for their plex server port.
@@ -73,4 +73,4 @@ export const port = async (initial: number): Promise<number> => (await prompts({
 	name: "port",
 	message: "Plex server port:",
 	initial
-})).port;
+})).port||initial;

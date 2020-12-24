@@ -1,5 +1,5 @@
 {
-  "name": "FloatplanePlexDownloader",
+  "name": "floatplane-plex-downloader",
   "version": "4.6.3",
   "private": true,
   "scripts": {

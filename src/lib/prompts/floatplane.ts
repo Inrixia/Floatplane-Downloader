@@ -19,7 +19,7 @@ export const password = async (): Promise<string> => (await requiredPrompts({
 	type: "password",
 	name: "password",
 	message: "Please enter your floatplane password"
-})).password;
+})).passwor;
 
 /**
  * Prompts user to set videos to search through for downloads.
@@ -32,7 +32,7 @@ export const videosToSearch = async (initial: number): Promise<number> => (await
 	message: "How many videos do you want to search through for ones to download?",
 	initial,
 	min: 0
-})).videosToSearch;
+})).videosToSearch||initial;
 
 /**
  * Prompts user for floatplane token.

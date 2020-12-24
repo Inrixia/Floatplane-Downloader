@@ -1,4 +1,4 @@
-import { Resolutions, SubChannels, Settings, ChannelAliases } from "./types";
+import { Resolutions, SubChannels, Settings, ChannelAliases, AuthDB } from "./types";
 
 export const defaultResoulutions: Resolutions = [360, 720, 1080, 2160];
 export const defaultChannelAliases: ChannelAliases = {
@@ -7,6 +7,13 @@ export const defaultChannelAliases: ChannelAliases = {
 	"ltt supporter (1080p)": "Linus Tech Tips",
 	"ltt supporter plus": "Linus Tech Tips",
 };
+export const defaultAuthDB: AuthDB = {
+	plex: {
+		token: "",
+		username: "",
+		password: ""
+	}
+}
 export const defaultSubChannels: SubChannels = {
 	"Linus Tech Tips": {
 		channels: [
@@ -91,7 +98,7 @@ export const defaultSettings: Settings = {
 		sectionsToUpdate: [],
 		enabled: true,
 		hostname: "",
-		port: "32400",
+		port: 32400,
 	},
 	colourList: {
 		"Linus Tech Tips": "\u001b[38;5;208m",

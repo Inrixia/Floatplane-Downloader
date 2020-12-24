@@ -12,7 +12,7 @@ export const saveLoginDetails = async (initial: boolean=false): Promise<boolean>
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).save;
+})).save||initial;
 
 /**
  * Prompts user if they want to find the closest download server now.
@@ -26,4 +26,4 @@ export const findClosestServerNow = async (initial: boolean=true): Promise<boole
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).findBestServer;
+})).findBestServer||initial;

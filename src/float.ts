@@ -24,22 +24,16 @@ const multiProgressBar = new MultiProgress(process.stdout);
 
 import { writeableSettings as settings, subChannels, channelAliases } from "./lib/helpers"
 
-const defaultAuthDB = {
-	plex: {
-		token: "",
-		username: "",
-		password: ""
-	}
-}
-type AuthDB = typeof defaultAuthDB
-let auth = db<AuthDB>("./db/auth.json", defaultAuthDB, settings.auth.encrypt?settings.auth.encryptionKey:undefined);
-
 import FloatplaneApi from "floatplane"
 import type { EdgesResponse } from "floatplane/api"
-import { defaultResoulutions } from "./lib/defaults";
+import { defaultResoulutions, defaultAuthDB } from "./lib/defaults";
 
 import { FileCookieStore } from "tough-cookie-file-store";
 import { CookieJar } from "tough-cookie";
+import type Video from "./lib/Video";
+import { AuthDB } from "./lib/types";
+
+let auth = db<AuthDB>("./db/auth.json", defaultAuthDB, settings.auth.encrypt?settings.auth.encryptionKey:undefined);
 
 const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"))
 const fApi = new FloatplaneApi(cookieJar);
@@ -65,6 +59,7 @@ const start = async () => {
 		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n\n`);
 	}
 
+	const videosToDownload: Video[] = []
 	for (const subscription of (await fApi.user.subscriptions())) {
 		// Add the subscription to settings if it doesnt exist
 		settings.subscriptions[subscription.creator] ??= {
@@ -91,16 +86,11 @@ const start = async () => {
 			videosSearched++;
 		}
 		// Make sure videos are in correct order for episode numbering
-		videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)
+		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
+			if (video !== null && !video.isDownloaded()) videosToDownload.push(video)
+		}
 	}
-
-	
-	// console.log('> Updated subscriptions!')
-	// for (let i = 0; i < channels.length; i++) {
-	// 	await channels[i].fetchVideos()
-	// 	if (channels[i].enabled) channels[i].downloadVideos()
-	// }
-	console.log("DONE");
+	console.log("DONE", videosToDownload);
 };
 
 // const downloadVideo = video => { // This handles resuming downloads, its very similar to the download function with some changes
@@ -182,7 +172,7 @@ const promptPlexLogin = async () => {
 };
 
 const promptPlexSections = async () => {
-	settings.plex.sectionsToUpdate = (await prompts.plex.sections(settings.plex.sectionsToUpdate.join(", ")))||settings.plex.sectionsToUpdate;
+	settings.plex.sectionsToUpdate = (await prompts.plex.sections(settings.plex.sectionsToUpdate.join(", ")));
 	settings.plex.sectionsToUpdate.splice(settings.plex.sectionsToUpdate.indexOf(""), 1);
 	if (settings.plex.sectionsToUpdate.length === 0) {
 		console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
@@ -196,17 +186,17 @@ const firstLaunch = async () => {
 	console.log("According to your settings.json this is your first launch! So lets go through the basic setup...\n");
 	console.log("\n== General ==\n");
 
-	settings.videoFolder = await prompts.settings.videoFolder(settings.videoFolder)||settings.videoFolder;
-	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch)||settings.floatplane.videosToSearch;
-	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads)||settings.downloadThreads;
-	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResoulutions)||settings.floatplane.videoResolution;
-	settings.fileFormatting = await prompts.settings.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS)||settings.fileFormatting;
+	settings.videoFolder = await prompts.settings.videoFolder(settings.videoFolder);
+	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
+	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads);
+	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResoulutions);
+	settings.fileFormatting = await prompts.settings.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS);
 
-	const extras = await prompts.settings.extras(settings.extras)||settings.extras;
+	const extras = await prompts.settings.extras(settings.extras);
 	for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false;
 
 	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled);
-	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval)||settings.repeat.interval;
+	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval);
 
 	// Encrypt authentication db
 	settings.auth.encrypt = await prompts.settings.encryptAuthDB(settings.auth.encrypt);
@@ -221,15 +211,15 @@ const firstLaunch = async () => {
 	console.log(`Closest edge server found is: "${settings.floatplane.edge}"\n`);
 
 	// Prompt & Set auto finding best edge server
-	settings.floatplane.findClosestEdge = await prompts.settings.autoFindClosestServer(settings.floatplane.findClosestEdge)||settings.floatplane.findClosestEdge;
+	settings.floatplane.findClosestEdge = await prompts.settings.autoFindClosestServer(settings.floatplane.findClosestEdge);
 
 	console.log("\n== Plex ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);
 	if (settings.plex.enabled) {
 		if (await promptPlexSections()) {
 			await promptPlexLogin();
-			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname)||settings.plex.hostname;
-			settings.plex.port = await prompts.plex.port(settings.plex.port)||settings.plex.port;
+			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname);
+			settings.plex.port = await prompts.plex.port(settings.plex.port);
 		}
 	}
 }
@@ -250,10 +240,10 @@ const firstLaunch = async () => {
 		}
 		if (!settings.plex.hostname) {
 			console.log("You have plex integration enabled but have not specified a hostname!");
-			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname)||settings.plex.hostname;
+			settings.plex.hostname = await prompts.plex.hostname(settings.plex.hostname);
 		} if (!settings.plex.port) {
 			console.log("You have plex integration enabled but have not specified a port!");
-			settings.plex.port = await prompts.plex.port(settings.plex.port)||settings.plex.port;
+			settings.plex.port = await prompts.plex.port(settings.plex.port);
 		} if (!auth.plex.token) {
 			console.log("You have plex integration enabled but have not specified a token!");
 			await promptPlexLogin();

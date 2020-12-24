@@ -18,6 +18,22 @@ export type SubChannels = {
 	};
 };
 
+export type AuthDB = {
+	plex: {
+		token: string,
+		username: string,
+		password: string
+	}
+}
+
+export type PlexSettings = {
+	sectionsToUpdate: string[];
+	enabled: boolean;
+	hostname: string;
+	port: number;
+}
+
+export type Extras = { [key: string]: boolean }
 export type Settings = {
 	firstLaunch: boolean;
 	videoFolder: string;
@@ -38,7 +54,7 @@ export type Settings = {
 		enabled: boolean;
 		interval: string;
 	};
-	extras: { [key: string]: boolean };
+	extras: Extras;
 	downloadUpdateTime: number;
 	subscriptions: {
 		[key: string]: {
@@ -48,12 +64,7 @@ export type Settings = {
 			channels: ChannelOptions[]
 		}
 	};
-	plex: {
-		sectionsToUpdate: string[];
-		enabled: boolean;
-		hostname: string;
-		port: number;
-	};
+	plex: PlexSettings;
 	colourList: {
 		[key: string]: string;
 	};
