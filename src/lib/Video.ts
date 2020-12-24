@@ -48,7 +48,7 @@ export default class Video {
 	/**
 	 * @returns {Promise<boolean>}
 	 */
-	async isDownloaded(): Promise<boolean> {
+	public isDownloaded = async (): Promise<boolean> => {
 		if (this._db.d === true) {
 			if (this._db.f === undefined) return this._db.d = false;
 			else {
@@ -62,7 +62,7 @@ export default class Video {
 		} else return false;
 	}
 
-	async download(fApi: FloatplaneAPI, force: boolean): Promise<Request> {
+	public download = async (fApi: FloatplaneAPI, force: boolean): Promise<Request> => {
 		if (await this.isDownloaded() && force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
 
 		// Make sure the folder for the video exists

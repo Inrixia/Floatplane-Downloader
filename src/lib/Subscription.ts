@@ -38,7 +38,7 @@ export default class Subscription {
 	/**
 	 * @param {fApiVideo} video
 	 */
-	addVideo(video: fApiVideo) {
+	public addVideo = (video: fApiVideo) => {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (video[channel.identifier.type].toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {

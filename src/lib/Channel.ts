@@ -30,7 +30,7 @@ export default class Channel {
 		this._db = db<ChannelDB>(`./db/channels/${channel.creatorId}/${channel.planTitle}.json`, { videos: {}, episodeNo: 1 });
 	}
 
-	addVideo(video: fApiVideo) {
+	public addVideo = (video: fApiVideo) => {
 		// Set the episode number
 		this._db.videos[video.guid] ??= { e: this._db.episodeNo++, d: false };
 		return new Video(video, this.title, this._db.videos[video.guid]);
