@@ -11,7 +11,7 @@ export const defaultSubChannels: SubChannels = {
 	"Linus Tech Tips": {
 		channels: [
 			{
-				planTitle: "Floatplane Exclusive",
+				title: "Floatplane Exclusive",
 				skip: false,
 				identifier: {
 					check: "FP EXCLUSIVE",
@@ -19,7 +19,7 @@ export const defaultSubChannels: SubChannels = {
 				},
 			},
 			{
-				planTitle: "TechLinked",
+				title: "TechLinked",
 				skip: false,
 				identifier: {
 					check: "QUICK BITS",
@@ -27,7 +27,7 @@ export const defaultSubChannels: SubChannels = {
 				},
 			},
 			{
-				planTitle: "TechQuickie",
+				title: "TechQuickie",
 				skip: false,
 				identifier: {
 					check: "tq:",
@@ -35,7 +35,7 @@ export const defaultSubChannels: SubChannels = {
 				},
 			},
 			{
-				planTitle: "TalkLinked",
+				title: "TalkLinked",
 				skip: false,
 				identifier: {
 					check: "talklinked",
@@ -43,7 +43,7 @@ export const defaultSubChannels: SubChannels = {
 				},
 			},
 			{
-				planTitle: "Carpool Critics",
+				title: "Carpool Critics",
 				skip: false,
 				identifier: {
 					check: "CC:",
@@ -51,7 +51,7 @@ export const defaultSubChannels: SubChannels = {
 				},
 			},
 			{
-				planTitle: "ShortCircut",
+				title: "ShortCircut",
 				skip: false,
 				identifier: {
 					check: "SC:",

@@ -24,7 +24,7 @@ export default class Subscription {
 		this.channels = channels.map(channel => new Channel(channel));
 		this.ownChannel = new Channel({
 			creatorId: subscription.creator,
-			planTitle: subscription.plan.title,
+			title: subscription.plan.title,
 			skip: false,
 			identifier: { check: "", type: "title" }
 		});

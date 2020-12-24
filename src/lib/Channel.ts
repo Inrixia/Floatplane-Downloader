@@ -12,7 +12,7 @@ export type ChannelDB = {
 }
 
 export default class Channel {
-	public title: ChannelOptions["planTitle"];
+	public title: ChannelOptions["title"];
 	public creator: ChannelOptions["creatorId"];
 	public identifier: ChannelOptions["identifier"];
 	public skip: ChannelOptions["skip"];
@@ -23,11 +23,11 @@ export default class Channel {
 	 * @param {ChannelOptions} channel
 	 */
 	constructor(channel: ChannelOptions) {
-		this.title = channel.planTitle;
+		this.title = channel.title;
 		this.creator = channel.creatorId;
 		this.identifier = channel.identifier;
 		this.skip = channel.skip;
-		this._db = db<ChannelDB>(`./db/channels/${channel.creatorId}/${channel.planTitle}.json`, { videos: {}, episodeNo: 1 });
+		this._db = db<ChannelDB>(`./db/channels/${channel.creatorId}/${channel.title}.json`, { videos: {}, episodeNo: 1 });
 	}
 
 	public addVideo = (video: fApiVideo) => {
