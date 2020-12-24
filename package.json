@@ -3,6 +3,7 @@
   "version": "4.6.3",
   "private": true,
   "scripts": {
+    "prep": "npm install && cd ./src/submodules/plex && npm run build",
     "start": "tsc && node ./dist/float.js",
     "build": "pkg ./dist/float.js --out-path=./build -t node14-win-x64",
     "test": "jest"
@@ -11,7 +12,7 @@
     "Floatplane-PlexDownloader": "float.js"
   },
   "dependencies": {
-    "@ctrl/plex": "^1.1.0",
+    "@ctrl/plex": "file:src/submodules/plex",
     "@inrixia/db": "^1.6.2",
     "@inrixia/helpers": "^1.15.1",
     "@types/prompts": "^2.0.9",
