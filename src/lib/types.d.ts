@@ -18,19 +18,12 @@ export type SubChannels = {
 	};
 };
 
-export type AuthDB = {
-	plex: {
-		token: string,
-		username: string,
-		password: string
-	}
-}
-
 export type PlexSettings = {
 	sectionsToUpdate: string[];
 	enabled: boolean;
 	hostname: string;
 	port: number;
+	token: string;
 }
 
 export type Extras = { [key: string]: boolean }

@@ -32,24 +32,22 @@ export const sections = async (initial: string): Promise<Array<string>> => (awai
  * @param {string} initial 
  * @returns {Promise<string>}
  */
-export const username = async (initial: string): Promise<string> => (await prompts({
+export const username = async (): Promise<string> => (await prompts({
 	type: "text",
 	name: "username",
 	message: "Plex account email/username:",
-	initial
-})).username||initial;
+})).username;
 
 /**
  * Prompts user for their plex password.
  * @param {string} initial 
  * @returns {Promise<string>}
  */
-export const password = async (initial: string): Promise<string> => (await prompts({
+export const password = async (): Promise<string> => (await prompts({
 	type: "password",
 	name: "password",
 	message: "Plex account password:",
-	initial
-})).password||initial;
+})).password;
 
 /**
  * Prompts user for their plex server hosname.

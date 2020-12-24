@@ -26,14 +26,11 @@ import { writeableSettings as settings, subChannels, channelAliases } from "./li
 
 import FloatplaneApi from "floatplane"
 import type { EdgesResponse } from "floatplane/api"
-import { defaultResoulutions, defaultAuthDB } from "./lib/defaults";
+import { defaultResoulutions } from "./lib/defaults";
 
 import { FileCookieStore } from "tough-cookie-file-store";
 import { CookieJar } from "tough-cookie";
 import type Video from "./lib/Video";
-import { AuthDB } from "./lib/types";
-
-let auth = db<AuthDB>("./db/auth.json", defaultAuthDB, settings.auth.encrypt?settings.auth.encryptionKey:undefined);
 
 const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"))
 const fApi = new FloatplaneApi(cookieJar);
@@ -164,11 +161,11 @@ const promptFloatplaneLogin = async () => {
 
 const promptPlexLogin = async () => {
 	console.log("\nPlease enter your plex details. (Username and Password is not saved, only used to generate a token.)");
-	const username = await prompts.plex.username(auth.plex.username);
-	const password = await prompts.plex.password(auth.plex.password);
+	const username = await prompts.plex.username();
+	const password = await prompts.plex.password();
 	plexApi = await new MyPlexAccount(settings.plex.hostname, username, password).connect();
-	auth.plex.token = plexApi.token as string;
-	console.log(`Fetched plex token: ${auth.plex.token}\n`);
+	settings.plex.token = plexApi.token as string;
+	console.log(`Fetched plex token: ${settings.plex.token}\n`);
 };
 
 const promptPlexSections = async () => {
@@ -197,10 +194,6 @@ const firstLaunch = async () => {
 
 	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled);
 	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval);
-
-	// Encrypt authentication db
-	settings.auth.encrypt = await prompts.settings.encryptAuthDB(settings.auth.encrypt);
-	if (!settings.auth.encrypt) auth = db<AuthDB>("./db/auth.json", defaultAuthDB, settings.auth.encrypt?settings.auth.encryptionKey:undefined);
 
 	console.log("\n== Floatplane ==\n");
 	console.log("Next we are going to login to floatplane...");
@@ -244,7 +237,7 @@ const firstLaunch = async () => {
 		} if (!settings.plex.port) {
 			console.log("You have plex integration enabled but have not specified a port!");
 			settings.plex.port = await prompts.plex.port(settings.plex.port);
-		} if (!auth.plex.token) {
+		} if (!settings.plex.token) {
 			console.log("You have plex integration enabled but have not specified a token!");
 			await promptPlexLogin();
 		}
