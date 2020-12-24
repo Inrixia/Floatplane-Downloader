@@ -17,15 +17,11 @@ export const promptPlexSections = async (plexSettings: PlexSettings): Promise<vo
 		const library = await connectedServer.library();
 		return (await library.sections()).filter(section => section.type === "show");
 	}));
-	console.log(serverSections.flatMap(sections => sections).map(section => `[${section.server.friendlyName}] - ${section.title}`));
-	process.exit(0);
-	// plexSettings.sectionsToUpdate = (await prompts.plex.sections(plexSettings.sectionsToUpdate.join(", ")));
-	// plexSettings.sectionsToUpdate.splice(plexSettings.sectionsToUpdate.indexOf(""), 1);
-	// if (plexSettings.sectionsToUpdate.length === 0) {
-	// 	console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
-	// 	plexSettings.enabled = false;
-	// 	return false;
-	// }
+	plexSettings.sectionsToUpdate = await prompts.plex.sections(plexSettings.sectionsToUpdate, serverSections.flatMap(sections => sections));
+	if (plexSettings.sectionsToUpdate.length === 0) {
+		console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
+		plexSettings.enabled = false;
+	}
 };
 
 export const validatePlexSettings = async (plexSettings: PlexSettings, promptOnMissing: boolean): Promise<void> => {

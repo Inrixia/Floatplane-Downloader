@@ -15,17 +15,20 @@ export const usePlex = async (initial: boolean): Promise<boolean> => (await prom
 	inactive: "No"
 })).usePlex||initial;
 
+import type { Section } from "@ctrl/plex";
 /**
- * Prompts user for the plex sections they want to automatically refresh
- * @param {string} initial Default values (10, 11, 12)
- * @returns {Promise<Array<string>>} Sections to refresh
+ * Prompts user to select plex sections to refresh
+ * @param selectedSections Sections already selected
+ * @param avalibleSections Array of avalible plex sections
+ * @returns {Promise<Array<string>>} UUID's of selected plex sections
  */
-export const sections = async (initial: string): Promise<Array<string>> => (await requiredPrompts({
-	type: "list",
+export const sections = async (selectedSections: string[], avalibleSections: Section[]): Promise<Array<string>> => (await prompts({
+	type: "multiselect",
 	name: "sections",
-	message: "Please enter the plex section id's you want to refresh.",
-	initial
-})).sections||initial;
+	message: "Please select the plex section's you want to refresh.",
+	choices: Object.values(avalibleSections).map(avalibleSection => ({ title: `[${avalibleSection.server.friendlyName}]: ${avalibleSection.title}`, value: avalibleSection.uuid, selected: selectedSections.includes(avalibleSection.uuid) })),
+	hint: "- Space to select. Return to submit"
+})).sections||selectedSections;
 
 /**
  * Prompts user for their plex username.
