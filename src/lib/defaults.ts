@@ -90,8 +90,6 @@ export const defaultSettings: Settings = {
 	plex: {
 		sectionsToUpdate: [],
 		enabled: true,
-		hostname: "https://127.0.0.1",
-		port: 32400,
 		token: "",
 	},
 	colourList: {
@@ -99,11 +97,11 @@ export const defaultSettings: Settings = {
 		"The WAN Show": "\u001b[38;5;208m",
 		"Channel Super Fun": "\u001b[38;5;220m",
 		"Floatplane Exclusive": "\u001b[38;5;200m",
-		TechLinked: "\u001b[38;5;14m",
-		TechQuickie: "\u001b[38;5;153m",
+		"TechLinked": "\u001b[38;5;14m",
+		"TechQuickie": "\u001b[38;5;153m",
 		"Tech Deals": "\u001b[38;5;10m",
 		"BitWit Ultra": "\u001b[38;5;105m",
-		TalkLinked: "\u001b[36m",
+		"TalkLinked": "\u001b[36m",
 		"LTT Supporter (OG)": "\u001b[38;5;153m",
 	},
 };

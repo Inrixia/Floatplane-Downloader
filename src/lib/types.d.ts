@@ -21,8 +21,6 @@ export type SubChannels = {
 export type PlexSettings = {
 	sectionsToUpdate: string[];
 	enabled: boolean;
-	hostname: string;
-	port: number;
 	token: string;
 }
 
