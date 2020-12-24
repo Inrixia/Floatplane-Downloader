@@ -53,14 +53,18 @@ const start = async () => {
 	if (settings.floatplane.findClosestEdge) {
 		process.stdout.write("> Finding closest edge server...");
 		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
-		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n\n`);
+		process.stdout.write(` \u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n`);
 	}
 
+	process.stdout.write("> Fetching user subscriptions...");
+	const userSubscriptions = await fApi.user.subscriptions()
+	process.stdout.write("\u001b[36m Done!\u001b[0m\n\n");
+
 	const videosToDownload: Video[] = []
-	for (const subscription of (await fApi.user.subscriptions())) {
+	for (const subscription of userSubscriptions) {
 		// Add the subscription to settings if it doesnt exist
 		settings.subscriptions[subscription.creator] ??= {
-			creator: subscription.creator,
+			creatorId: subscription.creator,
 			title: channelAliases[subscription.plan.title.toLowerCase()],
 			skip: false,
 			channels: subChannels[subscription.plan.title]?.channels
@@ -73,15 +77,17 @@ const start = async () => {
 
 		// Search infinitely if we are resuming. Otherwise only grab the latest `settings.floatplane.videosToSearch` videos
 		let videosToSearch = -1;
-		if (lastSeenVideo === undefined) videosToSearch = settings.floatplane.videosToSearch;
+		if (lastSeenVideo === "") videosToSearch = settings.floatplane.videosToSearch;
 
 		let videosSearched = 0;
 		const videos = [];
+		process.stdout.write(`> Fetching latest videos from [\u001b[38;5;208m${subscription.plan.title}\u001b[0m]...`);
 		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
 			if (videosSearched === videosToSearch || video.guid === lastSeenVideo) break;
 			videos.push(video);
 			videosSearched++;
 		}
+		process.stdout.write(` Fetched ${videos.length} videos!\n`)
 		// Make sure videos are in correct order for episode numbering
 		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
 			if (video !== null && !video.isDownloaded()) videosToDownload.push(video)
@@ -220,10 +226,11 @@ const firstLaunch = async () => {
 // Async start
 ;(async () => {
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
-	if (settings.runQuickstartPrompts) await firstLaunch();
+	if (settings.runQuickstartPrompts) {
+		await firstLaunch();
+		console.log("\n== All Setup! ==\n");
+	}
 	settings.runQuickstartPrompts = false;
-
-	console.log("\n== All Setup! ==\n");
 
 	// Get Plex details of not saved
 	if (settings.plex.enabled) {

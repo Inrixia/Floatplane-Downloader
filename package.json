@@ -3,9 +3,8 @@
   "version": "4.6.3",
   "private": true,
   "scripts": {
-    "start": "node float.js",
-    "build": "pkg . --out-path=./build -t node14-win-x64",
-    "release": "./release.sh",
+    "start": "tsc && node ./dist/float.js",
+    "build": "pkg ./dist/float.js --out-path=./build -t node14-win-x64",
     "test": "jest"
   },
   "bin": {

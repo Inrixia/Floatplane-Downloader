@@ -2,8 +2,8 @@ export type Resolutions = [360, 720, 1080, 2160];
 
 import type { Video as fApiVideo } from "floatplane/creator";
 export type ChannelOptions = {
-	creator?: string;
-	title: string;
+	creatorId?: string;
+	planTitle: string;
 	skip: boolean;
 	identifier: {
 		check: string;
@@ -51,7 +51,7 @@ export type Settings = {
 	downloadUpdateTime: number;
 	subscriptions: {
 		[key: string]: {
-			creator: string,
+			creatorId: string,
 			title: string,
 			skip: boolean,
 			channels: ChannelOptions[]

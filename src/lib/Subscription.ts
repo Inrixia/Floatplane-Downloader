@@ -23,8 +23,8 @@ export default class Subscription {
 	constructor(subscription: fApiSubscription, channels: ChannelOptions[] = []) {
 		this.channels = channels.map(channel => new Channel(channel));
 		this.ownChannel = new Channel({
-			creator: subscription.creator,
-			title: subscription.plan.title,
+			creatorId: subscription.creator,
+			planTitle: subscription.plan.title,
 			skip: false,
 			identifier: { check: "", type: "title" }
 		});
