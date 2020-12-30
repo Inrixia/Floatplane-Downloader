@@ -1,3 +1,0 @@
-[submodule "src/submodules/plex"]
-	path = src/submodules/plex
-	url = https://github.com/scttcper/plex
