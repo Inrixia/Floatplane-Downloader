@@ -10,50 +10,50 @@ import type { Video as fApiVideo } from "floatplane/creator";
 import type FloatplaneAPI from "floatplane";
 import type Request from "got/dist/source/core";
 
-import type { VideoDBEntry } from "./Channel";
+import type Channel from "./Channel";
 
 export default class Video {
-	private guid: string;
-	private title: string;
-	private description: string;
-	private releaseDate: Date;
-	private thumbnail: string;
+	public guid: string;
+	public title: string;
+	public description: string;
+	public releaseDate: Date;
+	public thumbnail: string;
 
-	private channelTitle: string;
-	private _db: VideoDBEntry;
+	public channel: Channel;
 
-	public file: string;
+	public filePath: string;
 
-	constructor(video: fApiVideo, channelTitle: string, db: VideoDBEntry) {
+	constructor(video: fApiVideo, channel: Channel) {
+		this.channel = channel;
+
 		this.guid = video.guid;
 		this.title = video.title;
 		this.description = video.description;
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
-		this.channelTitle = channelTitle;
-		this._db = db;
 
 		const YEAR = this.releaseDate.getFullYear();
 		const MONTH = this.releaseDate.getMonth()>9?"0"+this.releaseDate.getMonth():this.releaseDate.getMonth(); // If the month is less than 10 pad it with a 0
 
-		this.file = sanitize(`${settings.fileFormatting
-			.replace(/%channelTitle%/g, this.channelTitle)
-			.replace(/%episodeNo%/g, this._db.e.toString())
+		this.filePath = settings.videoFolder+"/"+sanitize(`${settings.fileFormatting
+			.replace(/%channelTitle%/g, this.channel.title)
+			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).e.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
-			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))}`
-		);
+			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))
+		}`);
 	}
 
 	/**
 	 * @returns {Promise<boolean>}
 	 */
 	public isDownloaded = async (): Promise<boolean> => {
-		if (this._db.d === true) {
-			if (this._db.f === undefined) return this._db.d = false;
+		const dbEntry = this.channel.lookupVideoDB(this.guid);
+		if (dbEntry.d === true) {
+			if (dbEntry.f === undefined) return dbEntry.d = false;
 			else {
 				try {
-					if (await this.fileSize() === this._db.s) return true;
+					if (await this.fileSize() === dbEntry.s) return true;
 					else return false;
 				} catch (err) { 
 					return false; 
@@ -63,7 +63,7 @@ export default class Video {
 	}
 
 	public fileSize = async (): Promise<number>  => {
-		return (await fs.stat(this.file)).size;
+		return (await fs.stat(this.filePath)).size;
 	}
 
 	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
@@ -73,7 +73,7 @@ export default class Video {
 		const downloadedBytes = await this.fileSize().catch(() => {});
 
 		// Make sure the folder for the video exists
-		await fs.mkdir(this.file.split("/").slice(0, -1).join("/"));
+		await fs.mkdir(this.filePath.split("/").slice(0, -1).join("/"));
 
 		if (settings.extras.downloadArtwork && this.thumbnail) { // If downloading artwork is enabled download it
 			// request(video.thumbnail.path).pipe(fs.createWriteStream(`${video.folderPath}${video.title}.${settings.extras.artworkFormat$}`))
@@ -83,18 +83,20 @@ export default class Video {
 		if (settings.extras.saveNfo) {
 			const nfo = builder.create("episodedetails")
 				.ele("title").text(this.title).up()
-				.ele("showtitle").text(this.channelTitle).up()
+				.ele("showtitle").text(this.channel.title).up()
 				.ele("description").text(this.description).up()
 				.ele("aired").text(this.releaseDate.toString()).up()
 				.ele("season").text("1").up()
-				.ele("episode").text(this._db.e.toString()).up()
+				.ele("episode").text(this.channel.lookupVideoDB(this.guid).e.toString()).up()
 				.end({ pretty: true });
-			await fs.writeFile(`${this.file}.nfo`, nfo, "utf8");
+			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
 		}
 		
 		// Download video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this._db.s}` }:{});
-		downloadRequest.pipe(createWriteStream(this.file, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
+		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).s}` }:{});
+		downloadRequest.pipe(createWriteStream(this.filePath, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
 		return downloadRequest;
 	}
+
+	public markDownloaded = (): void => this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
 }

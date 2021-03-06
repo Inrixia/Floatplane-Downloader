@@ -6,9 +6,14 @@ import type { ChannelOptions } from "./types";
 import type { Subscription as fApiSubscription } from "floatplane/user";
 import type { Video as fApiVideo } from "floatplane/creator";
 
-export type SubscriptionDB = {
-	lastSeenVideo: fApiVideo["guid"];
+type lastSeenVideo = {
+	videoGUID: fApiVideo["guid"];
+	releaseDate: fApiVideo["releaseDate"];
 }
+type SubscriptionDB = {
+	lastSeenVideo: lastSeenVideo
+}
+
 
 export default class Subscription {
 	public channels: Channel[];
@@ -21,18 +26,29 @@ export default class Subscription {
 	 * @param {ChannelOptions[]} channels
 	 */
 	constructor(subscription: fApiSubscription, channels: ChannelOptions[] = []) {
-		this.channels = channels.map(channel => new Channel(channel));
+		this.channels = channels.map(channel => new Channel(channel, this));
 		this.ownChannel = new Channel({
 			creatorId: subscription.creator,
 			title: subscription.plan.title,
 			skip: false,
 			identifier: { check: "", type: "title" }
-		});
-		this._db = db<SubscriptionDB>(`./db/subscriptions/${subscription.creator}.json`, { lastSeenVideo: "" });
+		}, this);
+
+		// Load/Create database
+		const databaseFilePath = `./db/subscriptions/${subscription.creator}.json`;
+		try {
+			this._db = db<SubscriptionDB>(databaseFilePath, { lastSeenVideo: { videoGUID: "", releaseDate: "" } });
+		} catch {
+			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
+		}
 	}
 
 	get lastSeenVideo(): SubscriptionDB["lastSeenVideo"] {
 		return this._db.lastSeenVideo;
+	}
+
+	public updateLastSeenVideo = (videoSeen: lastSeenVideo): void => {
+		if (new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
 	}
 
 	/**
