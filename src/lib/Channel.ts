@@ -6,7 +6,7 @@ import type { ChannelOptions } from "./types";
 import type Subscription from "./Subscription";
 
 // e = episodeNo, d = downloaded, s = filesize in bytes, f = file
-export type VideoDBEntry = { e: number, d: boolean, s?: number, f?: string }
+export type VideoDBEntry = { episodeNumber: number, downloaded: boolean, expectedSize?: number, filePath?: string }
 export type ChannelDB = {
 	videos: { [key: string]: VideoDBEntry },
 	episodeNo: number
@@ -45,13 +45,13 @@ export default class Channel {
 	public markVideoDownloaded = (videoGUID: string, releaseDate: string): void => {
 		// Redundant check but worth keeping
 		if (this._db.videos[videoGUID] === undefined) throw new Error(`Cannot mark unknown video ${videoGUID} as downloaded. Video does not exist in channel database.`);
-		this._db.videos[videoGUID].d = true;
+		this._db.videos[videoGUID].downloaded = true;
 		this.subscription.updateLastSeenVideo({ videoGUID, releaseDate });
 	}
 
 	public addVideo = (video: fApiVideo): Video => {
 		// Set the episode number
-		this._db.videos[video.guid] ??= { e: this._db.episodeNo++, d: false };
+		this._db.videos[video.guid] ??= { episodeNumber: this._db.episodeNo++, downloaded: false };
 		return new Video(video, this);
 	}
 }

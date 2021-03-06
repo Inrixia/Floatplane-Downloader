@@ -37,7 +37,7 @@ export default class Video {
 
 		this.filePath = settings.videoFolder+"/"+sanitize(`${settings.fileFormatting
 			.replace(/%channelTitle%/g, this.channel.title)
-			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).e.toString())
+			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNumber.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
 			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))
@@ -49,22 +49,11 @@ export default class Video {
 	 */
 	public isDownloaded = async (): Promise<boolean> => {
 		const dbEntry = this.channel.lookupVideoDB(this.guid);
-		if (dbEntry.d === true) {
-			if (dbEntry.f === undefined) return dbEntry.d = false;
-			else {
-				try {
-					if (await this.fileSize() === dbEntry.s) return true;
-					else return false;
-				} catch (err) { 
-					return false; 
-				}
-			}
-		} else return false;
+		if (dbEntry.downloaded === true && dbEntry.filePath !== undefined && await this.fileSize() === dbEntry.expectedSize) return true;
+		else return false;
 	}
 
-	public fileSize = async (): Promise<number>  => {
-		return (await fs.stat(this.filePath)).size;
-	}
+	public fileSize = async (): Promise<number> => (await fs.stat(this.filePath).catch(() => ({ size: -1 }))).size;
 
 	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
 		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
@@ -87,13 +76,13 @@ export default class Video {
 				.ele("description").text(this.description).up()
 				.ele("aired").text(this.releaseDate.toString()).up()
 				.ele("season").text("1").up()
-				.ele("episode").text(this.channel.lookupVideoDB(this.guid).e.toString()).up()
+				.ele("episode").text(this.channel.lookupVideoDB(this.guid).episodeNumber.toString()).up()
 				.end({ pretty: true });
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
 		}
 		
 		// Download video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).s}` }:{});
+		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }:{});
 		downloadRequest.pipe(createWriteStream(this.filePath, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
 		return downloadRequest;
 	}
