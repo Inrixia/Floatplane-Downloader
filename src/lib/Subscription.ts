@@ -48,7 +48,7 @@ export default class Subscription {
 	}
 
 	public updateLastSeenVideo = (videoSeen: lastSeenVideo): void => {
-		if (new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
+		if (this.lastSeenVideo.releaseDate === "" || new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
 	}
 
 	/**
