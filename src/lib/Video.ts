@@ -84,8 +84,14 @@ export default class Video {
 		// Download video
 		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }:{});
 		downloadRequest.pipe(createWriteStream(this.filePath, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
+		
+		this.channel.lookupVideoDB(this.guid).expectedSize = downloadRequest.downloadProgress.total;
+		
 		return downloadRequest;
 	}
 
-	public markDownloaded = (): void => this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
+	public markDownloaded = async (): Promise<void> => {
+		if (await this.fileSize() !== this.channel.lookupVideoDB(this.guid).expectedSize) throw new Error("Cannot mark video as downloaded when file size is not correct.");
+		return this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
+	}
 }

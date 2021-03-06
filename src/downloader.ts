@@ -23,7 +23,7 @@ export const downloadVideos = (videos: Video[]): Array<Promise<void>> => videos.
 
 const downloadVideo = async (video: Video) => {
 	console.log(video.filePath);
-	video.markDownloaded();
+	await video.markDownloaded();
 	// (await video.download(fApi)).on("downloadProgress", console.log);
 	// // This handles resuming downloads, its very similar to the download function with some changes
 	// let displayTitle = "";
