@@ -1,6 +1,7 @@
 export type Resolutions = [360, 720, 1080, 2160];
 
 import type { Video as fApiVideo } from "floatplane/creator";
+
 export type ChannelOptions = {
 	creatorId?: string;
 	title: string;
@@ -25,6 +26,14 @@ export type PlexSettings = {
 }
 
 export type Extras = { [key: string]: boolean }
+
+export type SubscriptionSettings = {
+	creatorId: string;
+	title: string;
+	skip: boolean;
+	channels: ChannelOptions[];
+}
+
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	videoFolder: string;
@@ -48,12 +57,7 @@ export type Settings = {
 	extras: Extras;
 	downloadUpdateTime: number;
 	subscriptions: {
-		[key: string]: {
-			creatorId: string,
-			title: string,
-			skip: boolean,
-			channels: ChannelOptions[]
-		}
+		[key: string]: SubscriptionSettings;
 	};
 	plex: PlexSettings;
 	colourList: {

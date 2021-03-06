@@ -1,9 +1,8 @@
 import db from "@inrixia/db";
 import Channel from "./Channel";
 
-import type { ChannelOptions } from "./types";
+import type { SubscriptionSettings } from "./types";
 
-import type { Subscription as fApiSubscription } from "floatplane/user";
 import type { Video as fApiVideo } from "floatplane/creator";
 
 type lastSeenVideo = {
@@ -25,17 +24,17 @@ export default class Subscription {
 	 * @param {fApiSubscription} subscription
 	 * @param {ChannelOptions[]} channels
 	 */
-	constructor(subscription: fApiSubscription, channels: ChannelOptions[] = []) {
-		this.channels = channels.map(channel => new Channel(channel, this));
+	constructor(subscription: SubscriptionSettings) {
+		this.channels = subscription.channels.map(channel => new Channel(channel, this));
 		this.ownChannel = new Channel({
-			creatorId: subscription.creator,
-			title: subscription.plan.title,
+			creatorId: subscription.creatorId,
+			title: subscription.title,
 			skip: false,
 			identifier: { check: "", type: "title" }
 		}, this);
 
 		// Load/Create database
-		const databaseFilePath = `./db/subscriptions/${subscription.creator}.json`;
+		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
 		try {
 			this._db = db<SubscriptionDB>(databaseFilePath, { lastSeenVideo: { videoGUID: "", releaseDate: "" } });
 		} catch {

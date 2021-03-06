@@ -23,7 +23,7 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 
 		if (settings.subscriptions[subscription.creator].skip === true) continue;
 
-		const sub = new Subscription(subscription, settings.subscriptions[subscription.creator].channels);
+		const sub = new Subscription(settings.subscriptions[subscription.creator]);
 		const lastSeenVideo = sub.lastSeenVideo.videoGUID;
 
 		// Search infinitely if we are resuming. Otherwise only grab the latest `settings.floatplane.videosToSearch` videos
