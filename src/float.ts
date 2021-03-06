@@ -7,7 +7,10 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 import { loginFloatplane } from "./logins";
 
 import { fetchNewSubscriptionVideos } from "./fetchers";
-import { Subscription } from "floatplane/user";
+
+import type { Subscription } from "floatplane/user";
+
+import { downloadVideos } from "./downloader";
 
 /**
  * Main function that triggeres everything else in the script
@@ -30,7 +33,9 @@ const startFetching = async () => {
 	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
-	console.log(await fetchNewSubscriptionVideos(userSubscriptions, fApi));
+	const videostoDownload = await fetchNewSubscriptionVideos(userSubscriptions, fApi);
+	await Promise.all(downloadVideos(videostoDownload));
+	console.log("All videos downloaded!!");
 };
 
 // Async start

@@ -7,18 +7,19 @@ import { fApi } from "./lib/FloatplaneAPI";
 
 const multiProgressBar = new MultiProgress(process.stdout);
 
-const videoDownloadQueue: Video[] = [];
+type promiseFunction = () => void;
+const videoDownloadQueue: {video: Video, res: promiseFunction, rej: promiseFunction}[] = [];
 let videosDownloading = 0;
 
 setInterval(() => {
-	while(videoDownloadQueue.length > 0 && videosDownloading < settings.downloadThreads) {
+	while(videoDownloadQueue.length > 0 && settings.downloadThreads === -1 || videosDownloading < settings.downloadThreads) {
 		videosDownloading++;
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		downloadVideo(videoDownloadQueue.pop()!);
+		const task = videoDownloadQueue.pop();
+		if (task !== undefined) downloadVideo(task.video).then(task.res).catch(task.rej);
 	}
 }, 50);
 
-export const downloadVideos = async (videos: Video[]): Promise<number> => videoDownloadQueue.push(...videos);
+export const downloadVideos = (videos: Video[]): Array<Promise<void>> => videos.map(video => new Promise<void>((res, rej) => videoDownloadQueue.push({video, res, rej})));
 
 const downloadVideo = async (video: Video) => {
 	console.log(video);
