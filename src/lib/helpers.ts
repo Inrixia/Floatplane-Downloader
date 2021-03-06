@@ -24,7 +24,7 @@ export const findClosestEdge = (edgesResponse: EdgesResponse): Edge => edgesResp
 });
 
 import { nPad } from "@inrixia/helpers/object";
-export const autoRepeat = async (functionToRun: (...args: unknown[]) => Promise<unknown>): Promise<void> => {
+export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
 	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));
 	console.log(`\u001b[41mRepeating every ${interval[0]}H, ${interval[1]}m, ${interval[2]}s...\u001b[0m`);
 	await functionToRun(); // Run

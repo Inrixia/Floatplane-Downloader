@@ -17,7 +17,7 @@
     "@inrixia/helpers": "^1.15.1",
     "@types/prompts": "^2.0.9",
     "floatplane": "^2.1.0",
-    "got": "^11.8.1",
+    "got": "^11.8.2",
     "multi-progress": "^4.0.0",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
@@ -35,10 +35,10 @@
   "devDependencies": {
     "@types/multi-progress": "^2.0.3",
     "@types/tough-cookie-file-store": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.10.0",
-    "@typescript-eslint/parser": "^4.10.0",
-    "eslint": "^7.16.0",
+    "@typescript-eslint/eslint-plugin": "^4.16.1",
+    "@typescript-eslint/parser": "^4.16.1",
+    "eslint": "^7.21.0",
     "jest": "^26.4.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.2.3"
   }
 }

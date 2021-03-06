@@ -7,6 +7,7 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 import { loginFloatplane } from "./logins";
 
 import { fetchNewSubscriptionVideos } from "./fetchers";
+import { Subscription } from "floatplane/user";
 
 /**
  * Main function that triggeres everything else in the script
@@ -19,7 +20,14 @@ const startFetching = async () => {
 	}
 
 	process.stdout.write("> Fetching user subscriptions... ");
-	const userSubscriptions = await fApi.user.subscriptions();
+	let userSubscriptions: Array<Subscription>;
+	try {
+		userSubscriptions = await fApi.user.subscriptions();
+	} catch (err) {
+		console.log((err as Error).message);
+		await loginFloatplane(fApi);
+		userSubscriptions = await fApi.user.subscriptions();
+	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
 	console.log(await fetchNewSubscriptionVideos(userSubscriptions, fApi));
@@ -31,7 +39,7 @@ const startFetching = async () => {
 	if (settings.runQuickstartPrompts) await quickStart(settings, fApi);
 	settings.runQuickstartPrompts = false;
 
-	// Get Plex details of not saved
+	// Get Plex details if not saved
 	await validatePlexSettings(settings.plex, true);
 
 	// Get Floatplane credentials if not saved

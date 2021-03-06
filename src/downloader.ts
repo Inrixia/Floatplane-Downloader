@@ -21,7 +21,8 @@ setInterval(() => {
 export const downloadVideos = async (videos: Video[]): Promise<number> => videoDownloadQueue.push(...videos);
 
 const downloadVideo = async (video: Video) => {
-	await video.download(fApi);
+	console.log(video);
+	// (await video.download(fApi)).on("downloadProgress", console.log);
 	// // This handles resuming downloads, its very similar to the download function with some changes
 	// let displayTitle = "";
 	// // If this video was partially downloaded
