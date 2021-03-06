@@ -14,7 +14,6 @@ export type ChannelDB = {
 
 export default class Channel {
 	public title: ChannelOptions["title"];
-	public creator: ChannelOptions["creatorId"];
 	public identifier: ChannelOptions["identifier"];
 	public skip: ChannelOptions["skip"];
 
@@ -29,10 +28,9 @@ export default class Channel {
 		this.subscription = subscription;
 
 		this.title = channel.title;
-		this.creator = channel.creatorId;
 		this.identifier = channel.identifier;
 		this.skip = channel.skip;
-		const databaseFilePath = `./db/channels/${channel.creatorId}/${channel.title}.json`;
+		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
 			this._db = db<ChannelDB>(databaseFilePath, { videos: {}, episodeNo: 1 });
 		} catch {

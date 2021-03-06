@@ -18,6 +18,8 @@ export default class Subscription {
 	public channels: Channel[];
 	public ownChannel: Channel;
 
+	public creatorId: string;
+
 	private _db: SubscriptionDB;
 	/**
 	 * Returns a channel built from a subscription.
@@ -25,9 +27,10 @@ export default class Subscription {
 	 * @param {ChannelOptions[]} channels
 	 */
 	constructor(subscription: SubscriptionSettings) {
+		this.creatorId = subscription.creatorId;
+		
 		this.channels = subscription.channels.map(channel => new Channel(channel, this));
 		this.ownChannel = new Channel({
-			creatorId: subscription.creatorId,
 			title: subscription.title,
 			skip: false,
 			identifier: { check: "", type: "title" }
