@@ -3,12 +3,20 @@ import db from "@inrixia/db";
 import type { Settings, ChannelAliases, SubChannels } from "./types";
 import { defaultSettings, defaultSubChannels, defaultChannelAliases } from "./defaults";
 
-export const writeableSettings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
-export const settings = writeableSettings as Readonly<Settings>;
+export const settings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
+export const readOnlySettings = settings as Readonly<Settings>;
+
+type UnknownObject = { [key: string]: unknown };
+const mergeObject = (priorityKeep: UnknownObject, overwriteFrom: UnknownObject): void => {
+	for (const [key, value] of Object.entries(overwriteFrom)) {
+		priorityKeep[key] = value;
+	}
+};
 
 export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases, { forceCreate: true, pretty: true }) as Readonly<ChannelAliases>;
+mergeObject(channelAliases, defaultChannelAliases);
 export const subChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels, { forceCreate: true, pretty: true }) as Readonly<SubChannels>;
-
+mergeObject(subChannels, defaultSubChannels);
 
 import type { Edge, EdgesResponse } from "floatplane/api";
 import { getDistance } from "@inrixia/helpers/geo";

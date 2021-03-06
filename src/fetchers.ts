@@ -2,7 +2,7 @@ import type { Subscription as fApiSubscription } from "floatplane/user";
 import type FloatplaneApi from "floatplane";
 import type Video from "./lib/Video";
 
-import { writeableSettings as settings, subChannels, channelAliases } from "./lib/helpers";
+import { settings, subChannels, channelAliases } from "./lib/helpers";
 import Subscription from "./lib/Subscription";
 
 export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {

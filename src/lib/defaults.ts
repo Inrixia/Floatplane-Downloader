@@ -58,6 +58,14 @@ export const defaultSubChannels: SubChannels = {
 					type: "title",
 				},
 			},
+			{
+				title: "LMG Livestream VODs",
+				skip: false,
+				identifier: {
+					check: "Livestream VOD",
+					type: "title"
+				}
+			}
 		],
 	},
 };

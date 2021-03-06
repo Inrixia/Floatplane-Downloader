@@ -1,4 +1,4 @@
-import { writeableSettings as settings, findClosestEdge, autoRepeat } from "./lib/helpers";
+import { settings, findClosestEdge, autoRepeat } from "./lib/helpers";
 
 import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
