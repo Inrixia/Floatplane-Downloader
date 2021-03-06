@@ -14,8 +14,12 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 			creatorId: subscription.creator,
 			title,
 			skip: false,
-			channels: subChannels[subscription.plan.title]?.channels
+			channels: subChannels[title]?.channels
 		};
+		// Make sure that subchannels are set on settings properly
+		if (settings.subscriptions[subscription.creator].channels?.length !== subChannels[title]?.channels.length) {
+			settings.subscriptions[subscription.creator].channels = subChannels[title]?.channels;
+		}
 
 		if (settings.subscriptions[subscription.creator].skip === true) continue;
 
