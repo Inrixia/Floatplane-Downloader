@@ -1,20 +1,22 @@
 import db from "@inrixia/db";
 
-import type { Settings, ChannelAliases, SubChannels } from "./types";
-import { defaultSettings, defaultSubChannels, defaultChannelAliases } from "./defaults";
+import { isObject } from "@inrixia/helpers/object";
+
+import type { Settings } from "./types";
+import { defaultSettings } from "./defaults";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const recursiveUpdate = (targetObject: any, newObject: any) => {
+	if (!isObject(targetObject)) throw new Error("targetObject is not an object!");
+	if (!isObject(newObject)) throw new Error("newObject is not an object!");
+	for (const key in newObject) {
+		if (targetObject[key] === undefined) targetObject[key] = newObject[key];
+		else if (isObject(targetObject[key]) && isObject(newObject[key])) recursiveUpdate(targetObject[key], newObject[key]);
+	}
+};
 
 export const settings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
-export const readOnlySettings = settings as Readonly<Settings>;
-
-export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases, { forceCreate: true, pretty: true });
-for (const [subscriptionName, defaultSubscriptionAlias] of Object.entries(defaultChannelAliases)) {
-	if (channelAliases[subscriptionName] === undefined) channelAliases[subscriptionName] = defaultSubscriptionAlias;
-}
-
-export const subscriptionSubChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels, { forceCreate: true, pretty: true });
-for (const subscriptionAlias in defaultSubChannels) {
-	subscriptionSubChannels[subscriptionAlias] = { ...defaultSubChannels[subscriptionAlias], ...subscriptionSubChannels[subscriptionAlias] };
-}
+recursiveUpdate(settings, defaultSettings);
 
 import type { Edge, EdgesResponse } from "floatplane/api";
 import { getDistance } from "@inrixia/helpers/geo";

@@ -1,14 +1,13 @@
-import { Resolutions, SubChannels, Settings, ChannelAliases } from "./types";
+import { Resolutions, SubChannels, Settings } from "./types";
 
 export const defaultResoulutions: Resolutions = [360, 720, 1080, 2160];
-export const defaultChannelAliases: ChannelAliases = {
-	"linus tech tips": "Linus Tech Tips",
-	"ltt supporter (og)": "Linus Tech Tips",
-	"ltt supporter (1080p)": "Linus Tech Tips",
-	"ltt supporter plus": "Linus Tech Tips",
-};
-export const defaultSubChannels: SubChannels = {
+export const defaultSubChannels: { [key: string]: SubChannels } = {
 	"Linus Tech Tips": {
+		"_default": {
+			title: "Linus Tech Tips",
+			skip: false,
+			identifier: false,
+		},
 		"Floatplane Exclusive": {
 			title: "Floatplane Exclusive",
 			skip: false,
@@ -78,7 +77,7 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 	},
 	_fileFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
-	fileFormatting: "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
+	fileFormatting: "%channelTitle% - S01E%episodeNumber% - %videoTitle%",
 	auth: {
 		encrypt: true,
 		encryptionKey: "goAwaehOrIShallTauntYouASecondTiem",
@@ -92,12 +91,18 @@ export const defaultSettings: Settings = {
 		saveNfo: true,
 	},
 	downloadUpdateTime: 250,
-	subscriptions: {},
 	plex: {
 		sectionsToUpdate: [],
 		enabled: true,
 		token: "",
 	},
+	channelAliases: {
+		"linus tech tips": "Linus Tech Tips",
+		"ltt supporter (og)": "Linus Tech Tips",
+		"ltt supporter (1080p)": "Linus Tech Tips",
+		"ltt supporter plus": "Linus Tech Tips",
+	},
+	subscriptions: {},
 	colourList: {
 		"Linus Tech Tips": "\u001b[38;5;208m",
 		"The WAN Show": "\u001b[38;5;208m",

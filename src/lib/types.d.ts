@@ -8,14 +8,12 @@ export type ChannelOptions = {
 	identifier: {
 		check: string;
 		type: keyof fApiVideo;
-	};
+	} | false;
 };
 
-export type ChannelAliases = { [key: string]: string };
 export type SubChannels = {
-	[key: string]: {
-		[key: string]: ChannelOptions;
-	};
+	_default: ChannelOptions;
+	[key: string]: ChannelOptions;
 };
 
 export type PlexSettings = {
@@ -28,9 +26,9 @@ export type Extras = { [key: string]: boolean }
 
 export type SubscriptionSettings = {
 	creatorId: string;
-	title: string;
+	plan: string;
 	skip: boolean;
-	channels: ChannelOptions[];
+	channels: SubChannels;
 }
 
 export type Settings = {
@@ -55,6 +53,9 @@ export type Settings = {
 	};
 	extras: Extras;
 	downloadUpdateTime: number;
+	channelAliases: { 
+		[key: string]: string 
+	};
 	subscriptions: {
 		[key: string]: SubscriptionSettings;
 	};

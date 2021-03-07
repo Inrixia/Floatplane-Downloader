@@ -2,24 +2,23 @@ import type { Subscription as fApiSubscription } from "floatplane/user";
 import type FloatplaneApi from "floatplane";
 import type Video from "./lib/Video";
 
-import { settings, subscriptionSubChannels, channelAliases } from "./lib/helpers";
+import { settings } from "./lib/helpers";
+import { defaultSubChannels } from "./lib/defaults";
 import Subscription from "./lib/Subscription";
 
 export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {
 	const videosToDownload: Video[] = [];
 	for (const subscription of userSubscriptions) {
 		// Add the subscription to settings if it doesnt exist
-		const title = channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title;
+		const titleAlias = settings.channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title;
 		settings.subscriptions[subscription.creator] ??= {
 			creatorId: subscription.creator,
-			title,
+			plan: subscription.plan.title,
 			skip: false,
-			channels: Object.values(subscriptionSubChannels[title])
+			channels: defaultSubChannels[titleAlias]
 		};
-		// Make sure that subchannels are set on settings properly
-		if (settings.subscriptions[subscription.creator].channels?.length !== Object.values(subscriptionSubChannels[title]).length) {
-			settings.subscriptions[subscription.creator].channels = Object.values(subscriptionSubChannels[title]);
-		}
+		// Make sure that new subchannels from defaults are added to settings
+		settings.subscriptions[subscription.creator].channels = { ...defaultSubChannels[titleAlias], ...settings.subscriptions[subscription.creator].channels };
 
 		if (settings.subscriptions[subscription.creator].skip === true) continue;
 
@@ -32,7 +31,7 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 
 		let videosSearched = 0;
 		const videos = [];
-		process.stdout.write(`> Fetching latest videos from [\u001b[38;5;208m${title}\u001b[0m]... `);
+		process.stdout.write(`> Fetching latest videos from [\u001b[38;5;208m${titleAlias}\u001b[0m]... `);
 		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
 			if (videosSearched === videosToSearch || video.guid === lastSeenVideo) break;
 			videos.push(video);

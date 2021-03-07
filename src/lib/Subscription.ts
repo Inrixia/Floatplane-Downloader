@@ -15,8 +15,8 @@ type SubscriptionDB = {
 
 
 export default class Subscription {
-	public channels: Channel[];
-	public ownChannel: Channel;
+	private _channels: Channel[];
+	private _defaultChannel: Channel;
 
 	public creatorId: string;
 
@@ -29,12 +29,8 @@ export default class Subscription {
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 		
-		this.channels = subscription.channels.map(channel => new Channel(channel, this));
-		this.ownChannel = new Channel({
-			title: subscription.title,
-			skip: false,
-			identifier: { check: "", type: "title" }
-		}, this);
+		this._channels = Object.values(subscription.channels).map(channel => new Channel(channel, this));
+		this._defaultChannel = new Channel(subscription.channels._default, this);
 
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
@@ -57,13 +53,15 @@ export default class Subscription {
 	 * @param {fApiVideo} video
 	 */
 	public addVideo = (video: fApiVideo): (ReturnType<Channel["addVideo"]> | null) => {
-		for (const channel of this.channels) {
+		for (const channel of this._channels) {
 			// Check if the video belongs to this channel
+			if (channel.identifier === false) continue;
 			if (video[channel.identifier.type].toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {
 				if (channel.skip === true) return null;
 				return channel.addVideo(video);
 			}
 		}
-		return this.ownChannel.addVideo(video);
+		if (this._defaultChannel.skip === true) return null;
+		else return this._defaultChannel.addVideo(video);
 	}
 }
