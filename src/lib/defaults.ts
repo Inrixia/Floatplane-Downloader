@@ -68,7 +68,6 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 };
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
-	videoFolder: "./videos/",
 	downloadThreads: -1,
 	floatplane: {
 		findClosestEdge: true,
@@ -76,8 +75,8 @@ export const defaultSettings: Settings = {
 		edge: "edge02-na.floatplane.com",
 		videosToSearch: 5,
 	},
-	_fileFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
-	fileFormatting: "%channelTitle% - S01E%episodeNumber% - %videoTitle%",
+	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
+	filePathFormatting: "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
 	auth: {
 		encrypt: true,
 		encryptionKey: "goAwaehOrIShallTauntYouASecondTiem",

@@ -22,6 +22,7 @@ export default class Video {
 	public channel: Channel;
 
 	public filePath: string;
+	private folderPath: string;
 
 	constructor(video: fApiVideo, channel: Channel) {
 		this.channel = channel;
@@ -34,14 +35,15 @@ export default class Video {
 
 		const YEAR = this.releaseDate.getFullYear();
 		const MONTH = this.releaseDate.getMonth()>9?"0"+this.releaseDate.getMonth():this.releaseDate.getMonth(); // If the month is less than 10 pad it with a 0
-
-		this.filePath = settings.videoFolder+"/"+sanitize(`${settings.fileFormatting
+		const fullPath = `${settings.filePathFormatting
 			.replace(/%channelTitle%/g, this.channel.title)
 			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNumber.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
 			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))
-		}`);
+		}`;
+		this.folderPath = fullPath.split("/").slice(0, -1).join("/");
+		this.filePath = `${this.folderPath}/${sanitize(fullPath.split("/").slice(-1)[0])}`;
 	}
 
 	/**
@@ -59,10 +61,10 @@ export default class Video {
 		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
 
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		const downloadedBytes = await this.fileSize().catch(() => {});
+		const downloadedBytes = await this.fileSize();
 
 		// Make sure the folder for the video exists
-		await fs.mkdir(this.filePath.split("/").slice(0, -1).join("/"));
+		await fs.mkdir(this.folderPath, { recursive: true });
 
 		if (settings.extras.downloadArtwork && this.thumbnail) { // If downloading artwork is enabled download it
 			// request(video.thumbnail.path).pipe(fs.createWriteStream(`${video.folderPath}${video.title}.${settings.extras.artworkFormat$}`))

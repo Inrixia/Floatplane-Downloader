@@ -42,11 +42,10 @@ export const quickStart = async (settings: Settings, fApi: FloatplaneApi): Promi
 	console.log("According to your settings.json this is your first launch! So lets go through the basic setup...\n");
 	console.log("\n== \u001b[38;5;208mGeneral\u001b[0m ==\n");
 
-	settings.videoFolder = await prompts.settings.videoFolder(settings.videoFolder);
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
 	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads);
 	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResoulutions);
-	settings.fileFormatting = await prompts.settings.fileFormatting(settings.fileFormatting, settings._fileFormattingOPTIONS);
+	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
 
 	const extras = await prompts.settings.extras(settings.extras);
 	for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false;

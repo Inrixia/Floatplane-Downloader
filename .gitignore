@@ -16,5 +16,8 @@ node_modules/
 db/
 config/
 
+# Video testing folder
+videos/
+
 # Typescript ignores
 dist/

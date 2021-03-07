@@ -33,7 +33,6 @@ export type SubscriptionSettings = {
 
 export type Settings = {
 	runQuickstartPrompts: boolean;
-	videoFolder: string;
 	downloadThreads: number;
 	floatplane: {
 		findClosestEdge: boolean;
@@ -41,8 +40,8 @@ export type Settings = {
 		edge: string;
 		videosToSearch: number;
 	};
-	_fileFormattingOPTIONS: string[];
-	fileFormatting: string;
+	_filePathFormattingOPTIONS: string[];
+	filePathFormatting: string;
 	auth: {
 		encrypt: boolean;
 		encryptionKey: string;
