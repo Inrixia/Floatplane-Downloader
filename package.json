@@ -17,7 +17,7 @@
     "@inrixia/helpers": "^1.15.1",
     "floatplane": "^2.1.6",
     "got": "^11.8.2",
-    "multi-progress": "^4.0.0",
+    "multi-progress-bars": "^3.2.2",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
     "tough-cookie": "^4.0.0",
