@@ -37,7 +37,7 @@ export default class Video {
 		const MONTH = this.releaseDate.getMonth()>9?"0"+this.releaseDate.getMonth():this.releaseDate.getMonth(); // If the month is less than 10 pad it with a 0
 		const fullPath = `${settings.filePathFormatting
 			.replace(/%channelTitle%/g, this.channel.title)
-			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNumber.toString())
+			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNo.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
 			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))
@@ -49,11 +49,7 @@ export default class Video {
 	/**
 	 * @returns {Promise<boolean>}
 	 */
-	public isDownloaded = async (): Promise<boolean> => {
-		const dbEntry = this.channel.lookupVideoDB(this.guid);
-		if (dbEntry.downloaded === true && dbEntry.filePath !== undefined && await this.downloadedBytes() === dbEntry.expectedSize) return true;
-		else return false;
-	}
+	public isDownloaded = async (): Promise<boolean> => await this.downloadedBytes() === this.channel.lookupVideoDB(this.guid).expectedSize;
 
 	public downloadedBytes = async (): Promise<number> => (await fs.stat(`${this.filePath}.mp4`).catch(() => ({ size: -1 }))).size;
 
@@ -78,7 +74,7 @@ export default class Video {
 				.ele("description").text(this.description).up()
 				.ele("aired").text(this.releaseDate.toString()).up()
 				.ele("season").text("1").up()
-				.ele("episode").text(this.channel.lookupVideoDB(this.guid).episodeNumber.toString()).up()
+				.ele("episode").text(this.channel.lookupVideoDB(this.guid).episodeNo.toString()).up()
 				.end({ pretty: true });
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
 		}

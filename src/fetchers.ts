@@ -26,19 +26,20 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 		const lastSeenVideo = sub.lastSeenVideo.videoGUID;
 
 		// Search infinitely if we are resuming. Otherwise only grab the latest `settings.floatplane.videosToSearch` videos
-		let videosToSearch = -1;
-		if (lastSeenVideo === "") videosToSearch = settings.floatplane.videosToSearch;
+		const videosToSearch = settings.floatplane.videosToSearch;
 
 		let videosSearched = 0;
+		let foundLastSeenVideo = false;
 		const videos = [];
 		process.stdout.write(`> Fetching latest videos from [\u001b[38;5;208m${titleAlias}\u001b[0m]... `);
 		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
-			if (videosSearched === videosToSearch || video.guid === lastSeenVideo) break;
+			if (video.guid === lastSeenVideo) foundLastSeenVideo = true;
+			if (videosSearched >= videosToSearch && foundLastSeenVideo) break;
 			videos.push(video);
 			videosSearched++;
 		}
 		process.stdout.write(`Fetched ${videos.length} videos!\n`);
-		// Make sure videos are in correct order for episode numbering
+		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
 			if (video !== null && !await video.isDownloaded()) videosToDownload.push(video);
 		}
