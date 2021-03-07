@@ -11,6 +11,7 @@ import { fetchNewSubscriptionVideos } from "./fetchers";
 import type { Subscription } from "floatplane/user";
 
 import { downloadVideos } from "./downloader";
+import { MyPlexAccount } from "@ctrl/plex";
 
 /**
  * Main function that triggeres everything else in the script
@@ -35,6 +36,9 @@ const startFetching = async () => {
 
 	const videostoDownload = await fetchNewSubscriptionVideos(userSubscriptions, fApi);
 	await Promise.all(downloadVideos(videostoDownload));
+	console.log("OwO Plexmo");
+	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+	console.log(await (await (await ((await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library())).section(settings.plex.sectionsToUpdate[0].section)).refresh());
 	console.log("All videos downloaded!!");
 };
 

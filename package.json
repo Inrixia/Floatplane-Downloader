@@ -18,7 +18,6 @@
     "floatplane": "^2.1.6",
     "got": "^11.8.2",
     "multi-progress": "^4.0.0",
-    "multi-progress-bars": "file:C:\\Users\\Inrix\\git\\multi-progress-bars",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
     "tough-cookie": "^4.0.0",
@@ -40,6 +39,7 @@
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.21.0",
     "jest": "^26.4.2",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "pkg": "^4.4.9"
   }
 }

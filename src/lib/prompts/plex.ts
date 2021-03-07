@@ -16,17 +16,22 @@ export const usePlex = async (initial: boolean): Promise<boolean> => (await prom
 })).usePlex||initial;
 
 import type { Section } from "@ctrl/plex";
+import { PlexSections } from "../types";
 /**
  * Prompts user to select plex sections to refresh
  * @param selectedSections Sections already selected
  * @param avalibleSections Array of avalible plex sections
- * @returns {Promise<Array<string>>} UUID's of selected plex sections
  */
-export const sections = async (selectedSections: string[], avalibleSections: Section[]): Promise<Array<string>> => (await prompts({
+export const sections = async (selectedSections: PlexSections, avalibleSections: Section[]): Promise<PlexSections> => (await prompts({
 	type: "multiselect",
 	name: "sections",
 	message: "Please select the plex section's you want to refresh.",
-	choices: Object.values(avalibleSections).map(avalibleSection => ({ title: `[${avalibleSection.server.friendlyName}]: ${avalibleSection.title}`, value: avalibleSection.uuid, selected: selectedSections.includes(avalibleSection.uuid) })),
+	choices: Object.values(avalibleSections)
+		.map(avalibleSection => ({ 
+			title: `[${avalibleSection.server.friendlyName}]: ${avalibleSection.title}`, 
+			value: { server: avalibleSection.server.friendlyName, section: avalibleSection.title }, 
+			selected: selectedSections.includes({ server: avalibleSection.server.friendlyName, section: avalibleSection.title }) 
+		})),
 	hint: "- Space to select. Return to submit"
 })).sections||selectedSections;
 
@@ -49,7 +54,7 @@ export const username = async (): Promise<string> => (await requiredPrompts({
 export const password = async (): Promise<string> => (await requiredPrompts({
 	type: "password",
 	name: "password",
-	message: "Plex account password:",
+	message: "Plex account password, (If you have 2factor enabled write your 2factor code after your password):",
 })).password;
 
 /**

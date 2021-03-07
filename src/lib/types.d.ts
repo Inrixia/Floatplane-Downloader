@@ -16,8 +16,9 @@ export type SubChannels = {
 	[key: string]: ChannelOptions;
 };
 
+export type PlexSections = Array<{ server: string, section: string }>;
 export type PlexSettings = {
-	sectionsToUpdate: string[];
+	sectionsToUpdate: PlexSections,
 	enabled: boolean;
 	token: string;
 }
