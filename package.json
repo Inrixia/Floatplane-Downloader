@@ -16,7 +16,7 @@
     "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
     "@types/prompts": "^2.0.9",
-    "floatplane": "^2.1.0",
+    "floatplane": "^2.1.1",
     "got": "^11.8.2",
     "multi-progress": "^4.0.0",
     "prompts": "^2.4.0",

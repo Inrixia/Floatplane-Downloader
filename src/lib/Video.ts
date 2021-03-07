@@ -51,17 +51,17 @@ export default class Video {
 	 */
 	public isDownloaded = async (): Promise<boolean> => {
 		const dbEntry = this.channel.lookupVideoDB(this.guid);
-		if (dbEntry.downloaded === true && dbEntry.filePath !== undefined && await this.fileSize() === dbEntry.expectedSize) return true;
+		if (dbEntry.downloaded === true && dbEntry.filePath !== undefined && await this.downloadedBytes() === dbEntry.expectedSize) return true;
 		else return false;
 	}
 
-	public fileSize = async (): Promise<number> => (await fs.stat(this.filePath).catch(() => ({ size: -1 }))).size;
+	public downloadedBytes = async (): Promise<number> => (await fs.stat(`${this.filePath}.mp4`).catch(() => ({ size: -1 }))).size;
 
 	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
 		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
 
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		const downloadedBytes = await this.fileSize();
+		const downloadedBytes = await this.downloadedBytes();
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
@@ -84,16 +84,16 @@ export default class Video {
 		}
 		
 		// Download video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==undefined?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }:{});
-		downloadRequest.pipe(createWriteStream(this.filePath, downloadedBytes!==undefined?{ start: downloadedBytes, flags: "r+" }:{}));
+		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==-1?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }:undefined);
+		downloadRequest.pipe(createWriteStream(`${this.filePath}.mp4`, downloadedBytes!==-1?{ start: downloadedBytes, flags: "r+" }:undefined));
 		
-		this.channel.lookupVideoDB(this.guid).expectedSize = downloadRequest.downloadProgress.total;
+		downloadRequest.once("downloadProgress", progress => this.channel.lookupVideoDB(this.guid).expectedSize = progress.total);
 		
 		return downloadRequest;
 	}
 
 	public markDownloaded = async (): Promise<void> => {
-		if (await this.fileSize() !== this.channel.lookupVideoDB(this.guid).expectedSize) throw new Error("Cannot mark video as downloaded when file size is not correct.");
+		if (await this.downloadedBytes() !== this.channel.lookupVideoDB(this.guid).expectedSize) throw new Error("Cannot mark video as downloaded when file size is not correct.");
 		return this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
 	}
 }

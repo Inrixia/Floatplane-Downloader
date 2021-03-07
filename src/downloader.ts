@@ -7,24 +7,29 @@ import { fApi } from "./lib/FloatplaneAPI";
 
 const multiProgressBar = new MultiProgress(process.stdout);
 
-type promiseFunction = () => void;
-const videoDownloadQueue: {video: Video, res: promiseFunction, rej: promiseFunction}[] = [];
+type promiseFunction = (f: Promise<void>) => void;
+const videoDownloadQueue: {video: Video, res: promiseFunction }[] = [];
 let videosDownloading = 0;
 
 setInterval(() => {
 	while(videoDownloadQueue.length > 0 && settings.downloadThreads === -1 || videosDownloading < settings.downloadThreads) {
 		videosDownloading++;
 		const task = videoDownloadQueue.pop();
-		if (task !== undefined) downloadVideo(task.video).then(task.res).catch(task.rej);
+		if (task !== undefined) task.res(downloadVideo(task.video));
 	}
 }, 50);
 
-export const downloadVideos = (videos: Video[]): Array<Promise<void>> => videos.map(video => new Promise<void>((res, rej) => videoDownloadQueue.push({video, res, rej})));
+export const downloadVideos = (videos: Video[]): Array<Promise<void>> => videos.map(video => new Promise<void>(res => videoDownloadQueue.push({video, res })));
 
 const downloadVideo = async (video: Video) => {
 	console.log(video.filePath);
+	const downloadRequest = await video.download(fApi);
+	downloadRequest.on("downloadProgress", console.log);
+	await new Promise((res, rej) => {
+		downloadRequest.on("end", res);
+		downloadRequest.on("error", rej);
+	});
 	await video.markDownloaded();
-	// (await video.download(fApi)).on("downloadProgress", console.log);
 	// // This handles resuming downloads, its very similar to the download function with some changes
 	// let displayTitle = "";
 	// // If this video was partially downloaded
