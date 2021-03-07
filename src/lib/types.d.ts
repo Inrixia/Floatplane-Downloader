@@ -14,7 +14,7 @@ export type ChannelOptions = {
 export type ChannelAliases = { [key: string]: string };
 export type SubChannels = {
 	[key: string]: {
-		channels: ChannelOptions[];
+		[key: string]: ChannelOptions;
 	};
 };
 

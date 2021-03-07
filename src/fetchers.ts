@@ -2,7 +2,7 @@ import type { Subscription as fApiSubscription } from "floatplane/user";
 import type FloatplaneApi from "floatplane";
 import type Video from "./lib/Video";
 
-import { settings, subChannels, channelAliases } from "./lib/helpers";
+import { settings, subscriptionSubChannels, channelAliases } from "./lib/helpers";
 import Subscription from "./lib/Subscription";
 
 export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {
@@ -14,11 +14,11 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 			creatorId: subscription.creator,
 			title,
 			skip: false,
-			channels: subChannels[title]?.channels
+			channels: Object.values(subscriptionSubChannels[title])
 		};
 		// Make sure that subchannels are set on settings properly
-		if (settings.subscriptions[subscription.creator].channels?.length !== subChannels[title]?.channels.length) {
-			settings.subscriptions[subscription.creator].channels = subChannels[title]?.channels;
+		if (settings.subscriptions[subscription.creator].channels?.length !== Object.values(subscriptionSubChannels[title]).length) {
+			settings.subscriptions[subscription.creator].channels = Object.values(subscriptionSubChannels[title]);
 		}
 
 		if (settings.subscriptions[subscription.creator].skip === true) continue;

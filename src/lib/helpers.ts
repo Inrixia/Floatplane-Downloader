@@ -6,17 +6,15 @@ import { defaultSettings, defaultSubChannels, defaultChannelAliases } from "./de
 export const settings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
 export const readOnlySettings = settings as Readonly<Settings>;
 
-type UnknownObject = { [key: string]: unknown };
-const mergeObject = (priorityKeep: UnknownObject, overwriteFrom: UnknownObject): void => {
-	for (const [key, value] of Object.entries(overwriteFrom)) {
-		priorityKeep[key] = value;
-	}
-};
+export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases, { forceCreate: true, pretty: true });
+for (const [subscriptionName, defaultSubscriptionAlias] of Object.entries(defaultChannelAliases)) {
+	if (channelAliases[subscriptionName] === undefined) channelAliases[subscriptionName] = defaultSubscriptionAlias;
+}
 
-export const channelAliases = db<ChannelAliases>("./config/channelAliases.json", defaultChannelAliases, { forceCreate: true, pretty: true }) as Readonly<ChannelAliases>;
-mergeObject(channelAliases, defaultChannelAliases);
-export const subChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels, { forceCreate: true, pretty: true }) as Readonly<SubChannels>;
-mergeObject(subChannels, defaultSubChannels);
+export const subscriptionSubChannels = db<SubChannels>("./config/subChannels.json", defaultSubChannels, { forceCreate: true, pretty: true });
+for (const subscriptionAlias in defaultSubChannels) {
+	subscriptionSubChannels[subscriptionAlias] = { ...defaultSubChannels[subscriptionAlias], ...subscriptionSubChannels[subscriptionAlias] };
+}
 
 import type { Edge, EdgesResponse } from "floatplane/api";
 import { getDistance } from "@inrixia/helpers/geo";

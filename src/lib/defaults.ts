@@ -9,65 +9,63 @@ export const defaultChannelAliases: ChannelAliases = {
 };
 export const defaultSubChannels: SubChannels = {
 	"Linus Tech Tips": {
-		channels: [
-			{
-				title: "Floatplane Exclusive",
-				skip: false,
-				identifier: {
-					check: "FP Exclusive",
-					type: "title",
-				},
+		"Floatplane Exclusive": {
+			title: "Floatplane Exclusive",
+			skip: false,
+			identifier: {
+				check: "FP Exclusive",
+				type: "title",
 			},
-			{
-				title: "TechLinked",
-				skip: false,
-				identifier: {
-					check: "NEWS SOURCES",
-					type: "description",
-				},
+		},
+		"TechLinked": {
+			title: "TechLinked",
+			skip: false,
+			identifier: {
+				check: "NEWS SOURCES",
+				type: "description",
 			},
-			{
-				title: "TechQuickie",
-				skip: false,
-				identifier: {
-					check: "TQ:",
-					type: "title",
-				},
+		},
+		"TechQuickie": {
+			title: "TechQuickie",
+			skip: false,
+			identifier: {
+				check: "TQ:",
+				type: "title",
 			},
-			{
-				title: "TalkLinked",
-				skip: false,
-				identifier: {
-					check: "talklinked",
-					type: "description",
-				},
+		},
+		"TalkLinked": {
+			title: "TalkLinked",
+			skip: false,
+			identifier: {
+				check: "talklinked",
+				type: "description",
 			},
-			{
-				title: "Carpool Critics",
-				skip: false,
-				identifier: {
-					check: "CC:",
-					type: "title",
-				},
+		},
+		"Carpool Critics": {
+			title: "Carpool Critics",
+			skip: false,
+			identifier: {
+				check: "CC:",
+				type: "title",
 			},
-			{
-				title: "ShortCircut",
-				skip: false,
-				identifier: {
-					check: "SC:",
-					type: "title",
-				},
+		},
+		"ShortCircut": {
+			title: "ShortCircut",
+			skip: false,
+			identifier: {
+				check: "SC:",
+				type: "title",
 			},
-			{
-				title: "LMG Livestream VODs",
-				skip: false,
-				identifier: {
-					check: "Livestream VOD",
-					type: "title"
-				}
+		},
+		"LMG Livestream VODs": {
+			title: "LMG Livestream VODs",
+			skip: false,
+			identifier: {
+				check: "Livestream VOD",
+				type: "title"
 			}
-		],
-	},
+		}
+	}
 };
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
