@@ -7,6 +7,7 @@ import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
 import type { Video as fApiVideo } from "floatplane/creator";
+// import type { GotOptions } from "floatplane/video";
 import type FloatplaneAPI from "floatplane";
 import type Request from "got/dist/source/core";
 
@@ -17,7 +18,7 @@ export default class Video {
 	public title: string;
 	public description: string;
 	public releaseDate: Date;
-	public thumbnail: string;
+	public thumbnail: fApiVideo["thumbnail"];
 
 	public channel: Channel;
 
@@ -56,15 +57,12 @@ export default class Video {
 	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
 		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
 
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		const downloadedBytes = await this.downloadedBytes();
-
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		if (settings.extras.downloadArtwork && this.thumbnail) { // If downloading artwork is enabled download it
-			// request(video.thumbnail.path).pipe(fs.createWriteStream(`${video.folderPath}${video.title}.${settings.extras.artworkFormat$}`))
-			// TODO: Add generic request to fApi
+		// If downloading artwork is enabled download it
+		if (settings.extras.downloadArtwork && this.thumbnail !== undefined) {
+			fApi.got.stream(this.thumbnail.path).pipe(createWriteStream(`${this.filePath}.png`));
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
@@ -79,10 +77,24 @@ export default class Video {
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
 		}
 		
-		// Download video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), downloadedBytes!==-1?{ Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }:undefined);
-		downloadRequest.pipe(createWriteStream(`${this.filePath}.mp4`, downloadedBytes!==-1?{ start: downloadedBytes, flags: "r+" }:undefined));
-		
+		// Handle download resumption if video was partially downloaded
+		// const downloadedBytes = await this.downloadedBytes();
+		// const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
+		// 	{ start: downloadedBytes, flags: "r+" },
+		// 	{ headers: { Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }, isStream: true } as GotOptions
+		// ] : [
+		// 	undefined,
+		// 	undefined
+		// ];
+
+		// Disabled download resumption due to API not supporting Range headers anymore
+		const [writeStreamOptions, requestOptions] = [undefined, undefined];
+
+		// Send download request video
+		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), requestOptions);
+		// Pipe the download to the file once response starts
+		downloadRequest.pipe(createWriteStream(`${this.filePath}.mp4`, writeStreamOptions));
+		// Set the videos expectedSize once we know how big it should be for download validation.
 		downloadRequest.once("downloadProgress", progress => this.channel.lookupVideoDB(this.guid).expectedSize = progress.total);
 		
 		return downloadRequest;

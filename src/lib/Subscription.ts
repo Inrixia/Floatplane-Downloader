@@ -56,7 +56,8 @@ export default class Subscription {
 		for (const channel of this._channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifier === false) continue;
-			if (video[channel.identifier.type].toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {
+			if (typeof video[channel.identifier.type] !== "string") throw new Error(`Video value for channel identifier type ${video[channel.identifier.type]} on channel ${channel.title} is of type ${typeof video[channel.identifier.type]} not string!`);
+			else if ((video[channel.identifier.type] as string).toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {
 				if (channel.skip === true) return null;
 				return channel.addVideo(video);
 			}
