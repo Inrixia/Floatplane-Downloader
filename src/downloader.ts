@@ -1,15 +1,15 @@
-import MultiProgress from "multi-progress";
+import { MultiProgressBars } from "multi-progress-bars";
 import Video from "./lib/Video";
 
 import { settings } from "./lib/helpers";
 
 import { fApi } from "./lib/FloatplaneAPI";
 
-const multiProgressBar = new MultiProgress(process.stdout);
-
 type promiseFunction = (f: Promise<void>) => void;
 const videoDownloadQueue: {video: Video, res: promiseFunction }[] = [];
 let videosDownloading = 0;
+
+let mpb: MultiProgressBars;
 
 setInterval(() => {
 	while(videoDownloadQueue.length > 0 && settings.downloadThreads === -1 || videosDownloading < settings.downloadThreads) {
@@ -19,31 +19,40 @@ setInterval(() => {
 	}
 }, 50);
 
-export const downloadVideos = (videos: Video[]): Array<Promise<void>> => videos.map(video => new Promise<void>(res => videoDownloadQueue.push({video, res })));
+export const downloadVideos = (videos: Video[]): Array<Promise<void>> => {
+	if (videos.length !== 0) mpb = new MultiProgressBars({ 
+		initMessage: "Downloading Videos",
+		anchor: "bottom",
+		persist: false,
+		stream: process.stderr
+	});
+	const allVideos = videos.map(video => new Promise<void>(res => videoDownloadQueue.push({video, res })));
+	// if (videos.length !== 0) (async () => {
+	// 	await Promise.all(allVideos);
+	// 	await mpb.promise;
+	// 	mpb.cleanup();
+	// 	console.log("BYEE");
+	// })();
+	return allVideos;
+};
 
 const downloadVideo = async (video: Video) => {
-	console.log(video.filePath);
+	const startTime = new Date();
+	mpb.addTask(video.title, { type: "percentage", barColorFn: str => `${settings.colourList[video.channel.title]}${str}\u001b[0m` });
 	const downloadRequest = await video.download(fApi);
-	downloadRequest.on("downloadProgress", console.log);
+	
+	downloadRequest.on("downloadProgress", downloadProgress => {
+		const totalMB = downloadProgress.total/1024000;
+		const downloadedMB = (downloadProgress.transferred/1024000);
+		const downloadSpeed = downloadProgress.transferred/((Date.now() - startTime.getTime())*1000);
+		mpb.updateTask(video.title, { percentage: downloadProgress.percent, message: `${downloadedMB}/${totalMB}MB, ${downloadSpeed}Mb/s`});
+	});
 	await new Promise((res, rej) => {
 		downloadRequest.on("end", res);
 		downloadRequest.on("error", rej);
 	});
+	mpb.done(video.title);
 	await video.markDownloaded();
-	// // This handles resuming downloads, its very similar to the download function with some changes
-	// let displayTitle = "";
-	// // If this video was partially downloaded
-	// if (videos[video.guid].partial) displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m> ${video.title.slice(0, 35)}`, 36);
-	// // Set the title for being displayed and limit it to 25 characters
-	// else displayTitle = pad(`${colourList[video.subChannel]}${video.subChannel}\u001b[0m> ${video.title.slice(0, 25)}`, 29); // Set the title for being displayed and limit it to 25 characters
-
-	// const bar = multi.newBar(":title [:bar] :percent :stats", {
-	// 	// Create a new loading bar
-	// 	complete: "\u001b[42m \u001b[0m",
-	// 	incomplete: "\u001b[41m \u001b[0m",
-	// 	width: 30,
-	// 	total: 100,
-	// });
 	// progress(
 	// 	floatRequest({
 	// 		// Request to download the video
