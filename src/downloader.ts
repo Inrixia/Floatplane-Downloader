@@ -1,4 +1,5 @@
-import { MultiProgressBars } from "multi-progress-bars";
+import readline from "readline";
+import Multiprogress from "multi-progress";
 import Video from "./lib/Video";
 
 import { settings } from "./lib/helpers";
@@ -9,7 +10,7 @@ type promiseFunction = (f: Promise<void>) => void;
 const videoDownloadQueue: {video: Video, res: promiseFunction }[] = [];
 let videosDownloading = 0;
 
-let mpb: MultiProgressBars;
+const multi = new Multiprogress(process.stderr);
 
 setInterval(() => {
 	while(videoDownloadQueue.length > 0 && settings.downloadThreads === -1 || videosDownloading < settings.downloadThreads) {
@@ -19,93 +20,56 @@ setInterval(() => {
 	}
 }, 50);
 
-export const downloadVideos = (videos: Video[]): Array<Promise<void>> => {
-	if (videos.length !== 0) mpb = new MultiProgressBars({ 
-		initMessage: "Downloading Videos",
-		anchor: "bottom",
-		persist: false,
-		stream: process.stderr
+if (process.platform === "win32") {
+	const rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout,
 	});
+	rl.on("SIGINT", () => process.emit("SIGINT" as "disconnect"));
+}
+
+const cleanBars = () => multi.newBar("", { complete: "", incomplete: "", width: 0, total: 0 }).interrupt("");
+
+let downloadsStarted = false;
+process.on("SIGINT", () => {
+	if (downloadsStarted) cleanBars();
+	process.exit();
+});
+
+export const downloadVideos = (videos: Video[]): Array<Promise<void>> => {
+	downloadsStarted = true;
+	// No matter where we are on the video todo list return to below the output.
 	const allVideos = videos.map(video => new Promise<void>(res => videoDownloadQueue.push({video, res })));
-	// if (videos.length !== 0) (async () => {
-	// 	await Promise.all(allVideos);
-	// 	await mpb.promise;
-	// 	mpb.cleanup();
-	// 	console.log("BYEE");
-	// })();
+	// Newline at the end to make sure future console.logs write to a fresh line.
+	Promise.all(allVideos).then(() => {
+		downloadsStarted = false; 
+		cleanBars();
+	});
 	return allVideos;
 };
 
 const downloadVideo = async (video: Video) => {
-	const startTime = new Date();
-	mpb.addTask(video.title, { type: "percentage", barColorFn: str => `${settings.colourList[video.channel.title]}${str}\u001b[0m` });
+	const bar = multi.newBar(`${settings.colourList[video.channel.title]}${video.title}\u001b[0m [:bar] :percent :stats`, {
+		complete: `${settings.colourList[video.channel.title]}█\u001b[0m`,
+		incomplete: " ",
+		width: 30,
+		total: 100
+	});
+	const startTime = Date.now();
 	const downloadRequest = await video.download(fApi);
-	
 	downloadRequest.on("downloadProgress", downloadProgress => {
 		const totalMB = downloadProgress.total/1024000;
 		const downloadedMB = (downloadProgress.transferred/1024000);
-		const downloadSpeed = downloadProgress.transferred/((Date.now() - startTime.getTime())*1000);
-		mpb.updateTask(video.title, { percentage: downloadProgress.percent, message: `${downloadedMB}/${totalMB}MB, ${downloadSpeed}Mb/s`});
+		const timeElapsed = (Date.now() - startTime) / 1000;
+		const downloadSpeed = downloadProgress.transferred/timeElapsed;
+		const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
+		bar.update(downloadProgress.percent);
+		bar.tick({ title: video.title, stats: `${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB, ${(downloadSpeed/1024000).toFixed(2)}Mb/s ETA: ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s` });
 	});
 	await new Promise((res, rej) => {
 		downloadRequest.on("end", res);
 		downloadRequest.on("error", rej);
 	});
-	mpb.done(video.title);
+	bar.terminate();
 	await video.markDownloaded();
-	// progress(
-	// 	floatRequest({
-	// 		// Request to download the video
-	// 		url: video.url,
-	// 		
-	// 	}),
-	// 	{ throttle: settings.downloadUpdateTime }
-	// )
-	// 	.on("progress", function (state) {
-	// 		// Run the below code every downloadUpdateTime while downloading
-	// 		if (!videos[video.guid].size) {
-	// 			videos[video.guid].size = state.size.total;
-	// 			videos[video.guid].partial = true;
-	// 			videos[video.guid].file = video.rawPath + video.title + ".mp4.part";
-	// 			saveVideoData();
-	// 		}
-	// 		// Set the amount transferred to be equal to the preious ammount plus the new ammount transferred (Since this is a "new" download from the origonal transferred starts at 0 again)
-	// 		if (state.speed == null) {
-	// 			state.speed = 0;
-	// 		} // If the speed is null set it to 0
-	// 		bar.update((videoDownloadedBytes + state.size.transferred) / videos[video.guid].size); // Update the bar's percentage with a manually generated one as we cant use progresses one due to this being a partial download
-	// 		// Tick the bar same as above but the transferred value needs to take into account the previous amount.
-	// 		bar.tick({ title: displayTitle, stats: `${(state.speed / 100000 / 8).toFixed(2)}MB/s ${((videoDownloadedBytes + state.size.transferred) / 1024000).toFixed(0)}/${((videoDownloadedBytes + state.size.total) / 1024000).toFixed(0)}MB ETA: ${Math.floor(state.time.remaining / 60)}m ${Math.floor(state.time.remaining) % 60}s` });
-	// 		videoSize = (videoDownloadedBytes + state.size.total / 1024000).toFixed(0); // Update Total for when the download finishes
-	// 		//savePartialData(); // Save this data
-	// 	})
-	// 	.on("error", function (err, stdout, stderr) {
-	// 		// On a error log it
-	// 		if (videos[video.guid].partial) fLog(`Resume > An error occoured for "${video.title}": ${err}`);
-	// 		else fLog('Download > An error occoured for "' + video.title + '": ' + err);
-	// 		console.log(`An error occurred: ${err.message} ${err} ${stderr}`);
-	// 	})
-	// 	.on("end", function () {
-	// 		// When done downloading
-	// 		fLog(`Download > Finished downloading: "${video.title}"`);
-	// 		bar.update(1); // Set the progress bar to 100%
-	// 		// Tick the progress bar to display the totalMB/totalMB
-	// 		bar.tick({ title: displayTitle, stats: `${(videoSize / 1024000).toFixed(0)}/${(videoSize / 1024000).toFixed(0)}MB` });
-	// 		bar.terminate();
-	// 		videos[video.guid].partial = false;
-	// 		videos[video.guid].saved = true;
-	// 		saveVideoData();
-	// 		queueCount -= 1; // Reduce queueCount by 1
-	// 		// Write out the file to the partial file previously saved. But write with read+ and set the starting byte number (Where to start wiriting to the file from) to the previous amount transferred
-	// 	})
-	// 	.pipe(fs.createWriteStream(video.rawPath + video.title + ".mp4.part", fileOptions))
-	// 	.on("finish", function () {
-	// 		// When done writing out the file
-	// 		fs.rename(video.rawPath + video.title + ".mp4.part", video.rawPath + video.title + ".mp4", function () {
-	// 			videos[video.guid].file = video.rawPath + video.title + ".mp4"; // Specifies where the video is saved
-	// 			saveVideoData();
-	// 			const temp_file = video.rawPath + "TEMP_" + video.title + ".mp4"; // Specify the temp file to write the metadata to
-	// 			ffmpegFormat(temp_file, video); // Format with ffmpeg for titles/plex support
-	// 		}); // Rename it without .part
-	// 	});
 };
