@@ -12,23 +12,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			title: "Floatplane Exclusive",
 			skip: false,
 			identifier: {
-				check: "FP Exclusive",
-				type: "title",
-			},
-		},
-		"TechLinked": {
-			title: "TechLinked",
-			skip: false,
-			identifier: {
-				check: "NEWS SOURCES",
-				type: "description",
-			},
-		},
-		"TechQuickie": {
-			title: "TechQuickie",
-			skip: false,
-			identifier: {
-				check: "TQ:",
+				check: "FP Exclusive: ",
 				type: "title",
 			},
 		},
@@ -40,11 +24,27 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				type: "description",
 			},
 		},
+		"TechLinked": {
+			title: "TechLinked",
+			skip: false,
+			identifier: {
+				check: "TL: ",
+				type: "title",
+			},
+		},
+		"TechQuickie": {
+			title: "TechQuickie",
+			skip: false,
+			identifier: {
+				check: "TQ: ",
+				type: "title",
+			},
+		},
 		"Carpool Critics": {
 			title: "Carpool Critics",
 			skip: false,
 			identifier: {
-				check: "CC:",
+				check: "CC: ",
 				type: "title",
 			},
 		},
@@ -52,7 +52,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			title: "ShortCircut",
 			skip: false,
 			identifier: {
-				check: "SC:",
+				check: "SC: ",
 				type: "title",
 			},
 		},
@@ -60,7 +60,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			title: "LMG Livestream VODs",
 			skip: false,
 			identifier: {
-				check: "Livestream VOD",
+				check: "Livestream VOD – ",
 				type: "title"
 			}
 		}
