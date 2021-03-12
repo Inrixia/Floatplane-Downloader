@@ -7,7 +7,7 @@ import { defaultSettings } from "./defaults";
 
 import fs from "fs";
 
-import { downloadBinaries, ffbinariesResult, detectPlatform, getBinaryFilename } from "ffbinaries";
+import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const recursiveUpdate = (targetObject: any, newObject: any) => {

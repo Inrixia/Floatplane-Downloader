@@ -6,8 +6,8 @@ import { settings } from "./lib/helpers";
 import { defaultSubChannels } from "./lib/defaults";
 import Subscription from "./lib/Subscription";
 
-export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {
-	const videosToDownload: Video[] = [];
+export const fetchSubscriptionVideos = async (userSubscriptions: fApiSubscription[], fApi: FloatplaneApi): Promise<Video[]> => {
+	const incompleteVideos: Video[] = [];
 	for (const subscription of userSubscriptions) {
 		// Add the subscription to settings if it doesnt exist
 		const titleAlias = settings.channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title;
@@ -43,8 +43,8 @@ export const fetchNewSubscriptionVideos = async (userSubscriptions: fApiSubscrip
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
-			if (video !== null && !await video.isDownloaded()) videosToDownload.push(video);
+			if (video !== null && !await video.isMuxed()) incompleteVideos.push(video);
 		}
 	}
-	return videosToDownload;
+	return incompleteVideos;
 };

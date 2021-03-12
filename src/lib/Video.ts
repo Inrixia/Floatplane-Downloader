@@ -48,22 +48,23 @@ export default class Video {
 		this.filePath = `${this.folderPath}/${sanitize(fullPath.split("/").slice(-1)[0])}`;
 	}
 
-	get expectedSize() {
+	get expectedSize(): number|undefined {
 		return this.channel.lookupVideoDB(this.guid).expectedSize;
 	}
-	set expectedSize(expectedSize) {
+	set expectedSize(expectedSize: number|undefined) {
 		this.channel.lookupVideoDB(this.guid).expectedSize = expectedSize;
 	}
 
-	/**
-	 * @returns {Promise<boolean>}
-	 */
+	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
+
+	public downloadedBytes = async (): Promise<number> => Video.getFileBytes(this.filePath);
 	public isDownloaded = async (): Promise<boolean> => await this.downloadedBytes() === this.expectedSize;
 
-	public downloadedBytes = async (): Promise<number> => (await fs.stat(`${this.filePath}.mp4`).catch(() => ({ size: -1 }))).size;
+	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
+	public isMuxed = async (): Promise<boolean> => await this.muxedBytes() === this.expectedSize;
 
-	public download = async (fApi: FloatplaneAPI, options: { force?: boolean } = {}): Promise<Request> => {
-		if (await this.isDownloaded() && options.force !== true) throw new Error("Video already downloaded! Download with force set to true to overwrite.");
+	public download = async (fApi: FloatplaneAPI,): Promise<Request> => {
+		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
@@ -101,43 +102,47 @@ export default class Video {
 		// Send download request video
 		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), requestOptions);
 		// Pipe the download to the file once response starts
-		downloadRequest.pipe(createWriteStream(`${this.filePath}.mp4`, writeStreamOptions));
+		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
 		downloadRequest.once("downloadProgress", progress => this.expectedSize = progress.total);
 		
 		return downloadRequest;
 	}
 
-	public markDownloaded = async (): Promise<void> => {
-		if (await this.isDownloaded()) throw new Error(`Cannot mark video as downloaded as video file size is not correct. Got: ${await this.downloadedBytes()}, Expected: ${this.expectedSize}`);
-		return this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
+	public markCompleted = async (): Promise<void> => {
+		if (!await this.isMuxed()) throw new Error(`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.muxedBytes()} bytes...`);
+		return this.channel.markVideoCompleted(this.guid, this.releaseDate.toString());
 	}
 
-	public addffmpegMetadata = async (): Promise<string> => {
-		if (await this.isDownloaded()) throw new Error(`Cannot add metadata to video with ffmpeg as video file size is not correct. Got: ${await this.downloadedBytes()}, Expected: ${this.expectedSize}`);
-		else return new Promise((resolve, reject) => execFile(
+	public muxffmpegMetadata = async (): Promise<void> => {
+		if (!this.isDownloaded()) throw new Error(`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.downloadedBytes()} bytes...`);
+		await new Promise((resolve, reject) => execFile(
 			`${settings.ffmpegPath}/ffmpeg`, 
 			[
-				`-i ${this.filePath}`,
+				"-i",
+				this.filePath,
 				"-metadata", 
-				`title=${this.title}`, 
+				`title="${this.title}"`, 
 				"-metadata", 
-				`AUTHOR=${this.channel.title}`, 
+				`AUTHOR="${this.channel.title}"`, 
 				"-metadata", 
-				`YEAR=${this.releaseDate}`, 
+				`YEAR="${this.releaseDate}"`, 
 				"-metadata", 
-				`description=${this.description}`, 
+				`description="${this.description}"`, 
 				"-metadata", 
-				`synopsis=${this.description}`, 
+				`synopsis="${this.description}"`, 
 				"-c:a",
 				"copy", 
 				"-c:v", 
 				"copy",
-				`-o ${this.filePath}`
+				`${this.filePath}.mp4`
 			], (error, stdout) => {
 				if (error !== null) reject(error);
 				else resolve(stdout);
 			}
 		));
+		this.expectedSize = await this.muxedBytes();
+		await this.markCompleted();
+		await fs.unlink(this.filePath);
 	}
 }

@@ -6,14 +6,12 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 
 import { loginFloatplane } from "./logins";
 
-import { fetchNewSubscriptionVideos } from "./subscriptionFetching";
+import { fetchSubscriptionVideos } from "./subscriptionFetching";
 
 import type { Subscription } from "floatplane/user";
 
-import { downloadVideos } from "./downloader";
+import { processVideos } from "./downloader";
 import { MyPlexAccount } from "@ctrl/plex";
-
-import { execFile } from "child_process";
 
 /**
  * Main function that triggeres everything else in the script
@@ -37,7 +35,7 @@ const startFetching = async () => {
 	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
-	await Promise.all(downloadVideos(await fetchNewSubscriptionVideos(userSubscriptions, fApi)));
+	await Promise.all(processVideos(await fetchSubscriptionVideos(userSubscriptions, fApi)));
 
 	if (settings.plex.enabled) {
 		process.stdout.write("> Refreshing plex sections... ");

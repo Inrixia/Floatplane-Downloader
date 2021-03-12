@@ -40,9 +40,9 @@ export default class Channel {
 
 	public lookupVideoDB = (videoGUID: string): VideoDBEntry => this._db.videos[videoGUID];
 
-	public markVideoDownloaded = (videoGUID: string, releaseDate: string): void => {
+	public markVideoCompleted = (videoGUID: string, releaseDate: string): void => {
 		// Redundant check but worth keeping
-		if (this._db.videos[videoGUID] === undefined) throw new Error(`Cannot mark unknown video ${videoGUID} as downloaded. Video does not exist in channel database.`);
+		if (this._db.videos[videoGUID] === undefined) throw new Error(`Cannot mark unknown video ${videoGUID} as completed. Video does not exist in channel database.`);
 		this.subscription.updateLastSeenVideo({ videoGUID, releaseDate });
 	}
 
