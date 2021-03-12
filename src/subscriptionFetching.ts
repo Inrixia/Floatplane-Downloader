@@ -39,12 +39,14 @@ export const fetchSubscriptionVideos = async (userSubscriptions: fApiSubscriptio
 			videos.push(video);
 			videosSearched++;
 		}
-		process.stdout.write(`Fetched ${videos.length} videos!\n`);
+		process.stdout.write(`Fetched ${videos.length} videos!`);
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		for (const video of videos.sort((a, b) => (+new Date(b.releaseDate)) - (+new Date(a.releaseDate))).map(sub.addVideo)) {
 			if (video !== null && !await video.isMuxed()) incompleteVideos.push(video);
 		}
+
+		process.stdout.write(` Skipped ${videos.length-incompleteVideos.length}.\n`);
 	}
 	return incompleteVideos;
 };
