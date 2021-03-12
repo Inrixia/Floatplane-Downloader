@@ -33,13 +33,15 @@ const startFetching = async () => {
 		userSubscriptions = await fApi.user.subscriptions();
 	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-
-	const videostoDownload = await fetchNewSubscriptionVideos(userSubscriptions, fApi);
-	await Promise.all(downloadVideos(videostoDownload));
-	console.log("OwO Plexmo");
-	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
-	console.log(await (await (await ((await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library())).section(settings.plex.sectionsToUpdate[0].section)).refresh());
-	console.log("All videos downloaded!!");
+	await Promise.all(downloadVideos(await fetchNewSubscriptionVideos(userSubscriptions, fApi)));
+	if (settings.plex.enabled) {
+		process.stdout.write("> Refreshing plex sections... ");
+		const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
+			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+		}
+		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+	}
 };
 
 // Async start

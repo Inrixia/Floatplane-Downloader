@@ -44,10 +44,10 @@ export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unkno
 		if (remaining === -1) return;
 		remaining -= 10;
 		if (remaining <= 0) {
-			console.log("Auto restarting...\n");
+			console.log("Checking for new videos...\n");
 			remaining = -1;
 			await functionToRun();
 			remaining = SECS+MINS+HRS;
-		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${nPad(remaining%60)}s until restart...`);
+		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${nPad(remaining%60)}s until next check...`);
 	}, 10000);
 };
