@@ -12,7 +12,7 @@ let videosProcessing = 0;
 let mpb: MultiProgressBars;
 
 setInterval(() => {
-	while(videoQueue.length > 0 && settings.downloadThreads === -1 || videosProcessing < settings.downloadThreads) {
+	while(videoQueue.length > 0 && (settings.downloadThreads === -1 || videosProcessing < settings.downloadThreads)) {
 		videosProcessing++;
 		const task = videoQueue.pop();
 		if (task !== undefined) {
