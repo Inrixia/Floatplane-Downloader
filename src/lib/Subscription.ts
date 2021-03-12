@@ -60,7 +60,7 @@ export default class Subscription {
 			else if ((video[channel.identifier.type] as string).toLowerCase().indexOf(channel.identifier.check.toLowerCase()) !== -1) {
 				if (channel.skip === true) return null;
 				// Remove the identifier from the video title if to give a nicer title
-				if (channel.identifier.type === "title") video.title = video.title.replace(channel.identifier.check, "");
+				if (channel.identifier.type === "title") video.title = video.title.replace(channel.identifier.check, "").trim();
 				return channel.addVideo(video);
 			}
 		}
