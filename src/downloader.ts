@@ -24,12 +24,8 @@ setInterval(() => {
 }, 50);
 
 export const processVideos = (videos: Video[]): Array<Promise<void>> => {
-	if (videos.length !== 0) mpb = new MultiProgressBars({ 
-		initMessage: "Downloading Videos",
-		anchor: "bottom",
-		persist: false,
-		stream: process.stderr
-	});
+	console.log(`> Downloading ${videos.length} videos...`);
+	if (videos.length !== 0) mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
 	const allVideos = videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
 	return allVideos;
 };
