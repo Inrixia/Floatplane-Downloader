@@ -35,7 +35,6 @@ export const findClosestEdge = (edgesResponse: EdgesResponse): Edge => edgesResp
 	else return bestEdge;
 });
 
-import { nPad } from "@inrixia/helpers/object";
 export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
 	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));
 	console.log(`\u001b[41mRepeating every ${interval[0]}H, ${interval[1]}m, ${interval[2]}s...\u001b[0m`);
@@ -44,6 +43,7 @@ export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unkno
 	const MINS = 60*interval[1];
 	const HRS = 60*60*interval[0];
 	let remaining = SECS+MINS+HRS;
+	console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until next check...`);
 	setInterval(async () => {
 		if (remaining === -1) return;
 		remaining -= 10;
@@ -52,7 +52,7 @@ export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unkno
 			remaining = -1;
 			await functionToRun();
 			remaining = SECS+MINS+HRS;
-		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${nPad(remaining%60)}s until next check...`);
+		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until next check...`);
 	}, 10000);
 };
 
