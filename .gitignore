@@ -21,3 +21,8 @@ videos/
 
 # Typescript ignores
 dist/
+build/float-linux
+
+build/float-macos
+
+build/float-win.exe

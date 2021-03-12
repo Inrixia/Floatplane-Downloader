@@ -5,7 +5,7 @@
   "scripts": {
     "prep": "npm install && npm run build",
     "start": "tsc && node ./dist/float.js",
-    "build": "pkg ./dist/float.js --out-path=./build -t node14-win-x64",
+    "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
   },
   "bin": {
     "Floatplane-PlexDownloader": "float.js"
