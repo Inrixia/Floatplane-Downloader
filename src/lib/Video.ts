@@ -144,5 +144,7 @@ export default class Video {
 		this.expectedSize = await this.muxedBytes();
 		await this.markCompleted();
 		await fs.unlink(this.filePath);
+		// Set the files update time to when the video was released
+		await fs.utimes(`${this.filePath}.mp4`, new Date(), this.releaseDate);
 	}
 }
