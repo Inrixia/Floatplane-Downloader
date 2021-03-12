@@ -6,7 +6,7 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 
 import { loginFloatplane } from "./logins";
 
-import { fetchNewSubscriptionVideos } from "./fetchers";
+import { fetchNewSubscriptionVideos } from "./subscriptionFetching";
 
 import type { Subscription } from "floatplane/user";
 
@@ -30,10 +30,13 @@ const startFetching = async () => {
 	} catch (err) {
 		console.log((err as Error).message);
 		await loginFloatplane(fApi);
+		process.stdout.write("> Fetching user subscriptions... ");
 		userSubscriptions = await fApi.user.subscriptions();
 	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+
 	await Promise.all(downloadVideos(await fetchNewSubscriptionVideos(userSubscriptions, fApi)));
+
 	if (settings.plex.enabled) {
 		process.stdout.write("> Refreshing plex sections... ");
 		const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());

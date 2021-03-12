@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import type { Extras } from "../types";
+import type { Extras, Resolution } from "../types";
 
 /**
  * Prompts if user wants to encrypt their authentication details.
@@ -76,7 +76,7 @@ export const downloadThreads = async (initial: number): Promise<number> => (awai
  * @param {Array<number>} resolutions Avalible resolutions
  * @returns {Promise<number>} Resolution to use
  */
-export const videoResolution = async (initial: number, resolutions: Array<number>): Promise<number> => (await prompts({
+export const videoResolution = async (initial: Resolution, resolutions: Array<Resolution>): Promise<Resolution> => (await prompts({
 	type: "select",
 	name: "resolution",
 	message: "What resolution would you like to download in?",
