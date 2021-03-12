@@ -48,7 +48,9 @@ export const quickStart = async (settings: Settings, fApi: FloatplaneApi): Promi
 	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
 
 	const extras = await prompts.settings.extras(settings.extras);
-	for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1?true:false;
+	if (extras !== undefined) {
+		for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1 ? true : false;
+	}
 
 	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled);
 	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval);

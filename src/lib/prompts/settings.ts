@@ -42,7 +42,7 @@ export const repeatInterval = async (initial: string): Promise<string> => {
 		mask: "HH:mm:ss",
 		initial: new Date(`1999 ${initial}`)
 	})).repeatInterval;
-	return `${repeatInterval.getHours()}:${repeatInterval.getMinutes()}:${repeatInterval.getSeconds()}`;
+	return repeatInterval === undefined ? initial : `${repeatInterval.getHours()}:${repeatInterval.getMinutes()}:${repeatInterval.getSeconds()}`;
 };
 
 /**
@@ -102,13 +102,13 @@ export const fileFormatting = async (initial: string, options: Array<string>): P
  * @param options Object containing extra settings
  * @returns {Promise<Array<string>>} Keynames of enabled extras
  */
-export const extras = async (initial: Extras): Promise<Array<string>> => (await prompts({
+export const extras = async (initial: Extras): Promise<Array<string>|undefined> => (await prompts({
 	type: "multiselect",
 	name: "extras",
 	message: "Enable/Disable Extra Options:",
 	choices: Object.keys(initial).map(option => ({ title: option, value: option, selected: initial[option] })),
 	hint: "- Space to select. Return to submit"
-})).extras||initial;
+})).extras;
 
 /**
  * Proompts user if they want to find the closest download server automatically in the future.
