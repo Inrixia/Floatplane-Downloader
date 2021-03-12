@@ -34,16 +34,19 @@ const startFetching = async () => {
 		userSubscriptions = await fApi.user.subscriptions();
 	}
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-
-	await Promise.all(processVideos(await fetchSubscriptionVideos(userSubscriptions, fApi)));
-
-	if (settings.plex.enabled) {
-		process.stdout.write("> Refreshing plex sections... ");
-		const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
-		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
-			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+	const processingVideos = processVideos(await fetchSubscriptionVideos(userSubscriptions, fApi));
+	await Promise.all(processingVideos);
+	
+	if (processingVideos.length > 0) {
+		console.log(`> Processed ${processingVideos.length} videos!`);
+		if (settings.plex.enabled) {
+			process.stdout.write("> Refreshing plex sections... ");
+			const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+			for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
+				await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+			}
+			process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 		}
-		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 	}
 };
 

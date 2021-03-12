@@ -24,10 +24,11 @@ setInterval(() => {
 }, 50);
 
 export const processVideos = (videos: Video[]): Array<Promise<void>> => {
-	console.log(`> Downloading ${videos.length} videos...`);
-	if (videos.length !== 0) mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
-	const allVideos = videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
-	return allVideos;
+	if (videos.length !== 0) {
+		console.log(`> Processing ${videos.length} videos...`);
+		mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
+	}
+	return videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
 };
 
 const processVideo = async (video: Video) => {
