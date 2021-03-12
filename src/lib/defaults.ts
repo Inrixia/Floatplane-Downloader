@@ -75,8 +75,9 @@ export const defaultSettings: Settings = {
 		edge: "edge02-na.floatplane.com",
 		videosToSearch: 5,
 	},
+	ffmpegPath: "./db/",
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
-	filePathFormatting: "%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
+	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
 	auth: {
 		encrypt: true,
 		encryptionKey: "goAwaehOrIShallTauntYouASecondTiem",

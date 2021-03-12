@@ -6,7 +6,6 @@
     "prep": "npm install && npm run build",
     "start": "tsc && node ./dist/float.js",
     "build": "pkg ./dist/float.js --out-path=./build -t node14-win-x64",
-    "test": "jest"
   },
   "bin": {
     "Floatplane-PlexDownloader": "float.js"
@@ -15,6 +14,7 @@
     "@ctrl/plex": "^1.2.0",
     "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
+    "ffbinaries": "^1.1.4",
     "floatplane": "^2.1.6",
     "got": "^11.8.2",
     "multi-progress-bars": "^3.2.2",
@@ -38,8 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.21.0",
-    "jest": "^26.4.2",
-    "typescript": "^4.2.3",
-    "pkg": "^4.4.9"
+    "pkg": "^4.4.9",
+    "typescript": "^4.2.3"
   }
 }

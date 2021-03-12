@@ -1,4 +1,4 @@
-import { settings, findClosestEdge, autoRepeat } from "./lib/helpers";
+import { settings, findClosestEdge, autoRepeat, fetchFFMPEG } from "./lib/helpers";
 
 import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
@@ -49,6 +49,7 @@ const startFetching = async () => {
 
 // Async start
 (async () => {
+	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart(settings, fApi);
 	settings.runQuickstartPrompts = false;

@@ -5,6 +5,10 @@ import { isObject } from "@inrixia/helpers/object";
 import type { Settings } from "./types";
 import { defaultSettings } from "./defaults";
 
+import fs from "fs";
+
+import { downloadBinaries, ffbinariesResult, detectPlatform, getBinaryFilename } from "ffbinaries";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const recursiveUpdate = (targetObject: any, newObject: any) => {
 	if (!isObject(targetObject)) throw new Error("targetObject is not an object!");
@@ -51,3 +55,20 @@ export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unkno
 		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${nPad(remaining%60)}s until next check...`);
 	}, 10000);
 };
+
+export const fetchFFMPEG = (): Promise<ffbinariesResult> => new Promise((resolve, reject) => {
+	const platform = detectPlatform();
+	if (fs.existsSync(`${settings.ffmpegPath}/${getBinaryFilename("ffmpeg", platform)}`) === false) {
+		process.stdout.write("> Ffmpeg binary missing! Downloading... ");
+		downloadBinaries("ffmpeg", {
+			destination: settings.ffmpegPath,
+			platform
+		}, (err, result) => {
+			if (err !== null) reject(err);
+			else {
+				process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+				resolve(result);
+			}
+		});
+	}
+});

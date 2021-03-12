@@ -42,6 +42,7 @@ export type Settings = {
 		edge: string;
 		videosToSearch: number;
 	};
+	ffmpegPath: string;
 	_filePathFormattingOPTIONS: string[];
 	filePathFormatting: string;
 	auth: {
