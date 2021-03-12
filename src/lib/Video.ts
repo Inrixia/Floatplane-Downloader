@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import { execFile } from "child_process";
 import { createWriteStream } from "fs";
 
 import { settings } from "./helpers";
@@ -47,10 +48,17 @@ export default class Video {
 		this.filePath = `${this.folderPath}/${sanitize(fullPath.split("/").slice(-1)[0])}`;
 	}
 
+	get expectedSize() {
+		return this.channel.lookupVideoDB(this.guid).expectedSize;
+	}
+	set expectedSize(expectedSize) {
+		this.channel.lookupVideoDB(this.guid).expectedSize = expectedSize;
+	}
+
 	/**
 	 * @returns {Promise<boolean>}
 	 */
-	public isDownloaded = async (): Promise<boolean> => await this.downloadedBytes() === this.channel.lookupVideoDB(this.guid).expectedSize;
+	public isDownloaded = async (): Promise<boolean> => await this.downloadedBytes() === this.expectedSize;
 
 	public downloadedBytes = async (): Promise<number> => (await fs.stat(`${this.filePath}.mp4`).catch(() => ({ size: -1 }))).size;
 
@@ -81,7 +89,7 @@ export default class Video {
 		// const downloadedBytes = await this.downloadedBytes();
 		// const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
 		// 	{ start: downloadedBytes, flags: "r+" },
-		// 	{ headers: { Range: `bytes=${downloadedBytes}-${this.channel.lookupVideoDB(this.guid).expectedSize}` }, isStream: true } as GotOptions
+		// 	{ headers: { Range: `bytes=${downloadedBytes}-${this.expectedSize}` }, isStream: true } as GotOptions
 		// ] : [
 		// 	undefined,
 		// 	undefined
@@ -95,13 +103,41 @@ export default class Video {
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(`${this.filePath}.mp4`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
-		downloadRequest.once("downloadProgress", progress => this.channel.lookupVideoDB(this.guid).expectedSize = progress.total);
+		downloadRequest.once("downloadProgress", progress => this.expectedSize = progress.total);
 		
 		return downloadRequest;
 	}
 
 	public markDownloaded = async (): Promise<void> => {
-		if (await this.downloadedBytes() !== this.channel.lookupVideoDB(this.guid).expectedSize) throw new Error("Cannot mark video as downloaded when file size is not correct.");
+		if (await this.isDownloaded()) throw new Error(`Cannot mark video as downloaded as video file size is not correct. Got: ${await this.downloadedBytes()}, Expected: ${this.expectedSize}`);
 		return this.channel.markVideoDownloaded(this.guid, this.releaseDate.toString());
+	}
+
+	public addffmpegMetadata = async (): Promise<string> => {
+		if (await this.isDownloaded()) throw new Error(`Cannot add metadata to video with ffmpeg as video file size is not correct. Got: ${await this.downloadedBytes()}, Expected: ${this.expectedSize}`);
+		else return new Promise((resolve, reject) => execFile(
+			`${settings.ffmpegPath}/ffmpeg`, 
+			[
+				`-i ${this.filePath}`,
+				"-metadata", 
+				`title=${this.title}`, 
+				"-metadata", 
+				`AUTHOR=${this.channel.title}`, 
+				"-metadata", 
+				`YEAR=${this.releaseDate}`, 
+				"-metadata", 
+				`description=${this.description}`, 
+				"-metadata", 
+				`synopsis=${this.description}`, 
+				"-c:a",
+				"copy", 
+				"-c:v", 
+				"copy",
+				`-o ${this.filePath}`
+			], (error, stdout) => {
+				if (error !== null) reject(error);
+				else resolve(stdout);
+			}
+		));
 	}
 }

@@ -13,6 +13,8 @@ import type { Subscription } from "floatplane/user";
 import { downloadVideos } from "./downloader";
 import { MyPlexAccount } from "@ctrl/plex";
 
+import { execFile } from "child_process";
+
 /**
  * Main function that triggeres everything else in the script
  */

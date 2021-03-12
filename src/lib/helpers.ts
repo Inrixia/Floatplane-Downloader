@@ -56,18 +56,18 @@ export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unkno
 	}, 10000);
 };
 
-export const fetchFFMPEG = (): Promise<ffbinariesResult|void> => new Promise((resolve, reject) => {
+export const fetchFFMPEG = (): Promise<void> => new Promise((resolve, reject) => {
 	const platform = detectPlatform();
 	if (fs.existsSync(`${settings.ffmpegPath}/${getBinaryFilename("ffmpeg", platform)}`) === false) {
 		process.stdout.write("> Ffmpeg binary missing! Downloading... ");
 		downloadBinaries("ffmpeg", {
 			destination: settings.ffmpegPath,
 			platform
-		}, (err, result) => {
+		}, err => {
 			if (err !== null) reject(err);
 			else {
 				process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-				resolve(result);
+				resolve();
 			}
 		});
 	} else resolve();
