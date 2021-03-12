@@ -57,8 +57,10 @@ export default class Subscription {
 			// Check if the video belongs to this channel
 			if (channel.identifier === false) continue;
 			if (typeof video[channel.identifier.type] !== "string") throw new Error(`Video value for channel identifier type ${video[channel.identifier.type]} on channel ${channel.title} is of type ${typeof video[channel.identifier.type]} not string!`);
-			else if ((video[channel.identifier.type] as string).toLowerCase().indexOf(channel.identifier.check.toLowerCase()) > -1) {
+			else if ((video[channel.identifier.type] as string).toLowerCase().indexOf(channel.identifier.check.toLowerCase()) !== -1) {
 				if (channel.skip === true) return null;
+				// Remove the identifier from the video title if to give a nicer title
+				if (channel.identifier.type === "title") video.title = video.title.replace(channel.identifier.check, "");
 				return channel.addVideo(video);
 			}
 		}

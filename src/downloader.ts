@@ -35,7 +35,7 @@ export const processVideos = (videos: Video[]): Array<Promise<void>> => {
 };
 
 const processVideo = async (video: Video) => {
-	const coloredTitle = `${video.title}`;
+	const coloredTitle = `${video.channel.title} - ${video.title}`;
 	mpb.addTask(coloredTitle, { 
 		type: "percentage", 
 		barColorFn: str => `${settings.colourList[video.channel.title]||""}${str}` 
