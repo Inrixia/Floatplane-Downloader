@@ -41,7 +41,7 @@ const processVideo = async (video: Video) => {
 		barColorFn: str => `${settings.colourList[video.channel.title]||""}${str}` 
 	});
 	// If the video is already downloaded then just mux its metadata
-	if (!video.isDownloaded()) {
+	if (!await video.isDownloaded()) {
 		const startTime = Date.now();
 		const downloadRequest = await video.download(fApi);
 		downloadRequest.on("downloadProgress", downloadProgress => {
