@@ -13,7 +13,7 @@ export const usePlex = async (initial: boolean): Promise<boolean> => (await prom
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).usePlex||initial;
+})).usePlex;
 
 import type { Section } from "@ctrl/plex";
 import { PlexSections } from "../types";

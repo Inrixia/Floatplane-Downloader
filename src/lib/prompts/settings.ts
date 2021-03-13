@@ -13,7 +13,7 @@ export const encryptAuthDB = async (initial=true): Promise<boolean> => (await pr
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).crypt||initial;
+})).crypt;
 
 /**
  * Prompts if user wants to have auto repeating enabled.
@@ -27,7 +27,7 @@ export const repeat = async (initial: boolean): Promise<boolean> => (await promp
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).repeat||initial;
+})).repeat;
 
 /**
  * Prompts user to set the interval to auto repeat
@@ -122,4 +122,4 @@ export const autoFindClosestServer = async (initial: boolean): Promise<boolean> 
 	initial,
 	active: "Yes",
 	inactive: "No"
-})).bestEdge||initial;
+})).bestEdge;
