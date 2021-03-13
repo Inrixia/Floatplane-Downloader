@@ -37,30 +37,35 @@ const processVideo = async (video: Video) => {
 		type: "percentage", 
 		barColorFn: str => `${settings.colourList[video.channel.title]||""}${str}` 
 	});
-	// If the video is already downloaded then just mux its metadata
-	if (!await video.isDownloaded()) {
-		const startTime = Date.now();
-		const downloadRequest = await video.download(fApi);
-		downloadRequest.on("downloadProgress", downloadProgress => {
-			const totalMB = downloadProgress.total/1024000;
-			const downloadedMB = (downloadProgress.transferred/1024000);
-			const timeElapsed = (Date.now() - startTime) / 1000;
-			const downloadSpeed = downloadProgress.transferred/timeElapsed;
-			const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
-			mpb.updateTask(coloredTitle, { 
-				percentage: downloadProgress.percent, 
-				message: `${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB, ${(downloadSpeed/1024000).toFixed(2)}Mb/s ETA: ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`
-			});	
+	try {
+		// If the video is already downloaded then just mux its metadata
+		if (!await video.isDownloaded()) {
+			const startTime = Date.now();
+			const downloadRequest = await video.download(fApi);
+			downloadRequest.on("downloadProgress", downloadProgress => {
+				const totalMB = downloadProgress.total/1024000;
+				const downloadedMB = (downloadProgress.transferred/1024000);
+				const timeElapsed = (Date.now() - startTime) / 1000;
+				const downloadSpeed = downloadProgress.transferred/timeElapsed;
+				const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
+				mpb.updateTask(coloredTitle, { 
+					percentage: downloadProgress.percent, 
+					message: `${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB, ${(downloadSpeed/1024000).toFixed(2)}Mb/s ETA: ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`
+				});	
+			});
+			await new Promise((res, rej) => {
+				downloadRequest.on("end", res);
+				downloadRequest.on("error", rej);
+			});
+		}
+		mpb.updateTask(coloredTitle, { 
+			percentage: 0.99, 
+			message: "Muxing ffmpeg metadata..."
 		});
-		await new Promise((res, rej) => {
-			downloadRequest.on("end", res);
-			downloadRequest.on("error", rej);
-		});
+		await video.muxffmpegMetadata();
+		mpb.done(coloredTitle);
+	} catch (error) {
+		// Handle errors when downloading nicely
+		mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
 	}
-	mpb.updateTask(coloredTitle, { 
-		percentage: 0.99, 
-		message: "Muxing ffmpeg metadata..."
-	});
-	await video.muxffmpegMetadata();
-	mpb.done(coloredTitle);
 };
