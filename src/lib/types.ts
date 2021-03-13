@@ -6,10 +6,10 @@ import type { Video as fApiVideo } from "floatplane/creator";
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
-	identifier: {
+	identifiers: Array<{
 		check: string;
 		type: keyof fApiVideo;
-	} | false;
+	}> | false;
 };
 
 export type SubChannels = {

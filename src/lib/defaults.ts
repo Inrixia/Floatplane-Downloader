@@ -6,63 +6,63 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 		"_default": {
 			title: "Linus Tech Tips",
 			skip: false,
-			identifier: false,
+			identifiers: false,
 		},
 		"Floatplane Exclusive": {
 			title: "Floatplane Exclusive",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "FP Exclusive: ",
 				type: "title",
-			},
+			}],
 		},
 		"TalkLinked": {
 			title: "TalkLinked",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "talklinked",
 				type: "description",
-			},
+			}],
 		},
 		"TechLinked": {
 			title: "TechLinked",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "TL: ",
 				type: "title",
-			},
+			}],
 		},
 		"TechQuickie": {
 			title: "TechQuickie",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "TQ: ",
 				type: "title",
-			},
+			}],
 		},
 		"Carpool Critics": {
 			title: "Carpool Critics",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "CC: ",
 				type: "title",
-			},
+			}],
 		},
 		"ShortCircut": {
 			title: "ShortCircut",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "SC: ",
 				type: "title",
-			},
+			}],
 		},
 		"LMG Livestream VODs": {
 			title: "LMG Livestream VODs",
 			skip: false,
-			identifier: {
+			identifiers: [{
 				check: "Livestream VOD – ",
 				type: "title"
-			}
+			}]
 		}
 	}
 };

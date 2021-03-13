@@ -21,11 +21,6 @@ export default class Subscription {
 	public creatorId: string;
 
 	private _db: SubscriptionDB;
-	/**
-	 * Returns a channel built from a subscription.
-	 * @param {fApiSubscription} subscription
-	 * @param {ChannelOptions[]} channels
-	 */
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 		
@@ -55,13 +50,15 @@ export default class Subscription {
 	public addVideo = (video: fApiVideo): (ReturnType<Channel["addVideo"]> | null) => {
 		for (const channel of this._channels) {
 			// Check if the video belongs to this channel
-			if (channel.identifier === false) continue;
-			if (typeof video[channel.identifier.type] !== "string") throw new Error(`Video value for channel identifier type ${video[channel.identifier.type]} on channel ${channel.title} is of type ${typeof video[channel.identifier.type]} not string!`);
-			else if ((video[channel.identifier.type] as string).toLowerCase().indexOf(channel.identifier.check.toLowerCase()) !== -1) {
-				if (channel.skip === true) return null;
-				// Remove the identifier from the video title if to give a nicer title
-				if (channel.identifier.type === "title") video.title = video.title.replace(channel.identifier.check, "").trim();
-				return channel.addVideo(video);
+			if (channel.identifiers === false) continue;
+			for (const identifier of channel.identifiers) {
+				if (typeof video[identifier.type] !== "string") throw new Error(`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`);
+				else if ((video[identifier.type] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
+					if (channel.skip === true) return null;
+					// Remove the identifier from the video title if to give a nicer title
+					if (identifier.type === "title") video.title = video.title.replace(identifier.check, "").trim();
+					return channel.addVideo(video);
+				}
 			}
 		}
 		if (this._defaultChannel.skip === true) return null;
