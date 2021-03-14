@@ -106,6 +106,8 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 			percentage: 0.99, 
 			message: "Muxing ffmpeg metadata..."
 		});
+		await video.muxffmpegMetadata();
+		mpb.done(coloredTitle);
 	} catch (error) {
 		// Handle errors when downloading nicely
 		mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
@@ -115,6 +117,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 			mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying...` });
 			await sleep(1000);
 			await processVideo(video, ++retries);
+			return;
 		}
 
 		// If the server aborted the request retry up to 3 times.
@@ -122,6 +125,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 			mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` });
 			await sleep(1000);
 			await processVideo(video, ++retries);
+			return;
 		}
 
 		if (error.message.includes("Response code 400") || error.message.includes("Response code 404")) {
@@ -132,10 +136,9 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 				mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying at ${newRes}p` });
 				await sleep(1000);
 				await processVideo(video, retries, newRes);
+				return;
 			}
 		}
 		return;
 	}
-	await video.muxffmpegMetadata();
-	mpb.done(coloredTitle);
 };
