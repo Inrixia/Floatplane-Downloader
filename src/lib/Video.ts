@@ -63,7 +63,7 @@ export default class Video {
 	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
 	public isMuxed = async (): Promise<boolean> => await this.muxedBytes() === this.expectedSize;
 
-	public download = async (fApi: FloatplaneAPI,): Promise<Request> => {
+	public download = async (fApi: FloatplaneAPI, quality: string): Promise<Request> => {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
@@ -100,7 +100,7 @@ export default class Video {
 		const [writeStreamOptions, requestOptions] = [undefined, undefined];
 
 		// Send download request video
-		const downloadRequest = await fApi.video.download(this.guid, settings.floatplane.videoResolution.toString(), requestOptions);
+		const downloadRequest = await fApi.video.download(this.guid, quality, requestOptions);
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.

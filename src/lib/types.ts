@@ -1,5 +1,6 @@
-export type Resolutions = [360, 720, 1080, 2160];
-export type Resolution = Resolutions[keyof Resolutions];
+
+export type Resolution = "360" | "720" | "1080" | "2160";
+export type Resolutions = ["360", "720", "1080", "2160"];
 
 import type { Video as fApiVideo } from "floatplane/creator";
 
@@ -39,6 +40,7 @@ export type Settings = {
 	floatplane: {
 		findClosestEdge: boolean;
 		videoResolution: Resolution;
+		_avalibleResolutions: Resolutions;
 		edge: string;
 		videosToSearch: number;
 	};

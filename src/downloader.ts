@@ -5,6 +5,8 @@ import { settings } from "./lib/helpers";
 
 import { fApi } from "./lib/FloatplaneAPI";
 
+import { Resolution } from "./lib/types";
+
 type promiseFunction = (f: Promise<void>) => void;
 const videoQueue: {video: Video, res: promiseFunction }[] = [];
 let videosProcessing = 0;
@@ -31,7 +33,7 @@ export const processVideos = (videos: Video[]): Array<Promise<void>> => {
 	return videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
 };
 
-const processVideo = async (video: Video) => {
+const processVideo = async (video: Video, retries = 0, quality: Resolution = settings.floatplane.videoResolution) => {
 	const coloredTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
 	mpb.addTask(coloredTitle, { 
 		type: "percentage", 
@@ -41,7 +43,7 @@ const processVideo = async (video: Video) => {
 		// If the video is already downloaded then just mux its metadata
 		if (!await video.isDownloaded()) {
 			const startTime = Date.now();
-			const downloadRequest = await video.download(fApi);
+			const downloadRequest = await video.download(fApi, quality);
 			downloadRequest.on("downloadProgress", downloadProgress => {
 				const totalMB = downloadProgress.total/1024000;
 				const downloadedMB = (downloadProgress.transferred/1024000);
@@ -51,7 +53,7 @@ const processVideo = async (video: Video) => {
 				mpb.updateTask(coloredTitle, { 
 					percentage: downloadProgress.percent, 
 					message: `${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB, ${(downloadSpeed/1024000).toFixed(2)}Mb/s ETA: ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`
-				});	
+				});
 			});
 			await new Promise((res, rej) => {
 				downloadRequest.on("end", res);
@@ -67,5 +69,17 @@ const processVideo = async (video: Video) => {
 	} catch (error) {
 		// Handle errors when downloading nicely
 		mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
+
+		// Retry downloading the video if this is the first failure.
+		if (retries === 0) await processVideo(video, retries++);
+
+		// If the server aborted the request retry up to 3 times.
+		if (error.message.includes("The server aborted pending request") && retries < 3) await processVideo(video, retries++);
+
+		if (error.message.includes("Response code 400") || error.message.includes("Response code 404")) {
+			// Drop down the qualities until one works or give up
+			const currentResIndex = settings.floatplane._avalibleResolutions.indexOf(quality);
+			if (currentResIndex !== 0) await processVideo(video, retries, settings.floatplane._avalibleResolutions[currentResIndex-1]);
+		}
 	}
 };

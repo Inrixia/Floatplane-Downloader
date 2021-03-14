@@ -1,6 +1,6 @@
 import { Resolutions, SubChannels, Settings } from "./types";
 
-export const defaultResoulutions: Resolutions = [360, 720, 1080, 2160];
+export const defaultResoulutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
 	"Linus Tech Tips": {
 		"_default": {
@@ -71,7 +71,8 @@ export const defaultSettings: Settings = {
 	downloadThreads: -1,
 	floatplane: {
 		findClosestEdge: true,
-		videoResolution: 1080,
+		videoResolution: "1080",
+		_avalibleResolutions: defaultResoulutions,
 		edge: "edge02-na.floatplane.com",
 		videosToSearch: 5,
 	},
