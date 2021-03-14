@@ -15,7 +15,7 @@
     "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
     "ffbinaries": "^1.1.4",
-    "floatplane": "^2.1.6",
+    "floatplane": "^2.1.7",
     "got": "^11.8.2",
     "multi-progress-bars": "^3.2.2",
     "prompts": "^2.4.0",
