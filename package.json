@@ -1,14 +1,11 @@
 {
   "name": "floatplane-plex-downloader",
-  "version": "4.6.3",
+  "version": "5.0.0",
   "private": true,
   "scripts": {
     "prep": "npm install && npm run build",
     "start": "tsc && node ./dist/float.js",
     "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
-  },
-  "bin": {
-    "Floatplane-PlexDownloader": "float.js"
   },
   "dependencies": {
     "@ctrl/plex": "^1.5.1",
