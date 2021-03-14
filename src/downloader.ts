@@ -71,8 +71,8 @@ const updateSummaryBar = () => {
 const processVideo = async (video: Video, retries = 0, quality: Resolution = settings.floatplane.videoResolution) => {
 	const channelColor = settings.colourList[video.channel.title]||"";
 	let coloredTitle: string;
-	if (channelColor !== "") coloredTitle = `${channelColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+channelColor.length+reset.length);
-	else coloredTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
+	if (channelColor !== "") coloredTitle = `${channelColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 30+channelColor.length+reset.length);
+	else coloredTitle = `${video.channel.title} - ${video.title}`.slice(0, 30);
 	mpb.addTask(coloredTitle, {
 		type: "percentage", 
 		barColorFn: str => `${channelColor}${str}`
