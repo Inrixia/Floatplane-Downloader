@@ -41,6 +41,10 @@ export const processVideos = (videos: Video[]): Array<Promise<void>> => {
 };
 
 const reset = "\u001b[0m";
+const cy = (str: string|number) => `\u001b[36;1m${str}\u001b[0m`;
+const gr = (str: string|number) => `\u001b[32;1m${str}\u001b[0m`;
+const ye = (str: string|number) => `\u001b[33;1m${str}\u001b[0m`;
+const bl = (str: string|number) => `\u001b[34;1m${str}\u001b[0m`;
 
 const updateSummaryBar = () => {
 	const { totalMB, downloadedMB, downloadSpeed, timeElapsed } = Object.values(downloadStats).reduce((summary, stats) => {
@@ -51,10 +55,10 @@ const updateSummaryBar = () => {
 	const totalVideos = videoQueue.length+videosProcessed+videosProcessing;
 	const summaryDownloadETA = (videoQueue.length+videosProcessing) * (timeElapsed/videosProcessed);
 	const whitespace = "                        ";
-	const processed  = `Processed:        ${videosProcessed}/${totalVideos}${whitespace}`;
-	const downloaded = `Total Downloaded: ${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB${whitespace}`;
-	const speed      = `Download Speed:   ${(downloadSpeed/1024000).toFixed(2)}Mb/s${whitespace}`;
-	const eta 		 = `Rough ETA:        ${Math.floor(summaryDownloadETA / 60)} minutes${whitespace}`;
+	const processed  = `Processed:        ${ye(videosProcessed)}/${ye(totalVideos)}${whitespace}`;
+	const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")}${whitespace}`;
+	const speed      = `Download Speed:   ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")}${whitespace}`;
+	const eta 		 = `Rough ETA:        ${bl(Math.floor(summaryDownloadETA / 60))} minutes${whitespace}`;
 	process.stdout.write("                                                         ");
 	process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n${isNaN(summaryDownloadETA)?"":eta}`);
 };
@@ -79,7 +83,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 				const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
 				mpb.updateTask(coloredTitle, { 
 					percentage: downloadProgress.percent, 
-					message: `${reset}${downloadedMB.toFixed(2)}/${totalMB.toFixed(2)}MB, ${(downloadSpeed/1024000).toFixed(2)}Mb/s ETA: ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`
+					message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")} ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")} ETA: ${bl(Math.floor(downloadETA / 60)+"m "+(Math.floor(downloadETA) % 60)+"s")}`
 				});
 				downloadStats[coloredTitle] = { totalMB, downloadedMB, downloadSpeed, timeElapsed: 0 };
 				updateSummaryBar();
