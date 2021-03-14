@@ -42,7 +42,7 @@ export default class Video {
 			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNo.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
-			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " "))
+			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " "))
 		}`;
 		this.folderPath = fullPath.split("/").slice(0, -1).join("/");
 		this.filePath = `${this.folderPath}/${sanitize(fullPath.split("/").slice(-1)[0])}`;
