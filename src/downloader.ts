@@ -37,7 +37,12 @@ export const processVideos = (videos: Video[]): Array<Promise<void>> => {
 		downloadStats = {};
 		videosProcessed = 0;
 	}
-	return videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
+	const processingPromises = videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
+	// Handler for when all downloads are done.
+	if (videos.length !== 0) {
+		Promise.all(processingPromises).then(updateSummaryBar);
+	}
+	return processingPromises;
 };
 
 const reset = "\u001b[0m";
@@ -60,12 +65,14 @@ const updateSummaryBar = () => {
 	const speed      = `Download Speed:   ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")}${whitespace}`;
 	const eta 		 = `Rough ETA:        ${bl(Math.floor(summaryDownloadETA / 60))} minutes${whitespace}`;
 	process.stdout.write("                                                         ");
-	process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n${isNaN(summaryDownloadETA)?"":eta}`);
+	process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n${isNaN(summaryDownloadETA)?"":eta}\n\n\n`);
 };
 
 const processVideo = async (video: Video, retries = 0, quality: Resolution = settings.floatplane.videoResolution) => {
 	const channelColor = settings.colourList[video.channel.title]||"";
-	const coloredTitle = `${channelColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+channelColor.length+reset.length);
+	let coloredTitle: string;
+	if (channelColor !== "") coloredTitle = `${channelColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+channelColor.length+reset.length);
+	else coloredTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
 	mpb.addTask(coloredTitle, {
 		type: "percentage", 
 		barColorFn: str => `${channelColor}${str}`
@@ -99,8 +106,6 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 			percentage: 0.99, 
 			message: "Muxing ffmpeg metadata..."
 		});
-		await video.muxffmpegMetadata();
-		mpb.done(coloredTitle);
 	} catch (error) {
 		// Handle errors when downloading nicely
 		mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
@@ -129,5 +134,8 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 				await processVideo(video, retries, newRes);
 			}
 		}
+		return;
 	}
+	await video.muxffmpegMetadata();
+	mpb.done(coloredTitle);
 };
