@@ -71,15 +71,25 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 		mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
 
 		// Retry downloading the video if this is the first failure.
-		if (retries === 0) await processVideo(video, retries++);
+		if (retries === 0) {
+			mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying...` });
+			await processVideo(video, ++retries);
+		}
 
 		// If the server aborted the request retry up to 3 times.
-		if (error.message.includes("The server aborted pending request") && retries < 3) await processVideo(video, retries++);
+		if (error.message.includes("The server aborted pending request") && retries < 3) {
+			mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` });
+			await processVideo(video, ++retries);
+		}
 
 		if (error.message.includes("Response code 400") || error.message.includes("Response code 404")) {
 			// Drop down the qualities until one works or give up
 			const currentResIndex = settings.floatplane._avalibleResolutions.indexOf(quality);
-			if (currentResIndex !== 0) await processVideo(video, retries, settings.floatplane._avalibleResolutions[currentResIndex-1]);
+			if (currentResIndex !== 0) {
+				const newRes = settings.floatplane._avalibleResolutions[currentResIndex-1];
+				mpb.updateTask(coloredTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying at ${newRes}p` });
+				await processVideo(video, retries, newRes);
+			}
 		}
 	}
 };
