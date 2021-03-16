@@ -8,7 +8,7 @@ import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
 import type { Video as fApiVideo } from "floatplane/creator";
-// import type { GotOptions } from "floatplane/video";
+import type { GotOptions } from "floatplane/video";
 import type FloatplaneAPI from "floatplane";
 import type Request from "got/dist/source/core";
 
@@ -87,17 +87,14 @@ export default class Video {
 		}
 		
 		// Handle download resumption if video was partially downloaded
-		// const downloadedBytes = await this.downloadedBytes();
-		// const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
-		// 	{ start: downloadedBytes, flags: "r+" },
-		// 	{ headers: { Range: `bytes=${downloadedBytes}-${this.expectedSize}` }, isStream: true } as GotOptions
-		// ] : [
-		// 	undefined,
-		// 	undefined
-		// ];
-
-		// Disabled download resumption due to API not supporting Range headers anymore
-		const [writeStreamOptions, requestOptions] = [undefined, undefined];
+		const downloadedBytes = await this.downloadedBytes();
+		const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
+			{ start: downloadedBytes, flags: "r+" },
+			{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` }, isStream: true } as GotOptions
+		] : [
+			undefined,
+			undefined
+		];
 
 		// Send download request video
 		const downloadRequest = await fApi.video.download(this.guid, quality, requestOptions);

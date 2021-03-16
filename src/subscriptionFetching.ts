@@ -22,6 +22,12 @@ export const fetchSubscriptionVideos = async (userSubscriptions: fApiSubscriptio
 
 		if (settings.subscriptions[subscription.creator].skip === true) continue;
 
+		if (settings.subscriptions[subscription.creator].channels._default === undefined) settings.subscriptions[subscription.creator].channels._default = {
+			title: titleAlias,
+			skip: false,
+			identifiers: false
+		};
+
 		const sub = new Subscription(settings.subscriptions[subscription.creator]);
 		const lastSeenVideo = sub.lastSeenVideo.videoGUID;
 
