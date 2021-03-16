@@ -58,7 +58,9 @@ const startFetching = async () => {
 
 // Async start
 (async () => {
-	if (process.argv[2] === "--noQuickstart") settings.runQuickstartPrompts = false;
+	//Run through Dockerfile Environment Variables and set values accordingly
+	settings.runQuickstartPrompts = process.env.QUICKSTART;
+
 	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart(settings, fApi);
