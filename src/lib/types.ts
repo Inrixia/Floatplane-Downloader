@@ -47,10 +47,6 @@ export type Settings = {
 	ffmpegPath: string;
 	_filePathFormattingOPTIONS: string[];
 	filePathFormatting: string;
-	auth: {
-		encrypt: boolean;
-		encryptionKey: string;
-	};
 	repeat: {
 		enabled: boolean;
 		interval: string;
