@@ -12,6 +12,7 @@ import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries"
 import ARGV from "process.argv";
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rebuildTypes = <O extends T, T extends { [key: string]: any }>(object: O, types: T) => {
 	for (const key in object) {
 		if (types[key] === undefined) continue;
@@ -53,19 +54,6 @@ recursiveUpdate(settings, defaultSettings);
 // Update settings with argv parameters & export argv
 export const argv = rebuildTypes<CLIArguments, Partial<Settings>>(ARGV(process.argv.slice(2))<CLIArguments>({}), defaultSettings);
 recursiveUpdate(settings, argv, false, true);
-
-import type { Edge, EdgesResponse } from "floatplane/api";
-import { getDistance } from "@inrixia/helpers/geo";
-/**
- * Determine the edge closest to the client
- * @param {EdgesResponse} edgesResponse 
- */
-export const findClosestEdge = (edgesResponse: EdgesResponse): Edge => edgesResponse.edges.filter(edge => edge.allowDownload).reduce((bestEdge, edge) => {
-	const distanceToEdge = getDistance([edge.datacenter.latitude, edge.datacenter.longitude], [edgesResponse.client.latitude, edgesResponse.client.longitude]);
-	const distanceToBestEdge = getDistance([bestEdge.datacenter.latitude, bestEdge.datacenter.longitude], [edgesResponse.client.latitude, edgesResponse.client.longitude]);
-	if (distanceToEdge < distanceToBestEdge) return edge;
-	else return bestEdge;
-});
 
 export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
 	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));

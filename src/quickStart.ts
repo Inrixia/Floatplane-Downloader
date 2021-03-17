@@ -6,7 +6,6 @@ import * as prompts from "./lib/prompts";
 import { defaultResoulutions } from "./lib/defaults";
 
 import { loginFloatplane, loginPlex } from "./logins";
-import { findClosestEdge } from "./lib/helpers";
 
 import { MyPlexAccount } from "@ctrl/plex";
 export const promptPlexSections = async (plexSettings: PlexSettings): Promise<void> => {
@@ -58,13 +57,6 @@ export const quickStart = async (settings: Settings, fApi: FloatplaneApi): Promi
 	console.log("\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n");
 	console.log("Next we are going to login to floatplane...");
 	await loginFloatplane(fApi);
-
-	// Prompt to find best edge server for downloading
-	if (await prompts.findClosestServerNow()) settings.floatplane.edge = findClosestEdge(await fApi.api.edges()).hostname;
-	console.log(`Closest edge server found is: "${settings.floatplane.edge}"\n`);
-
-	// Prompt & Set auto finding best edge server
-	settings.floatplane.findClosestEdge = await prompts.settings.autoFindClosestServer(settings.floatplane.findClosestEdge);
 
 	console.log("\n== \u001b[38;5;208mPlex\u001b[0m ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);

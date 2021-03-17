@@ -7,8 +7,7 @@ import { settings } from "./helpers";
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
-import type { Video as fApiVideo } from "floatplane/creator";
-import type { GotOptions } from "floatplane/video";
+import type { BlogPost } from "floatplane/creator";
 import type FloatplaneAPI from "floatplane";
 import type Request from "got/dist/source/core";
 
@@ -19,19 +18,19 @@ export default class Video {
 	public title: string;
 	public description: string;
 	public releaseDate: Date;
-	public thumbnail: fApiVideo["thumbnail"];
+	public thumbnail: BlogPost["thumbnail"];
 
 	public channel: Channel;
 
 	public filePath: string;
 	private folderPath: string;
 
-	constructor(video: fApiVideo, channel: Channel) {
+	constructor(video: BlogPost, channel: Channel) {
 		this.channel = channel;
 
 		this.guid = video.guid;
 		this.title = video.title;
-		this.description = video.description;
+		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
 
@@ -90,14 +89,16 @@ export default class Video {
 		const downloadedBytes = await this.downloadedBytes();
 		const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
 			{ start: downloadedBytes, flags: "r+" },
-			{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` }, isStream: true } as GotOptions
+			{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }
 		] : [
 			undefined,
 			undefined
 		];
 
 		// Send download request video
-		const downloadRequest = await fApi.video.download(this.guid, quality, requestOptions);
+		// @@ TODO
+		// THIS IS NOT FINISHED
+		const downloadRequest = fApi.got.stream("", requestOptions);
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.

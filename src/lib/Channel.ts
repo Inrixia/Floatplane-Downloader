@@ -1,7 +1,7 @@
 import db from "@inrixia/db";
 import Video from "./Video";
 
-import type { Video as fApiVideo } from "floatplane/creator";
+import type { BlogPost } from "floatplane/creator";
 import type { ChannelOptions } from "./types";
 import type Subscription from "./Subscription";
 
@@ -46,7 +46,7 @@ export default class Channel {
 		this.subscription.updateLastSeenVideo({ videoGUID, releaseDate });
 	}
 
-	public addVideo = (video: fApiVideo): Video => {
+	public addVideo = (video: BlogPost): Video => {
 		// Set the episode number
 		this._db.videos[video.guid] ??= { episodeNo: this._db.nextEpisodeNo++ };
 		return new Video(video, this);

@@ -2,14 +2,14 @@
 export type Resolution = "360" | "720" | "1080" | "2160";
 export type Resolutions = ["360", "720", "1080", "2160"];
 
-import type { Video as fApiVideo } from "floatplane/creator";
+import type { BlogPost } from "floatplane/creator";
 
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
 	identifiers: Array<{
 		check: string;
-		type: keyof fApiVideo;
+		type: keyof BlogPost;
 	}> | false;
 };
 
@@ -45,10 +45,8 @@ export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
 	floatplane: {
-		findClosestEdge: boolean;
 		videoResolution: Resolution;
 		_avalibleResolutions: Resolutions;
-		edge: string;
 		videosToSearch: number;
 	};
 	ffmpegPath: string;

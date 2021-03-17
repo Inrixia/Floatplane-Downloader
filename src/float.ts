@@ -1,4 +1,4 @@
-import { settings, findClosestEdge, autoRepeat, fetchFFMPEG, argv } from "./lib/helpers";
+import { settings, autoRepeat, fetchFFMPEG, argv } from "./lib/helpers";
 
 import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
@@ -22,13 +22,6 @@ const startFetching = async () => {
 	const show = await section.get((await section.all())[0].title);
 	console.log(await show.edit({ "title.value": "magic asdasdasd" }));
 	return;
-
-
-	if (settings.floatplane.findClosestEdge) {
-		process.stdout.write("> Finding closest edge server... ");
-		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
-		process.stdout.write(`\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n`);
-	}
 
 	process.stdout.write("> Fetching user subscriptions... ");
 	let userSubscriptions: Array<Subscription>;
@@ -70,7 +63,7 @@ const startFetching = async () => {
 
 	// Get Floatplane credentials if not saved
 	if (cookieJar.toJSON().cookies.length === 0) {
-		if (argv.docker === false) console.log("No floatplane cookies found! Please re-enter floatplane details...");
+		if (argv.docker === undefined) console.log("No floatplane cookies found! Please re-enter floatplane details...");
 		await loginFloatplane(fApi);
 	}
 

@@ -21,7 +21,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: [{
 				check: "talklinked",
-				type: "description",
+				type: "text",
 			}],
 		},
 		"TechLinked": {
@@ -70,11 +70,9 @@ export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
 	floatplane: {
-		findClosestEdge: true,
 		videoResolution: "1080",
-		_avalibleResolutions: defaultResoulutions,
-		edge: "edge02-na.floatplane.com",
 		videosToSearch: 5,
+		_avalibleResolutions: defaultResoulutions,
 	},
 	ffmpegPath: "./db/",
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
