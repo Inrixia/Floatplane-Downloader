@@ -37,7 +37,8 @@ export type SubscriptionSettings = {
 export type CLIArguments = Partial<Settings & {
 	username: string; 	// --username=""
 	password: string; 	// --password=""
-	docker: boolean; 	// --docker
+	token: string;		// --token=""
+	docker: true; 		// --docker
 }>
 
 export type Settings = {

@@ -70,7 +70,7 @@ const startFetching = async () => {
 
 	// Get Floatplane credentials if not saved
 	if (cookieJar.toJSON().cookies.length === 0) {
-		console.log("No floatplane cookies found! Please re-enter floatplane details...");
+		if (argv.docker === false) console.log("No floatplane cookies found! Please re-enter floatplane details...");
 		await loginFloatplane(fApi);
 	}
 
