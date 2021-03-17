@@ -66,7 +66,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 		}
 	}
 };
-export const defaultSettings: Settings = {
+export var defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
 	floatplane: {

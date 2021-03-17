@@ -1,4 +1,4 @@
-# Docker setup guide
+# Docker setup guide (OUTDATED): See the docker section of README
 ---
 
 Make sure you have Docker installed, a complete guide on how to install Docker is on their [site](https://docs.docker.com/install/). 
