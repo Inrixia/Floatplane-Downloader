@@ -39,7 +39,7 @@ export const fetchSubscriptionVideos = async (userSubscriptions: fApiSubscriptio
 		const videos = [];
 		
 		process.stdout.write(`> Fetching latest videos from [\u001b[38;5;208m${titleAlias}\u001b[0m]... Fetched ${videos.length} videos!`);
-		for await (const video of fApi.creator.videosIterable(subscription.creator)) {
+		for await (const video of fApi.creator.blogPostsIterable(subscription.creator, { type: "video" })) {
 			if (video.guid === lastSeenVideo || lastSeenVideo === "") foundLastSeenVideo = true;
 			if (videosSearched >= videosToSearch && foundLastSeenVideo) break;
 			videos.push(video);

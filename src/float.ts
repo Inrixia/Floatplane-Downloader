@@ -1,4 +1,4 @@
-import { settings, findClosestEdge, autoRepeat, fetchFFMPEG } from "./lib/helpers";
+import { settings, autoRepeat, fetchFFMPEG, argv } from "./lib/helpers";
 
 import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
@@ -12,16 +12,16 @@ import type { Subscription } from "floatplane/user";
 
 import { processVideos } from "./downloader";
 import { MyPlexAccount } from "@ctrl/plex";
-
 /**
  * Main function that triggeres everything else in the script
  */
 const startFetching = async () => {
-	if (settings.floatplane.findClosestEdge) {
-		process.stdout.write("> Finding closest edge server... ");
-		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
-		process.stdout.write(`\u001b[36mFound! Using Server \u001b[0m[\u001b[38;5;208m${settings.floatplane.edge}\u001b[0m]\n`);
-	}
+
+	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+	const section = await (await (await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library()).section(settings.plex.sectionsToUpdate[0].section);
+	const show = await section.get((await section.all())[0].title);
+	console.log(await show.edit({ "title.value": "magic asdasdasd" }));
+	return;
 
 	process.stdout.write("> Fetching user subscriptions... ");
 	let userSubscriptions: Array<Subscription>;
@@ -49,11 +49,6 @@ const startFetching = async () => {
 			process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 		}
 	}
-
-	// const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
-	// const section = await (await (await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library()).section(settings.plex.sectionsToUpdate[0].section);
-	// const show = await section.get((await section.all())[0].title);
-	// console.log(await show.edit({ "title": "A broken value" }));
 };
 
 // Async start
@@ -68,7 +63,7 @@ const startFetching = async () => {
 
 	// Get Floatplane credentials if not saved
 	if (cookieJar.toJSON().cookies.length === 0) {
-		console.log("No floatplane cookies found! Please re-enter floatplane details...");
+		if (argv.docker === undefined) console.log("No floatplane cookies found! Please re-enter floatplane details...");
 		await loginFloatplane(fApi);
 	}
 

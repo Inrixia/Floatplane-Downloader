@@ -5,16 +5,18 @@
   "scripts": {
     "prep": "npm install && npm run build",
     "start": "tsc && node ./dist/float.js",
+    "test-docker": "tsc && node ./dist/float.js --docker",
     "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
   },
   "dependencies": {
-    "@ctrl/plex": "^1.5.2",
+    "@ctrl/plex": "^1.5.3",
     "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
     "ffbinaries": "^1.1.4",
-    "floatplane": "^2.1.7",
+    "floatplane": "^3.0.3",
     "got": "^11.8.2",
     "multi-progress-bars": "^3.2.3",
+    "process.argv": "^0.6.0",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
     "tough-cookie": "^4.0.0",
@@ -32,8 +34,8 @@
     "@types/multi-progress": "^2.0.3",
     "@types/prompts": "^2.0.9",
     "@types/tough-cookie-file-store": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.17.0",
-    "@typescript-eslint/parser": "^4.17.0",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
     "eslint": "^7.22.0",
     "pkg": "^4.4.9",
     "typescript": "^4.2.3"

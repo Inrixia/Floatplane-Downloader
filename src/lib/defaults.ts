@@ -21,7 +21,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: [{
 				check: "talklinked",
-				type: "description",
+				type: "text",
 			}],
 		},
 		"TechLinked": {
@@ -70,19 +70,13 @@ export var defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
 	floatplane: {
-		findClosestEdge: true,
 		videoResolution: "1080",
-		_avalibleResolutions: defaultResoulutions,
-		edge: "edge02-na.floatplane.com",
 		videosToSearch: 5,
+		_avalibleResolutions: defaultResoulutions,
 	},
 	ffmpegPath: "./db/",
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
-	auth: {
-		encrypt: true,
-		encryptionKey: "goAwaehOrIShallTauntYouASecondTiem",
-	},
 	repeat: {
 		enabled: true,
 		interval: "00:05:00",
@@ -91,7 +85,6 @@ export var defaultSettings: Settings = {
 		downloadArtwork: true,
 		saveNfo: true,
 	},
-	downloadUpdateTime: 250,
 	plex: {
 		sectionsToUpdate: [],
 		enabled: true,

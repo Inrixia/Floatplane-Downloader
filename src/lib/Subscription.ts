@@ -3,11 +3,11 @@ import Channel from "./Channel";
 
 import type { SubscriptionSettings } from "./types";
 
-import type { Video as fApiVideo } from "floatplane/creator";
+import type { BlogPost } from "floatplane/creator";
 
 type lastSeenVideo = {
-	videoGUID: fApiVideo["guid"];
-	releaseDate: fApiVideo["releaseDate"];
+	videoGUID: BlogPost["guid"];
+	releaseDate: BlogPost["releaseDate"];
 }
 type SubscriptionDB = {
 	lastSeenVideo: lastSeenVideo
@@ -47,7 +47,7 @@ export default class Subscription {
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo = (video: fApiVideo): (ReturnType<Channel["addVideo"]> | null) => {
+	public addVideo = (video: BlogPost): (ReturnType<Channel["addVideo"]> | null) => {
 		for (const channel of this._channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;

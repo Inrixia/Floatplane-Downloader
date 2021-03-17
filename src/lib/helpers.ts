@@ -2,19 +2,46 @@ import db from "@inrixia/db";
 
 import { isObject } from "@inrixia/helpers/object";
 
-import type { Settings } from "./types";
+import type { CLIArguments, Settings } from "./types";
 import { defaultSettings } from "./defaults";
 
 import fs from "fs";
 
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
+import ARGV from "process.argv";
+
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const recursiveUpdate = (targetObject: any, newObject: any) => {
+const rebuildTypes = <O extends T, T extends { [key: string]: any }>(object: O, types: T) => {
+	for (const key in object) {
+		if (types[key] === undefined) continue;
+		switch (typeof types[key]) {
+		case "number":
+			(object[key] as number) = +object[key];
+			break;
+		case "string":
+			object[key] = object[key].toString();
+			break;
+		case "boolean":
+			(object[key] as boolean) = object[key] === "true";
+			break;
+		default:
+			rebuildTypes(object[key], types[key]);
+			break;
+		}
+	}
+	return object;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const recursiveUpdate = (targetObject: any, newObject: any, setUndefined = true, setDefined = false) => {
 	if (!isObject(targetObject)) throw new Error("targetObject is not an object!");
 	if (!isObject(newObject)) throw new Error("newObject is not an object!");
 	for (const key in newObject) {
-		if (targetObject[key] === undefined) targetObject[key] = newObject[key];
+		if (targetObject[key] === undefined) {
+			if (setUndefined) targetObject[key] = newObject[key];
+		} else if (setDefined) targetObject[key] = newObject[key];
 		else if (isObject(targetObject[key]) && isObject(newObject[key])) recursiveUpdate(targetObject[key], newObject[key]);
 	}
 };
@@ -31,22 +58,12 @@ if(process.env.RUN_IN_DOCKER) {
 }
 
 
-export const settings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
+export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true });
 recursiveUpdate(settings, defaultSettings);
 
-
-import type { Edge, EdgesResponse } from "floatplane/api";
-import { getDistance } from "@inrixia/helpers/geo";
-/**
- * Determine the edge closest to the client
- * @param {EdgesResponse} edgesResponse 
- */
-export const findClosestEdge = (edgesResponse: EdgesResponse): Edge => edgesResponse.edges.filter(edge => edge.allowDownload).reduce((bestEdge, edge) => {
-	const distanceToEdge = getDistance([edge.datacenter.latitude, edge.datacenter.longitude], [edgesResponse.client.latitude, edgesResponse.client.longitude]);
-	const distanceToBestEdge = getDistance([bestEdge.datacenter.latitude, bestEdge.datacenter.longitude], [edgesResponse.client.latitude, edgesResponse.client.longitude]);
-	if (distanceToEdge < distanceToBestEdge) return edge;
-	else return bestEdge;
-});
+// Update settings with argv parameters & export argv
+export const argv = rebuildTypes<CLIArguments, Partial<Settings>>(ARGV(process.argv.slice(2))<CLIArguments>({}), defaultSettings);
+recursiveUpdate(settings, argv, false, true);
 
 export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
 	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));
