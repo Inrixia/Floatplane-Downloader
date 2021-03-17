@@ -34,6 +34,12 @@ export type SubscriptionSettings = {
 	channels: SubChannels;
 }
 
+export type CLIArguments = Partial<Settings & {
+	username: string; 	// --username=""
+	password: string; 	// --password=""
+	docker: boolean; 	// --docker
+}>
+
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
@@ -52,7 +58,6 @@ export type Settings = {
 		interval: string;
 	};
 	extras: Extras;
-	downloadUpdateTime: number;
 	channelAliases: { 
 		[key: string]: string 
 	};

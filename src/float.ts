@@ -1,4 +1,4 @@
-import { settings, findClosestEdge, autoRepeat, fetchFFMPEG } from "./lib/helpers";
+import { settings, findClosestEdge, autoRepeat, fetchFFMPEG, argv } from "./lib/helpers";
 
 import { cookieJar, fApi } from "./lib/FloatplaneAPI";
 
@@ -12,11 +12,18 @@ import type { Subscription } from "floatplane/user";
 
 import { processVideos } from "./downloader";
 import { MyPlexAccount } from "@ctrl/plex";
-
 /**
  * Main function that triggeres everything else in the script
  */
 const startFetching = async () => {
+
+	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+	const section = await (await (await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library()).section(settings.plex.sectionsToUpdate[0].section);
+	const show = await section.get((await section.all())[0].title);
+	console.log(await show.edit({ "title.value": "magic asdasdasd" }));
+	return;
+
+
 	if (settings.floatplane.findClosestEdge) {
 		process.stdout.write("> Finding closest edge server... ");
 		settings.floatplane.edge = `https://${findClosestEdge(await fApi.api.edges()).hostname}`;
@@ -49,16 +56,10 @@ const startFetching = async () => {
 			process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 		}
 	}
-
-	// const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
-	// const section = await (await (await (await plexApi.resource(settings.plex.sectionsToUpdate[0].server)).connect()).library()).section(settings.plex.sectionsToUpdate[0].section);
-	// const show = await section.get((await section.all())[0].title);
-	// console.log(await show.edit({ "title": "A broken value" }));
 };
 
 // Async start
 (async () => {
-	if (process.argv[2] === "--noQuickstart") settings.runQuickstartPrompts = false;
 	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart(settings, fApi);

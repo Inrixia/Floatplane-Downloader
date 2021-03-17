@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "prep": "npm install && npm run build",
-    "start": "tsc && node ./dist/float.js",
+    "start": "tsc && node ./dist/float.js --docker --username=\"test\" --password=\"testpass2\"",
     "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
     "floatplane": "^2.1.7",
     "got": "^11.8.2",
     "multi-progress-bars": "^3.2.3",
+    "process.argv": "^0.6.0",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
     "tough-cookie": "^4.0.0",

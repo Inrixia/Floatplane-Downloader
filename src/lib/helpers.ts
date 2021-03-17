@@ -2,25 +2,57 @@ import db from "@inrixia/db";
 
 import { isObject } from "@inrixia/helpers/object";
 
-import type { Settings } from "./types";
+import type { CLIArguments, Settings } from "./types";
 import { defaultSettings } from "./defaults";
 
 import fs from "fs";
 
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
+import ARGV from "process.argv";
+
+
+const rebuildTypes = <O extends T, T extends { [key: string]: any }>(object: O, types: T) => {
+	for (const key in object) {
+		if (types[key] === undefined) continue;
+		switch (typeof types[key]) {
+		case "number":
+			(object[key] as number) = +object[key];
+			break;
+		case "string":
+			object[key] = object[key].toString();
+			break;
+		case "boolean":
+			(object[key] as boolean) = object[key] === "true";
+			break;
+		default:
+			rebuildTypes(object[key], types[key]);
+			break;
+		}
+	}
+	return object;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const recursiveUpdate = (targetObject: any, newObject: any) => {
+const recursiveUpdate = (targetObject: any, newObject: any, setUndefined = true, setDefined = false) => {
 	if (!isObject(targetObject)) throw new Error("targetObject is not an object!");
 	if (!isObject(newObject)) throw new Error("newObject is not an object!");
 	for (const key in newObject) {
-		if (targetObject[key] === undefined) targetObject[key] = newObject[key];
+		if (targetObject[key] === undefined) {
+			if (setUndefined) targetObject[key] = newObject[key];
+		} else if (setDefined) targetObject[key] = newObject[key];
 		else if (isObject(targetObject[key]) && isObject(newObject[key])) recursiveUpdate(targetObject[key], newObject[key]);
 	}
 };
 
-export const settings = db<Settings>("./config/settings.json", defaultSettings, { pretty: true });
+
+
+export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true });
 recursiveUpdate(settings, defaultSettings);
+
+// Update settings with argv parameters & export argv
+export const argv = rebuildTypes<CLIArguments, Partial<Settings>>(ARGV(process.argv.slice(2))<CLIArguments>({}), defaultSettings);
+recursiveUpdate(settings, argv, false, true);
 
 import type { Edge, EdgesResponse } from "floatplane/api";
 import { getDistance } from "@inrixia/helpers/geo";

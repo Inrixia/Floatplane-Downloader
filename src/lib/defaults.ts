@@ -87,7 +87,6 @@ export const defaultSettings: Settings = {
 		downloadArtwork: true,
 		saveNfo: true,
 	},
-	downloadUpdateTime: 250,
 	plex: {
 		sectionsToUpdate: [],
 		enabled: true,
