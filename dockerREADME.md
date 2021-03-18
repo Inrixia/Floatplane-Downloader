@@ -2,9 +2,7 @@
 This project is unofficial and not in any way affiliated with LMG
 
 # Basic Info:
-- This is based on the GitHub project found here: https://github.com/inrixia/Floatplane-Downloader
-- Information for in-depth usage can be found on the GitHub page.
-- I will be maintaining this as I use it.
+## https://github.com/inrixia/Floatplane-Downloader
 
 # Tags:
 - `:latest`

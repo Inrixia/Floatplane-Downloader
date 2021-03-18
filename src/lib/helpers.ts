@@ -10,6 +10,7 @@ import fs from "fs";
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
 import ARGV from "process.argv";
+import { processVideos } from "../downloader";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,18 +46,6 @@ const recursiveUpdate = (targetObject: any, newObject: any, setUndefined = true,
 		else if (isObject(targetObject[key]) && isObject(newObject[key])) recursiveUpdate(targetObject[key], newObject[key]);
 	}
 };
-
-//If Docker Env variables are set, update the default settings
-if(process.env.RUN_IN_DOCKER) {
-	defaultSettings.runQuickstartPrompts = (process.env.QUICKSTART === "true");
-	if (parseInt(process.env.VIDEOS_TO_SEARCH) !== undefined) defaultSettings.floatplane.videosToSearch = parseInt(process.env.VIDEOS_TO_SEARCH);
-	if (process.env.VIDEO_RESOLUTION !== undefined) defaultSettings.floatplane.videoResolution = process.env.VIDEO_RESOLUTION;
-	
-	console.log("QUICKSTART: " + defaultSettings.runQuickstartPrompts);
-	console.log("VIDEOS_TO_SEARCH: " + defaultSettings.floatplane.videosToSearch);
-	console.log("VIDEO_RESOLUTION: " + defaultSettings.floatplane.videoResolution);
-}
-
 
 export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true });
 recursiveUpdate(settings, defaultSettings);
