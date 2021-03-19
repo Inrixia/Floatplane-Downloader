@@ -34,12 +34,14 @@ export type SubscriptionSettings = {
 	channels: SubChannels;
 }
 
-export type CLIArguments = Partial<Settings & {
-	username: string; 	// --username=""
-	password: string; 	// --password=""
-	token: string;		// --token=""
-	docker: true; 		// --docker
-}>
+export type Args = {
+	username: string;
+	password: string;
+	token: string;
+	docker: boolean;
+}
+
+export type PartialArgs = Partial<Args & Settings>;
 
 export type Settings = {
 	runQuickstartPrompts: boolean;

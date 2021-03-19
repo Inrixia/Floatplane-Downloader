@@ -2,8 +2,8 @@ import db from "@inrixia/db";
 
 import { isObject } from "@inrixia/helpers/object";
 
-import type { CLIArguments, Settings } from "./types";
-import { defaultSettings } from "./defaults";
+import type { PartialArgs, Settings } from "./types";
+import { defaultArgs, defaultSettings } from "./defaults";
 
 import fs from "fs";
 
@@ -47,12 +47,43 @@ const recursiveUpdate = (targetObject: any, newObject: any, setUndefined = true,
 	}
 };
 
+/**
+ * Converts process.env variables into a object
+ * @example process.env["some_subproperty"] = "hello"
+ * returns { some: { subProperty: "hello" } }
+ */
+const getEnv = () => {
+	// Define our return object env variables are applied to.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const envObject = {} as Record<string, any>;
+	// Iterate over env keys
+	for (const envKey in process.env) {
+		// Set our reference object to be equal to the envObject to begin with.
+		let objRef = envObject;
+		// Break apart the envKey into its keys. Ex some_subProperty = ["some", "subProperty"]
+		const keys = envKey.split("_");
+		// For every key except the last...
+		for (let i = 0; i < keys.length-1; i++) {
+			// Set the key on the objRef to a empty object if its undefined.
+			objRef = objRef[keys[i]] ??= {};
+		}
+		// Set the last key to equal the original value
+		objRef[keys[keys.length-1]] = process.env[envKey];
+	}
+	return envObject;
+};
+
 export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true });
 recursiveUpdate(settings, defaultSettings);
 
-// Update settings with argv parameters & export argv
-export const argv = rebuildTypes<CLIArguments, Partial<Settings>>(ARGV(process.argv.slice(2))<CLIArguments>({}), defaultSettings);
+
+const argv = rebuildTypes<PartialArgs, PartialArgs>(ARGV(process.argv.slice(2))<PartialArgs>({}), { ...defaultSettings, ...defaultArgs });
 recursiveUpdate(settings, argv, false, true);
+
+const env = rebuildTypes<PartialArgs, PartialArgs>(getEnv(), { ...defaultSettings, ...defaultArgs });
+recursiveUpdate(settings, env, false, true);
+
+export const args = { ...argv, ...env };
 
 export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
 	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));
