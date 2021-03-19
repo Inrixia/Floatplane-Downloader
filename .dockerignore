@@ -1,0 +1,27 @@
+# General (Windows)
+Thumbs.db
+desktop.ini
+
+# General (MacOS)
+.DS_Store
+._*
+
+# VSCode Directory
+.vscode/
+
+# Dependency directories
+node_modules/
+npm-debug.log
+
+# db ignores
+db/
+config/
+
+# Video testing folder
+videos/
+
+# Typescript ignores
+dist/
+
+# Build ignores
+build/

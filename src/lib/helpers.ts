@@ -10,6 +10,7 @@ import fs from "fs";
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
 import ARGV from "process.argv";
+import { processVideos } from "../downloader";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
