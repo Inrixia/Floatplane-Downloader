@@ -1,4 +1,4 @@
-import { Resolutions, SubChannels, Settings } from "./types";
+import { Resolutions, SubChannels, Settings, Args } from "./types";
 
 export const defaultResoulutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
@@ -66,6 +66,14 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 		}
 	}
 };
+
+export const defaultArgs: Args = {
+	username: "",
+	password: "",
+	token: "",
+	docker: false
+};
+
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,

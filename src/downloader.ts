@@ -37,7 +37,7 @@ export const processVideos = (videos: Video[]): Array<Promise<void>> => {
 		downloadStats = {};
 		videosProcessed = 0;
 	}
-	const processingPromises = videos.map(video => new Promise<void>(res => videoQueue.push({video, res })));
+	const processingPromises = videos.map(video => new Promise<void>(res => videoQueue.push({video, res})));
 	// Handler for when all downloads are done.
 	if (videos.length !== 0) {
 		Promise.all(processingPromises).then(updateSummaryBar);
