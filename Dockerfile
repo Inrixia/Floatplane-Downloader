@@ -1,17 +1,10 @@
 FROM node:latest
 
-LABEL Description="This is a Node.js script to download the daily videos from LMG Floatplane and format them to be viewed in Plex."
+LABEL Description="Project for automatically organizing and downloading Floatplane videos for plex."
 
 # Environment variables
 ENV DOCKER=true
 ENV runQuickstartPrompts=false
-ENV downloadThreads=-1
-ENV floatplane_videoResolution=1080
-ENV floatplane_avalibleResolutions=1080
-ENV floatplane_videosToSearch=5
-ENV ffmpegPath=./db/
-ENV repeat_enabled=true
-ENV repeat_interval=00:05:00
 
 # Create Directory for the Container
 WORKDIR /fp
