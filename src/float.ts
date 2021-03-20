@@ -61,12 +61,15 @@ const startFetching = async () => {
 	await validatePlexSettings(settings.plex, true);
 
 	// Get Floatplane credentials if not saved
-	if (cookieJar.toJSON().cookies.length === 0) {
-		if (args.docker === undefined) console.log("No floatplane cookies found! Please re-enter floatplane details...");
-		await loginFloatplane(fApi);
+	if (cookieJar.toJSON().cookies.length === 0 || await fApi.user.subscriptions().catch(err => {
+		console.log(`Unable to authenticate with floatplane... ${err.message}`);
+		return undefined;
+	}) === undefined) {
+		console.log("You dont seem to be authenticated! Please login to floatplane...");
+		await loginFloatplane();
 	}
 
-	if (settings.repeat.enabled === true) autoRepeat(startFetching);
+	await startFetching();
 	else await startFetching();
 })().catch(err => {
 	console.error("An error occurred!");

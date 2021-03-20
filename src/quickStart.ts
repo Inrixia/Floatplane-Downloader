@@ -18,7 +18,7 @@ export const promptPlexSections = async (plexSettings: PlexSettings): Promise<vo
 	}));
 	plexSettings.sectionsToUpdate = await prompts.plex.sections(plexSettings.sectionsToUpdate, serverSections.flatMap(sections => sections));
 	if (plexSettings.sectionsToUpdate.length === 0) {
-		console.log("You didnt specify any plex sections to update! Disabling plex integration...\n");
+		console.log("No sectionsToUpdate in config! Disabling plex integration...\n");
 		plexSettings.enabled = false;
 	}
 };
@@ -26,11 +26,11 @@ export const promptPlexSections = async (plexSettings: PlexSettings): Promise<vo
 export const validatePlexSettings = async (plexSettings: PlexSettings, promptOnMissing: boolean): Promise<void> => {
 	if (plexSettings.enabled) {
 		if (plexSettings.token === "") {
-			if (promptOnMissing) console.log("Missing plex token!");
+			console.log("Missing plex token!");
 			plexSettings.token = await loginPlex();
 		}
 		if (plexSettings.sectionsToUpdate.length === 0) {
-			if (promptOnMissing) console.log("No plex sections specified to update!");
+			console.log("No plex sections specified to update!");
 			await promptPlexSections(plexSettings);
 		}
 	}

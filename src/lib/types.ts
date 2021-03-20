@@ -62,7 +62,7 @@ export type Settings = {
 		[key: string]: SubscriptionSettings;
 	};
 	plex: PlexSettings;
-	colourList: {
+	channelColors: {
 		[key: string]: string;
 	};
 };

@@ -101,7 +101,7 @@ export const defaultSettings: Settings = {
 		"ltt supporter plus": "Linus Tech Tips",
 	},
 	subscriptions: {},
-	colourList: {
+	channelColors: {
 		"Linus Tech Tips": "\u001b[38;5;208m",
 		"The WAN Show": "\u001b[38;5;208m",
 		"Channel Super Fun": "\u001b[38;5;220m",
