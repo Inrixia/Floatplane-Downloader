@@ -40,14 +40,14 @@ export default class Subscription {
 		return this._db.lastSeenVideo;
 	}
 
-	public updateLastSeenVideo = (videoSeen: lastSeenVideo): void => {
+	public updateLastSeenVideo(videoSeen: lastSeenVideo): void {
 		if (this.lastSeenVideo.releaseDate === "" || new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
 	}
 
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo = (video: BlogPost): (ReturnType<Channel["addVideo"]> | null) => {
+	public addVideo(video: BlogPost): (ReturnType<Channel["addVideo"]> | null) {
 		for (const channel of this._channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;

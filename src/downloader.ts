@@ -3,8 +3,6 @@ import Video from "./lib/Video";
 
 import { settings } from "./lib/helpers";
 
-import { fApi } from "./lib/FloatplaneAPI";
-
 import { Resolution } from "./lib/types";
 
 import { promisify } from "util";
@@ -82,7 +80,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 		// If the video is already downloaded then just mux its metadata
 		if (!await video.isDownloaded()) {
 			const startTime = Date.now();
-			const downloadRequest = await video.download(fApi, quality.toString());
+			const downloadRequest = await video.download(quality.toString());
 			downloadRequest.on("downloadProgress", downloadProgress => {
 				const totalMB = downloadProgress.total/1024000;
 				const downloadedMB = (downloadProgress.transferred/1024000);

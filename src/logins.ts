@@ -2,13 +2,13 @@ import { MyPlexAccount } from "@ctrl/plex";
 
 import { loopError } from "@inrixia/helpers/object";
 
-import type FloatplaneApi from "floatplane";
 import { floatplane, plex } from "./lib/prompts";
 
 import { args } from "./lib/helpers";
 
-export const loginFloatplane = async (fApi: FloatplaneApi): Promise<void> => {
+import { fApi } from "./lib/FloatplaneAPI";
 
+export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;
 	if (args.docker === true) {
 		if (args.username === undefined || args.password === undefined) throw new Error("Need floatplane username/password to login! Please pass them as --username=\"\" --password=\"\".");

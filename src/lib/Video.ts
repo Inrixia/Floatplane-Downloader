@@ -8,10 +8,10 @@ import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
 import type { BlogPost } from "floatplane/creator";
-import type FloatplaneAPI from "floatplane";
 import type Request from "got/dist/source/core";
 
 import type Channel from "./Channel";
+import { fApi } from "./FloatplaneAPI";
 
 export default class Video {
 	public guid: string;
@@ -62,7 +62,7 @@ export default class Video {
 	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
 	public isMuxed = async (): Promise<boolean> => await this.muxedBytes() === this.expectedSize;
 
-	public download = async (fApi: FloatplaneAPI, quality: string): Promise<Request> => {
+	public async download (quality: string): Promise<Request> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
@@ -107,12 +107,12 @@ export default class Video {
 		return downloadRequest;
 	}
 
-	public markCompleted = async (): Promise<void> => {
+	public async markCompleted(): Promise<void> {
 		if (!await this.isMuxed()) throw new Error(`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.muxedBytes()} bytes...`);
 		return this.channel.markVideoCompleted(this.guid, this.releaseDate.toString());
 	}
 
-	public muxffmpegMetadata = async (): Promise<void> => {
+	public async muxffmpegMetadata (): Promise<void> {
 		if (!this.isDownloaded()) throw new Error(`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.downloadedBytes()} bytes...`);
 		await new Promise((resolve, reject) => execFile(
 			`${settings.ffmpegPath}/ffmpeg`, 
