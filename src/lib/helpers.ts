@@ -10,7 +10,6 @@ import fs from "fs";
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
 import ARGV from "process.argv";
-import { processVideos } from "../downloader";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,7 +67,7 @@ const getEnv = () => {
 			objRef = objRef[keys[i]] ??= {};
 		}
 		// Set the last key to equal the original value
-		objRef[keys[keys.length-1]] = process.env[envKey];
+		if (typeof objRef === "object") objRef[keys[keys.length-1]] = process.env[envKey];
 	}
 	return envObject;
 };
@@ -84,27 +83,6 @@ const env = rebuildTypes<PartialArgs, PartialArgs>(getEnv(), { ...defaultSetting
 recursiveUpdate(settings, env, false, true);
 
 export const args = { ...argv, ...env };
-
-export const autoRepeat = async <F extends (...args: unknown[]) => Promise<unknown>>(functionToRun: F): Promise<void> => {
-	const interval = settings.repeat.interval.split(":").map(s => parseInt(s));
-	console.log(`\u001b[41mRepeating every ${interval[0]}H, ${interval[1]}m, ${interval[2]}s...\u001b[0m`);
-	await functionToRun(); // Run
-	const SECS = interval[2];
-	const MINS = 60*interval[1];
-	const HRS = 60*60*interval[0];
-	let remaining = SECS+MINS+HRS;
-	console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until next check...`);
-	setInterval(async () => {
-		if (remaining === -1) return;
-		remaining -= 10;
-		if (remaining <= 0) {
-			console.log("Checking for new videos...\n");
-			remaining = -1;
-			await functionToRun();
-			remaining = SECS+MINS+HRS;
-		} else console.log(`${~~(remaining/60/60%60)}H, ${~~(remaining/60%60)}m, ${remaining%60}s until next check...`);
-	}, 10000);
-};
 
 export const fetchFFMPEG = (): Promise<void> => new Promise((resolve, reject) => {
 	const platform = detectPlatform();

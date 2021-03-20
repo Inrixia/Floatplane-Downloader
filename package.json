@@ -13,7 +13,7 @@
     "@inrixia/db": "^1.7.0",
     "@inrixia/helpers": "^1.15.1",
     "ffbinaries": "^1.1.4",
-    "floatplane": "^3.0.3",
+    "floatplane": "^3.0.5",
     "got": "^11.8.2",
     "multi-progress-bars": "^3.2.3",
     "process.argv": "^0.6.0",

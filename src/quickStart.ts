@@ -51,9 +51,6 @@ export const quickStart = async (settings: Settings, fApi: FloatplaneApi): Promi
 		for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1 ? true : false;
 	}
 
-	settings.repeat.enabled = await prompts.settings.repeat(settings.repeat.enabled);
-	if (settings.repeat.enabled) settings.repeat.interval = await prompts.settings.repeatInterval(settings.repeat.interval);
-
 	console.log("\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n");
 	console.log("Next we are going to login to floatplane...");
 	await loginFloatplane(fApi);

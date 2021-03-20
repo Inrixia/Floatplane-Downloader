@@ -85,10 +85,6 @@ export const defaultSettings: Settings = {
 	ffmpegPath: "./db/",
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
-	repeat: {
-		enabled: true,
-		interval: "00:05:00",
-	},
 	extras: {
 		downloadArtwork: true,
 		saveNfo: true,

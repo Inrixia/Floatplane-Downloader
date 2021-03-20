@@ -54,10 +54,6 @@ export type Settings = {
 	ffmpegPath: string;
 	_filePathFormattingOPTIONS: string[];
 	filePathFormatting: string;
-	repeat: {
-		enabled: boolean;
-		interval: string;
-	};
 	extras: Extras;
 	channelAliases: { 
 		[key: string]: string 
