@@ -6,42 +6,32 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 
 import { loginFloatplane } from "./logins";
 
-import { fetchSubscriptionVideos } from "./subscriptionFetching";
-
-import type { Subscription } from "floatplane/user";
-
+import { fetchSubscriptions } from "./subscriptionFetching";
 import { processVideos } from "./downloader";
+
 import { MyPlexAccount } from "@ctrl/plex";
+
 /**
  * Main function that triggeres everything else in the script
  */
 const startFetching = async () => {
 	
-	// process.stdout.write("> Fetching user subscriptions... ");
-	// process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+	process.stdout.write("> Fetching user subscriptions... ");
+	const subscriptions = await fetchSubscriptions();
+	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
+	for (const subscription of subscriptions) {
+		await Promise.all(processVideos(await subscription.fetchNewVideos(true)));
+	}
 
-	// const processingVideos = processVideos(await fetchSubscriptionVideos(userSubscriptions));
-
-	// await Promise.all(processingVideos);
-
-	// if (processingVideos.length > 0) {
-	// 	console.log(`> Processed ${processingVideos.length} videos!`);
-	// 	if (settings.plex.enabled) {
-	// 		process.stdout.write("> Refreshing plex sections... ");
-	// 		const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
-	// 		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
-	// 			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
-	// 		}
-	// 		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-	// 	}
-	// }
-
-	// fApi.sails.on("syncEvent", syncEvent => {
-	// 	if (syncEvent.event === "creatorMenuUpdate") {
-	// 		syncEvent.
-	// 	}
-	// });
+	if (settings.plex.enabled) {
+		process.stdout.write("> Refreshing plex sections... ");
+		const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
+		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
+			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+		}
+		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+	}
 };
 
 // Async start
@@ -55,7 +45,7 @@ const startFetching = async () => {
 	await validatePlexSettings();
 
 	// Get Floatplane credentials if not saved
-	if (cookieJar.toJSON().cookies.length === 0 || await fApi.user.subscriptions().catch(err => {
+	if (cookieJar.toJSON().cookies.length === 0 || await fApi.user.subscriptions().catch((err: Error) => {
 		console.log(`Unable to authenticate with floatplane... ${err.message}`);
 		return undefined;
 	}) === undefined) {
