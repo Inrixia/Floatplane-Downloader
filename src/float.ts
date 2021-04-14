@@ -32,6 +32,8 @@ const startFetching = async () => {
 		}
 		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 	}
+
+	console.log("Waiting for new videos...");
 };
 
 // Async start
