@@ -74,7 +74,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 	while (formattedTitle in downloadStats) formattedTitle = ` ${formattedTitle}`.slice(0, 32);
 	mpb.addTask(formattedTitle, {
 		type: "percentage", 
-		barColorFn: str => `${video.channel.consoleColor}${str}`
+		barColorFn: str => `${video.channel.consoleColor||""}${str}`
 	});
 	try {
 		// If the video is already downloaded then just mux its metadata

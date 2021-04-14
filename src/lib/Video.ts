@@ -98,6 +98,8 @@ export default class Video {
 			undefined
 		];
 
+		console.log(`bytes=${downloadedBytes}-${this.expectedSize}`);
+
 		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 		const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[0]);
 
@@ -105,17 +107,16 @@ export default class Video {
 		const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
 
 		// Convert the qualities into an array of resolutions
-		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map(quality => quality.label);
+		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map(quality => quality.name);
 
 		// Set the quality to use based on whats given in the settings.json or the highest avalible
 		const downloadQuality = avalibleQualities.includes(quality) ? quality : avalibleQualities[avalibleQualities.length-1];
 
-		// THIS IS NOT FINISHED
-		const downloadRequest = fApi.got.stream(`${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`, requestOptions);
+		const downloadRequest = fApi.got.stream(`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`, requestOptions);
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
-		downloadRequest.once("downloadProgress", progress => this.expectedSize = progress.total);
+		if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", progress => this.expectedSize = progress.total);
 		
 		return downloadRequest;
 	}

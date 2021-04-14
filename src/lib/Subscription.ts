@@ -88,7 +88,6 @@ export default class Subscription {
 			videos.push(video);
 			if (logProgress === true) process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
-		process.stdout.write("\n");
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		const incompleteVideos: Video[] = [];
