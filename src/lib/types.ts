@@ -9,7 +9,7 @@ export type ChannelOptions = {
 	skip: boolean;
 	identifiers: Array<{
 		check: string;
-		type: keyof BlogPost;
+		type: keyof BlogPost | "description";
 	}> | false;
 	consoleColor?: string;
 };

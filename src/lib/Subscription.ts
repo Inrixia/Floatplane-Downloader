@@ -56,12 +56,17 @@ export default class Subscription {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;
 			for (const identifier of channel.identifiers) {
-				if (typeof video[identifier.type] !== "string") throw new Error(`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`);
-				else if ((video[identifier.type] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
-					if (channel.skip === true) return null;
-					// Remove the identifier from the video title if to give a nicer title
-					if (identifier.type === "title") video.title = video.title.replace(identifier.check, "").trim();
-					return channel.addVideo(video);
+				if (typeof identifier.type !== "string") throw new Error(`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`);
+				else {
+					// Description is named text on videos, kept description for ease of use for users but have to change it here...
+					const identifierProperty = identifier.type === "description" ? "text" : identifier.type;
+
+					if ((video[identifierProperty] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
+						if (channel.skip === true) return null;
+						// Remove the identifier from the video title if to give a nicer title
+						if (identifierProperty === "title") video.title = video.title.replace(identifier.check, "").trim();
+						return channel.addVideo(video);
+					}
 				}
 			}
 		}
@@ -87,7 +92,7 @@ export default class Subscription {
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		const incompleteVideos: Video[] = [];
-		for (const video of videos.sort((a, b) => (+new Date(a.releaseDate)) - (+new Date(b.releaseDate))).map(this.addVideo)) {
+		for (const video of videos.sort((a, b) => (+new Date(a.releaseDate)) - (+new Date(b.releaseDate))).map(video => this.addVideo(video))) {
 			if (video !== null && !await video.isMuxed()) incompleteVideos.push(video);
 		}
 		process.stdout.write(` Skipped ${videos.length-incompleteVideos.length}.\n`);
