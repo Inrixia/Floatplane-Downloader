@@ -52,6 +52,7 @@ export default class Subscription {
 	 */
 	public addVideo(video: BlogPost, overrideSkip: true): ReturnType<Channel["addVideo"]>
 	public addVideo(video: BlogPost, overrideSkip?: false): ReturnType<Channel["addVideo"]> | null
+	
 	public addVideo(video: BlogPost, overrideSkip=false): ReturnType<Channel["addVideo"]> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
@@ -60,12 +61,12 @@ export default class Subscription {
 				if (typeof identifier.type !== "string") throw new Error(`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`);
 				else {
 					// Description is named text on videos, kept description for ease of use for users but have to change it here...
-					const identifierProperty = identifier.type === "description" ? "text" : identifier.type;
+					const identifierType = identifier.type === "description" ? "text" : identifier.type;
 
-					if ((video[identifierProperty] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
+					if ((video[identifierType] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
 						if (overrideSkip === false && channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						if (identifierProperty === "title") video.title = video.title.replace(identifier.check, "").trim();
+						if (identifierType === "title") video.title = video.title.replace(identifier.check, "").trim();
 						return channel.addVideo(video);
 					}
 				}

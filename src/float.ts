@@ -47,11 +47,9 @@ const startFetching = async () => {
 	await validatePlexSettings();
 
 	// Get Floatplane credentials if not saved
-	if (cookieJar.toJSON().cookies.length === 0 || await fApi.user.subscriptions().catch((err: Error) => {
-		console.log(`Unable to authenticate with floatplane... ${err.message}`);
-		return undefined;
-	}) === undefined) {
-		console.log("You dont seem to be authenticated! Please login to floatplane...");
+	const isLoggedIn = await fApi.isAuthenticated();
+	if (isLoggedIn !== true) {
+		console.log(`Unable to authenticate with floatplane... ${isLoggedIn.message}\nPlease login to floatplane...`);
 		await loginFloatplane();
 	}
 
