@@ -11,6 +11,7 @@ export type ChannelOptions = {
 		check: string;
 		type: keyof BlogPost;
 	}> | false;
+	consoleColor?: string;
 };
 
 export type SubChannels = {
@@ -62,7 +63,4 @@ export type Settings = {
 		[key: string]: SubscriptionSettings;
 	};
 	plex: PlexSettings;
-	channelColors: {
-		[key: string]: string;
-	};
 };

@@ -2,11 +2,28 @@ import { Resolutions, SubChannels, Settings, Args } from "./types";
 
 export const defaultResoulutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
+	"Tech Deals": {
+		_default: {
+			title: "Teach Deals",
+			skip: false,
+			identifiers: false,
+			consoleColor: "\u001b[38;5;10m"
+		}
+	},
+	"BitWit Ultr": {
+		_default: {
+			title: "BitWit Ultr",
+			skip: false,
+			identifiers: false,
+			consoleColor: "\u001b[38;5;105m"
+		}
+	},
 	"Linus Tech Tips": {
-		"_default": {
+		_default: {
 			title: "Linus Tech Tips",
 			skip: false,
 			identifiers: false,
+			consoleColor: "\u001b[38;5;208m"
 		},
 		"Floatplane Exclusive": {
 			title: "Floatplane Exclusive",
@@ -15,6 +32,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				check: "FP Exclusive: ",
 				type: "title",
 			}],
+			consoleColor: "\u001b[38;5;200m"
 		},
 		"TalkLinked": {
 			title: "TalkLinked",
@@ -23,6 +41,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				check: "talklinked",
 				type: "text",
 			}],
+			consoleColor: "\u001b[36m"
 		},
 		"TechLinked": {
 			title: "TechLinked",
@@ -31,6 +50,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				check: "TL: ",
 				type: "title",
 			}],
+			consoleColor: "\u001b[38;5;14m"
 		},
 		"TechQuickie": {
 			title: "TechQuickie",
@@ -39,6 +59,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				check: "TQ: ",
 				type: "title",
 			}],
+			consoleColor: "\u001b[38;5;153m"
 		},
 		"Carpool Critics": {
 			title: "Carpool Critics",
@@ -46,7 +67,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			identifiers: [{
 				check: "CC: ",
 				type: "title",
-			}],
+			}]
 		},
 		"ShortCircut": {
 			title: "ShortCircut",
@@ -56,13 +77,23 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				type: "title",
 			}],
 		},
+		"ChannelSuperFun": {
+			title: "ChannelSuperFun",
+			skip: false,
+			identifiers: [{
+				check: "CSF: ",
+				type: "title"
+			}],
+			consoleColor: "\u001b[38;5;220m"
+		},
 		"LMG Livestream VODs": {
 			title: "LMG Livestream VODs",
 			skip: false,
 			identifiers: [{
 				check: "Livestream VOD – ",
 				type: "title"
-			}]
+			}],
+			consoleColor: "\u001b[38;5;208m"
 		}
 	}
 };
@@ -100,17 +131,5 @@ export const defaultSettings: Settings = {
 		"ltt supporter (1080p)": "Linus Tech Tips",
 		"ltt supporter plus": "Linus Tech Tips",
 	},
-	subscriptions: {},
-	channelColors: {
-		"Linus Tech Tips": "\u001b[38;5;208m",
-		"The WAN Show": "\u001b[38;5;208m",
-		"Channel Super Fun": "\u001b[38;5;220m",
-		"Floatplane Exclusive": "\u001b[38;5;200m",
-		"TechLinked": "\u001b[38;5;14m",
-		"TechQuickie": "\u001b[38;5;153m",
-		"Tech Deals": "\u001b[38;5;10m",
-		"BitWit Ultra": "\u001b[38;5;105m",
-		"TalkLinked": "\u001b[36m",
-		"LTT Supporter (OG)": "\u001b[38;5;153m",
-	},
+	subscriptions: {}
 };

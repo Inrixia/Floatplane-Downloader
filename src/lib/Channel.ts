@@ -17,6 +17,8 @@ export default class Channel {
 	public identifiers: ChannelOptions["identifiers"];
 	public skip: ChannelOptions["skip"];
 
+	public consoleColor: ChannelOptions["consoleColor"]
+
 	public subscription: Subscription;
 
 	public _db: ChannelDB;
@@ -30,6 +32,9 @@ export default class Channel {
 		this.title = channel.title;
 		this.identifiers = channel.identifiers;
 		this.skip = channel.skip;
+		this.consoleColor = channel.consoleColor;
+
+		
 		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
 			this._db = db<ChannelDB>(databaseFilePath, { videos: {}, nextEpisodeNo: 1 });
@@ -38,12 +43,12 @@ export default class Channel {
 		}
 	}
 
-	public lookupVideoDB = (videoGUID: string): VideoDBEntry => this._db.videos[videoGUID];
+	public lookupVideoDB = (guid: string): VideoDBEntry => this._db.videos[guid];
 
-	public markVideoCompleted(videoGUID: string, releaseDate: string): void {
+	public markVideoCompleted(guid: string, releaseDate: string): void {
 		// Redundant check but worth keeping
-		if (this._db.videos[videoGUID] === undefined) throw new Error(`Cannot mark unknown video ${videoGUID} as completed. Video does not exist in channel database.`);
-		this.subscription.updateLastSeenVideo({ videoGUID, releaseDate });
+		if (this._db.videos[guid] === undefined) throw new Error(`Cannot mark unknown video ${guid} as completed. Video does not exist in channel database.`);
+		this.subscription.updateLastSeenVideo({ guid, releaseDate });
 	}
 
 	public addVideo (video: BlogPost): Video {

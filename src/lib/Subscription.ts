@@ -3,20 +3,23 @@ import Channel from "./Channel";
 
 import type { SubscriptionSettings } from "./types";
 
-import type { BlogPost } from "floatplane/creator";
+import { BlogPost } from "floatplane/creator";
+import { fApi } from "./FloatplaneAPI";
+import type Video from "./Video";
 
-type lastSeenVideo = {
-	videoGUID: BlogPost["guid"];
+type LastSeenVideo = {
+	guid: BlogPost["guid"];
 	releaseDate: BlogPost["releaseDate"];
 }
 type SubscriptionDB = {
-	lastSeenVideo: lastSeenVideo
+	lastSeenVideo: LastSeenVideo;
+	videos: BlogPost[];
 }
 
 
 export default class Subscription {
-	private _channels: Channel[];
-	private _defaultChannel: Channel;
+	public channels: Channel[];
+	public defaultChannel: Channel;
 
 	public creatorId: string;
 
@@ -24,13 +27,13 @@ export default class Subscription {
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 		
-		this._channels = Object.values(subscription.channels).map(channel => new Channel(channel, this));
-		this._defaultChannel = new Channel(subscription.channels._default, this);
+		this.channels = Object.values(subscription.channels).map(channel => new Channel(channel, this));
+		this.defaultChannel = new Channel(subscription.channels._default, this);
 
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
 		try {
-			this._db = db<SubscriptionDB>(databaseFilePath, { lastSeenVideo: { videoGUID: "", releaseDate: "" } });
+			this._db = db<SubscriptionDB>(databaseFilePath, { lastSeenVideo: { guid: "", releaseDate: "" }, videos: [] });
 		} catch {
 			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
@@ -40,7 +43,7 @@ export default class Subscription {
 		return this._db.lastSeenVideo;
 	}
 
-	public updateLastSeenVideo(videoSeen: lastSeenVideo): void {
+	public updateLastSeenVideo(videoSeen: LastSeenVideo): void {
 		if (this.lastSeenVideo.releaseDate === "" || new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
 	}
 
@@ -48,7 +51,7 @@ export default class Subscription {
 	 * @param {fApiVideo} video
 	 */
 	public addVideo(video: BlogPost): (ReturnType<Channel["addVideo"]> | null) {
-		for (const channel of this._channels) {
+		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;
 			for (const identifier of channel.identifiers) {
@@ -61,7 +64,32 @@ export default class Subscription {
 				}
 			}
 		}
-		if (this._defaultChannel.skip === true) return null;
-		else return this._defaultChannel.addVideo(video);
+		if (this.defaultChannel.skip === true) return null;
+		else return this.defaultChannel.addVideo(video);
+	}
+
+	public async fetchNewVideos(logProgress=false): Promise<Array<Video>> {
+		const coloredTitle = `${this.defaultChannel.consoleColor||"\u001b[38;5;208m"}${this.defaultChannel.title}\u001b[0m`;
+		const lastSeenGUID = this.lastSeenVideo.guid;
+
+		const videos = [];
+
+		if (logProgress === true) process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+
+		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: "video" })) {
+			if (video.guid === lastSeenGUID) break;
+			if (lastSeenGUID === "" && videos.length >= 20) break;
+			videos.push(video);
+			if (logProgress === true) process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+		}
+		process.stdout.write("\n");
+
+		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
+		const incompleteVideos: Video[] = [];
+		for (const video of videos.sort((a, b) => (+new Date(a.releaseDate)) - (+new Date(b.releaseDate))).map(this.addVideo)) {
+			if (video !== null && !await video.isMuxed()) incompleteVideos.push(video);
+		}
+		process.stdout.write(` Skipped ${videos.length-incompleteVideos.length}.\n`);
+		return incompleteVideos;
 	}
 }
