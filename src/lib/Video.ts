@@ -60,7 +60,7 @@ export default class Video {
 	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
 
 	public downloadedBytes = async (): Promise<number> => Video.getFileBytes(this.filePath);
-	public isDownloaded = async (): Promise<boolean> => await this.downloadedBytes() === this.expectedSize;
+	public isDownloaded = async (): Promise<boolean> => await this.isMuxed() || await this.downloadedBytes() === this.expectedSize;
 
 	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
 	public isMuxed = async (): Promise<boolean> => await this.muxedBytes() === this.expectedSize;
@@ -97,8 +97,6 @@ export default class Video {
 			undefined,
 			undefined
 		];
-
-		console.log(`bytes=${downloadedBytes}-${this.expectedSize}`);
 
 		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 		const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[0]);

@@ -78,7 +78,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 	});
 	try {
 		// If the video is already downloaded then just mux its metadata
-		if (!await video.isDownloaded()) {
+		if (!await video.isMuxed() && !await video.isDownloaded()) {
 			const startTime = Date.now();
 			const downloadRequest = await video.download(quality);
 			downloadRequest.on("downloadProgress", downloadProgress => {
@@ -101,11 +101,13 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 			downloadStats[formattedTitle].timeElapsed = (Date.now() - startTime) / 1000;
 			downloadStats[formattedTitle].downloadSpeed = 0;
 		}
-		mpb.updateTask(formattedTitle, { 
-			percentage: 0.99, 
-			message: "Muxing ffmpeg metadata..."
-		});
-		await video.muxffmpegMetadata();
+		if (!await video.isMuxed()) {
+			mpb.updateTask(formattedTitle, { 
+				percentage: 0.99, 
+				message: "Muxing ffmpeg metadata..."
+			});
+			await video.muxffmpegMetadata();
+		}
 		mpb.done(formattedTitle);
 	} catch (error) {
 		// Handle errors when downloading nicely
