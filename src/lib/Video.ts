@@ -14,11 +14,13 @@ import type Channel from "./Channel";
 import { fApi } from "./FloatplaneAPI";
 
 export default class Video {
-	public guid: string;
-	public title: string;
-	public description: string;
+	public guid: BlogPost["guid"];
+	public title: BlogPost["title"];
+	public description: BlogPost["text"];
 	public releaseDate: Date;
 	public thumbnail: BlogPost["thumbnail"];
+
+	public videoAttachments: BlogPost["videoAttachments"]
 
 	public channel: Channel;
 
@@ -29,6 +31,7 @@ export default class Video {
 		this.channel = channel;
 
 		this.guid = video.guid;
+		this.videoAttachments = video.videoAttachments;
 		this.title = video.title;
 		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
@@ -95,10 +98,20 @@ export default class Video {
 			undefined
 		];
 
-		// Send download request video
-		// @@ TODO
+		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
+		const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[0]);
+
+		// Pick a random edge to download off, eventual even distribution
+		const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
+
+		// Convert the qualities into an array of resolutions
+		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map(quality => quality.label);
+
+		// Set the quality to use based on whats given in the settings.json or the highest avalible
+		const downloadQuality = avalibleQualities.includes(quality) ? quality : avalibleQualities[avalibleQualities.length-1];
+
 		// THIS IS NOT FINISHED
-		const downloadRequest = fApi.got.stream("", requestOptions);
+		const downloadRequest = fApi.got.stream(`${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`, requestOptions);
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.

@@ -80,7 +80,7 @@ const processVideo = async (video: Video, retries = 0, quality: Resolution = set
 		// If the video is already downloaded then just mux its metadata
 		if (!await video.isDownloaded()) {
 			const startTime = Date.now();
-			const downloadRequest = await video.download(quality.toString());
+			const downloadRequest = await video.download(quality);
 			downloadRequest.on("downloadProgress", downloadProgress => {
 				const totalMB = downloadProgress.total/1024000;
 				const downloadedMB = (downloadProgress.transferred/1024000);

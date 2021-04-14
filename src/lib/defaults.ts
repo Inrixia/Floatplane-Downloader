@@ -1,6 +1,6 @@
 import { Resolutions, SubChannels, Settings, Args } from "./types";
 
-export const defaultResoulutions: Resolutions = ["360", "720", "1080", "2160"];
+export const defaultResoulutions: Resolutions = ["360p", "720p", "1080p", "2160p"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
 	"Tech Deals": {
 		_default: {
@@ -109,7 +109,7 @@ export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
 	floatplane: {
-		videoResolution: "1080",
+		videoResolution: "1080p",
 		videosToSearch: 5,
 		_avalibleResolutions: defaultResoulutions,
 	},

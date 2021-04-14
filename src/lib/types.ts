@@ -1,6 +1,6 @@
 
-export type Resolution = "360" | "720" | "1080" | "2160";
-export type Resolutions = ["360", "720", "1080", "2160"];
+export type Resolution = "360p" | "720p" | "1080p" | "2160p";
+export type Resolutions = ["360p", "720p", "1080p", "2160p"];
 
 import type { BlogPost } from "floatplane/creator";
 
