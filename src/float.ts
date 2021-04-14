@@ -21,7 +21,7 @@ const startFetching = async () => {
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
 	for (const subscription of subscriptions) {
-		await Promise.all(processVideos(await subscription.fetchNewVideos(true)));
+		await Promise.all(processVideos(await subscription.fetchNewVideos(true, settings.floatplane.videosToSearch)));
 	}
 
 	if (settings.plex.enabled) {

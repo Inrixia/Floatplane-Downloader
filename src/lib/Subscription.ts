@@ -6,6 +6,7 @@ import type { SubscriptionSettings } from "./types";
 import { BlogPost } from "floatplane/creator";
 import { fApi } from "./FloatplaneAPI";
 import type Video from "./Video";
+import { settings } from "./prompts";
 
 type LastSeenVideo = {
 	guid: BlogPost["guid"];
@@ -68,7 +69,7 @@ export default class Subscription {
 		else return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(logProgress=false): Promise<Array<Video>> {
+	public async fetchNewVideos(logProgress=false, videosToSearch=20): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor||"\u001b[38;5;208m"}${this.defaultChannel.title}\u001b[0m`;
 		const lastSeenGUID = this.lastSeenVideo.guid;
 
@@ -78,7 +79,7 @@ export default class Subscription {
 
 		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: "video" })) {
 			if (video.guid === lastSeenGUID) break;
-			if (lastSeenGUID === "" && videos.length >= 20) break;
+			if (lastSeenGUID === "" && videos.length >= videosToSearch) break;
 			videos.push(video);
 			if (logProgress === true) process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
