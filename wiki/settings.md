@@ -7,14 +7,14 @@ Defaults for any setting is defined in the **[Defaults File](https://github.com/
 **runQuickstartPrompts**:<br>
 Setting this to true will cause the quickStartPrompts to run on startup.
 ```ts
-quickStartPrompts: false
+"runQuickstartPrompts": false
 ```
 <br>
 
 **downloadThreads**:<br>
-Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.<br>
+Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would mean only 2 videos download at once.<br>
 ```json
-"maxParallelDownloads": -1
+"downloadThreads": -1
 ```
 <br>
 
