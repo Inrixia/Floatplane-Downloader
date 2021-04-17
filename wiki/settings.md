@@ -1,438 +1,163 @@
-# settings.json Info
----
-This covers what each setting is and what you can change it to for after version 4.0.0 Please go read this for pre 4.0.0: [Settings_Pre_4.0.0](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings_pre_4.0.0.md). 
+# settings.json Wiki
+![image](https://user-images.githubusercontent.com/6373693/115115267-9fab5680-9fe7-11eb-90c4-13c54ef1df96.png)<br>
+<br><br>
 
-Note that "max" type settings apply separately to each channel, so maxVideos set to 4 means 4 videos for Floatplane and BitWit Ultra etc for multiple channels, if you have more than one channel enabled.
-[![https://gyazo.com/922be47524caa2425c640c509e90ad94](https://i.gyazo.com/922be47524caa2425c640c509e90ad94.png)](https://gyazo.com/922be47524caa2425c640c509e90ad94)
+Defaults for any setting is defined in the **[Defaults File](https://github.com/Inrixia/Floatplane-Downloader/blob/master/src/lib/defaults.ts)**.<br>
+<br><br>
 
-**version:**  
->Variable used in the update script. Ignore this.
-
-**videoFolder:**
-
->This sets the folder the videos are downloaded to. It can be related to the scripts folder through "./" or a full system path like "C:/Users/Inrix/Downloads".
->
->Default: "**./videos/**"  
->Example:
-```json 
-"videoFolder": "C:/Users/Inrix/Downloads"
+**runQuickstartPrompts**:<br>
+Setting this to true will cause the quickStartPrompts to run on startup.
+```ts
+quickStartPrompts: false
 ```
+<br><br>
 
-**maxVideos:**  
->States how far down the latest video posts the script should look in number of posts. You can set it to as high as you want.
->
->Note: This does not effect script performance, or increase requests to the Floatplane API below 20. After that every increase by 20 will mean another page worth of videos is loaded.
->
->Default: "**5**"  
->Example:
-```json 
-"maxVideos": 30
-```
-
-**maxParallelDownloads:**  
->Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.
->Note: Using this option can cause issues and is not strictly recommended.
->
->Default: "**-1**"  
->Example:
+**downloadThreads**:<br>
+Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.<br>
+<br>
 ```json 
 "maxParallelDownloads": -1
 ```
+<br><br>
 
-**repeatScript:**  
->This lets you have the script auto run at a specific interval. The default is false which disables this functionality, otherwise you can set it to the following format:
->xUnits, where x is a number, and Units is the type
->Types you can use are: s: Seconds, m: Minutes, h: Hours, d: Days, w: Weeks
->
->Default: "**false**"  
->Examples:  
+## Floatplane
+<br><br>
 
-Repeats every 2 minutes:
+**videosToSearch**:<br>
+Number of videos to search through when looking for undownloaded videos **per subscription**.<br>
+<br>
 ```json 
-"repeatScript": "2m"
+"floatplane.videosToSearch": 5
 ```
-Repeats every hour:
+<br><br>
+
+**videoResolution**:<br>
+Resolution to download the videos in. See **_avalibleResolutions** for options.<br>
+<br>
 ```json 
-"repeatScript": "1h"
+"floatplane.videoResolution": 1080
 ```
-Repeats every day:
+<br><br>
+
+**filePathFormatting**:<br>
+This defined the path/filename formatting for downloaded videos...<br>
+You can refer to **_filePathFormattingOPTIONS** for options on what can be used.<br>
+Strings surounded by % will be replaced with their respective values.<br>
+<br>
 ```json 
-"repeatScript": "1d"
+"filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%"
 ```
+<br><br>
 
-**extras.downloadArtwork:**  
->Sets whether the script downloads album artwork images for each video. These are required for nice thumbnails in Plex.
->
->Default: "**true**"  
->Example:
-```json 
-"downloadArtwork": true
-```
+## Extras
+<br><br>
 
-**extras.artworkFormat:**  
->Sets the image format that artwork should be saved as.
->
->Default: "**"png"**"  
->Example:
-```json 
-"downloadArtwork": "png"
-```
-
-**extras.safeNfo:**  
->Sets whether the script saves video metadata to nfo files alongside the video.
->
->Default: "**false**"  
->Example:
-```json 
-"safeNfo": true
-```
-
-**fileFormatting.formatWithEpisodes:**  
->If false will remove the SxxExx from the name of the videos. Will break Plex support!
->
->Default: "**true**"  
->Example:
-```json 
-"formatWithEpisodes": true
-```
-
-**fileFormatting.formatWithDate:**  
->If true will add the date the video was published to the filename. This might break Plex ordering, so use at your own risk.
->
->Default: "**false**"  
->Example:
->"Linus Tech Tips - S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
-```json 
-"formatWithDate": false
-```
-
-**fileFormatting.formatWithSubChannel:**  
->If false will remove the subChannel name from the filename. Recommended to keep this true.
->
->Default: "**true**"  
->Example:
->"S01E1 - 2018-02-04 - SUPERCHARGE Your Super Nintendo!"
-```json 
-"formatWithSubChannel": false
-```
-
-**fileFormatting.yearsAsSeasons:**  
->If true the script will save all videos into a season folder based on the year they were released. This will cause Plex to show a season for each year.
->
->Default: "**false**"  
->Example:
->"\Videos\Linus Tech Tips\2017\VideoTitle.mp4"
-```json 
-"yearsAsSeasons": false
-```
-
-**fileFormatting.monthsAsSeasons:**  
->If true the script will save all videos into a season folder based on the month+year they were released. This will cause Plex to show a season for each month.
->
->Default: "**false**"  
->Example:
->"\Videos\Linus Tech Tips\201701\VideoTitle.mp4" (If the month is January)
-```json 
-"monthsAsSeasons": false
-```
-
-**fileFormatting.ignoreFolderStructure:**  
->If true the script will save all videos directly into the videoFolder instead of organising into separate ones for each subChannel.
->
->Default: "**false**"  
->Example:
-```json 
-"ignoreFolderStructure": false
-```
-
-**fileFormatting.countFromOne:**  
->If true episode numbering will begin from one instead of 0.
->
->Default: "**false**"  
->Example:
-```json 
-"countFromOne": true
-```
-
-**ffmpeg:**  
->Enables ffmpeg processing of videos. Disabling this will break titles in Plex.
->
->Default: "**true**" 
->Example: 
-```json 
-"ffmpeg": false
-```
-
-**downloadUpdateTime:**  
->Sets the time in between download bar updates and saving of partial data to disk. A higher number will cause the script to write larger chunks of data to the disk, but will also mean recovering downloads can be further behind, this also effects the time the download bar updates. It is set in ms.
->
->Default: "**250**"  
->Example:
-```json 
-"downloadUpdateTime": 250
-```
-
-**checkForNewSubscriptions:**  
->Will check for new subscriptions on your account when the script runs.
->
->Default: "**true**" 
->Example: 
-```json 
-"checkForNewSubscriptions": true
-```
-
-**TheWANShow.enabled:**  
->If true the script will download the latest WAN show episodes from youtube.
->
->Default: "**false**"  
->Example:
->"**true**"
-
-**TheWANShow.audio.quality:**  
->Audio quality to download. Can be an [ytdl itag value](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats) or highest/lowest. Default is highest which is best quality.
->
->Default: "**highest**"  
->Example:
->"**lowest**"
-
-**TheWANShow.audio.saveSeperately:**  
->Enabling this will save the audio as its own file.
->
->Default: "**false**"  
->Example:
->"**true**"
-
-**TheWANShow.video.quality:**  
->Video quality to download. Can be an [ytdl itag value](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats) or highest/lowest. Default is highest which is best quality.
->
->Default: "**highest**"  
->Example:
->"**lowest**"
-
-**TheWANShow.video.saveSeperately:**  
->Enabling this will save the video as its own file (Without Audio).
->
->Default: "**false**"
->Example:
->"**true**"
-
-**TheWANShow.combineAndSaveAudioVideo:**  
->Combine video and audio files into one file. This can be disabled if you say only wanted to download the audio and not the video.
->
->Default: "**true**"
->Example:
->"**false**"
-
-**TheWANShow.downloadThreads:**  
->The number of simultanious connections to use for youtube downloads. Generally with 32 you can hit 500mb/s+. But I have been able to get 1gb/s down on 32 or higher. Best to leave this at 32 as youtube throttles downloads hard causing very slow download times when using few threads.
->
->Default: "**32**"
->Example:
->"**64**"
-
-**TheWANShow.downloadArtwork:**  
->Same as extras.downloadArtwork, determines if the artwork/thumbnail for the video is saved (Generally for plex thumbs)
->
->Default: "**true**"
->Example:
->"**false**"
-
-**subscriptions:**  
->This contains all the Floatplane creators you are subscribed to and whether you want to download their videos. For Linus Media Group you can also set if you want to download their subChannels as well. Enabled sets if the primary channel is enabled, whereas ignore sets  if you want to ignore the sub-channels.
->Note: Using this with a maxVideos any lower than 30 will result in you missing videos!
->
->Default [Pre-First Run]:
+**extras.downloadArtwork**:<br>
+Saves video thubnails alongside each video. These are required for nice thumbnails in Plex.<br>
+<br>
 ```json
-"subscriptions": {}
-```
->**Example [Post-First Run] (Dont Download BitWit Ultra & Techquickie):**
-```json 
-"subscriptions": {
-"5ae0f8114336369a2c3619b6": {
-    {
-      "id": "5ae0f8114336369a2c3619b6",
-      "title": "Tech Deals",
-      "enabled": true
-    },
-},
-"59fa58f93acf6013471d5822": {
-    {
-      "id": "59fa58f93acf6013471d5822",
-      "title": "BitWit Ultra",
-      "enabled": false
-    },
-},
-"59f94c0bdd241b70349eb72b": {
-    {
-      "id": "59f94c0bdd241b70349eb72b",
-      "title": "Linus Tech Tips",
-      "enabled": true,
-      "ignore": {
-        "Linus Tech Tips": false,
-        "Channel Super Fun": false,
-        "Floatplane Exclusive": false,
-        "TechLinked": false,
-        "TechQuickie": true
-      }
-    }
-  ]
-```
-
-**autoFetchServer:**  
->When this is enabled the script will automatically determine the closest download server to you
->Disabling this will let you manually specify a download server in the **floatplaneServer** setting
->
->Default: "**true**"  
->Example:
-```json 
-"autoFetchServer": false
-```
-
-**floatplaneServer:**  
->This defines the server that the script will use to download, it could be useful to change this if your getting a slow download speed because of the region you are in. You can find what your default download server is by going to the LTT Forms>Floatplane>AnyVideo then right-click the download button and copy the url. That url should start with the server that floatplane gives you by default.\
->You can see avalible edge servers by using this url: https://www.floatplane.com/api/edges
->
->**It is important to note that you can only download from edges that have the allowDownload flag set to true!**
->
->Default: "**"https://Edge02-na.floatplaneclub.com:443"**" For NA there are two at the moment Edge01-na & Edge02-na
->Example:
-```json 
-"floatplaneServer": "https://Edge01-na.floatplaneclub.com:443"
-```
-
-**video_res:**  
->This defines the resolution to download the videos in. Currently there are only four options you can set it to:  
->**1080** (1080p), **720** (720p), **480** (480p), **360** (360p)
->
->Default: "**1080**"  
->Example:
-```json 
-"video_res": 1080
-```
-
-**logging:**  
->Will log script events to a log file defined in the **logFile** setting.
->
->Default: "**false**" 
->Example: 
-```json 
-"logging": true
-```
-
-**logFile:**  
->Defines the file that will be used for logging if logging is enabled
->
->Default: "**./float.log**" 
->Example: 
-```json 
-"logFile": ./myLogFile.log
-```
-
-**PlexSection:**  
->This is the Plex section id your videos are stored in for auto updating the section when new videos are downloaded. 
-If you are on windows you can find the Plex section your videos are in by running this command in CMD: ""C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Scanner.exe" --list" And locating the section with the same name as you used for Floatplane videos on Plex.
-
-As of v3.8.2 the script now can generate the section id from the url for the section as can be seen below: [![https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c](https://i.gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c.gif)](https://gyazo.com/df26f5bbb22fc5c70f2b8714a30ce54c)
-
-The section is is the last number in the url.
-
-You can also just enter the ID into the prompt the script gives, this prompt will only display if the section id is set to 0 which is the default.
-
->
->Default: "**0**"  
->Example:
-```json 
-"PlexSection": 5
-```
-
-**remotePlexUpdates.remotePlex:**  
->This enables or disables remotely updating a Plex library in the script.  
->
->Default: "**false**"  
->Example:
-```json 
-"remotePlex": true
-```
-
-**remotePlexUpdates.remotePlexIP:**  
->This is the remote IP that the remote Plex server is hosted on.
->
->Default: ""  
->Example:
-```json 
-"remotePlexIP": 192.168.0.10
-```
-
-**remotePlexUpdates.remotePlexPort:**  
->This is the remote Port that the remote Plex server is hosted on. This only needs to be changed if your Plex server is not running on the default port of 32400
->
->Default: "32400"  
->Example:
-```json 
-"remotePlexPort": 32500
-```
-
-**plexToken:**  
->This is the Plex token generated from your login details for updating remote servers. It is only needed for remote updates and can only be generated by running the script, which will prompt user to enter their Plex username and password if PlexToken is empty and remotePlex is enabled.
->
->Default: ""  
->Example:
-```json 
-"remotePlexToken": "asSsdfH76FsNfer"
-```
-
-**localPlexUpdates.localPlex:**  
->This enables or disables locally updating a Plex library in the script. Enabling this requires PlexSection and PlexScannerInstall to be set correctly.  
->
->Default: "**false**"  
->Example:
-```json 
-"localPlex": true
-```
-
-**localPlexUpdates.PlexScannerInstall:**  
->This only needs to be changed if Plex is not installed to the default path or if your on linux. This defines where the scanner program for updating Plex videos is located.
->
->Default: "**C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe**"
->Example:
-```json 
-"PlexScannerInstall": "C:/Program Files (x86)/Plex/Plex Media Server/Plex Media Scanner.exe"
-```
-
-**user:**
->Stores your email/username for auto login. Can be deleted but only if cookies has values set.
->
->Can be manually set to your email/username by just typing it in.
->
->Default: ""  
->Examples:
-```json 
-"user": "Inrix"
-OR
-"user": "AEmail@Gmail.com"
-```
-
-**password:**  
->Stores your password for auto login. Can be deleted but only if cookies has values set.
->
->Can be manually set to your password by just typing it in.
->
->Default: ""  
->Example:
-```json 
-"password": "YourPasswordHere"
-```
-
-**cookie:**  
->Variable used in the script to combine all the cookies for use. Ignore this.
-
-**cookies:**  
->Each of these are used for authentication. You shouldnt modify these unless you know what your doing otherwise ignore this.
->
->Example: 
-```json 
-"cookies": {
-    "__cfduid": "__cfduid=sd3fhjkfgdfsdfgh34jbvdfsdfsdf;",
-    "sails.sid": "sails.sid=sdsdhjk1fgfsfghshj23khjhsdf;"
+"extras": {
+    "downloadArtwork": true
 }
 ```
+<br><br>
+
+**extras.safeNfo**:<br>
+Saves video metadata to nfo files alongside each video.<br>
+<br>
+```json 
+"extras": {
+    "safeNfo": true
+}
+```
+<br><br>
+
+## Plex
+Use **quickstartPrompts** to easily set plex settings.
+<br><br>
+
+**plex.sectionsToUpdate**:<br>
+Array of sections to update on refresh.<br>
+Each "section" is a object containing the name of the section and the server it belongs to.<br>
+<br>
+```json 
+"plex": {
+    sectionsToUpdate: [
+        {
+            "server": "ServerA",
+            "section": "Floatplane"
+        },
+        {
+            "server": "ServerB",
+            "section": "Floatplane"
+        }
+    ]
+}
+```
+<br><br>
+
+**plex.token**:<br>
+Plex token generated from your login details for updating remote servers.<br>
+<br>
+```json 
+"plex": {
+    "token": "xM__2bulgyDf_wulgyE5owodds" 
+}
+```
+<br><br>
+
+**channelAliases**:<br>
+Array of alias's used to convert subscription names to nice channel names.<br>
+<br>
+```json 
+"channelAliases": {
+    "linus tech tips": "Linus Tech Tips",
+    "ltt supporter (og)": "Linus Tech Tips",
+    "ltt supporter (1080p)": "Linus Tech Tips",
+    "ltt supporter plus": "Linus Tech Tips"
+}
+```
+<br><br>
+
+**subscriptions**:<br>
+All the Floatplane creators you are subscribed to.<br>
+At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.<br>
+<br>
+
+All creators will have a `_default` channel, this is what videos are sorted under by default if there are no other channels that match.<br>
+You can add as many channels to a creator as you like, each **channel** has its own episode count and is considered its own "series".<br>
+<br>
+
+A **channel** is made up of a `title`, `skip`, an array of `identifiers` and `consoleColor`.<br>
+`title` is the nice name used for the channel.<br>
+`skip` can be set to true to skip downloading videos matched on the given channel.<br>
+`identifiers` specify the conditions for a video to be added to a channel.<br>
+`consoleColor` is optional and is used for having colors in console output for seperate channels.<br>
+<br>
+
+An Identifier contains two entries `check` and `type`.<br>
+`check` is the string to look for.<br>
+`type` is where in the video returned from the floatplane api to search for the check string.<br>
+<br>
+
+For example:
+```json
+"Floatplane Exclusive": {
+    "title": "Floatplane Exclusive",
+    "skip": false,
+    "identifiers": [
+        {
+            "check": "FP Exclusive: ",
+            "type": "title"
+        }
+    ],
+    "consoleColor": "\u001b[38;5;200m"
+}
+```
+This is a channel named "Floatplane Exclusive".<br>
+Videos that have "FF Exclusive: " in their title will be sorted into this channel.<br>
+<br>
+
+A few more notes regarding channels:<br>
+- First come first served, the first channel a video matches to is what it goes into, channels are checked top to bottom in the config. Videos cannot be sorted into multiple channels.
+- You can have multiple identifiers per channel to allow for more accurate matching.
