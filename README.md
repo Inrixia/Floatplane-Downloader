@@ -11,19 +11,27 @@ This requires a **[Floatplane](http://floatplane.com)** subscription.<br>
 Thank you to everyone who has contributed to the project, you can see these amazing people on the right **>>**<br>
 If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) <3
 <br>
-## Installation
-**Download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**<br>
+
 If you encounter any issues please **[create a issue](https://github.com/Inrixia/Floatplane-Downloader/issues/new)**. Feel free to also ping me on our **[Discord](https://discord.gg/aNTyMME)**
-
-#### Wikis:
-
-*  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
-
-*  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
-
-#### Docker:
-If you want to use docker check out the [Docker Repository](https://hub.docker.com/r/inrix/floatplane-downloader)!
 <br>
+
+# Install Guide
+
+1. Download the latest stable binary for your OS from **[Releases](https://github.com/Inrixia/Floatplane-PlexDownloader/releases)**<br>
+   Looking for **Docker**? Go check out the image and install instructions **[Here](https://hub.docker.com/r/inrix/floatplane-downloader)**!
+
+2. Run the binary and follow the setup prompts.<br>
+
+3. **Profit?!**:<br>
+   At this point you should be completely set-up and ready to go!<br>
+   To start the downloader in the future all you need to do is run the binary.
+<br>
+
+For more info on setting up plex & avalible settings check out the Wikis:
+
+## Wikis:
+*  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
+*  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
 
