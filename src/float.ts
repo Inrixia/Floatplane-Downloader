@@ -1,6 +1,6 @@
 import { settings, fetchFFMPEG } from "./lib/helpers";
 
-import { cookieJar, fApi } from "./lib/FloatplaneAPI";
+import { fApi } from "./lib/FloatplaneAPI";
 
 import { quickStart, validatePlexSettings } from "./quickStart";
 
@@ -11,15 +11,12 @@ import { processVideos } from "./downloader";
 
 import { MyPlexAccount } from "@ctrl/plex";
 
+import type Subscription from "./lib/Subscription";
+
 /**
  * Main function that triggeres everything else in the script
  */
-const startFetching = async () => {
-	
-	process.stdout.write("> Fetching user subscriptions... ");
-	const subscriptions = await fetchSubscriptions();
-	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-
+const fetchNewVideos = async (subscriptions: Array<Subscription>) => {
 	for (const subscription of subscriptions) {
 		await Promise.all(processVideos(await subscription.fetchNewVideos(true, settings.floatplane.videosToSearch)));
 	}
@@ -32,8 +29,6 @@ const startFetching = async () => {
 		}
 		process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 	}
-
-	console.log("Waiting for new videos...");
 };
 
 // Async start
@@ -53,7 +48,18 @@ const startFetching = async () => {
 		await loginFloatplane();
 	}
 
-	await startFetching();
+	process.stdout.write("> Fetching user subscriptions... ");
+	const subscriptions = await fetchSubscriptions();
+	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
+
+	await fetchNewVideos(subscriptions);
+
+	fApi.sails.on("syncEvent", syncEvent => {
+		if (syncEvent.event === "postRelease") fetchNewVideos(subscriptions);
+	});
+
+	process.stdout.write("Connecting to floatplane notifications for new videos... ");
+	process.stdout.write(`${(await fApi.sails.connect()).message}\n`);
 })().catch(err => {
 	console.error("An error occurred!");
 	console.error(err);
