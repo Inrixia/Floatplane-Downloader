@@ -13,12 +13,12 @@ Use these to set the artwork for each channel in plex if you dont want it to be 
 
 ### Enable Library Refresh
 If you want plex to automatically update as soon as new videos are downloaded you can add your Floatplane library to the plex section of your settings.json...<br>
-The easiest way to do this is by setting runQuickStartPrompts to true and following the prompts to login and setup plex library refreshing.<br>
+The easiest way to do this is by setting `runQuickStartPrompts` to **true** and following the prompts to login and setup plex library refreshing.<br>
 ![image](https://user-images.githubusercontent.com/6373693/115113288-b187fc00-9fdd-11eb-8984-99bf6509a671.png)<br>
 <br>
 If however you want to manually configure it directly in your settings you should end up with something like this:<br>
 ![image](https://user-images.githubusercontent.com/6373693/115113268-9ae1a500-9fdd-11eb-8a0d-03a63e74eece.png)<br>
-More details can be found on the speciffic settings at the **[Settings Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
+More details can be found on the specific settings at the **[Settings Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
 
 ### Optional Plex Addon (Open Folder/Play in MediaPlayer):
 
