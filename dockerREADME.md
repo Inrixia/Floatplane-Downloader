@@ -1,14 +1,12 @@
 ﻿# Floatplane Downloader
 
-**This project is unofficial and not in any way affiliated with LMG**
+**This project is unofficial and not in any way affiliated with LMG**<br>
 **Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
-
-
 <br>
 
-**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/). 
-
-Both downloading videos as they release and archiving the entire backlog is supported!
+**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/).<br>
+<br>
+Both downloading videos as they release and archiving the entire backlog is supported!<br>
 This requires a **[Floatplane](http://floatplane.com)** subscription.
 <br>
 
@@ -20,8 +18,7 @@ If you like the project, and want to support me can to throw some bits at my [Pa
 - `:beta`
 	- WIP version used for testing, may be completely broken...
 <br>
-# Setup:
----
+
 ## Quickstart:
 There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
 
@@ -35,7 +32,7 @@ There is a interactive series of console prompts to help you setup the downloade
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
 - Setting the Quickstart environment variable to true will create an interactive terminal to walk you through setting up the downloader.
 
-**After going through the Quickstart, you can have it run normally with this:**
+**After going through the Quickstart, run without quickstart prompts:**
 
     $ docker run \
 		-v [path]:/fp/config \
@@ -61,7 +58,7 @@ Setting environment variables allows you to pass in your login details, removing
 		-e token="Your2FactorCodeHere" \
 		inrixia/floatplane-downloader
 
-You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.
+You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.<br>
 To do this you must take the key for the setting in the settings.json and write it with the dots **.** replaced with underscores **_** you can see an example for the setting `floatplane.videoResolution` below:
 
 **For settings:**
