@@ -6,7 +6,7 @@
 
 [![https://gyazo.com/d496b2d946d2e96c88ff94a18952f403](https://i.gyazo.com/d496b2d946d2e96c88ff94a18952f403.jpg)](https://gyazo.com/d496b2d946d2e96c88ff94a18952f403)
 
-[![Script](https://i.gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6.png)](https://gyazo.com/3f9a5bd4651b298b07d49cf00fc67df6)
+![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
 
   
 
