@@ -5,7 +5,6 @@ import Subscription from "./lib/Subscription";
 import { fApi } from "./lib/FloatplaneAPI";
 
 export const fetchSubscriptions = async (): Promise<Subscription[]> => (await fApi.user.subscriptions())
-	.filter(subscription => settings.subscriptions[subscription.creator].skip !== true)
 	.map(subscription => {
 		// Add the subscription to settings if it doesnt exist
 		const titleAlias = settings.channelAliases[subscription.plan.title.toLowerCase()]||subscription.plan.title;
@@ -27,4 +26,5 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> => (await fA
 			identifiers: false
 		};
 		return new Subscription(settings.subscriptions[subscription.creator]);
-	});
+	})
+	.filter(subscription => settings.subscriptions[subscription.creatorId].skip !== true);

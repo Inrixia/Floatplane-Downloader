@@ -3,7 +3,8 @@ import { defaultResoulutions } from "./lib/defaults";
 import { loginFloatplane, loginPlex } from "./logins";
 import { MyPlexAccount } from "@ctrl/plex";
 
-import { settings } from "./lib/helpers";
+import { args, settings } from "./lib/helpers";
+import { fApi } from "./lib/FloatplaneAPI";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
@@ -50,13 +51,15 @@ export const quickStart = async (): Promise<void> => {
 
 	console.log("\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n");
 	console.log("Next we are going to login to floatplane...");
-	await loginFloatplane();
+	// Dont re-prompt for credentials if we are already logged in
+	if (await fApi.isAuthenticated() !== true) await loginFloatplane();
+	else console.log("Already logged in!");
 
 	console.log("\n== \u001b[38;5;208mPlex\u001b[0m ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);
 	if (settings.plex.enabled) {
-		settings.plex.token = await loginPlex();
-		await promptPlexSections();
+		if (settings.plex.token === undefined) settings.plex.token = await loginPlex();
+		if (args.headless !== true) await promptPlexSections();
 	}
 	console.log("\n== \u001b[36mAll Setup!\u001b[0m ==\n");
 };
