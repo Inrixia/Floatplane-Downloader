@@ -10,11 +10,12 @@ import { fApi } from "./lib/FloatplaneAPI";
 
 export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;
-	if (args.docker === true) {
-		if (args.username === undefined || args.password === undefined) throw new Error("Need floatplane username/password to login! Please pass them as --username=\"\" --password=\"\".");
+	if (args.headless === true) {
+		if (args.username === undefined || args.password === undefined) throw new Error("Need floatplane username/password to login. Please pass them as --username=\"\" --password=\"\" or enviroment variables!");
 		loginResponse = await fApi.auth.login(args.username, args.password);
+
 		if (loginResponse.needs2FA) {
-			if (args.token === undefined) throw new Error("Need floatplane 2Factor token to login! Please pass it as --token=\"\".");
+			if (args.token === undefined) throw new Error("Need floatplane 2Factor token to login. Please pass it as --token=\"\" or an enviroment variable!");
 			loginResponse = await fApi.auth.factor(args.token);
 		}
 	} else {
@@ -29,8 +30,20 @@ export const loginFloatplane = async (): Promise<void> => {
 };
 
 export const loginPlex = async (): Promise<string> => {
-	console.log("\n> Please enter your plex details. (Username and Password is not saved, only used to generate a token.)");
-	const plexToken = await loopError(async () => (await new MyPlexAccount(undefined, await plex.username(), await plex.password()).connect()).token, async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`));
-	console.log(`> Fetched plex token: \u001b[36m${plexToken}\u001b[0m!\n`);
-	return plexToken as string;
+	let plexToken: string;
+	if (args.headless === true) {
+		console.log("\n> Please enter your plex details. (Username and Password is not saved, only used to generate a token.)");
+		plexToken = await loopError(
+			async () => (await new MyPlexAccount(undefined, await plex.username(), await plex.password()).connect()).token, 
+			async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`)
+		) as string;
+		console.log(`> Fetched plex token: \u001b[36m${plexToken}\u001b[0m!\n`);	
+	} else {
+		if (args.plexUsername === undefined || args.plexPassword === undefined) throw new Error("Need plex username/password to login. Please pass them as --plexUsername=\"\" --plexPassword=\"\" or enviroment variables!");
+		plexToken = await loopError(
+			async () => (await new MyPlexAccount(undefined, args.plexUsername, args.plexPassword).connect()).token, 
+			async err => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`)
+		) as string;
+	}
+	return plexToken;
 };

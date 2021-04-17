@@ -111,7 +111,9 @@ export const defaultArgs: Args = {
 	username: "",
 	password: "",
 	token: "",
-	docker: false
+	headless: false,
+	plexUsername: "",
+	plexPassword: ""
 };
 
 export const defaultSettings: Settings = {
@@ -131,7 +133,7 @@ export const defaultSettings: Settings = {
 	},
 	plex: {
 		sectionsToUpdate: [],
-		enabled: true,
+		enabled: false,
 		token: "",
 	},
 	channelAliases: {

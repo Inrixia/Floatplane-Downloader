@@ -39,7 +39,9 @@ export type Args = {
 	username: string;
 	password: string;
 	token: string;
-	docker: boolean;
+	headless: boolean;
+	plexUsername: string;
+	plexPassword: string;
 }
 
 export type PartialArgs = Partial<Args & Settings>;

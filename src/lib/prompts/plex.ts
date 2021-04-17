@@ -54,7 +54,7 @@ export const username = async (): Promise<string> => (await requiredPrompts({
 export const password = async (): Promise<string> => (await requiredPrompts({
 	type: "password",
 	name: "password",
-	message: "Plex account password, (If you have 2factor enabled write your 2factor code after your password):",
+	message: "Plex account password, (If you have 2factor enabled add your 2factor code at the end):",
 })).password;
 
 /**

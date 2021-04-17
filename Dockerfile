@@ -3,7 +3,7 @@ FROM node:latest
 LABEL Description="Project for automatically organizing and downloading Floatplane videos for plex."
 
 # Environment variables
-ENV DOCKER=true
+ENV headless=true
 ENV runQuickstartPrompts=false
 
 # Create Directory for the Container

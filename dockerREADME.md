@@ -25,7 +25,7 @@ There is a interactive series of console prompts to help you setup the downloade
     $ docker run -it \
 		-v [path]:/fp/db \
 		-v [path]:/fp/videos \
-		-e docker="true"
+		-e headless="true" \
 		-e runQuickstartPrompts=true \
 	    inrixia/floatplane-downloader
 
@@ -39,7 +39,7 @@ There is a interactive series of console prompts to help you setup the downloade
 		-v [path]:/fp/db \
 		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
-		-e docker="true"
+		-e headless="true" \
 	    inrixia/floatplane-downloader
 <br>
 
@@ -52,10 +52,23 @@ Setting environment variables allows you to pass in your login details, removing
 		-v [path]:/fp/db \
 		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
-		-e docker="true"
+		-e headless="true" \
 		-e username="YourUsernameHere" \
 		-e password="YourPasswordHere" \
 		-e token="Your2FactorCodeHere" \
+		inrixia/floatplane-downloader
+
+**For login + plex:**
+
+    $ docker run \
+		-v [path]:/fp/db \
+		-v [path]:/fp/artwork \
+		-v [path]:/fp/videos \
+		-e headless="true"
+		-e username="YourUsernameHere" \
+		-e password="YourPasswordHere" \
+		-e plexUsername="YourPlexUsernameHere" \
+		-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
 		inrixia/floatplane-downloader
 
 You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.<br>
@@ -67,6 +80,7 @@ To do this you must take the key for the setting in the settings.json and write 
 		-v [path]:/fp/db \
 		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
-		-e docker="true"
+		-e headless="true" \
 		-e floatplane_videoResolution="1080" \
+		-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
 		inrixia/floatplane-downloader
