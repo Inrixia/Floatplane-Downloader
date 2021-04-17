@@ -51,8 +51,9 @@ export type Settings = {
 	downloadThreads: number;
 	floatplane: {
 		videoResolution: Resolution;
-		_avalibleResolutions: Resolutions;
 		videosToSearch: number;
+		waitForNewVideos: boolean;
+		_avalibleResolutions: Resolutions;
 	};
 	_filePathFormattingOPTIONS: string[];
 	filePathFormatting: string;

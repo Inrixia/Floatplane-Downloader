@@ -7,7 +7,7 @@ import { quickStart, validatePlexSettings } from "./quickStart";
 import { loginFloatplane } from "./logins";
 
 import { fetchSubscriptions } from "./subscriptionFetching";
-import { processVideos } from "./downloader";
+import VideoProcessor from "./downloader";
 
 import { MyPlexAccount } from "@ctrl/plex";
 
@@ -18,9 +18,9 @@ import { gt, diff } from "semver";
 /**
  * Main function that triggeres everything else in the script
  */
-const fetchNewVideos = async (subscriptions: Array<Subscription>) => {
+const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: VideoProcessor) => {
 	for (const subscription of subscriptions) {
-		await Promise.all(processVideos(await subscription.fetchNewVideos(true, settings.floatplane.videosToSearch)));
+		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(true, settings.floatplane.videosToSearch)));
 	}
 
 	if (settings.plex.enabled) {
@@ -60,14 +60,20 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>) => {
 	const subscriptions = await fetchSubscriptions();
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
-	await fetchNewVideos(subscriptions);
+	const videoProcessor = new VideoProcessor();
+	videoProcessor.start();
 
-	fApi.sails.on("syncEvent", syncEvent => {
-		if (syncEvent.event === "postRelease") fetchNewVideos(subscriptions);
-	});
+	await fetchNewVideos(subscriptions, videoProcessor);
+	
 
-	process.stdout.write("Connecting to floatplane notifications for new videos... ");
-	process.stdout.write(`${(await fApi.sails.connect()).message}\n`);
+	if (settings.floatplane.waitForNewVideos === true) {
+		fApi.sails.on("syncEvent", syncEvent => {
+			if (syncEvent.event === "postRelease") fetchNewVideos(subscriptions, videoProcessor);
+		});
+
+		process.stdout.write("Connecting to floatplane notifications for new videos... ");
+		process.stdout.write(`${(await fApi.sails.connect()).message}\n`);
+	} else videoProcessor.stop();
 })().catch(err => {
 	console.error("An error occurred!");
 	console.error(err);

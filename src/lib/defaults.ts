@@ -120,9 +120,10 @@ export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
 	floatplane: {
-		videoResolution: "1080",
 		videosToSearch: 5,
-		_avalibleResolutions: defaultResoulutions,
+		videoResolution: "1080",
+		waitForNewVideos: true,
+		_avalibleResolutions: defaultResoulutions
 	},
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
