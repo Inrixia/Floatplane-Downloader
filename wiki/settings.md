@@ -1,5 +1,5 @@
 # settings.json Wiki
-![image](https://user-images.githubusercontent.com/6373693/115115267-9fab5680-9fe7-11eb-90c4-13c54ef1df96.png)<br>
+![image](https://user-images.githubusercontent.com/6373693/115116213-953f8b80-9fec-11eb-9633-08518331aa27.png)<br>
 
 Defaults for any setting is defined in the **[Defaults File](https://github.com/Inrixia/Floatplane-Downloader/blob/master/src/lib/defaults.ts)**.<br>
 <br><br>
@@ -13,7 +13,7 @@ quickStartPrompts: false
 
 **downloadThreads**:<br>
 Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.<br>
-```json 
+```json
 "maxParallelDownloads": -1
 ```
 <br>
@@ -22,21 +22,34 @@ Sets the maximum amount of downloads that can run concurrently. Default's to -1 
 
 **videosToSearch**:<br>
 Number of videos to search through when looking for undownloaded videos **per subscription**.<br>
-```json 
-"floatplane.videosToSearch": 5
+```json
+"floatplane": {
+    "videosToSearch": 5
+}
 ```
 <br>
 
 **videoResolution**:<br>
-Resolution to download the videos in. See **_avalibleResolutions** for options.<br>
+Resolution to download the videos in. See `_avalibleResolutions` for options.<br>
 ```json 
-"floatplane.videoResolution": 1080
+"floatplane": {
+    "videoResolution": 1080
+}
+```
+<br>
+
+**waitForNewVideos**:<br>
+Controls if the downloader should wait for new videos to download after finishing or just exit<br>
+```json
+"floatplane": {
+    "waitForNewVideos": true
+}
 ```
 <br>
 
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
-You can refer to **_filePathFormattingOPTIONS** for options on what can be used.<br>
+You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
 ```json 
 "filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%"
@@ -71,7 +84,7 @@ Array of sections to update on refresh.<br>
 Each "section" is a object containing the name of the section and the server it belongs to.<br>
 ```json 
 "plex": {
-    sectionsToUpdate: [
+    "sectionsToUpdate": [
         {
             "server": "ServerA",
             "section": "Floatplane"
