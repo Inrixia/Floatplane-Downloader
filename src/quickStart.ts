@@ -58,7 +58,7 @@ export const quickStart = async (): Promise<void> => {
 	console.log("\n== \u001b[38;5;208mPlex\u001b[0m ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);
 	if (settings.plex.enabled) {
-		if (settings.plex.token === undefined) settings.plex.token = await loginPlex();
+		if (settings.plex.token === "") settings.plex.token = await loginPlex();
 		if (args.headless !== true) await promptPlexSections();
 	}
 	console.log("\n== \u001b[36mAll Setup!\u001b[0m ==\n");
