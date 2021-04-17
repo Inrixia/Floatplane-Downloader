@@ -1,6 +1,5 @@
 # settings.json Wiki
 ![image](https://user-images.githubusercontent.com/6373693/115115267-9fab5680-9fe7-11eb-90c4-13c54ef1df96.png)<br>
-<br><br>
 
 Defaults for any setting is defined in the **[Defaults File](https://github.com/Inrixia/Floatplane-Downloader/blob/master/src/lib/defaults.ts)**.<br>
 <br><br>
@@ -10,76 +9,66 @@ Setting this to true will cause the quickStartPrompts to run on startup.
 ```ts
 quickStartPrompts: false
 ```
-<br><br>
+<br>
 
 **downloadThreads**:<br>
 Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would means only 2 videos downloaded at once.<br>
-<br>
 ```json 
 "maxParallelDownloads": -1
 ```
-<br><br>
+<br>
 
 ## Floatplane
-<br><br>
 
 **videosToSearch**:<br>
 Number of videos to search through when looking for undownloaded videos **per subscription**.<br>
-<br>
 ```json 
 "floatplane.videosToSearch": 5
 ```
-<br><br>
+<br>
 
 **videoResolution**:<br>
 Resolution to download the videos in. See **_avalibleResolutions** for options.<br>
-<br>
 ```json 
 "floatplane.videoResolution": 1080
 ```
-<br><br>
+<br>
 
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
 You can refer to **_filePathFormattingOPTIONS** for options on what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
-<br>
 ```json 
 "filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%"
 ```
-<br><br>
+<br>
 
 ## Extras
-<br><br>
 
 **extras.downloadArtwork**:<br>
 Saves video thubnails alongside each video. These are required for nice thumbnails in Plex.<br>
-<br>
 ```json
 "extras": {
     "downloadArtwork": true
 }
 ```
-<br><br>
+<br>
 
 **extras.safeNfo**:<br>
 Saves video metadata to nfo files alongside each video.<br>
-<br>
 ```json 
 "extras": {
     "safeNfo": true
 }
 ```
-<br><br>
+<br>
 
 ## Plex
 Use **quickstartPrompts** to easily set plex settings.
-<br><br>
 
 **plex.sectionsToUpdate**:<br>
 Array of sections to update on refresh.<br>
 Each "section" is a object containing the name of the section and the server it belongs to.<br>
-<br>
 ```json 
 "plex": {
     sectionsToUpdate: [
@@ -94,21 +83,19 @@ Each "section" is a object containing the name of the section and the server it 
     ]
 }
 ```
-<br><br>
+<br>
 
 **plex.token**:<br>
 Plex token generated from your login details for updating remote servers.<br>
-<br>
 ```json 
 "plex": {
     "token": "xM__2bulgyDf_wulgyE5owodds" 
 }
 ```
-<br><br>
+<br>
 
 **channelAliases**:<br>
 Array of alias's used to convert subscription names to nice channel names.<br>
-<br>
 ```json 
 "channelAliases": {
     "linus tech tips": "Linus Tech Tips",
@@ -117,10 +104,11 @@ Array of alias's used to convert subscription names to nice channel names.<br>
     "ltt supporter plus": "Linus Tech Tips"
 }
 ```
-<br><br>
+<br>
 
 **subscriptions**:<br>
 All the Floatplane creators you are subscribed to.<br>
+![image](https://user-images.githubusercontent.com/6373693/115116013-86a4a480-9feb-11eb-828a-fe4fa8ba5cf9.png)<br>
 At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.<br>
 <br>
 
@@ -155,9 +143,10 @@ For example:
 }
 ```
 This is a channel named "Floatplane Exclusive".<br>
-Videos that have "FF Exclusive: " in their title will be sorted into this channel.<br>
+Videos that have "FP Exclusive: " in their title will be sorted into this channel.<br>
 <br>
 
 A few more notes regarding channels:<br>
 - First come first served, the first channel a video matches to is what it goes into, channels are checked top to bottom in the config. Videos cannot be sorted into multiple channels.
 - You can have multiple identifiers per channel to allow for more accurate matching.
+- The `check` string is removed from the video's title if the `type`is equal to "title".
