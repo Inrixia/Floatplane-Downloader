@@ -86,10 +86,10 @@ export const args = { ...argv, ...env };
 
 export const fetchFFMPEG = (): Promise<void> => new Promise((resolve, reject) => {
 	const platform = detectPlatform();
-	if (fs.existsSync(`${settings.ffmpegPath}/${getBinaryFilename("ffmpeg", platform)}`) === false) {
+	if (fs.existsSync(`./db/${getBinaryFilename("ffmpeg", platform)}`) === false) {
 		process.stdout.write("> Ffmpeg binary missing! Downloading... ");
 		downloadBinaries("ffmpeg", {
-			destination: settings.ffmpegPath,
+			destination: "./db/",
 			platform
 		}, err => {
 			if (err !== null) reject(err);

@@ -127,7 +127,7 @@ export default class Video {
 	public async muxffmpegMetadata (): Promise<void> {
 		if (!this.isDownloaded()) throw new Error(`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.downloadedBytes()} bytes...`);
 		await new Promise((resolve, reject) => execFile(
-			`${settings.ffmpegPath}/ffmpeg`, 
+			"./db/ffmpeg", 
 			[
 				"-i",
 				this.filePath,

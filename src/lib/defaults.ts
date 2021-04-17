@@ -48,7 +48,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: [{
 				check: "talklinked",
-				type: "text",
+				type: "title",
 			}],
 			consoleColor: "\u001b[36m"
 		},
@@ -124,7 +124,6 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 		_avalibleResolutions: defaultResoulutions,
 	},
-	ffmpegPath: "./db/",
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%"],
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
 	extras: {

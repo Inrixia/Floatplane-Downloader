@@ -54,7 +54,6 @@ export type Settings = {
 		_avalibleResolutions: Resolutions;
 		videosToSearch: number;
 	};
-	ffmpegPath: string;
 	_filePathFormattingOPTIONS: string[];
 	filePathFormatting: string;
 	extras: Extras;
