@@ -1,72 +1,35 @@
-﻿# Floatplane Club - PlexDownloader
-
-  
-
-[![https://gyazo.com/482af53e0a8cc281c9a60dd66d5ade56](https://i.gyazo.com/482af53e0a8cc281c9a60dd66d5ade56.jpg)](https://gyazo.com/482af53e0a8cc281c9a60dd66d5ade56)
-
-[![https://gyazo.com/d496b2d946d2e96c88ff94a18952f403](https://i.gyazo.com/d496b2d946d2e96c88ff94a18952f403.jpg)](https://gyazo.com/d496b2d946d2e96c88ff94a18952f403)
-
-![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
-
-  
-
-### Basic Info:
+﻿# Floatplane Downloader
 
 **This project is unofficial and not in any way affiliated with LMG**
+**Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
+<br>
 
-  
+**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/). 
 
-**We now have a discord! So head there if you need help... [Join Our Discord](https://discord.gg/aNTyMME)**\
-
-  
-
-**You can download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
-
-  
-
-This is a Node.js script to download the daily videos from [LMG Floatplane](https://linustechtips.com/main/store/) and format them to be viewed in [Plex](https://www.plex.tv/). You can also view the raw files in the download folder.
-
-  
-
+Both downloading videos as they release and archiving the entire backlog is supported!
 This requires a **[Floatplane](http://floatplane.com)** subscription.
+<br>
+Thank you to everyone who has contributed to the project, you can see these amazing people on the right **>>**
+If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) <3
+<br>
+## Installation
+---
+**Download the latest stable version from here: https://github.com/Inrixia/Floatplane-PlexDownloader/releases**
+If you encounter any issues please **[create a issue](https://github.com/Inrixia/Floatplane-Downloader/issues/new)**. Feel free to also ping me on our **[Discord](https://discord.gg/aNTyMME)**
 
-  
-
-### **Install Guide**
-
-  
-
-* Make sure you have **[Node.js](https://nodejs.org/en/)** installed on your system to use this.
-
-* If you want to use **[Plex](https://www.plex.tv/)** to browse the files installed you must have it installed.
-
-* If you encounter any issues then feel free to create a issue here or just PM me on **[Discord](https://discordapp.com/) @Sir Inrix | <3#6950**.
-
-  
-
-#### Links:
-
-*  [Screenshots](https://imgur.com/a/LdY1B)
-
-*  [Installing the Script & Downloading](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/script.md)
+#### Wikis:
 
 *  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
 
 *  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
-  
-
-I will be maintaining this as I use it.
 
 #### Docker:
-If you are a fan of Docker be sure to check out the [Docker Repository](https://hub.docker.com/thesamdickey/Floatplane-Downloader)!
-  
-#### Extra info:
-If you want to open Plex files in your own Media Player eg, VLC, MPC-BE, WindowsMediaPlayer. Go and install this tampermonkey script here: **https://github.com/Kayomani/PlexExternalPlayer**  **Important Note** for chrome users: https://github.com/Kayomani/PlexExternalPlayer/issues/16
-
-  
-
-If you want plex to update after downloading new videos (fixing the issue with some video titles not updating after being downloaded until you refresh metadata) you can read about the plex specific settings in **[Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
-
-  
+If you want to use docker check out the [Docker Repository](https://hub.docker.com/repository/docker/inrix/floatplane-downloader)!
+<br>
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
+
+### Images:
+![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
+![!https://gyazo.com/482af53e0a8cc281c9a60dd66d5ade56](https://gyazo.com/482af53e0a8cc281c9a60dd66d5ade56.jpg)
+![!https://gyazo.com/d496b2d946d2e96c88ff94a18952f403](https://i.gyazo.com/d496b2d946d2e96c88ff94a18952f403.jpg)

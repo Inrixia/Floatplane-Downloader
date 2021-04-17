@@ -1,64 +1,75 @@
-﻿# Floatplane-Downloader
-This project is unofficial and not in any way affiliated with LMG
+﻿# Floatplane Downloader
 
-# Basic Info:
-## https://github.com/inrixia/Floatplane-Downloader
+**This project is unofficial and not in any way affiliated with LMG**
+**Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
 
-# Tags:
+
+<br>
+
+**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/). 
+
+Both downloading videos as they release and archiving the entire backlog is supported!
+This requires a **[Floatplane](http://floatplane.com)** subscription.
+<br>
+
+If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) <3
+
+### Tags:
 - `:latest`
-	- Automatically builds whenever a commit is pushed to the Github repository
-	- Should stay very up to date
-	- May be incompatible as not all changes are tested for compatibility with the docker
-- `:stable` 
-	- Builds are created manually to ensure the docker works properly
-	- May be slightly behind with updates as incompatibilities are solved before this build is updated
-
-# Docker Usage:
-**Get started fast:**
+	- Latest release version of the downloader
+- `:beta`
+	- WIP version used for testing, may be completely broken...
+<br>
+# Setup:
+---
+## Quickstart:
+There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
 
     $ docker run -it \
-	    -v [path]:/fp/config \
-	    -v [path]:/fp/db \
-	    -v [path]:/fp/artwork \
-	    -v [path]:/fp/videos \
-	    -e QUICKSTART=true \
-	    inrixia/floatplane-downloader
-- [path] should be replaced with a directory on your machine to hold persistent data
-- Setting the Quickstart environment variable to true will create an interactive pseudo-TTY to walk you through setting a persistent config.
-	- In other words, It's a sweet looking questionnaire to help get you setup quickly.
-
-**After walking through the Quickstart, you can run it normally  with this:**
-   
-
-    $ docker run \
-	    -v [path]:/fp/config \
-	    -v [path]:/fp/db \
-	    -v [path]:/fp/artwork \
-	    -v [path]:/fp/videos \
+		-v [path]:/fp/db \
+		-v [path]:/fp/videos \
+		-e docker="true"
+		-e runQuickstartPrompts=true \
 	    inrixia/floatplane-downloader
 
-# Environment Variables:
-Setting environment variables will overwrite the corresponding values in the config.  It is possible to always set environment variables and bypass the need for a persistent config.
+- **[path]** should be replaced with a directory on your machine to hold persistent data.
+- Setting the Quickstart environment variable to true will create an interactive terminal to walk you through setting up the downloader.
 
-The "Required variables" are only required if you do not have a config set at all.
-
-**Required variables:**
-
-- `VIDEOS_TO_SEARCH=[number value]` (default: 5) 
-	- How many videos back from the latest do you want to search through for the ones to download?
-- `VIDEO_RESOLUTION=[360, 720, 1080, 2160]` (default: 1080) 
-	- What resolution would you like to download in?
-
-**Optional Variables:**
-- `DOWNLOAD_THREADS=[number value]`
-
-**Example usage with Environment Variables:**
+**After going through the Quickstart, you can have it run normally with this:**
 
     $ docker run \
-    	    -v [path]:/fp/db \
-    	    -v [path]:/fp/artwork \
-    	    -v [path]:/fp/videos \
-    	    -e VIDEOS_TO_SEARCH=5
-    	    -e VIDEO_RESOLUTION=1080
-    	    inrixia/floatplane-downloader
+		-v [path]:/fp/config \
+		-v [path]:/fp/db \
+		-v [path]:/fp/artwork \
+		-v [path]:/fp/videos \
+		-e docker="true"
+	    inrixia/floatplane-downloader
+<br>
 
+## Environment Variables:
+Setting environment variables allows you to pass in your login details, removing the need to use the quickstart prompts to login/setup the downloader.
+
+**For login:**
+
+    $ docker run \
+		-v [path]:/fp/db \
+		-v [path]:/fp/artwork \
+		-v [path]:/fp/videos \
+		-e docker="true"
+		-e username="YourUsernameHere" \
+		-e password="YourPasswordHere" \
+		-e token="Your2FactorCodeHere" \
+		inrixia/floatplane-downloader
+
+You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.
+To do this you must take the key for the setting in the settings.json and write it with the dots **.** replaced with underscores **_** you can see an example for the setting `floatplane.videoResolution` below:
+
+**For settings:**
+
+    $ docker run \
+		-v [path]:/fp/db \
+		-v [path]:/fp/artwork \
+		-v [path]:/fp/videos \
+		-e docker="true"
+		-e floatplane_videoResolution="1080" \
+		inrixia/floatplane-downloader
