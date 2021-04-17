@@ -13,6 +13,8 @@ import { MyPlexAccount } from "@ctrl/plex";
 
 import type Subscription from "./lib/Subscription";
 
+import { gt, diff } from "semver";
+
 /**
  * Main function that triggeres everything else in the script
  */
@@ -33,6 +35,12 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>) => {
 
 // Async start
 (async () => {
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const version: string = require("../package.json").version;
+	const latest = await fApi.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json", { resolveBodyOnly: true }).then(JSON.parse).catch(() => ({ version }));
+
+	if (gt(latest.version, version)) console.log(`There is a ${diff(latest.version, version)} update avalible! ${version} > ${latest.version}.\nHead to \u001b[36mhttps://github.com/Inrixia/Floatplane-Downloader/releases\u001b[0m to update!\n`);
+	
 	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart();

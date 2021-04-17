@@ -19,6 +19,7 @@
     "process.argv": "^0.6.0",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
+    "semver": "^7.3.5",
     "tough-cookie": "^4.0.0",
     "tough-cookie-file-store": "^2.0.2"
   },
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@types/multi-progress": "^2.0.3",
     "@types/prompts": "^2.0.9",
+    "@types/semver": "^7.3.4",
     "@types/tough-cookie-file-store": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
