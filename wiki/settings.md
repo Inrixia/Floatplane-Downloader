@@ -119,7 +119,7 @@ Array of alias's used to convert subscription names to nice channel names.<br>
 ```
 <br>
 
-**subscriptions**:<br>
+## Subscriptions:
 All the Floatplane creators you are subscribed to.<br>
 ![image](https://user-images.githubusercontent.com/6373693/115116013-86a4a480-9feb-11eb-828a-fe4fa8ba5cf9.png)<br>
 At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.<br>
