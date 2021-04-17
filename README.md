@@ -22,7 +22,7 @@ If you encounter any issues please **[create a issue](https://github.com/Inrixia
 *  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
 
 #### Docker:
-If you want to use docker check out the [Docker Repository](https://hub.docker.com/repository/docker/inrix/floatplane-downloader)!
+If you want to use docker check out the [Docker Repository](https://hub.docker.com/r/inrix/floatplane-downloader)!
 <br>
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
