@@ -25,6 +25,15 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			identifiers: false,
 			consoleColor: "\u001b[38;5;208m"
 		},
+		"Mac Address": {
+			title: "Mac Address",
+			skip: false,
+			identifiers: [{
+				"check": "MA: ",
+				"type": "title"
+			}],
+			consoleColor: "\u001b[38;5;189m"
+		},
 		"Floatplane Exclusive": {
 			title: "Floatplane Exclusive",
 			skip: false,
