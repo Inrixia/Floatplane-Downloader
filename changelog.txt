@@ -1,3 +1,6 @@
+v5.0.0
+ - Everything
+
 v4.6.3
  - Fix for queue and live counts never hitting 0 stopping script from restarting automatically
  - Fix for new LTT Supporter (OG) subscription.
