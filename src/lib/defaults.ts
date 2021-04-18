@@ -78,8 +78,8 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				type: "title",
 			}]
 		},
-		"ShortCircut": {
-			title: "ShortCircut",
+		"ShortCircuit": {
+			title: "ShortCircuit",
 			skip: false,
 			identifiers: [{
 				check: "SC: ",
