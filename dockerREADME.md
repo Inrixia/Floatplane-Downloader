@@ -27,7 +27,7 @@ There is a interactive series of console prompts to help you setup the downloade
 		-v [path]:/fp/videos \
 		-e headless="true" \
 		-e runQuickstartPrompts=true \
-	    inrixia/floatplane-downloader
+	    inrix/floatplane-downloader
 
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
 - Setting the Quickstart environment variable to true will create an interactive terminal to walk you through setting up the downloader.
@@ -40,7 +40,7 @@ There is a interactive series of console prompts to help you setup the downloade
 		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
 		-e headless="true" \
-	    inrixia/floatplane-downloader
+	    inrix/floatplane-downloader
 <br>
 
 ## Environment Variables:
@@ -56,7 +56,7 @@ Setting environment variables allows you to pass in your login details, removing
 		-e username="YourUsernameHere" \
 		-e password="YourPasswordHere" \
 		-e token="Your2FactorCodeHere" \
-		inrixia/floatplane-downloader
+		inrix/floatplane-downloader
 
 **For login + plex:**
 
@@ -69,7 +69,7 @@ Setting environment variables allows you to pass in your login details, removing
 		-e password="YourPasswordHere" \
 		-e plexUsername="YourPlexUsernameHere" \
 		-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
-		inrixia/floatplane-downloader
+		inrix/floatplane-downloader
 
 You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.<br>
 To do this you must take the key for the setting in the settings.json and write it with the dots **.** replaced with underscores **_** you can see an example for the setting `floatplane.videoResolution` below:
@@ -83,4 +83,4 @@ To do this you must take the key for the setting in the settings.json and write 
 		-e headless="true" \
 		-e floatplane_videoResolution="1080" \
 		-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
-		inrixia/floatplane-downloader
+		inrix/floatplane-downloader
