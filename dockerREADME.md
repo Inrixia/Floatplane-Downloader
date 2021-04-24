@@ -1,4 +1,4 @@
-﻿# Floatplane Downloader
+# Floatplane Downloader
 
 **This project is unofficial and not in any way affiliated with LMG**<br>
 **Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
@@ -35,12 +35,10 @@ There is a interactive series of console prompts to help you setup the downloade
 **After going through the Quickstart, run without quickstart prompts:**
 
     $ docker run \
-		-v [path]:/fp/config \
 		-v [path]:/fp/db \
-		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
 		-e headless="true" \
-	    inrix/floatplane-downloader
+	    inrixia/floatplane-downloader
 <br>
 
 ## Environment Variables:
@@ -50,7 +48,6 @@ Setting environment variables allows you to pass in your login details, removing
 
     $ docker run \
 		-v [path]:/fp/db \
-		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
 		-e headless="true" \
 		-e username="YourUsernameHere" \
@@ -62,7 +59,6 @@ Setting environment variables allows you to pass in your login details, removing
 
     $ docker run \
 		-v [path]:/fp/db \
-		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
 		-e headless="true"
 		-e username="YourUsernameHere" \
@@ -78,7 +74,6 @@ To do this you must take the key for the setting in the settings.json and write 
 
     $ docker run \
 		-v [path]:/fp/db \
-		-v [path]:/fp/artwork \
 		-v [path]:/fp/videos \
 		-e headless="true" \
 		-e floatplane_videoResolution="1080" \
