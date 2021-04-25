@@ -21,7 +21,7 @@ export default class VideoProcessor {
 	private videoQueue: Array<{ video: Video, res: promiseFunction }>;
 	private videosProcessing: number;
 	private videosProcessed: number;
-	private downloadStats: { [key: string]: { totalMB: number, downloadedMB: number, downloadSpeed: number, timeElapsed: number } };
+	private downloadStats: { [key: string]: { totalMB: number, downloadedMB: number, downloadSpeed: number } };
 
 	private runQueue: boolean;
 
@@ -74,20 +74,18 @@ export default class VideoProcessor {
 
 	private updateSummaryBar(): void {
 		if (this.downloadStats === undefined) return;
-		const { totalMB, downloadedMB, downloadSpeed, timeElapsed } = Object.values(this.downloadStats).reduce((summary, stats) => {
+		const { totalMB, downloadedMB, downloadSpeed } = Object.values(this.downloadStats).reduce((summary, stats) => {
 			for (const key in stats)  { summary[key as keyof typeof stats] += stats[key as keyof typeof stats]; }
 			return summary;
-		}, { totalMB: 0, downloadedMB: 0, downloadSpeed: 0, timeElapsed: 0});
+		}, { totalMB: 0, downloadedMB: 0, downloadSpeed: 0 });
 		// (videos remaining * avg time to download a video)
 		const totalVideos = this.videoQueue.length+this.videosProcessed+this.videosProcessing;
-		const summaryDownloadETA = (this.videoQueue.length+this.videosProcessing) * (timeElapsed/this.videosProcessed);
 		const whitespace = "                        ";
 		const processed  = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}${whitespace}`;
 		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")}${whitespace}`;
 		const speed      = `Download Speed:   ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")}${whitespace}`;
-		const eta 		 = `Rough ETA:        ${bl(Math.floor(summaryDownloadETA / 60))} minutes${whitespace}`;
 		process.stdout.write("                                                         ");
-		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n${isNaN(summaryDownloadETA)?"":eta}\n\n\n`);
+		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n\n\n`);
 	}
 
 	private async processVideo(video: Video, retries = 0, quality: Resolution = settings.floatplane.videoResolution): Promise<void> {
@@ -119,14 +117,13 @@ export default class VideoProcessor {
 						percentage: downloadProgress.percent, 
 						message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")} ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")} ETA: ${bl(Math.floor(downloadETA / 60)+"m "+(Math.floor(downloadETA) % 60)+"s")}`
 					});
-					this.downloadStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed, timeElapsed: 0 };
+					this.downloadStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
 					this.updateSummaryBar();
 				});
 				await new Promise((res, rej) => {
 					downloadRequest.on("end", res);
 					downloadRequest.on("error", rej);
 				});
-				this.downloadStats[formattedTitle].timeElapsed = (Date.now() - startTime) / 1000;
 				this.downloadStats[formattedTitle].downloadSpeed = 0;
 			}
 			if (!await video.isMuxed()) {
