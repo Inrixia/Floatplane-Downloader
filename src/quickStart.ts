@@ -6,6 +6,8 @@ import { MyPlexAccount } from "@ctrl/plex";
 import { args, settings } from "./lib/helpers";
 import { fApi } from "./lib/FloatplaneAPI";
 
+import type { Extras } from "./lib/types";
+
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await (new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect());
 	const servers = (await plexApi.resources()).filter(resource => resource.provides.split(",").indexOf("server") !== -1);
@@ -46,7 +48,7 @@ export const quickStart = async (): Promise<void> => {
 
 	const extras = await prompts.settings.extras(settings.extras);
 	if (extras !== undefined) {
-		for (const extra in settings.extras) settings.extras[extra] = extras.indexOf(extra) > -1 ? true : false;
+		for (const extra in settings.extras) settings.extras[extra as keyof Extras] = extras.indexOf(extra) > -1 ? true : false;
 	}
 
 	console.log("\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n");

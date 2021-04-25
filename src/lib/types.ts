@@ -26,8 +26,6 @@ export type PlexSettings = {
 	token: string;
 }
 
-export type Extras = { [key: string]: boolean }
-
 export type SubscriptionSettings = {
 	creatorId: string;
 	plan: string;
@@ -45,6 +43,11 @@ export type Args = {
 }
 
 export type PartialArgs = Partial<Args & Settings>;
+
+export type Extras = {
+	downloadArtwork: boolean;
+	saveNfo: boolean;
+}
 
 export type Settings = {
 	runQuickstartPrompts: boolean;
