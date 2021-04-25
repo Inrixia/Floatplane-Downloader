@@ -61,6 +61,15 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			}],
 			consoleColor: "\u001b[38;5;14m"
 		},
+		"TechLinked Shorts": {
+			title: "TechLinked Shorts",
+			skip: false,
+			identifiers: [{
+				check: "TL Short: ",
+				type: "title",
+			}],
+			consoleColor: "\u001b[38;5;14m"
+		},
 		"TechQuickie": {
 			title: "TechQuickie",
 			skip: false,
