@@ -66,7 +66,7 @@ export default class VideoProcessor {
 			this.downloadStats = {};
 			this.videosProcessed = 0;
 		}
-		const processingPromises = videos.map(video => new Promise<void>(res => this.videoQueue.push({video, res})));
+		const processingPromises = videos.reverse().map(video => new Promise<void>(res => this.videoQueue.push({video, res})));
 		// Handler for when all downloads are done.
 		if (videos.length !== 0) Promise.all(processingPromises).then(() => this.updateSummaryBar());
 		return processingPromises;
