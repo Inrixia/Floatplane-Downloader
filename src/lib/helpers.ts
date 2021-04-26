@@ -10,7 +10,7 @@ import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
 
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
-export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true, forceCreate: true });
+export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true });
 recursiveUpdate(settings, defaultSettings);
 
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});

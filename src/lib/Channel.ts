@@ -37,7 +37,7 @@ export default class Channel {
 		
 		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
-			this._db = db<ChannelDB>(databaseFilePath, { videos: {}, nextEpisodeNo: 1 });
+			this._db = db<ChannelDB>(databaseFilePath, { template: { videos: {}, nextEpisodeNo: 1 } });
 		} catch {
 			throw new Error(`Cannot load Channel database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}

@@ -33,7 +33,7 @@ export default class Subscription {
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
 		try {
-			this._db = db<SubscriptionDB>(databaseFilePath, { lastSeenVideo: { guid: "", releaseDate: "" }, videos: [] });
+			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: "", releaseDate: "" }, videos: [] } });
 		} catch {
 			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
