@@ -81,7 +81,7 @@ export default class VideoProcessor {
 		const whitespace = "                        ";
 		const processed  = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}${whitespace}`;
 		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")}${whitespace}`;
-		const speed      = `Download Speed:   ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")}${whitespace}`;
+		const speed      = `Download Speed:   ${gr(((downloadSpeed/1024000)*8).toFixed(2)+"Mb/s")}${whitespace}`;
 		process.stdout.write("                                                         ");
 		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n\n\n`);
 	}
@@ -109,11 +109,11 @@ export default class VideoProcessor {
 					const totalMB = downloadProgress.total/1024000;
 					const downloadedMB = (downloadProgress.transferred/1024000);
 					const timeElapsed = (Date.now() - startTime) / 1000;
-					const downloadSpeed = downloadProgress.transferred/timeElapsed;
+					const downloadSpeed = (downloadProgress.transferred/timeElapsed);
 					const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
 					if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, { 
 						percentage: downloadProgress.percent, 
-						message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")} ${gr((downloadSpeed/1024000).toFixed(2)+"Mb/s")} ETA: ${bl(Math.floor(downloadETA / 60)+"m "+(Math.floor(downloadETA) % 60)+"s")}`
+						message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")} ${gr(((downloadSpeed/1024000)*8).toFixed(2)+"Mb/s")} ETA: ${bl(Math.floor(downloadETA / 60)+"m "+(Math.floor(downloadETA) % 60)+"s")}`
 					});
 					this.downloadStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
 					this.updateSummaryBar();
@@ -134,13 +134,10 @@ export default class VideoProcessor {
 			this.mpb.done(formattedTitle);
 		} catch (error) {
 			// Handle errors when downloading nicely
-			this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
-
 			if (retries < 3) {
 				this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` });
-				await sleep(1000);
 				await this.processVideo(video, ++retries);
-			}
+			} else this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} Max Retries! ${retries}/3` });
 			return;
 		}
 	}
