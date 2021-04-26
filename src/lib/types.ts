@@ -1,5 +1,4 @@
 
-export type Resolution = "360" | "720" | "1080" | "2160";
 export type Resolutions = ["360", "720", "1080", "2160"];
 
 import type { BlogPost } from "floatplane/creator";
@@ -49,16 +48,30 @@ export type Extras = {
 	saveNfo: boolean;
 }
 
+export type ValueOf<T> = T[keyof T];
+
+export type FilePathFormattingOptions = {
+	"%channelTitle%": string;
+	"%episodeNumber%": string;
+	"%year%": string;
+	"%month%": string;
+	"%day%": string;
+	"%hour%": string;
+	"%minute%": string;
+	"%second%": string;
+	"%videoTitle%": string;
+};
+
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
 	floatplane: {
-		videoResolution: Resolution;
+		videoResolution: ValueOf<Resolutions>;
 		videosToSearch: number;
 		waitForNewVideos: boolean;
 		_avalibleResolutions: Resolutions;
 	};
-	_filePathFormattingOPTIONS: string[];
+	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;
 	extras: Extras;
 	channelAliases: { 

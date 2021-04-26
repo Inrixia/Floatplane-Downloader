@@ -14,6 +14,7 @@ import type Channel from "./Channel";
 import { fApi } from "./FloatplaneAPI";
 
 import { nPad } from "@inrixia/helpers/object";
+import { FilePathFormattingOptions } from "./types";
 
 export default class Video {
 	public guid: BlogPost["guid"];
@@ -26,9 +27,6 @@ export default class Video {
 
 	public channel: Channel;
 
-	public filePath: string;
-	private folderPath: string;
-
 	constructor(video: BlogPost, channel: Channel) {
 		this.channel = channel;
 
@@ -38,26 +36,35 @@ export default class Video {
 		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
+	}
 
-		const YEAR = this.releaseDate.getFullYear();
-		const MONTH = nPad(this.releaseDate.getMonth());
-		const DAY = nPad(this.releaseDate.getDate());
-		const HOUR = nPad(this.releaseDate.getHours());
-		const MINUTE = nPad(this.releaseDate.getMinutes());
-		const SECOND = nPad(this.releaseDate.getSeconds());
-		const fullPath = `${settings.filePathFormatting
-			.replace(/%channelTitle%/g, this.channel.title)
-			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNo.toString())
-			.replace(/%year%/g, YEAR.toString())
-			.replace(/%month%/g, MONTH.toString())
-			.replace(/%day%/g, DAY.toString())
-			.replace(/%hour%/g, HOUR.toString())
-			.replace(/%minute%/g, MINUTE.toString())
-			.replace(/%second%/g, SECOND.toString())
-			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " "))
-		}`;
-		this.folderPath = fullPath.split("/").slice(0, -1).join("/");
-		this.filePath = `${this.folderPath}/${sanitize(fullPath.split("/").slice(-1)[0])}`;
+	private get fullPath(): string {
+		const formatLookup: FilePathFormattingOptions = {
+			"%channelTitle%": this.channel.title,
+			"%episodeNumber%": this.channel.lookupVideoDB(this.guid).episodeNo.toString(),
+			"%year%": this.releaseDate.getFullYear().toString(),
+			"%month%": nPad(this.releaseDate.getMonth()),
+			"%day%": nPad(this.releaseDate.getDate()),
+			"%hour%": nPad(this.releaseDate.getHours()),
+			"%minute%": nPad(this.releaseDate.getMinutes()),
+			"%second%": nPad(this.releaseDate.getSeconds()),
+			"%videoTitle%": this.title.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " ")
+		};
+
+		let fullPath = settings.filePathFormatting;
+		for (const [match, value] of Object.entries(formatLookup)) {
+			fullPath = fullPath.replace(new RegExp(match, "g"), value);
+		}
+
+		return fullPath;
+	}
+
+	private get folderPath(): string {
+		return this.fullPath.split("/").slice(0, -1).join("/");
+	}
+
+	public get filePath(): string {
+		return `${this.folderPath}/${sanitize(this.fullPath.split("/").slice(-1)[0])}`;
 	}
 
 	get expectedSize(): number|undefined {
