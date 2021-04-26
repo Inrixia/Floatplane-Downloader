@@ -135,7 +135,7 @@ export const defaultSettings: Settings = {
 		_avalibleResolutions: defaultResoulutions
 	},
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%episodeNumber%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],
-	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%",
+	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%",
 	extras: {
 		downloadArtwork: true,
 		saveNfo: true,
