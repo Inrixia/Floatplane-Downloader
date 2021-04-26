@@ -1,4 +1,6 @@
-﻿![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
+﻿[![DEV Build](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoBuildDev.yml/badge.svg?branch=dev)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoBuildDev.yml)
+
+![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
 **This project is unofficial and not in any way affiliated with LMG**<br>
 **Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
 <br>
@@ -16,9 +18,10 @@ If you encounter any issues please **[create a issue](https://github.com/Inrixia
 <br>
 
 # Install Guide
+Looking for **Docker**?<br>
+Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.docker.com/r/inrix/floatplane-downloader)** and see instructions at **[the wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)**!
 
 1. Download the latest stable binary for your OS from **[Releases](https://github.com/Inrixia/Floatplane-PlexDownloader/releases)**<br>
-   Looking for **Docker**? Go check out the image and install instructions **[Here](https://hub.docker.com/r/inrix/floatplane-downloader)**!
 
 2. Run the binary and follow the setup prompts.<br>
 
@@ -29,11 +32,16 @@ If you encounter any issues please **[create a issue](https://github.com/Inrixia
 
 For more info on setting up plex & avalible settings check out the Wikis:
 
-## Wikis:
+# Wikis:
 *  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
 *  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
+*  [Docker Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)
+
+<br>
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
+
+<br>
 
 ### Images:
 ![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)

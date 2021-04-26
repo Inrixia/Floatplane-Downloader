@@ -1,5 +1,5 @@
 ---
-name: "Auto build dev release"
+name: "DEV Build"
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   pre-release:
-    name: "Dev Pre-Release - Autobuild"
+    name: "Dev Pre-Release - Auto"
     runs-on: "ubuntu-latest"
 
     steps:
@@ -26,6 +26,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "dev"
           prerelease: true
-          title: "Dev Pre-Release - Autobuild"
+          title: "Dev Pre-Release - Auto"
           files: |
             build/*
