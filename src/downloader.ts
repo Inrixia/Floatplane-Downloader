@@ -135,21 +135,11 @@ export default class VideoProcessor {
 		} catch (error) {
 			// Handle errors when downloading nicely
 			this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message}` });
-	
-			// Retry downloading the video if this is the first failure.
-			if (retries === 0) {
-				this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying...` });
-				await sleep(1000);
-				await this.processVideo(video, ++retries);
-				return;
-			}
-	
-			// If the server aborted the request retry up to 3 times.
-			if (error.message.includes("The server aborted pending request") && retries < 3) {
+
+			if (retries < 3) {
 				this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` });
 				await sleep(1000);
 				await this.processVideo(video, ++retries);
-				return;
 			}
 			return;
 		}
