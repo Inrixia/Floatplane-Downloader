@@ -106,9 +106,8 @@ export default class Video {
 		}
 		
 		// Handle download resumption if video was partially downloaded
-		let writeStreamOptions, requestOptions;
-		if (this.expectedSize !== undefined) {
-			const downloadedBytes = await this.downloadedBytes();
+		let writeStreamOptions, requestOptions, downloadedBytes;
+		if (this.expectedSize !== undefined && (downloadedBytes = await this.downloadedBytes()) !== -1) {
 			[writeStreamOptions, requestOptions] = [
 				{ start: downloadedBytes, flags: "r+" },
 				{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }
