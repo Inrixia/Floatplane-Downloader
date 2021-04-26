@@ -37,7 +37,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 (async () => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const version: string = require("../package.json").version;
-	const latest = await fApi.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/latest.json", { resolveBodyOnly: true }).then(JSON.parse).catch(() => ({ version }));
+	const latest = await fApi.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json", { resolveBodyOnly: true }).then(JSON.parse).catch(() => ({ version }));
 
 	if (gt(latest.version, version)) console.log(`There is a ${diff(latest.version, version)} update avalible! ${version} > ${latest.version}.\nHead to \u001b[36mhttps://github.com/Inrixia/Floatplane-Downloader/releases\u001b[0m to update!\n`);
 	
