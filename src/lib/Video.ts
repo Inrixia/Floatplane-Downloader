@@ -13,6 +13,8 @@ import type Request from "got/dist/source/core";
 import type Channel from "./Channel";
 import { fApi } from "./FloatplaneAPI";
 
+import { nPad } from "@inrixia/helpers/object";
+
 export default class Video {
 	public guid: BlogPost["guid"];
 	public title: BlogPost["title"];
@@ -38,12 +40,20 @@ export default class Video {
 		this.thumbnail = video.thumbnail;
 
 		const YEAR = this.releaseDate.getFullYear();
-		const MONTH = this.releaseDate.getMonth()>9?"0"+this.releaseDate.getMonth():this.releaseDate.getMonth(); // If the month is less than 10 pad it with a 0
+		const MONTH = nPad(this.releaseDate.getMonth());
+		const DAY = nPad(this.releaseDate.getDate());
+		const HOUR = nPad(this.releaseDate.getHours());
+		const MINUTE = nPad(this.releaseDate.getMinutes());
+		const SECOND = nPad(this.releaseDate.getSeconds());
 		const fullPath = `${settings.filePathFormatting
 			.replace(/%channelTitle%/g, this.channel.title)
 			.replace(/%episodeNumber%/g, this.channel.lookupVideoDB(this.guid).episodeNo.toString())
 			.replace(/%year%/g, YEAR.toString())
 			.replace(/%month%/g, MONTH.toString())
+			.replace(/%day%/g, DAY.toString())
+			.replace(/%hour%/g, HOUR.toString())
+			.replace(/%minute%/g, MINUTE.toString())
+			.replace(/%second%/g, SECOND.toString())
 			.replace(/%videoTitle%/g, this.title.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " "))
 		}`;
 		this.folderPath = fullPath.split("/").slice(0, -1).join("/");
