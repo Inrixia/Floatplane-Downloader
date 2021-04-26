@@ -62,11 +62,13 @@ export type FilePathFormattingOptions = {
 	"%videoTitle%": string;
 };
 
+export type Resolution = ValueOf<Resolutions>;
+
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
 	floatplane: {
-		videoResolution: ValueOf<Resolutions>;
+		videoResolution: Resolution;
 		videosToSearch: number;
 		waitForNewVideos: boolean;
 		_avalibleResolutions: Resolutions;

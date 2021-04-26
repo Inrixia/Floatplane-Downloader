@@ -7,14 +7,14 @@ import { settings } from "./helpers";
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
+import { fApi } from "./FloatplaneAPI";
+import { nPad } from "@inrixia/helpers/object";
+
+import type { FilePathFormattingOptions } from "./types";
 import type { BlogPost } from "floatplane/creator";
 import type Request from "got/dist/source/core";
-
 import type Channel from "./Channel";
-import { fApi } from "./FloatplaneAPI";
 
-import { nPad } from "@inrixia/helpers/object";
-import { FilePathFormattingOptions } from "./types";
 
 export default class Video {
 	public guid: BlogPost["guid"];

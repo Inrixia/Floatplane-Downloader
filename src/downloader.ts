@@ -3,8 +3,6 @@ import Video from "./lib/Video";
 
 import { settings } from "./lib/helpers";
 
-import { Resolution } from "./lib/types";
-
 import { promisify } from "util";
 const sleep = promisify(setTimeout);
 
@@ -88,7 +86,7 @@ export default class VideoProcessor {
 		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n\n\n`);
 	}
 
-	private async processVideo(video: Video, retries = 0, quality: Resolution = settings.floatplane.videoResolution): Promise<void> {
+	private async processVideo(video: Video, retries = 0, quality: string = settings.floatplane.videoResolution as string): Promise<void> {
 		let formattedTitle: string;
 		if (video.channel.consoleColor !== undefined) formattedTitle = `${video.channel.consoleColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+video.channel.consoleColor.length+reset.length);
 		else formattedTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
@@ -152,18 +150,6 @@ export default class VideoProcessor {
 				await sleep(1000);
 				await this.processVideo(video, ++retries);
 				return;
-			}
-	
-			if (error.message.includes("Response code 400") || error.message.includes("Response code 404")) {
-				// Drop down the qualities until one works or give up
-				const currentResIndex = settings.floatplane._avalibleResolutions.indexOf(quality);
-				if (currentResIndex !== 0) {
-					const newRes = settings.floatplane._avalibleResolutions[currentResIndex-1];
-					this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying at ${newRes}p` });
-					await sleep(1000);
-					await this.processVideo(video, retries, newRes);
-					return;
-				}
 			}
 			return;
 		}
