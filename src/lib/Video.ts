@@ -106,14 +106,14 @@ export default class Video {
 		}
 		
 		// Handle download resumption if video was partially downloaded
-		const downloadedBytes = await this.downloadedBytes();
-		const [writeStreamOptions, requestOptions] = downloadedBytes !== -1 ? [
-			{ start: downloadedBytes, flags: "r+" },
-			{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }
-		] : [
-			undefined,
-			undefined
-		];
+		let writeStreamOptions, requestOptions;
+		if (this.expectedSize !== undefined) {
+			const downloadedBytes = await this.downloadedBytes();
+			[writeStreamOptions, requestOptions] = [
+				{ start: downloadedBytes, flags: "r+" },
+				{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }
+			];
+		}
 
 		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 		const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[0]);
