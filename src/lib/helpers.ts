@@ -23,6 +23,18 @@ recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
 export const args = { ...argv, ...env };
 
+// Override stdout if headless to not include formatting tags
+if (args.headless === true) {
+	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+	type StdoutArgs = Parameters<typeof process.stdout.write>
+
+	process.stdout.write = ((...params: StdoutArgs) => {
+		// eslint-disable-next-line no-control-regex
+		if (typeof params[0] === "string") params[0] = params[0].replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "");
+		return originalStdoutWrite(...params);
+	}) as typeof process.stdout.write;
+}
+
 export const fetchFFMPEG = (): Promise<void> => new Promise((resolve, reject) => {
 	const platform = detectPlatform();
 	if (fs.existsSync(`./db/${getBinaryFilename("ffmpeg", platform)}`) === false) {

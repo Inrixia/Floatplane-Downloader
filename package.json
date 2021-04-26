@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "prep": "npm install && npm run build",
-    "start": "tsc && node ./dist/float.js",
-    "test-docker": "tsc && node ./dist/float.js --docker",
+    "prestart": "tsc",
+    "start": "node ./dist/float.js",
+    "startHeadless": "tsc && node ./dist/float.js --headless",
     "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
   },
   "dependencies": {
