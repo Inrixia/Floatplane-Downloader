@@ -1,22 +1,12 @@
-# Floatplane Downloader
-
-**This project is unofficial and not in any way affiliated with LMG**<br>
-**Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
-<br>
-
-**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/).<br>
-<br>
-Both downloading videos as they release and archiving the entire backlog is supported!<br>
-This requires a **[Floatplane](http://floatplane.com)** subscription.
-<br>
-
-If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) <3
+# Docker Wiki
 
 ### Tags:
 - `:latest`
 	- Latest release version of the downloader
 - `:beta`
-	- WIP version used for testing, may be completely broken...
+	- WIP version used for testing before release, may be outdated or buggy!
+- `:dev`
+	- Image in sync with `dev` branch on github, bleeding edge changes that **will** break everything.
 <br>
 
 ## Quickstart:
