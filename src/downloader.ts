@@ -143,8 +143,10 @@ export default class VideoProcessor {
 				});
 				await video.muxffmpegMetadata();
 			}
-			if (args.headless === true) console.log(`${formattedTitle} - Downloaded!`);
-			else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
+			if (args.headless === true) { 
+				console.log(`${formattedTitle} - Downloaded!`);
+				this.updateSummaryBar();
+			} else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
 		} catch (error) {
 			// Handle errors when downloading nicely
 			if (retries < 3) {
