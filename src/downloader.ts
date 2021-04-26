@@ -1,10 +1,7 @@
-import { MultiProgressBars } from "multi-progress-bars";
+import { MultiProgressBars, UpdateOptions } from "multi-progress-bars";
 import Video from "./lib/Video";
 
-import { settings } from "./lib/helpers";
-
-import { promisify } from "util";
-const sleep = promisify(setTimeout);
+import { settings, args } from "./lib/helpers";
 
 type promiseFunction = (f: Promise<void>) => void;
 
@@ -60,7 +57,7 @@ export default class VideoProcessor {
 	processVideos(videos: Video[]): Array<Promise<void>> {
 		if (videos.length !== 0) {
 			console.log(`> Processing ${videos.length} videos...`);
-			this.mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
+			if (args.headless !== true) this.mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
 			this.downloadStats = {};
 			this.videosProcessed = 0;
 		}
@@ -86,19 +83,34 @@ export default class VideoProcessor {
 		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n\n\n`);
 	}
 
+	/**
+	 * Updsate the progress bar for a specific video.
+	 * @param formattedTitle Title of bar to update.
+	 * @param barUpdate Update object to update the bar with.
+	 * @param displayNow If the update should be immediately sent to console (Only applied if running in headless mode)
+	 */
+	private updateBar(formattedTitle: string, barUpdate: UpdateOptions, displayNow = false): void {
+		if (args.headless === true) {
+			if (displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
+		} else if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, barUpdate);
+	}
+
 	private async processVideo(video: Video, retries = 0, quality: string = settings.floatplane.videoResolution as string): Promise<void> {
 		let formattedTitle: string;
-		if (video.channel.consoleColor !== undefined) formattedTitle = `${video.channel.consoleColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+video.channel.consoleColor.length+reset.length);
+		if (args.headless === true) formattedTitle = `${video.channel.title} - ${video.title}`;
+		else if (video.channel.consoleColor !== undefined) formattedTitle = `${video.channel.consoleColor}${video.channel.title}${reset} - ${video.title}`.slice(0, 32+video.channel.consoleColor.length+reset.length);
 		else formattedTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
 	
-		if (this.downloadStats !== undefined) while (formattedTitle in this.downloadStats) formattedTitle = ` ${formattedTitle}`.slice(0, 32);
+		if (this.downloadStats !== undefined) while (formattedTitle in this.downloadStats) formattedTitle = `.${formattedTitle}`.slice(0, 32);
 
-		if (this.mpb === undefined) throw new Error("Progressbar failed to initialize! Cannot continue download");
-
-		this.mpb.addTask(formattedTitle, {
-			type: "percentage", 
-			barColorFn: str => `${video.channel.consoleColor||""}${str}`
-		});
+		if (args.headless === true) console.log(`${formattedTitle} - Downloading...`);
+		else {
+			if (this.mpb === undefined) throw new Error("Progressbar failed to initialize! Cannot continue download");
+			this.mpb.addTask(formattedTitle, {
+				type: "percentage", 
+				barColorFn: str => `${video.channel.consoleColor||""}${str}`
+			});
+		}
 
 		try {
 			// If the video is already downloaded then just mux its metadata
@@ -111,12 +123,12 @@ export default class VideoProcessor {
 					const timeElapsed = (Date.now() - startTime) / 1000;
 					const downloadSpeed = (downloadProgress.transferred/timeElapsed);
 					const downloadETA = (downloadProgress.total / downloadSpeed) - timeElapsed;  // Round to 4 decimals
-					if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, { 
+					this.updateBar(formattedTitle, {
 						percentage: downloadProgress.percent, 
 						message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2)+"MB")} ${gr(((downloadSpeed/1024000)*8).toFixed(2)+"Mb/s")} ETA: ${bl(Math.floor(downloadETA / 60)+"m "+(Math.floor(downloadETA) % 60)+"s")}`
 					});
 					this.downloadStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
-					this.updateSummaryBar();
+					if (args.headless !== true) this.updateSummaryBar();
 				});
 				await new Promise((res, rej) => {
 					downloadRequest.on("end", res);
@@ -125,20 +137,20 @@ export default class VideoProcessor {
 				this.downloadStats[formattedTitle].downloadSpeed = 0;
 			}
 			if (!await video.isMuxed()) {
-				this.mpb.updateTask(formattedTitle, { 
+				this.updateBar(formattedTitle, { 
 					percentage: 0.99, 
 					message: "Muxing ffmpeg metadata..."
 				});
 				await video.muxffmpegMetadata();
 			}
-			this.mpb.done(formattedTitle);
+			if (args.headless === true) console.log(`${formattedTitle} - Downloaded!`);
+			else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
 		} catch (error) {
 			// Handle errors when downloading nicely
 			if (retries < 3) {
-				this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` });
+				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} - Retrying ${retries}/3` }, true);
 				await this.processVideo(video, ++retries);
-			} else this.mpb.updateTask(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} Max Retries! ${retries}/3` });
-			return;
+			} else this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${error.message} Max Retries! ${retries}/3` }, true);
 		}
 	}
 }
