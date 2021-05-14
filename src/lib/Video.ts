@@ -153,6 +153,8 @@ export default class Video {
 				`AUTHOR=${this.channel.title}`, 
 				"-metadata", 
 				`YEAR=${this.releaseDate}`, 
+				"-metadata",
+				`date=${this.releaseDate.getFullYear().toString()+nPad(this.releaseDate.getMonth())+nPad(this.releaseDate.getDate())}`, 
 				"-metadata", 
 				`description=${this.description}`, 
 				"-metadata", 
