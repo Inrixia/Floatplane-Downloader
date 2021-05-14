@@ -28,12 +28,13 @@ export default class Video {
 	public channel: Channel;
 
 	constructor(video: BlogPost, channel: Channel) {
+		var striptags = require('striptags');
 		this.channel = channel;
 
 		this.guid = video.guid;
 		this.videoAttachments = video.videoAttachments;
 		this.title = video.title;
-		this.description = video.text;
+		this.description = striptags(video.text);
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
 	}
