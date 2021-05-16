@@ -7,7 +7,7 @@
     "prestart": "tsc",
     "start": "node ./dist/float.js",
     "startHeadless": "tsc && node ./dist/float.js --headless",
-    "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win"
+    "build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win "
   },
   "dependencies": {
     "@ctrl/plex": "^1.5.3",
@@ -16,12 +16,12 @@
     "ffbinaries": "^1.1.4",
     "floatplane": "^3.0.5",
     "got": "^11.8.2",
+    "html-to-text": "^7.1.1",
     "multi-progress-bars": "^3.2.3",
     "process.argv": "^0.6.0",
     "prompts": "^2.4.0",
     "sanitize-filename": "^1.6.3",
     "semver": "^7.3.5",
-    "striptags": "^3.1.1",
     "tough-cookie": "^4.0.0",
     "tough-cookie-file-store": "^2.0.2"
   },
@@ -34,6 +34,7 @@
     ]
   },
   "devDependencies": {
+    "@types/html-to-text": "^6.0.0",
     "@types/multi-progress": "^2.0.3",
     "@types/prompts": "^2.0.9",
     "@types/semver": "^7.3.4",

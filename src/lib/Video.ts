@@ -6,6 +6,7 @@ import { settings } from "./helpers";
 
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
+import { htmlToText } from "html-to-text";
 
 import { fApi } from "./FloatplaneAPI";
 import { nPad } from "@inrixia/helpers/object";
@@ -28,13 +29,12 @@ export default class Video {
 	public channel: Channel;
 
 	constructor(video: BlogPost, channel: Channel) {
-		var striptags = require('striptags');
 		this.channel = channel;
 
 		this.guid = video.guid;
 		this.videoAttachments = video.videoAttachments;
 		this.title = video.title;
-		this.description = striptags(video.text);
+		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
 	}
@@ -98,7 +98,7 @@ export default class Video {
 			const nfo = builder.create("episodedetails")
 				.ele("title").text(this.title).up()
 				.ele("showtitle").text(this.channel.title).up()
-				.ele("description").text(this.description).up()
+				.ele("description").text(htmlToText(this.description)).up()
 				.ele("aired").text(this.releaseDate.toString()).up()
 				.ele("season").text("1").up()
 				.ele("episode").text(this.channel.lookupVideoDB(this.guid).episodeNo.toString()).up()
@@ -155,9 +155,9 @@ export default class Video {
 				"-metadata", 
 				`YEAR=${this.releaseDate}`, 
 				"-metadata", 
-				`description=${this.description}`, 
+				`description=${htmlToText(this.description)}`,
 				"-metadata", 
-				`synopsis=${this.description}`, 
+				`synopsis=${htmlToText(this.description)}`,
 				"-c:a",
 				"copy", 
 				"-c:v", 
