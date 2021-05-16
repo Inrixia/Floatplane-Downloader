@@ -6,6 +6,7 @@ import { settings } from "./helpers";
 
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
+import { htmlToText } from "html-to-text";
 
 import { fApi } from "./FloatplaneAPI";
 import { nPad } from "@inrixia/helpers/object";
@@ -97,7 +98,7 @@ export default class Video {
 			const nfo = builder.create("episodedetails")
 				.ele("title").text(this.title).up()
 				.ele("showtitle").text(this.channel.title).up()
-				.ele("description").text(this.description).up()
+				.ele("description").text(htmlToText(this.description)).up()
 				.ele("aired").text(this.releaseDate.toString()).up()
 				.ele("season").text("1").up()
 				.ele("episode").text(this.channel.lookupVideoDB(this.guid).episodeNo.toString()).up()
@@ -156,9 +157,9 @@ export default class Video {
 				"-metadata",
 				`date=${this.releaseDate.getFullYear().toString()+nPad(this.releaseDate.getMonth())+nPad(this.releaseDate.getDate())}`, 
 				"-metadata", 
-				`description=${this.description}`, 
+				`description=${htmlToText(this.description)}`,
 				"-metadata", 
-				`synopsis=${this.description}`, 
+				`synopsis=${htmlToText(this.description)}`,
 				"-c:a",
 				"copy", 
 				"-c:v", 
