@@ -51,7 +51,7 @@ for (const video of lttVideos) {
 	}
 	const releaseDate = new Date(video.releaseDate);
 	const YEAR = releaseDate.getFullYear();
-	const MONTH = releaseDate.getMonth(); // If the month is less than 10 pad it with a 0
+	const MONTH = releaseDate.getMonth()+1; // If the month is less than 10 pad it with a 0
 	const DAY =  releaseDate.getDate(); // If the month is less than 10 pad it with a 0
 	const HOUR = releaseDate.getHours();
 	const MINUTE = releaseDate.getMinutes();
