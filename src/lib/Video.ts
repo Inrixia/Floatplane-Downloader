@@ -77,7 +77,7 @@ export default class Video {
 
 	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
 
-	public downloadedBytes = async (): Promise<number> => Video.getFileBytes(this.filePath);
+	public downloadedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.partial`);
 	public isDownloaded = async (): Promise<boolean> => await this.isMuxed() || await this.downloadedBytes() === this.expectedSize;
 
 	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
@@ -129,7 +129,7 @@ export default class Video {
 
 		const downloadRequest = fApi.got.stream(`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`, requestOptions);
 		// Pipe the download to the file once response starts
-		downloadRequest.pipe(createWriteStream(`${this.filePath}`, writeStreamOptions));
+		downloadRequest.pipe(createWriteStream(`${this.filePath}.partial`, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
 		if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", progress => this.expectedSize = progress.total);
 		
@@ -147,7 +147,7 @@ export default class Video {
 			"./db/ffmpeg", 
 			[
 				"-i",
-				this.filePath,
+				`${this.filePath}.partial`,
 				"-metadata", 
 				`title=${this.title}`, 
 				"-metadata", 
@@ -172,7 +172,7 @@ export default class Video {
 		));
 		this.expectedSize = await this.muxedBytes();
 		await this.markCompleted();
-		await fs.unlink(this.filePath);
+		await fs.unlink(`${this.filePath}.partial`);
 		// Set the files update time to when the video was released
 		await fs.utimes(`${this.filePath}.mp4`, new Date(), this.releaseDate);
 	}
