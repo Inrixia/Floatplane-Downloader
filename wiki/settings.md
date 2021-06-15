@@ -61,6 +61,20 @@ Strings surounded by % will be replaced with their respective values.<br>
 
 ## Extras
 
+**extras.stripSubchannelPrefix**:<br>
+Removes the Subchannel prefix from the video title when a video is sorted into a subchannel.<br>
+For example:<br>
+`TechLinked - SXXEXX - VideoTitle`  -  **true**<br>
+vs
+<br>
+`TechLinked - SXXEXX - TL: VideoTitle`  -  **false**
+```json
+"extras": {
+    "stripSubchannelPrefix": true
+}
+```
+<br>
+
 **extras.downloadArtwork**:<br>
 Saves video thubnails alongside each video. These are required for nice thumbnails in Plex.<br>
 ```json
