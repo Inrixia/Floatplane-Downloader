@@ -8,7 +8,7 @@ import { htmlToText } from "html-to-text";
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
 
-import { nPad } from "@inrixia/helpers/object";
+import { nPad } from "@inrixia/helpers/math";
 import { fApi } from "./FloatplaneAPI";
 
 import type { FilePathFormattingOptions } from "./types";
