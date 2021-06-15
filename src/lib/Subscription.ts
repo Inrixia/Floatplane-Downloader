@@ -94,7 +94,7 @@ export default class Subscription {
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
 		const incompleteVideos: Video[] = [];
-		for (const video of videos.sort((a, b) => (+new Date(a.releaseDate)) - (+new Date(b.releaseDate))).map(video => this.addVideo(video))) {
+		for (const video of videos.sort((a, b) => (+new Date(a.releaseDate)) - (+new Date(b.releaseDate))).map(video => this.addVideo(video, false, stripSubchannelPrefix))) {
 			if (video !== null && !await video.isMuxed()) incompleteVideos.push(video);
 		}
 		process.stdout.write(` Skipped ${videos.length-incompleteVideos.length}.\n`);
