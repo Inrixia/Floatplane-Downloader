@@ -3,10 +3,8 @@
 ### Tags:
 - `:latest`
 	- Latest release version of the downloader
-- `:beta`
-	- WIP version used for testing before release, may be outdated or buggy!
 - `:dev`
-	- Image in sync with `dev` branch on github, bleeding edge changes that **will** break everything.
+	- Image in sync with `dev` branch on github, bleeding edge changes that **will likely break everything**.
 <br>
 
 ## Quickstart:
