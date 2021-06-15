@@ -139,9 +139,9 @@ export const defaultSettings: Settings = {
 	extras: {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,
-		artworkSuffix: "",
 		saveNfo: true,
 	},
+	artworkSuffix: "",
 	plex: {
 		sectionsToUpdate: [],
 		enabled: false,

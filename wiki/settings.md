@@ -84,22 +84,20 @@ Saves video thubnails alongside each video. These are required for nice thumbnai
 ```
 <br>
 
-**extras.artworkSuffix**:<br>
-Suffix appended to artwork filename.<br>
-Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
-```json
-"extras": {
-    "artworkSuffix": ""
-}
-```
-<br>
-
 **extras.safeNfo**:<br>
 Saves video metadata to nfo files alongside each video.<br>
 ```json 
 "extras": {
     "safeNfo": true
 }
+```
+<br>
+
+**artworkSuffix**:<br>
+Suffix appended to artwork filename.<br>
+Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
+```json
+"artworkSuffix": ""
 ```
 <br>
 

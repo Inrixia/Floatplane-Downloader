@@ -46,7 +46,6 @@ export type PartialArgs = Partial<Args & Settings>;
 export type Extras = {
 	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
-	artworkSuffix: string;
 	saveNfo: boolean;
 }
 
@@ -78,6 +77,7 @@ export type Settings = {
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;
 	extras: Extras;
+	artworkSuffix: string;
 	channelAliases: { 
 		[key: string]: string 
 	};
