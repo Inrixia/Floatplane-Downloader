@@ -44,6 +44,7 @@ export type Args = {
 export type PartialArgs = Partial<Args & Settings>;
 
 export type Extras = {
+	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
 	saveNfo: boolean;
 }

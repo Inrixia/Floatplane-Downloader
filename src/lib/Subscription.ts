@@ -50,10 +50,10 @@ export default class Subscription {
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo(video: BlogPost, overrideSkip: true): ReturnType<Channel["addVideo"]>
-	public addVideo(video: BlogPost, overrideSkip?: false): ReturnType<Channel["addVideo"]> | null
+	public addVideo(video: BlogPost, overrideSkip: true, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]>
+	public addVideo(video: BlogPost, overrideSkip?: false, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]> | null
 	
-	public addVideo(video: BlogPost, overrideSkip=false): ReturnType<Channel["addVideo"]> | null {
+	public addVideo(video: BlogPost, overrideSkip=false, stripSubchannelPrefix=true): ReturnType<Channel["addVideo"]> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;
@@ -66,7 +66,7 @@ export default class Subscription {
 					if ((video[identifierType] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
 						if (overrideSkip === false && channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						if (identifierType === "title") video.title = video.title.replace(identifier.check, "").trim();
+						if (identifierType === "title" && stripSubchannelPrefix === true) video.title = video.title.replace(identifier.check, "").trim();
 						return channel.addVideo(video);
 					}
 				}
@@ -76,21 +76,21 @@ export default class Subscription {
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(logProgress=false, videosToSearch=20): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch=20, stripSubchannelPrefix: boolean): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor||"\u001b[38;5;208m"}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos = [];
 
-		if (logProgress === true) process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
 		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: "video" })) {
 			if (video.guid === this.lastSeenVideo.guid) {
-				if (!await (this.addVideo(video, true)).isDownloaded()) this.lastSeenVideo.guid = "";
+				if (!await (this.addVideo(video, true, stripSubchannelPrefix)).isDownloaded()) this.lastSeenVideo.guid = "";
 				else break;
 			}
 			if (this.lastSeenVideo.guid === "" && videos.length >= videosToSearch) break;
 			videos.push(video);
-			if (logProgress === true) process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped

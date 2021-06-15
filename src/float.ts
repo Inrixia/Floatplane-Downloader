@@ -20,7 +20,7 @@ import { gt, diff } from "semver";
  */
 const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: VideoProcessor) => {
 	for (const subscription of subscriptions) {
-		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(true, settings.floatplane.videosToSearch)));
+		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix)));
 	}
 
 	if (settings.plex.enabled) {
