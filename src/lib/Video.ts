@@ -82,7 +82,7 @@ export default class Video {
 	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
 	public isMuxed = async (): Promise<boolean> => await this.muxedBytes() === this.expectedSize;
 
-	public async download (quality: string): Promise<Request> {
+	public async download (quality: string, allowRangeQuery = true): Promise<Request> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
@@ -107,7 +107,7 @@ export default class Video {
 		
 		// Handle download resumption if video was partially downloaded
 		let writeStreamOptions, requestOptions, downloadedBytes;
-		if (this.expectedSize !== undefined && (downloadedBytes = await this.downloadedBytes()) !== -1) {
+		if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.downloadedBytes()) !== -1) {
 			[writeStreamOptions, requestOptions] = [
 				{ start: downloadedBytes, flags: "r+" },
 				{ headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }
