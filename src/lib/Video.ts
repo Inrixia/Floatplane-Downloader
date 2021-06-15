@@ -90,7 +90,7 @@ export default class Video {
 
 		// If downloading artwork is enabled download it
 		if (settings.extras.downloadArtwork && this.thumbnail !== undefined) {
-			fApi.got.stream(this.thumbnail.path).pipe(createWriteStream(`${this.filePath}.png`));
+			fApi.got.stream(this.thumbnail.path).pipe(createWriteStream(`${this.filePath}${settings.extras.artworkSuffix}.png`));
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
