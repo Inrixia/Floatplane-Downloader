@@ -11,7 +11,7 @@ const gr = (str: string|number) => `\u001b[32;1m${str}\u001b[0m`;
 const ye = (str: string|number) => `\u001b[33;1m${str}\u001b[0m`;
 const bl = (str: string|number) => `\u001b[34;1m${str}\u001b[0m`;
 
-export default class VideoProcessor {
+export default class Downloader {
 	private mpb?: MultiProgressBars;
 	private videoQueue: Array<{ video: Video, res: promiseFunction }>;
 	private videosProcessing: number;

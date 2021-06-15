@@ -1,14 +1,11 @@
+import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
+import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
+import { defaultArgs, defaultSettings } from "./defaults";
+import ARGV from "process.argv";
+import db from "@inrixia/db";
 import fs from "fs";
 
-import db from "@inrixia/db";
-import ARGV from "process.argv";
-
-import { defaultArgs, defaultSettings } from "./defaults";
 import type { Args, PartialArgs, Settings } from "./types";
-
-import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
-
-import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 
 export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true });
 recursiveUpdate(settings, defaultSettings);

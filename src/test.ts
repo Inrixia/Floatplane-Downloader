@@ -1,6 +1,6 @@
 import type { BlogPost } from "floatplane/creator";
-import db from "@inrixia/db";
 import { settings } from "./lib/helpers";
+import db from "@inrixia/db";
 
 export const fHistory = db<{
 	"59f94c0bdd241b70349eb72b": BlogPost[]

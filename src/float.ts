@@ -1,24 +1,18 @@
-import { settings, fetchFFMPEG } from "./lib/helpers";
-
-import { fApi } from "./lib/FloatplaneAPI";
-
 import { quickStart, validatePlexSettings } from "./quickStart";
-
-import { loginFloatplane } from "./logins";
-
 import { fetchSubscriptions } from "./subscriptionFetching";
-import VideoProcessor from "./downloader";
-
+import { settings, fetchFFMPEG } from "./lib/helpers";
 import { MyPlexAccount } from "@ctrl/plex";
+import { fApi } from "./lib/FloatplaneAPI";
+import { loginFloatplane } from "./logins";
+import Downloader from "./downloader";
+import { gt, diff } from "semver";
 
 import type Subscription from "./lib/Subscription";
-
-import { gt, diff } from "semver";
 
 /**
  * Main function that triggeres everything else in the script
  */
-const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: VideoProcessor) => {
+const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: Downloader) => {
 	for (const subscription of subscriptions) {
 		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix)));
 	}
@@ -60,20 +54,20 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	const subscriptions = await fetchSubscriptions();
 	process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 
-	const videoProcessor = new VideoProcessor();
-	videoProcessor.start();
+	const downloader = new Downloader();
+	downloader.start();
 
-	await fetchNewVideos(subscriptions, videoProcessor);
+	await fetchNewVideos(subscriptions, downloader);
 	
 
 	if (settings.floatplane.waitForNewVideos === true) {
 		fApi.sails.on("syncEvent", syncEvent => {
-			if (syncEvent.event === "postRelease") fetchNewVideos(subscriptions, videoProcessor);
+			if (syncEvent.event === "postRelease") fetchNewVideos(subscriptions, downloader);
 		});
 
 		process.stdout.write("Connecting to floatplane notifications for new videos... ");
 		process.stdout.write(`${(await fApi.sails.connect()).message}\n`);
-	} else videoProcessor.stop();
+	} else downloader.stop();
 })().catch(err => {
 	console.error("An error occurred!");
 	console.error(err);

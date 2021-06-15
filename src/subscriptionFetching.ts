@@ -1,8 +1,7 @@
-import { settings } from "./lib/helpers";
 import { defaultSubChannels } from "./lib/defaults";
 import Subscription from "./lib/Subscription";
-
 import { fApi } from "./lib/FloatplaneAPI";
+import { settings } from "./lib/helpers";
 
 export const fetchSubscriptions = async (): Promise<Subscription[]> => (await fApi.user.subscriptions())
 	.map(subscription => {

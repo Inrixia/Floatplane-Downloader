@@ -1,12 +1,8 @@
-import { MyPlexAccount } from "@ctrl/plex";
-
 import { loopError } from "@inrixia/helpers/object";
-
 import { floatplane, plex } from "./lib/prompts";
-
-import { args } from "./lib/helpers";
-
 import { fApi } from "./lib/FloatplaneAPI";
+import { MyPlexAccount } from "@ctrl/plex";
+import { args } from "./lib/helpers";
 
 export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;

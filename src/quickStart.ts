@@ -1,10 +1,9 @@
-import * as prompts from "./lib/prompts";
-import { defaultResoulutions } from "./lib/defaults";
 import { loginFloatplane, loginPlex } from "./logins";
-import { MyPlexAccount } from "@ctrl/plex";
-
+import { defaultResoulutions } from "./lib/defaults";
 import { args, settings } from "./lib/helpers";
+import { MyPlexAccount } from "@ctrl/plex";
 import { fApi } from "./lib/FloatplaneAPI";
+import * as prompts from "./lib/prompts";
 
 import type { Extras } from "./lib/types";
 

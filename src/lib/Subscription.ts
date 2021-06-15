@@ -1,10 +1,9 @@
-import db from "@inrixia/db";
-import Channel from "./Channel";
-
-import type { SubscriptionSettings } from "./types";
-
 import { BlogPost } from "floatplane/creator";
 import { fApi } from "./FloatplaneAPI";
+import Channel from "./Channel";
+import db from "@inrixia/db";
+
+import type { SubscriptionSettings } from "./types";
 import type Video from "./Video";
 
 type LastSeenVideo = {

@@ -1,21 +1,20 @@
-import fs from "fs/promises";
 import { execFile } from "child_process";
 import { createWriteStream } from "fs";
+import fs from "fs/promises";
 
 import { settings } from "./helpers";
 
+import { htmlToText } from "html-to-text";
 import sanitize from "sanitize-filename";
 import builder from "xmlbuilder";
-import { htmlToText } from "html-to-text";
 
-import { fApi } from "./FloatplaneAPI";
 import { nPad } from "@inrixia/helpers/object";
+import { fApi } from "./FloatplaneAPI";
 
 import type { FilePathFormattingOptions } from "./types";
 import type { BlogPost } from "floatplane/creator";
 import type Request from "got/dist/source/core";
 import type Channel from "./Channel";
-
 
 export default class Video {
 	public guid: BlogPost["guid"];
