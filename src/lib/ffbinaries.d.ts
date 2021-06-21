@@ -1,16 +1,17 @@
-declare module "ffbinaries" {
+declare module 'ffbinaries' {
 	/**
 	 * Gets binaries for the platform
 	 * It will get the data from ffbinaries, pick the correct files
 	 * and save it to the specified directory
 	 */
-	function downloadBinaries(components: string | Array<string>, opts: {
-		destination?: string;
-		platform?: string;
-	}, callback: (
-		err: Error,
-		result: ffbinariesResult
-	) => void): void;
+	function downloadBinaries(
+		components: string | Array<string>,
+		opts: {
+			destination?: string;
+			platform?: string;
+		},
+		callback: (err: Error, result: ffbinariesResult) => void
+	): void;
 
 	function detectPlatform(): string;
 
@@ -21,5 +22,5 @@ declare module "ffbinaries" {
 		path: string;
 		status: string;
 		code: string;
-	}>
+	}>;
 }
