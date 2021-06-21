@@ -17,7 +17,7 @@
     "@inrixia/db": "^1.7.3",
     "@inrixia/helpers": "^1.20.2",
     "ffbinaries": "^1.1.4",
-    "floatplane": "^3.1.7",
+    "floatplane": "^3.1.8",
     "got": "^11.8.2",
     "html-to-text": "^8.0.0",
     "multi-progress-bars": "^3.2.4",
@@ -37,15 +37,15 @@
     ]
   },
   "devDependencies": {
-    "@types/html-to-text": "^6.0.0",
+    "@types/html-to-text": "^8.0.0",
     "@types/multi-progress": "^2.0.3",
     "@types/prompts": "^2.0.13",
     "@types/semver": "^7.3.6",
     "@types/tough-cookie-file-store": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
-    "eslint": "^7.28.0",
+    "eslint": "^7.29.0",
     "pkg": "^5.2.1",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.4"
   }
 }
