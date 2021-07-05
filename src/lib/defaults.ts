@@ -174,4 +174,5 @@ export const defaultSettings: Settings = {
 		'ltt supporter plus': 'Linus Tech Tips',
 	},
 	subscriptions: {},
+	postProcessingCommand: '',
 };
