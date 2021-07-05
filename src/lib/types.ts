@@ -86,4 +86,5 @@ export type Settings = {
 		[key: string]: SubscriptionSettings;
 	};
 	plex: PlexSettings;
+	postProcessingCommand: string;
 };

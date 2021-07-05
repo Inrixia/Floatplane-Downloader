@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { createWriteStream } from 'fs';
 import fs from 'fs/promises';
 
@@ -38,7 +38,7 @@ export default class Video {
 		this.thumbnail = video.thumbnail;
 	}
 
-	private get fullPath(): string {
+	private formatString(string: string): string {
 		const formatLookup: FilePathFormattingOptions = {
 			'%channelTitle%': this.channel.title,
 			'%episodeNumber%': this.channel.lookupVideoDB(this.guid).episodeNo.toString(),
@@ -51,12 +51,15 @@ export default class Video {
 			'%videoTitle%': this.title.replace(/ - /g, ' ').replace(/\//g, ' ').replace(/\\/g, ' '),
 		};
 
-		let fullPath = settings.filePathFormatting;
 		for (const [match, value] of Object.entries(formatLookup)) {
-			fullPath = fullPath.replace(new RegExp(match, 'g'), value);
+			string = string.replace(new RegExp(match, 'g'), value);
 		}
 
-		return fullPath;
+		return string;
+	}
+
+	private get fullPath(): string {
+		return this.formatString(settings.filePathFormatting);
 	}
 
 	private get folderPath(): string {
@@ -193,8 +196,21 @@ export default class Video {
 		);
 		this.expectedSize = await this.muxedBytes();
 		await this.markCompleted();
+		await this.postProcessingCommand();
 		await fs.unlink(`${this.filePath}.partial`);
 		// Set the files update time to when the video was released
 		await fs.utimes(`${this.filePath}.mp4`, new Date(), this.releaseDate);
+	}
+
+	public async postProcessingCommand(): Promise<void> {
+		const command = this.formatString(settings.postProcessingCommand);
+		await new Promise((resolve, reject) =>
+			exec(command,
+				(error, stdout) => {
+					if (error !== null) reject(error);
+					else resolve(stdout);
+				}
+			)
+		);
 	}
 }
