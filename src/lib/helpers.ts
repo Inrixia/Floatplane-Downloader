@@ -1,102 +1,56 @@
-import db from "@inrixia/db";
+import { downloadBinaries, detectPlatform, getBinaryFilename } from 'ffbinaries';
+import { getEnv, rebuildTypes, recursiveUpdate } from '@inrixia/helpers/object';
+import { defaultArgs, defaultSettings } from './defaults';
+import ARGV from 'process.argv';
+import db from '@inrixia/db';
+import fs from 'fs';
 
-import { isObject } from "@inrixia/helpers/object";
+import type { Args, PartialArgs, Settings } from './types';
 
-import type { PartialArgs, Settings } from "./types";
-import { defaultArgs, defaultSettings } from "./defaults";
-
-import fs from "fs";
-
-import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
-
-import ARGV from "process.argv";
-
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const rebuildTypes = <O extends T, T extends { [key: string]: any }>(object: O, types: T) => {
-	for (const key in object) {
-		if (types[key] === undefined) continue;
-		switch (typeof types[key]) {
-		case "number":
-			(object[key] as number) = +object[key];
-			break;
-		case "string":
-			object[key] = object[key].toString();
-			break;
-		case "boolean":
-			(object[key] as boolean) = object[key] === "true";
-			break;
-		default:
-			rebuildTypes(object[key], types[key]);
-			break;
-		}
-	}
-	return object;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const recursiveUpdate = (targetObject: any, newObject: any, setUndefined = true, setDefined = false) => {
-	if (!isObject(targetObject)) throw new Error("targetObject is not an object!");
-	if (!isObject(newObject)) throw new Error("newObject is not an object!");
-	for (const key in newObject) {
-		if (targetObject[key] === undefined) {
-			if (setUndefined) targetObject[key] = newObject[key];
-		} else if (setDefined) targetObject[key] = newObject[key];
-		else if (isObject(targetObject[key]) && isObject(newObject[key])) recursiveUpdate(targetObject[key], newObject[key]);
-	}
-};
-
-/**
- * Converts process.env variables into a object
- * @example process.env["some_subproperty"] = "hello"
- * returns { some: { subProperty: "hello" } }
- */
-const getEnv = () => {
-	// Define our return object env variables are applied to.
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const envObject = {} as Record<string, any>;
-	// Iterate over env keys
-	for (const envKey in process.env) {
-		// Set our reference object to be equal to the envObject to begin with.
-		let objRef = envObject;
-		// Break apart the envKey into its keys. Ex some_subProperty = ["some", "subProperty"]
-		const keys = envKey.split("_");
-		// For every key except the last...
-		for (let i = 0; i < keys.length-1; i++) {
-			// Set the key on the objRef to a empty object if its undefined.
-			objRef = objRef[keys[i]] ??= {};
-		}
-		// Set the last key to equal the original value
-		if (typeof objRef === "object") objRef[keys[keys.length-1]] = process.env[envKey];
-	}
-	return envObject;
-};
-
-export const settings = db<Settings>("./db/settings.json", defaultSettings, { pretty: true });
+export const settings = db<Settings>('./db/settings.json', { template: defaultSettings, pretty: true, forceCreate: true });
 recursiveUpdate(settings, defaultSettings);
 
+const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
+rebuildTypes<PartialArgs, Settings & Args>(argv, { ...defaultSettings, ...defaultArgs });
+recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 
-const argv = rebuildTypes<PartialArgs, PartialArgs>(ARGV(process.argv.slice(2))<PartialArgs>({}), { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, argv, false, true);
-
-const env = rebuildTypes<PartialArgs, PartialArgs>(getEnv(), { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, env, false, true);
+const env = getEnv();
+rebuildTypes<PartialArgs, Settings & Args>(env, { ...defaultSettings, ...defaultArgs });
+recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
 export const args = { ...argv, ...env };
 
-export const fetchFFMPEG = (): Promise<void> => new Promise((resolve, reject) => {
-	const platform = detectPlatform();
-	if (fs.existsSync(`./db/${getBinaryFilename("ffmpeg", platform)}`) === false) {
-		process.stdout.write("> Ffmpeg binary missing! Downloading... ");
-		downloadBinaries("ffmpeg", {
-			destination: "./db/",
-			platform
-		}, err => {
-			if (err !== null) reject(err);
-			else {
-				process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-				resolve();
-			}
-		});
-	} else resolve();
-});
+// Override stdout if headless to not include formatting tags
+if (args.headless === true) {
+	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+	type StdoutArgs = Parameters<typeof process.stdout.write>;
+
+	process.stdout.write = ((...params: StdoutArgs) => {
+		// eslint-disable-next-line no-control-regex
+		if (typeof params[0] === 'string') params[0] = params[0].replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+		return originalStdoutWrite(...params);
+	}) as typeof process.stdout.write;
+}
+
+export const fetchFFMPEG = (): Promise<void> =>
+	new Promise((resolve, reject) => {
+		const platform = detectPlatform();
+		const path = args.headless === true ? './' : './db/';
+		if (fs.existsSync(`${path}${getBinaryFilename('ffmpeg', platform)}`) === false) {
+			process.stdout.write('> Ffmpeg binary missing! Downloading... ');
+			downloadBinaries(
+				'ffmpeg',
+				{
+					destination: path,
+					platform,
+				},
+				(err) => {
+					if (err !== null) reject(err);
+					else {
+						process.stdout.write('\u001b[36mDone!\u001b[0m\n\n');
+						resolve();
+					}
+				}
+			);
+		} else resolve();
+	});

@@ -1,88 +1,149 @@
-# settings.json Wiki
+# Settings Wiki
+
 ![image](https://user-images.githubusercontent.com/6373693/115116213-953f8b80-9fec-11eb-9633-08518331aa27.png)<br>
 
 Defaults for any setting is defined in the **[Defaults File](https://github.com/Inrixia/Floatplane-Downloader/blob/master/src/lib/defaults.ts)**.<br>
+**You can find settings under /db/setttings.json**<br>
+Note: Settings can be set in settings.json, using environment variables or passed in as arguments.
+For more info on how this work see the section in environment variables in the **[Docker Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)**
 <br><br>
 
 **runQuickstartPrompts**:<br>
 Setting this to true will cause the quickStartPrompts to run on startup.
+
 ```ts
 "runQuickstartPrompts": false
 ```
+
 <br>
 
 **downloadThreads**:<br>
 Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would mean only 2 videos download at once.<br>
+
 ```json
 "downloadThreads": -1
 ```
+
 <br>
 
 ## Floatplane
 
 **videosToSearch**:<br>
 Number of videos to search through when looking for undownloaded videos **per subscription**.<br>
+
 ```json
 "floatplane": {
     "videosToSearch": 5
 }
 ```
+
 <br>
 
 **videoResolution**:<br>
 Resolution to download the videos in. See `_avalibleResolutions` for options.<br>
-```json 
+
+```json
 "floatplane": {
     "videoResolution": 1080
 }
 ```
+
 <br>
 
 **waitForNewVideos**:<br>
 Controls if the downloader should wait for new videos to download after finishing or just exit<br>
+
 ```json
 "floatplane": {
     "waitForNewVideos": true
 }
 ```
+
 <br>
 
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
 You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
-```json 
+
+```json
 "filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%"
 ```
+
 <br>
 
 ## Extras
 
+**extras.stripSubchannelPrefix**:<br>
+Removes the Subchannel prefix from the video title when a video is sorted into a subchannel.<br>
+For example:<br>
+`TechLinked - SXXEXX - VideoTitle` - **true**<br>
+vs
+<br>
+`TechLinked - SXXEXX - TL: VideoTitle` - **false**
+
+```json
+"extras": {
+    "stripSubchannelPrefix": true
+}
+```
+
+<br>
+
 **extras.downloadArtwork**:<br>
 Saves video thubnails alongside each video. These are required for nice thumbnails in Plex.<br>
+
 ```json
 "extras": {
     "downloadArtwork": true
 }
 ```
+
 <br>
 
 **extras.safeNfo**:<br>
 Saves video metadata to nfo files alongside each video.<br>
-```json 
+
+```json
 "extras": {
     "safeNfo": true
 }
 ```
+
+<br>
+
+**artworkSuffix**:<br>
+Suffix appended to artwork filename.<br>
+Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
+
+Windows example:
+
+```json
+"artworkSuffix": "echo %videoTitle% > example.txt"
+```
+
+<br>
+
+**postProcessingCommand**:<br>
+A command to run after each video has sucessfully downloaded.<br>
+You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
+Strings surounded by % will be replaced with their respective values.<br>
+
+```json
+"postProcessingCommand": ""
+```
+
 <br>
 
 ## Plex
+
 Use **quickstartPrompts** to easily set plex settings.
 
 **plex.sectionsToUpdate**:<br>
 Array of sections to update on refresh.<br>
 Each "section" is a object containing the name of the section and the server it belongs to.<br>
-```json 
+
+```json
 "plex": {
     "sectionsToUpdate": [
         {
@@ -96,20 +157,24 @@ Each "section" is a object containing the name of the section and the server it 
     ]
 }
 ```
+
 <br>
 
 **plex.token**:<br>
 Plex token generated from your login details for updating remote servers.<br>
-```json 
+
+```json
 "plex": {
-    "token": "xM__2bulgyDf_wulgyE5owodds" 
+    "token": "xM__2bulgyDf_wulgyE5owodds"
 }
 ```
+
 <br>
 
 **channelAliases**:<br>
 Array of alias's used to convert subscription names to nice channel names.<br>
-```json 
+
+```json
 "channelAliases": {
     "linus tech tips": "Linus Tech Tips",
     "ltt supporter (og)": "Linus Tech Tips",
@@ -117,9 +182,11 @@ Array of alias's used to convert subscription names to nice channel names.<br>
     "ltt supporter plus": "Linus Tech Tips"
 }
 ```
+
 <br>
 
 ## Subscriptions:
+
 All the Floatplane creators you are subscribed to.<br>
 ![image](https://user-images.githubusercontent.com/6373693/115116013-86a4a480-9feb-11eb-828a-fe4fa8ba5cf9.png)<br>
 At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.<br>
@@ -142,6 +209,7 @@ An Identifier contains two entries `check` and `type`.<br>
 <br>
 
 For example:
+
 ```json
 "Floatplane Exclusive": {
     "title": "Floatplane Exclusive",
@@ -155,11 +223,13 @@ For example:
     "consoleColor": "\u001b[38;5;200m"
 }
 ```
+
 This is a channel named "Floatplane Exclusive".<br>
 Videos that have "FP Exclusive: " in their title will be sorted into this channel.<br>
 <br>
 
 A few more notes regarding channels:<br>
+
 - First come first served, the first channel a video matches to is what it goes into, channels are checked top to bottom in the config. Videos cannot be sorted into multiple channels.
 - You can have multiple identifiers per channel to allow for more accurate matching.
 - The `check` string is removed from the video's title if the `type`is equal to "title".

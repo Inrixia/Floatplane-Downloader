@@ -1,0 +1,31 @@
+---
+name: "dev Build"
+
+on:
+  push:
+    branches:
+      - "dev"
+
+jobs:
+  pre-release:
+    name: "dev Pre-Release - Auto"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install dependencies"
+        run: |
+            npm install
+            
+      - name: "Build"
+        run: |
+          npm run build
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev"
+          prerelease: true
+          title: "dev Pre-Release - Auto"
+          files: |
+            build/*

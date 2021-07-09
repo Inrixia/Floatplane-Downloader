@@ -1,23 +1,23 @@
-import db from "@inrixia/db";
-import Video from "./Video";
+import db from '@inrixia/db';
+import Video from './Video';
 
-import type { BlogPost } from "floatplane/creator";
-import type { ChannelOptions } from "./types";
-import type Subscription from "./Subscription";
+import type { BlogPost } from 'floatplane/creator';
+import type { ChannelOptions } from './types';
+import type Subscription from './Subscription';
 
 // e = episodeNo, d = downloaded, s = filesize in bytes, f = file
-export type VideoDBEntry = { episodeNo: number, expectedSize?: number }
+export type VideoDBEntry = { episodeNo: number; expectedSize?: number };
 export type ChannelDB = {
-	videos: { [key: string]: VideoDBEntry },
-	nextEpisodeNo: number
-}
+	videos: { [key: string]: VideoDBEntry };
+	nextEpisodeNo: number;
+};
 
 export default class Channel {
-	public title: ChannelOptions["title"];
-	public identifiers: ChannelOptions["identifiers"];
-	public skip: ChannelOptions["skip"];
+	public title: ChannelOptions['title'];
+	public identifiers: ChannelOptions['identifiers'];
+	public skip: ChannelOptions['skip'];
 
-	public consoleColor: ChannelOptions["consoleColor"]
+	public consoleColor: ChannelOptions['consoleColor'];
 
 	public subscription: Subscription;
 
@@ -34,10 +34,9 @@ export default class Channel {
 		this.skip = channel.skip;
 		this.consoleColor = channel.consoleColor;
 
-		
 		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
-			this._db = db<ChannelDB>(databaseFilePath, { videos: {}, nextEpisodeNo: 1 });
+			this._db = db<ChannelDB>(databaseFilePath, { template: { videos: {}, nextEpisodeNo: 1 } });
 		} catch {
 			throw new Error(`Cannot load Channel database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
@@ -51,7 +50,7 @@ export default class Channel {
 		this.subscription.updateLastSeenVideo({ guid, releaseDate });
 	}
 
-	public addVideo (video: BlogPost): Video {
+	public addVideo(video: BlogPost): Video {
 		// Set the episode number
 		this._db.videos[video.guid] ??= { episodeNo: this._db.nextEpisodeNo++ };
 		return new Video(video, this);
