@@ -158,6 +158,8 @@ export default class Downloader {
 				console.log(`${formattedTitle} - Downloaded!`);
 				this.updateSummaryBar();
 			} else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
+			if (settings.postProcessingCommand !== '')
+				await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
 		} catch (error) {
 			// Handle errors when downloading nicely
 			if (retries < 3) {

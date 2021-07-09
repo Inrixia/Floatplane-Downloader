@@ -116,14 +116,16 @@ Saves video metadata to nfo files alongside each video.<br>
 Suffix appended to artwork filename.<br>
 Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
 
+Windows example:
+
 ```json
-"artworkSuffix": ""
+"artworkSuffix": "echo %videoTitle% > example.txt"
 ```
 
 <br>
 
 **postProcessingCommand**:<br>
-A command to run after a video has sucessfully downloaded.<br>
+A command to run after each video has sucessfully downloaded.<br>
 You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
 

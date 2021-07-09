@@ -1,6 +1,9 @@
-import { exec, execFile } from 'child_process';
+import { exec as execCallback, execFile } from 'child_process';
 import { createWriteStream } from 'fs';
+import { promisify } from 'util';
 import fs from 'fs/promises';
+
+const exec = promisify(execCallback);
 
 import { settings } from './helpers';
 
@@ -196,21 +199,13 @@ export default class Video {
 		);
 		this.expectedSize = await this.muxedBytes();
 		await this.markCompleted();
-		await this.postProcessingCommand();
 		await fs.unlink(`${this.filePath}.partial`);
 		// Set the files update time to when the video was released
 		await fs.utimes(`${this.filePath}.mp4`, new Date(), this.releaseDate);
 	}
 
 	public async postProcessingCommand(): Promise<void> {
-		const command = this.formatString(settings.postProcessingCommand);
-		await new Promise((resolve, reject) =>
-			exec(command,
-				(error, stdout) => {
-					if (error !== null) reject(error);
-					else resolve(stdout);
-				}
-			)
-		);
+		const result = await exec(this.formatString(settings.postProcessingCommand));
+		if (result.stderr !== undefined) throw new Error(result.stderr);
 	}
 }
