@@ -206,6 +206,6 @@ export default class Video {
 
 	public async postProcessingCommand(): Promise<void> {
 		const result = await exec(this.formatString(settings.postProcessingCommand));
-		if (result.stderr !== undefined) throw new Error(result.stderr);
+		if (result.stderr !== '') throw new Error(result.stderr);
 	}
 }

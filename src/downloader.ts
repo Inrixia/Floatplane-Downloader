@@ -154,12 +154,14 @@ export default class Downloader {
 				});
 				await video.muxffmpegMetadata();
 			}
+			if (settings.postProcessingCommand !== '') {
+				this.updateBar(formattedTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` });
+				await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
+			}
 			if (args.headless === true) {
-				console.log(`${formattedTitle} - Downloaded!`);
+				this.updateBar(formattedTitle, { message: `Downloaded!` });
 				this.updateSummaryBar();
 			} else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
-			if (settings.postProcessingCommand !== '')
-				await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
 		} catch (error) {
 			// Handle errors when downloading nicely
 			if (retries < 3) {
