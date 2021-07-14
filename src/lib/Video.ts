@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 
 const exec = promisify(execCallback);
 
-import { settings } from './helpers';
+import { settings, args } from './helpers';
 
 import { htmlToText } from 'html-to-text';
 import sanitize from 'sanitize-filename';
@@ -169,7 +169,7 @@ export default class Video {
 			);
 		await new Promise((resolve, reject) =>
 			execFile(
-				'./db/ffmpeg',
+				args.headless === true ? './ffmpeg' : './db/ffmpeg',
 				[
 					'-i',
 					`${this.filePath}.partial`,
