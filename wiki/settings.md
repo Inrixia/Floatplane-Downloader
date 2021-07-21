@@ -66,7 +66,7 @@ If not set to "", overrides the download edge used for video downloads.<br>
 
 ```json
 "floatplane": {
-    "floatplaneEdge": "edge03-na.floatplane.com"
+    "downloadEdge": "edge03-na.floatplane.com"
 }
 ```
 
