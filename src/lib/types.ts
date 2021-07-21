@@ -74,6 +74,7 @@ export type Settings = {
 		videosToSearch: number;
 		waitForNewVideos: boolean;
 		_avalibleResolutions: Resolutions;
+		downloadEdge: string;
 	};
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;

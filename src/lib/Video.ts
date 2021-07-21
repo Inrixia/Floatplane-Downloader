@@ -135,6 +135,7 @@ export default class Video {
 
 		// Pick a random edge to download off, eventual even distribution
 		const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
+		if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
 
 		// Convert the qualities into an array of resolutions
 		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name);
