@@ -13,6 +13,12 @@ WORKDIR /fp
 VOLUME /fp/db
 VOLUME /fp/videos
 
+# Updates apt-get and installs ffmpeg
+RUN DEBIAN_FRONTEND='noninteractive' && \
+    apt-get upgrade -y && \
+    apt-get update -y && \
+    apt-get install -y ffmpeg
+
 # Install typescript so we can use the tsc command
 RUN npm install -g typescript
 

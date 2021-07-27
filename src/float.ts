@@ -1,6 +1,6 @@
 import { quickStart, validatePlexSettings } from './quickStart';
 import { fetchSubscriptions } from './subscriptionFetching';
-import { settings, fetchFFMPEG } from './lib/helpers';
+import { settings } from './lib/helpers';
 import { MyPlexAccount } from '@ctrl/plex';
 import { fApi } from './lib/FloatplaneAPI';
 import { loginFloatplane } from './logins';
@@ -43,7 +43,6 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 			}.\nHead to \u001b[36mhttps://github.com/Inrixia/Floatplane-Downloader/releases\u001b[0m to update!\n`
 		);
 
-	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart();
 	settings.runQuickstartPrompts = false;
