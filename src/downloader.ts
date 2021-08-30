@@ -117,7 +117,7 @@ export default class Downloader {
 			if (this.mpb === undefined) throw new Error('Progressbar failed to initialize! Cannot continue download');
 			this.mpb.addTask(formattedTitle, {
 				type: 'percentage',
-				barColorFn: (str) => `${video.channel.consoleColor || ''}${str}`,
+				barTransformFn: (str) => `${video.channel.consoleColor || ''}${str}`,
 			});
 		}
 

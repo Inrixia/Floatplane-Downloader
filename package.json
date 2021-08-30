@@ -15,12 +15,12 @@
 	"dependencies": {
 		"@ctrl/plex": "^1.5.3",
 		"@inrixia/db": "^1.7.3",
-		"@inrixia/helpers": "^1.20.2",
+		"@inrixia/helpers": "^1.22.1",
 		"ffbinaries": "^1.1.4",
 		"floatplane": "^3.1.8",
 		"got": "^11.8.2",
 		"html-to-text": "^8.0.0",
-		"multi-progress-bars": "^3.2.4",
+		"multi-progress-bars": "^4.0.1",
 		"process.argv": "^0.6.0",
 		"prompts": "^2.4.1",
 		"sanitize-filename": "^1.6.3",
@@ -37,16 +37,16 @@
 		]
 	},
 	"devDependencies": {
-		"@types/html-to-text": "^8.0.0",
+		"@types/html-to-text": "^8.0.1",
 		"@types/multi-progress": "^2.0.3",
-		"@types/prompts": "^2.0.13",
-		"@types/semver": "^7.3.6",
+		"@types/prompts": "^2.0.14",
+		"@types/semver": "^7.3.8",
 		"@types/tough-cookie-file-store": "^2.0.1",
-		"@typescript-eslint/eslint-plugin": "^4.27.0",
-		"@typescript-eslint/parser": "^4.27.0",
-		"eslint": "^7.29.0",
-		"eslint-plugin-prettier": "^3.4.0",
-		"pkg": "^5.2.1",
-		"typescript": "^4.3.4"
+		"@typescript-eslint/eslint-plugin": "^4.29.3",
+		"@typescript-eslint/parser": "^4.29.3",
+		"eslint": "^7.32.0",
+		"eslint-plugin-prettier": "^3.4.1",
+		"pkg": "^5.3.1",
+		"typescript": "^4.4.2"
 	}
 }
