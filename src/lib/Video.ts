@@ -111,14 +111,17 @@ export default class Video {
 				.ele('description')
 				.text(htmlToText(this.description))
 				.up()
-				.ele('aired')
-				.text(this.releaseDate.toString())
+				.ele("plot") // Kodi/Plex NFO format uses `plot` as the episode description
+				.text(htmlToText(this.description))
 				.up()
-				.ele('season')
-				.text('1')
+				.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
+				.text(this.releaseDate.getFullYear().toString()+"-"+nPad(this.releaseDate.getMonth()+1)+"-"+nPad(this.releaseDate.getDate()))
 				.up()
-				.ele('episode')
-				.text(this.channel.lookupVideoDB(this.guid).episodeNo.toString())
+				.ele("season")
+				.text(this.formatString(settings.seasonNumberFormat))
+				.up()
+				.ele("episode")
+				.text(this.formatString(settings.episodeNumberFormat))
 				.up()
 				.end({ pretty: true });
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, 'utf8');
