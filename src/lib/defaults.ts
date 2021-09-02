@@ -1,6 +1,6 @@
 import { Resolutions, SubChannels, Settings, Args } from './types';
 
-export const defaultResoulutions: Resolutions = ['360', '720', '1080', '2160'];
+export const defaultResolutions: Resolutions = ['360', '720', '1080', '2160'];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
 	'Tech Deals': {
 		_default: {
@@ -152,7 +152,7 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 		videoResolution: '1080',
 		waitForNewVideos: true,
-		_avalibleResolutions: defaultResoulutions,
+		_availableResolutions: defaultResolutions,
 		downloadEdge: ""
 	},
 	_filePathFormattingOPTIONS: ['%channelTitle%', '%episodeNumber%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],

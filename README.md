@@ -30,7 +30,7 @@ Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.d
    To start the downloader in the future all you need to do is run the binary.
 <br>
 
-For more info on setting up plex & avalible settings check out the Wikis:
+For more info on setting up plex & available settings check out the Wikis:
 
 # Wikis:
 *  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)

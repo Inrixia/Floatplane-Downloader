@@ -138,10 +138,10 @@ export default class Video {
 		if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
 
 		// Convert the qualities into an array of resolutions
-		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name);
+		const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name);
 
-		// Set the quality to use based on whats given in the settings.json or the highest avalible
-		const downloadQuality = avalibleQualities.includes(quality) ? quality : avalibleQualities[avalibleQualities.length - 1];
+		// Set the quality to use based on whats given in the settings.json or the highest available
+		const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[availableQualities.length - 1];
 
 		const downloadRequest = fApi.got.stream(
 			`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace('{qualityLevels}', downloadQuality).replace('{token}', cdnInfo.resource.data.token)}`,

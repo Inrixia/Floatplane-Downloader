@@ -38,7 +38,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 
 	if (gt(latest.version, version))
 		console.log(
-			`There is a ${diff(latest.version, version)} update avalible! ${version} > ${
+			`There is a ${diff(latest.version, version)} update available! ${version} > ${
 				latest.version
 			}.\nHead to \u001b[36mhttps://github.com/Inrixia/Floatplane-Downloader/releases\u001b[0m to update!\n`
 		);
