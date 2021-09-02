@@ -152,8 +152,9 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 		videoResolution: '1080',
 		waitForNewVideos: true,
-		_availableResolutions: defaultResolutions,
-		downloadEdge: ""
+		_avalibleResolutions: defaultResoulutions,
+		downloadEdge: "",
+		retries: 3
 	},
 	_filePathFormattingOPTIONS: ['%channelTitle%', '%episodeNumber%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],
 	filePathFormatting: './videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%',

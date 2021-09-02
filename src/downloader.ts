@@ -167,11 +167,11 @@ export default class Downloader {
 			if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
 			else info = error;
 			// Handle errors when downloading nicely
-			if (retries < 3) {
-				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/3` }, true);
+			if (retries < settings.floatplane.retries) {
+				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
 				if (info.message.indexOf('Range Not Satisfiable')) await this.processVideo(video, ++retries, false);
 				else await this.processVideo(video, ++retries);
-			} else this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/3` }, true);
+			} else this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` }, true);
 		}
 	}
 }
