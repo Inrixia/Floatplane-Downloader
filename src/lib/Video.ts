@@ -137,8 +137,8 @@ export default class Video {
 		const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
 		if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
 
-		// Convert the qualities into an array of resolutions
-		const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name);
+		// Convert the qualities into an array of resolutions and sorts them smallest to largest
+		const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name).sort((a, b) => ~b - ~a);
 
 		// Set the quality to use based on whats given in the settings.json or the highest available
 		const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[availableQualities.length - 1];
