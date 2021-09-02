@@ -157,8 +157,6 @@ export const defaultSettings: Settings = {
 	},
 	_filePathFormattingOPTIONS: ['%channelTitle%', '%episodeNumber%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],
 	filePathFormatting: './videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%',
-	seasonNumberFormat: '%year%%month%',
-	episodeNumberFormat: '%day%%hour%%minute%%second%',
 	extras: {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,

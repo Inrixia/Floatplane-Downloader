@@ -83,28 +83,6 @@ Strings surounded by % will be replaced with their respective values.<br>
 
 <br>
 
-**seasonNumberFormat**:<br>
-This defines the season numbering format used in the NFO files<br>
-You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
-Strings surounded by % will be replaced with their respective values.<br>
-
-```json
-"seasonNumberFormat": "%year%%month%"
-```
-
-<br>
-
-**episodeNumberFormat**:<br>
-This defines the episode numbering format used in the NFO files<br>
-You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
-Strings surounded by % will be replaced with their respective values.<br>
-
-```json
-"episodeNumberFormat": "%day%%hour%%minute%%second%"
-```
-
-<br>
-
 ## Extras
 
 **extras.stripSubchannelPrefix**:<br>

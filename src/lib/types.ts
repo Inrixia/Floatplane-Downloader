@@ -78,8 +78,6 @@ export type Settings = {
 	};
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;
-	seasonNumberFormat: string;
-	episodeNumberFormat: string;
 	extras: Extras;
 	artworkSuffix: string;
 	channelAliases: {
