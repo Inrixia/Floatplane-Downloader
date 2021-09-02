@@ -40,7 +40,7 @@ Number of videos to search through when looking for undownloaded videos **per su
 <br>
 
 **floatplane.videoResolution**:<br>
-Resolution to download the videos in. See `_avalibleResolutions` for options.<br>
+Resolution to download the videos in. See `_availableResolutions` for options.<br>
 
 ```json
 "floatplane": {
@@ -67,6 +67,18 @@ If not set to "", overrides the download edge used for video downloads.<br>
 ```json
 "floatplane": {
     "downloadEdge": "edge03-na.floatplane.com"
+}
+```
+
+<br>
+
+**floatplane.retries**:<br>
+Sets the number of times a download will retry before giving up.<br>
+Defaults to 3
+
+```json
+"floatplane": {
+    "retries": 3
 }
 ```
 

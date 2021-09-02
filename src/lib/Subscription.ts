@@ -67,7 +67,9 @@ export default class Subscription {
 					if ((video[identifierType] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
 						if (overrideSkip === false && channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(identifier.check, '').trim();
+						const idCheck = identifier.check.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+						const regIDCheck = new RegExp(idCheck, 'i');
+						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, '').trim();
 						return channel.addVideo(video);
 					}
 				}

@@ -1,5 +1,5 @@
 import { loginFloatplane, loginPlex } from './logins';
-import { defaultResoulutions } from './lib/defaults';
+import { defaultResolutions } from './lib/defaults';
 import { args, settings } from './lib/helpers';
 import { MyPlexAccount } from '@ctrl/plex';
 import { fApi } from './lib/FloatplaneAPI';
@@ -47,7 +47,7 @@ export const quickStart = async (): Promise<void> => {
 
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
 	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads);
-	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResoulutions);
+	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResolutions);
 	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
 
 	const extras = await prompts.settings.extras(settings.extras);

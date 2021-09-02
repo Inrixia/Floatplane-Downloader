@@ -87,7 +87,7 @@ export const downloadThreads = async (initial: number): Promise<number> =>
 /**
  * Prompts user for the video resolution they want to download in.
  * @param {number} initial Initial resolution to be selected
- * @param {Array<number>} resolutions Avalible resolutions
+ * @param {Array<number>} resolutions Available resolutions
  * @returns {Promise<number>} Resolution to use
  */
 export const videoResolution = async (initial: Resolution, resolutions: Array<Resolution>): Promise<Resolution> =>
@@ -102,9 +102,9 @@ export const videoResolution = async (initial: Resolution, resolutions: Array<Re
 	).resolution || initial;
 
 /**
- * Prompts user to specify the file formatting to use for saving videos. Options avalible for use are created from `options`
+ * Prompts user to specify the file formatting to use for saving videos. Options available for use are created from `options`
  * @param {string} initial Default value
- * @param {Array<string>} options File formatting options avalible
+ * @param {Array<string>} options File formatting options available
  * @returns {Promise<string>} File formatting to use
  */
 export const fileFormatting = async (initial: string, options: Array<string>): Promise<string> =>
