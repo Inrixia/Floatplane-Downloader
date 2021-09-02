@@ -23,18 +23,18 @@ import { PlexSections } from '../types';
 /**
  * Prompts user to select plex sections to refresh
  * @param selectedSections Sections already selected
- * @param avalibleSections Array of avalible plex sections
+ * @param availableSections Array of available plex sections
  */
-export const sections = async (selectedSections: PlexSections, avalibleSections: Section[]): Promise<PlexSections> =>
+export const sections = async (selectedSections: PlexSections, availableSections: Section[]): Promise<PlexSections> =>
 	(
 		await prompts({
 			type: 'multiselect',
 			name: 'sections',
 			message: "Please select the plex section's you want to refresh.",
-			choices: Object.values(avalibleSections).map((avalibleSection) => ({
-				title: `[${avalibleSection.server.friendlyName}]: ${avalibleSection.title}`,
-				value: { server: avalibleSection.server.friendlyName, section: avalibleSection.title },
-				selected: selectedSections.includes({ server: avalibleSection.server.friendlyName, section: avalibleSection.title }),
+			choices: Object.values(availableSections).map((availableSection) => ({
+				title: `[${availableSection.server.friendlyName}]: ${availableSection.title}`,
+				value: { server: availableSection.server.friendlyName, section: availableSection.title },
+				selected: selectedSections.includes({ server: availableSection.server.friendlyName, section: availableSection.title }),
 			})),
 			hint: '- Space to select. Return to submit',
 		})

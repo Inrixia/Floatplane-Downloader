@@ -40,7 +40,7 @@ Number of videos to search through when looking for undownloaded videos **per su
 <br>
 
 **floatplane.videoResolution**:<br>
-Resolution to download the videos in. See `_avalibleResolutions` for options.<br>
+Resolution to download the videos in. See `_availableResolutions` for options.<br>
 
 ```json
 "floatplane": {
