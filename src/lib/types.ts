@@ -73,7 +73,7 @@ export type Settings = {
 		videoResolution: Resolution;
 		videosToSearch: number;
 		waitForNewVideos: boolean;
-		_availableResolutions: Resolutions;
+		_avalibleResolutions: Resolutions;
 		downloadEdge: string;
 		retries: number;
 	};
