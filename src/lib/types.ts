@@ -75,6 +75,7 @@ export type Settings = {
 		waitForNewVideos: boolean;
 		_avalibleResolutions: Resolutions;
 		downloadEdge: string;
+		retries: number;
 	};
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;
