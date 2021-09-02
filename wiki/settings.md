@@ -72,6 +72,18 @@ If not set to "", overrides the download edge used for video downloads.<br>
 
 <br>
 
+**floatplane.retries**:<br>
+Sets the number of times a download will retry before giving up.<br>
+Defaults to 3
+
+```json
+"floatplane": {
+    "retries": 3
+}
+```
+
+<br>
+
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
 You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
