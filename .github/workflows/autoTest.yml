@@ -1,12 +1,13 @@
 ---
-name: 'Compile & Build'
+name: 'Compile TS'
 
 on:
  pull_request:
+  types: ['opened', 'edited', 'reopened', 'synchronize', 'ready_for_review', 'review_requested']
 
 jobs:
  TSC:
-  name: 'Compile & Build'
+  name: 'Compile TS'
   runs-on: 'ubuntu-latest'
 
   steps:
@@ -15,6 +16,6 @@ jobs:
      run: |
       npm install
 
-   - name: 'Build'
+   - name: 'Compile'
      run: |
-      npm run build
+      npm run prestart
