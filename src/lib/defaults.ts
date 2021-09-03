@@ -152,7 +152,7 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 		videoResolution: '1080',
 		waitForNewVideos: true,
-		_avalibleResolutions: defaultResolutions,
+		_availableResolutions: defaultResolutions,
 		downloadEdge: '',
 		retries: 3,
 	},
