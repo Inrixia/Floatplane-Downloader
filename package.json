@@ -7,7 +7,7 @@
 		"prestart": "tsc",
 		"start": "node ./dist/float.js",
 		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win",
+		"build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
 		"buildLinux": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux",
 		"buildMac": "tsc && pkg ./dist/float.js --out-path=./build -t latest-mac",
 		"buildWin": "tsc && pkg ./dist/float.js --out-path=./build -t latest-win"
