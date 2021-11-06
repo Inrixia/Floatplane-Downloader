@@ -57,6 +57,10 @@ export const quickStart = async (): Promise<void> => {
 	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResolutions);
 	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
 
+	if (await prompts.settings.deleteOldVideos(settings.daysToKeepVideos !== -1)) {
+		settings.daysToKeepVideos = await prompts.settings.daysToKeepVideos(settings.daysToKeepVideos);
+	}
+
 	const extras = await prompts.settings.extras(settings.extras);
 	if (extras !== undefined) {
 		for (const extra in settings.extras) settings.extras[extra as keyof Extras] = extras.indexOf(extra) > -1 ? true : false;

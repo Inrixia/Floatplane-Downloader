@@ -69,6 +69,7 @@ export type Resolution = ValueOf<Resolutions>;
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
+	daysToKeepVideos: number;
 	floatplane: {
 		videoResolution: Resolution;
 		videosToSearch: number;

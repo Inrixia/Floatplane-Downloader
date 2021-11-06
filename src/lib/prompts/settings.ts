@@ -65,3 +65,32 @@ export const extras = async (initial: Extras): Promise<Array<string> | undefined
 			hint: '- Space to select. Return to submit',
 		})
 	).extras;
+
+/**
+ * Prompts user if they want to automatically delete videos x days.
+ */
+export const deleteOldVideos = async (initial: boolean): Promise<boolean> =>
+	(
+		await prompts({
+			type: 'toggle',
+			name: 'deleteOldVideos',
+			message: 'Do you want to automatically delete videos after a specified number of days?',
+			initial,
+			active: 'Yes',
+			inactive: 'No',
+		})
+	).deleteOldVideos;
+
+/**
+ * Prompts user for how many days to keep videos.
+ */
+export const daysToKeepVideos = async (initial: number): Promise<number> =>
+	(
+		await prompts({
+			type: 'number',
+			name: 'daysToKeepVideos',
+			message: 'How many days do you want to keep videos before they are deleted?',
+			initial,
+			min: 1,
+		})
+	).daysToKeepVideos || initial;

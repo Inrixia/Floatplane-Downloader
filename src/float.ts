@@ -4,8 +4,10 @@ import { settings, fetchFFMPEG } from './lib/helpers';
 import { MyPlexAccount } from '@ctrl/plex';
 import { fApi } from './lib/FloatplaneAPI';
 import { loginFloatplane } from './logins';
+import { deleteOldVideos } from './lib/deleteOldVideos';
 import Downloader from './Downloader';
 import { gt, diff } from 'semver';
+import { resolve } from 'path';
 
 import type Subscription from './lib/Subscription';
 
@@ -14,7 +16,15 @@ import type Subscription from './lib/Subscription';
  */
 const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: Downloader) => {
 	for (const subscription of subscriptions) {
-		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix)));
+		await Promise.all(
+			videoProcessor.processVideos(
+				await subscription.fetchNewVideos(
+					settings.floatplane.videosToSearch,
+					settings.extras.stripSubchannelPrefix,
+					Date.now() - settings.daysToKeepVideos * 24 * 60 * 60 * 1000
+				)
+			)
+		);
 	}
 
 	if (settings.plex.enabled) {
@@ -47,6 +57,15 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
 	if (settings.runQuickstartPrompts) await quickStart();
 	settings.runQuickstartPrompts = false;
+
+	if (settings.daysToKeepVideos !== -1) {
+		// TODO format with colors using chalk
+		const rootVideoFolder = resolve(settings.filePathFormatting.split('%')[0]);
+		process.stdout.write(`Checking for files older than ${settings.daysToKeepVideos} days in ${rootVideoFolder} for deletion...`);
+		const deleted = await deleteOldVideos(rootVideoFolder, settings.daysToKeepVideos);
+		if (deleted === 0) console.log(' No files found for deletion.\n');
+		else console.log(` Deleted ${deleted} files.\n`);
+	}
 
 	// Get Plex details if not saved
 	await validatePlexSettings();
