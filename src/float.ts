@@ -4,7 +4,7 @@ import { settings, fetchFFMPEG } from './lib/helpers';
 import { MyPlexAccount } from '@ctrl/plex';
 import { fApi } from './lib/FloatplaneAPI';
 import { loginFloatplane } from './logins';
-import Downloader from './downloader';
+import Downloader from './Downloader';
 import { gt, diff } from 'semver';
 
 import type Subscription from './lib/Subscription';
