@@ -69,11 +69,14 @@ export type Resolution = ValueOf<Resolutions>;
 export type Settings = {
 	runQuickstartPrompts: boolean;
 	downloadThreads: number;
+	daysToKeepVideos: number;
 	floatplane: {
 		videoResolution: Resolution;
 		videosToSearch: number;
 		waitForNewVideos: boolean;
-		_avalibleResolutions: Resolutions;
+		_availableResolutions: Resolutions;
+		downloadEdge: string;
+		retries: number;
 	};
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;

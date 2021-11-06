@@ -1,5 +1,5 @@
 import { loginFloatplane, loginPlex } from './logins';
-import { defaultResoulutions } from './lib/defaults';
+import { defaultResolutions } from './lib/defaults';
 import { args, settings } from './lib/helpers';
 import { MyPlexAccount } from '@ctrl/plex';
 import { fApi } from './lib/FloatplaneAPI';
@@ -43,23 +43,28 @@ export const validatePlexSettings = async (): Promise<void> => {
 export const quickStart = async (): Promise<void> => {
 	console.log('Welcome to Floatplane Downloader! Thanks for checking it out <3.');
 	console.log('According to your settings.json this is your first launch! So lets go through the basic setup...\n');
-	console.log('\n== \u001b[38;5;208mGeneral\u001b[0m ==\n');
 
+	console.log('\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n');
+	// Dont re-prompt for credentials if we are already logged in
+	if ((await fApi.isAuthenticated()) !== true) {
+		console.log('Please login to floatplane...');
+		await loginFloatplane();
+	} else console.log('Already logged in!');
+
+	console.log('\n== \u001b[38;5;208mGeneral\u001b[0m ==\n');
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
 	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads);
-	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResoulutions);
+	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResolutions);
 	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
+
+	if (await prompts.settings.deleteOldVideos(settings.daysToKeepVideos !== -1)) {
+		settings.daysToKeepVideos = await prompts.settings.daysToKeepVideos(settings.daysToKeepVideos);
+	}
 
 	const extras = await prompts.settings.extras(settings.extras);
 	if (extras !== undefined) {
 		for (const extra in settings.extras) settings.extras[extra as keyof Extras] = extras.indexOf(extra) > -1 ? true : false;
 	}
-
-	console.log('\n== \u001b[38;5;208mFloatplane\u001b[0m ==\n');
-	console.log('Next we are going to login to floatplane...');
-	// Dont re-prompt for credentials if we are already logged in
-	if ((await fApi.isAuthenticated()) !== true) await loginFloatplane();
-	else console.log('Already logged in!');
 
 	console.log('\n== \u001b[38;5;208mPlex\u001b[0m ==\n');
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);

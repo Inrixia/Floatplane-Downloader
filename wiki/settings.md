@@ -26,9 +26,18 @@ Sets the maximum amount of downloads that can run concurrently. Default's to -1 
 
 <br>
 
+**daysToKeepVideos**:<br>
+Number of days to keep videos. Default's to -1 which is unlimited, 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted.<br>
+
+```json
+"daysToKeepVideos": -1
+```
+
+<br>
+
 ## Floatplane
 
-**videosToSearch**:<br>
+**floatplane.videosToSearch**:<br>
 Number of videos to search through when looking for undownloaded videos **per subscription**.<br>
 
 ```json
@@ -39,8 +48,8 @@ Number of videos to search through when looking for undownloaded videos **per su
 
 <br>
 
-**videoResolution**:<br>
-Resolution to download the videos in. See `_avalibleResolutions` for options.<br>
+**floatplane.videoResolution**:<br>
+Resolution to download the videos in. See `_availableResolutions` for options.<br>
 
 ```json
 "floatplane": {
@@ -50,12 +59,35 @@ Resolution to download the videos in. See `_avalibleResolutions` for options.<br
 
 <br>
 
-**waitForNewVideos**:<br>
+**floatplane.waitForNewVideos**:<br>
 Controls if the downloader should wait for new videos to download after finishing or just exit<br>
 
 ```json
 "floatplane": {
     "waitForNewVideos": true
+}
+```
+
+<br>
+
+**floatplane.downloadEdge**:<br>
+If not set to "", overrides the download edge used for video downloads.<br>
+
+```json
+"floatplane": {
+    "downloadEdge": "edge03-na.floatplane.com"
+}
+```
+
+<br>
+
+**floatplane.retries**:<br>
+Sets the number of times a download will retry before giving up.<br>
+Defaults to 3
+
+```json
+"floatplane": {
+    "retries": 3
 }
 ```
 

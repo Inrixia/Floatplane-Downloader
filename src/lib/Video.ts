@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 
 const exec = promisify(execCallback);
 
-import { settings } from './helpers';
+import { settings, args } from './helpers';
 
 import { htmlToText } from 'html-to-text';
 import sanitize from 'sanitize-filename';
@@ -34,7 +34,7 @@ export default class Video {
 		this.channel = channel;
 
 		this.guid = video.guid;
-		this.videoAttachments = video.videoAttachments;
+		this.videoAttachments = video.attachmentOrder.filter((a) => video.videoAttachments.includes(a));
 		this.title = video.title;
 		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
@@ -73,6 +73,11 @@ export default class Video {
 		return `${this.folderPath}/${sanitize(this.fullPath.split('/').slice(-1)[0])}`;
 	}
 
+	/**
+	 * Get the suffix for a video file if there are multiple videoAttachments for this video
+	 */
+	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - Part ${+attachmentIndex + 1}` : ''}`;
+
 	get expectedSize(): number | undefined {
 		return this.channel.lookupVideoDB(this.guid).expectedSize;
 	}
@@ -82,13 +87,17 @@ export default class Video {
 
 	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
 
-	public downloadedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.partial`);
-	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.downloadedBytes()) === this.expectedSize;
+	public fileBytes = async (extension: string): Promise<number> => {
+		let bytes = 0;
+		for (const i in this.videoAttachments) {
+			bytes += await Video.getFileBytes(`${this.filePath}${this.multiPartSuffix(i)}.${extension}`);
+		}
+		return bytes;
+	};
+	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes('partial')) === this.expectedSize;
+	public isMuxed = async (): Promise<boolean> => (await this.fileBytes('mp4')) === this.expectedSize;
 
-	public muxedBytes = async (): Promise<number> => Video.getFileBytes(`${this.filePath}.mp4`);
-	public isMuxed = async (): Promise<boolean> => (await this.muxedBytes()) === this.expectedSize;
-
-	public async download(quality: string, allowRangeQuery = true): Promise<Request> {
+	public async download(quality: string, allowRangeQuery = true): Promise<Request[]> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
@@ -96,10 +105,27 @@ export default class Video {
 
 		// If downloading artwork is enabled download it
 		if (settings.extras.downloadArtwork && this.thumbnail !== undefined) {
-			fApi.got.stream(this.thumbnail.path).pipe(createWriteStream(`${this.filePath}${settings.artworkSuffix}.png`));
+			const artworkFile = `${this.filePath}${settings.artworkSuffix}.png`;
+			fApi.got
+				.stream(this.thumbnail.path)
+				.pipe(createWriteStream(artworkFile))
+				.once('end', () => fs.utimes(artworkFile, new Date(), this.releaseDate));
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
+			let seasonNumberFormat = '%year%%month%';
+			let episodeNumberFormat = '%day%%hour%%minute%%second%';
+			const seRegEx = new RegExp(' - S(.+)E(.+) - ', '');
+			const xRegEx = new RegExp(' - (.+)X(.+) - ', 'i');
+			const seMatch = seRegEx.exec(settings.filePathFormatting);
+			const xMatch = xRegEx.exec(settings.filePathFormatting);
+			if (seMatch !== null) {
+				seasonNumberFormat = seMatch[1];
+				episodeNumberFormat = seMatch[2];
+			} else if (xMatch !== null) {
+				seasonNumberFormat = xMatch[1];
+				episodeNumberFormat = xMatch[2];
+			}
 			const nfo = builder
 				.create('episodedetails')
 				.ele('title')
@@ -111,53 +137,67 @@ export default class Video {
 				.ele('description')
 				.text(htmlToText(this.description))
 				.up()
-				.ele('aired')
-				.text(this.releaseDate.toString())
+				.ele('plot') // Kodi/Plex NFO format uses `plot` as the episode description
+				.text(htmlToText(this.description))
+				.up()
+				.ele('aired') // format: yyyy-mm-dd required for Kodi/Plex
+				.text(this.releaseDate.getFullYear().toString() + '-' + nPad(this.releaseDate.getMonth() + 1) + '-' + nPad(this.releaseDate.getDate()))
 				.up()
 				.ele('season')
-				.text('1')
+				.text(this.formatString(seasonNumberFormat))
 				.up()
 				.ele('episode')
-				.text(this.channel.lookupVideoDB(this.guid).episodeNo.toString())
+				.text(this.formatString(episodeNumberFormat))
 				.up()
 				.end({ pretty: true });
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, 'utf8');
+			await fs.utimes(`${this.filePath}.nfo`, new Date(), this.releaseDate);
 		}
 
-		// Handle download resumption if video was partially downloaded
 		let writeStreamOptions, requestOptions, downloadedBytes;
-		if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.downloadedBytes()) !== -1) {
-			[writeStreamOptions, requestOptions] = [{ start: downloadedBytes, flags: 'r+' }, { headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }];
+		// Download resumption is not currently supported for multi part videos...
+		if (this.videoAttachments.length === 1) {
+			// Handle download resumption if video was partially downloaded
+			if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.fileBytes('partial')) !== -1) {
+				[writeStreamOptions, requestOptions] = [{ start: downloadedBytes, flags: 'r+' }, { headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }];
+			}
 		}
 
-		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-		const cdnInfo = await fApi.cdn.delivery('download', this.videoAttachments[0]);
+		let downloadRequests = [];
+		for (const i in this.videoAttachments) {
+			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
+			const cdnInfo = await fApi.cdn.delivery('download', this.videoAttachments[i]);
 
-		// Pick a random edge to download off, eventual even distribution
-		const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
+			// Pick a random edge to download off, eventual even distribution
+			const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
+			if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
 
-		// Convert the qualities into an array of resolutions
-		const avalibleQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name);
+			// Convert the qualities into an array of resolutions and sorts them smallest to largest
+			const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name).sort((a, b) => +b - +a);
 
-		// Set the quality to use based on whats given in the settings.json or the highest avalible
-		const downloadQuality = avalibleQualities.includes(quality) ? quality : avalibleQualities[avalibleQualities.length - 1];
+			// Set the quality to use based on whats given in the settings.json or the highest available
+			const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[availableQualities.length - 1];
 
-		const downloadRequest = fApi.got.stream(
-			`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace('{qualityLevels}', downloadQuality).replace('{token}', cdnInfo.resource.data.token)}`,
-			requestOptions
-		);
-		// Pipe the download to the file once response starts
-		downloadRequest.pipe(createWriteStream(`${this.filePath}.partial`, writeStreamOptions));
-		// Set the videos expectedSize once we know how big it should be for download validation.
-		if (this.expectedSize === undefined) downloadRequest.once('downloadProgress', (progress) => (this.expectedSize = progress.total));
+			const downloadRequest = fApi.got.stream(
+				`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace('{qualityLevels}', downloadQuality).replace('{token}', cdnInfo.resource.data.token)}`,
+				requestOptions
+			);
+			// Pipe the download to the file once response starts
+			downloadRequest.pipe(createWriteStream(`${this.filePath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
+			// Set the videos expectedSize once we know how big it should be for download validation.
+			if (this.expectedSize === undefined) downloadRequest.once('downloadProgress', (progress) => (this.expectedSize = progress.total));
+			downloadRequests.push(downloadRequest);
+		}
 
-		return downloadRequest;
+		return downloadRequests;
 	}
 
 	public async markCompleted(): Promise<void> {
 		if (!(await this.isMuxed()))
 			throw new Error(
-				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.muxedBytes()} bytes...`
+				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(
+					'mp4'
+				)} bytes...`
 			);
 		return this.channel.markVideoCompleted(this.guid, this.releaseDate.toString());
 	}
@@ -165,47 +205,54 @@ export default class Video {
 	public async muxffmpegMetadata(): Promise<void> {
 		if (!this.isDownloaded())
 			throw new Error(
-				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.downloadedBytes()} bytes...`
+				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes('partial')} bytes...`
 			);
-		await new Promise((resolve, reject) =>
-			execFile(
-				'./db/ffmpeg',
-				[
-					'-i',
-					`${this.filePath}.partial`,
-					'-metadata',
-					`title=${this.title}`,
-					'-metadata',
-					`AUTHOR=${this.channel.title}`,
-					'-metadata',
-					`YEAR=${this.releaseDate}`,
-					'-metadata',
-					`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
-					'-metadata',
-					`description=${htmlToText(this.description)}`,
-					'-metadata',
-					`synopsis=${htmlToText(this.description)}`,
-					'-c:a',
-					'copy',
-					'-c:v',
-					'copy',
-					`${this.filePath}.mp4`,
-				],
-				(error, stdout) => {
-					if (error !== null) reject(error);
-					else resolve(stdout);
-				}
+		await Promise.all(
+			this.videoAttachments.map(
+				(a, i) =>
+					new Promise((resolve, reject) =>
+						execFile(
+							args.headless === true ? './ffmpeg' : './db/ffmpeg',
+							[
+								'-i',
+								`${this.filePath}${this.multiPartSuffix(i)}.partial`,
+								'-metadata',
+								`title=${this.title}${this.multiPartSuffix(i)}`,
+								'-metadata',
+								`AUTHOR=${this.channel.title}`,
+								'-metadata',
+								`YEAR=${this.releaseDate}`,
+								'-metadata',
+								`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
+								'-metadata',
+								`description=${htmlToText(this.description)}`,
+								'-metadata',
+								`synopsis=${htmlToText(this.description)}`,
+								'-c:a',
+								'copy',
+								'-c:v',
+								'copy',
+								`${this.filePath}${this.multiPartSuffix(i)}.mp4`,
+							],
+							(error, stdout) => {
+								if (error !== null) reject(error);
+								else resolve(stdout);
+							}
+						)
+					)
 			)
 		);
-		this.expectedSize = await this.muxedBytes();
+		this.expectedSize = await this.fileBytes('mp4');
 		await this.markCompleted();
-		await fs.unlink(`${this.filePath}.partial`);
-		// Set the files update time to when the video was released
-		await fs.utimes(`${this.filePath}.mp4`, new Date(), this.releaseDate);
+		for (const i in this.videoAttachments) {
+			await fs.unlink(`${this.filePath}${this.multiPartSuffix(i)}.partial`);
+			// Set the files update time to when the video was released
+			await fs.utimes(`${this.filePath}${this.multiPartSuffix(i)}.mp4`, new Date(), this.releaseDate);
+		}
 	}
 
 	public async postProcessingCommand(): Promise<void> {
 		const result = await exec(this.formatString(settings.postProcessingCommand));
-		if (result.stderr !== undefined) throw new Error(result.stderr);
+		if (result.stderr !== '') throw new Error(result.stderr);
 	}
 }

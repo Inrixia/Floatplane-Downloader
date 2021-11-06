@@ -4,7 +4,7 @@ import db from '@inrixia/db';
 
 export const fHistory = db<{
 	'59f94c0bdd241b70349eb72b': BlogPost[];
-}>('./db/fHistory.json', { pretty: false, forceCreate: false });
+}>('./db/fHistory.json');
 
 // (async () => {
 // 	const subscriptions = await fApi.user.subscriptions();

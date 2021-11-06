@@ -67,7 +67,9 @@ export default class Subscription {
 					if ((video[identifierType] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
 						if (overrideSkip === false && channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(identifier.check, '').trim();
+						const idCheck = identifier.check.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+						const regIDCheck = new RegExp(idCheck, 'i');
+						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, '').trim();
 						return channel.addVideo(video);
 					}
 				}
@@ -77,7 +79,7 @@ export default class Subscription {
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, ignoreBeforeTimestamp: number | false): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos = [];
@@ -99,7 +101,9 @@ export default class Subscription {
 		for (const video of videos
 			.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
 			.map((video) => this.addVideo(video, false, stripSubchannelPrefix))) {
-			if (video !== null && !(await video.isMuxed())) incompleteVideos.push(video);
+			if (video === null || (await video.isMuxed())) continue;
+			if (ignoreBeforeTimestamp !== false && new Date(video.releaseDate).getTime() < ignoreBeforeTimestamp) continue;
+			incompleteVideos.push(video);
 		}
 		process.stdout.write(` Skipped ${videos.length - incompleteVideos.length}.\n`);
 		return incompleteVideos;

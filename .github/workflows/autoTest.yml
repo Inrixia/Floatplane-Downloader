@@ -1,0 +1,21 @@
+---
+name: 'Compile TS'
+
+on:
+ pull_request:
+  types: ['opened', 'edited', 'reopened', 'synchronize', 'ready_for_review', 'review_requested']
+
+jobs:
+ TSC:
+  name: 'Compile TS'
+  runs-on: 'ubuntu-latest'
+
+  steps:
+   - uses: actions/checkout@v2
+   - name: 'Install dependencies'
+     run: |
+      npm install
+
+   - name: 'Compile'
+     run: |
+      npm run prestart
