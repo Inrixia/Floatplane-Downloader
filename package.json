@@ -16,6 +16,7 @@
 		"@ctrl/plex": "^1.5.3",
 		"@inrixia/db": "^1.8.0",
 		"@inrixia/helpers": "^1.22.3",
+		"chalk": "^4.1.2",
 		"ffbinaries": "^1.1.4",
 		"floatplane": "^3.1.8",
 		"got": "^11.8.2",

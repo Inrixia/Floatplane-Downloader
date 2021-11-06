@@ -8,6 +8,7 @@ import { deleteOldVideos } from './lib/deleteOldVideos';
 import Downloader from './Downloader';
 import { gt, diff } from 'semver';
 import { resolve } from 'path';
+import chalk from 'chalk';
 
 import type Subscription from './lib/Subscription';
 
@@ -33,7 +34,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
 			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
 		}
-		process.stdout.write('\u001b[36mDone!\u001b[0m\n\n');
+		process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 	}
 };
 
@@ -48,9 +49,9 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 
 	if (gt(latest.version, version))
 		console.log(
-			`There is a ${diff(latest.version, version)} update available! ${version} > ${
+			chalk`There is a ${diff(latest.version, version)} update available! ${version} > ${
 				latest.version
-			}.\nHead to \u001b[36mhttps://github.com/Inrixia/Floatplane-Downloader/releases\u001b[0m to update!\n`
+			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`
 		);
 
 	await fetchFFMPEG();
@@ -59,12 +60,13 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	settings.runQuickstartPrompts = false;
 
 	if (settings.daysToKeepVideos !== -1) {
-		// TODO format with colors using chalk
 		const rootVideoFolder = resolve(settings.filePathFormatting.split('%')[0]);
-		process.stdout.write(`Checking for files older than ${settings.daysToKeepVideos} days in ${rootVideoFolder} for deletion...`);
+		process.stdout.write(
+			chalk`Checking for files older than {cyanBright ${settings.daysToKeepVideos}} days in {yellow ${rootVideoFolder}} for {redBright deletion}...`
+		);
 		const deleted = await deleteOldVideos(rootVideoFolder, settings.daysToKeepVideos);
 		if (deleted === 0) console.log(' No files found for deletion.\n');
-		else console.log(` Deleted ${deleted} files.\n`);
+		else console.log(chalk` Deleted {redBright ${deleted}} files.\n`);
 	}
 
 	// Get Plex details if not saved
@@ -79,7 +81,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 
 	process.stdout.write('> Fetching user subscriptions... ');
 	const subscriptions = await fetchSubscriptions();
-	process.stdout.write('\u001b[36mDone!\u001b[0m\n\n');
+	process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 
 	const downloader = new Downloader();
 	downloader.start();
