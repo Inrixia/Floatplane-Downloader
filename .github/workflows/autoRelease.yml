@@ -1,10 +1,10 @@
 ---
-name: 'dev Build'
+name: 'Release'
 
 on:
  push:
   branches:
-   - 'dev'
+   - 'master'
 
 jobs:
  GitHub:
@@ -25,6 +25,7 @@ jobs:
      uses: 'marvinpinto/action-automatic-releases@latest'
      with:
       repo_token: '${{ secrets.GITHUB_TOKEN }}'
+      automatic_release_tag: 'latest'
       draft: true
       title: 'Latest Release'
       files: |
