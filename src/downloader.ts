@@ -13,21 +13,12 @@ const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
 
 export default class Downloader {
 	private mpb?: MultiProgressBars;
-	private videoQueue: Array<{ video: Video; res: promiseFunction }>;
-	private videosProcessing: number;
-	private videosProcessed: number;
-	private downloadStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } };
+	private videoQueue: Array<{ video: Video; res: promiseFunction }> = [];
+	private videosProcessing: number = 0;
+	private videosProcessed: number = 0;
+	private downloadStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } } = {};
 
-	private runQueue: boolean;
-
-	constructor() {
-		this.videoQueue = [];
-		this.videosProcessing = 0;
-		this.videosProcessed = 0;
-		this.downloadStats = {};
-
-		this.runQueue = false;
-	}
+	private runQueue: boolean = false;
 
 	start(): void {
 		if (this.runQueue === false) {
@@ -171,7 +162,12 @@ export default class Downloader {
 				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
 				if (info.message.indexOf('Range Not Satisfiable')) await this.processVideo(video, ++retries, false);
 				else await this.processVideo(video, ++retries);
-			} else this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` }, true);
+			} else
+				this.updateBar(
+					formattedTitle,
+					{ message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` },
+					true
+				);
 		}
 	}
 }
