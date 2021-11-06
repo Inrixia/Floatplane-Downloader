@@ -71,8 +71,8 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		const waitLoop = async () => {
 			await fetchNewVideos(subscriptions, downloader);
 			setTimeout(waitLoop, 5 * 60 * 1000);
+			console.log('Checking for new videos in 5 minutes...');
 		};
-		process.stdout.write('Checking for new videos everyy 5 minutes... ');
 		waitLoop();
 	} else downloader.stop();
 })().catch((err) => {
