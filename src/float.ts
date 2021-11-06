@@ -21,7 +21,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 				await subscription.fetchNewVideos(
 					settings.floatplane.videosToSearch,
 					settings.extras.stripSubchannelPrefix,
-					Date.now() - settings.daysToKeepVideos * 24 * 60 * 60 * 1000
+					settings.daysToKeepVideos !== -1 ? Date.now() - settings.daysToKeepVideos * 24 * 60 * 60 * 1000 : false
 				)
 			)
 		);

@@ -79,7 +79,7 @@ export default class Subscription {
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, ignoreBeforeTimestamp: number): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, ignoreBeforeTimestamp: number | false): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos = [];
@@ -102,7 +102,7 @@ export default class Subscription {
 			.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
 			.map((video) => this.addVideo(video, false, stripSubchannelPrefix))) {
 			if (video === null || (await video.isMuxed())) continue;
-			if (new Date(video.releaseDate).getTime() < ignoreBeforeTimestamp) continue;
+			if (ignoreBeforeTimestamp !== false && new Date(video.releaseDate).getTime() < ignoreBeforeTimestamp) continue;
 			incompleteVideos.push(video);
 		}
 		process.stdout.write(` Skipped ${videos.length - incompleteVideos.length}.\n`);
