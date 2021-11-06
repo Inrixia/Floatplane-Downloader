@@ -68,12 +68,12 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	await fetchNewVideos(subscriptions, downloader);
 
 	if (settings.floatplane.waitForNewVideos === true) {
-		fApi.sails.on('syncEvent', (syncEvent) => {
-			if (syncEvent.event === 'postRelease') fetchNewVideos(subscriptions, downloader);
-		});
-
-		process.stdout.write('Connecting to floatplane notifications for new videos... ');
-		process.stdout.write(`${(await fApi.sails.connect()).message}\n`);
+		const waitLoop = async () => {
+			await fetchNewVideos(subscriptions, downloader);
+			setTimeout(waitLoop, 5 * 60 * 1000);
+		};
+		process.stdout.write('Checking for new videos everyy 5 minutes... ');
+		waitLoop();
 	} else downloader.stop();
 })().catch((err) => {
 	console.error('An error occurred!');
