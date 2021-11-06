@@ -26,6 +26,15 @@ Sets the maximum amount of downloads that can run concurrently. Default's to -1 
 
 <br>
 
+**daysToKeepVideos**:<br>
+Number of days to keep videos. Default's to -1 which is unlimited, 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted.<br>
+
+```json
+"daysToKeepVideos": -1
+```
+
+<br>
+
 ## Floatplane
 
 **floatplane.videosToSearch**:<br>
