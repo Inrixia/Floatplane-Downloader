@@ -11,11 +11,13 @@ Both downloading videos as they release and archiving the entire backlog is supp
 This requires a **[Floatplane](http://floatplane.com)** subscription.<br>
 <br><br>
 Thank you to everyone who has contributed to the project, you can see these amazing people on the right **>>**<br>
-If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) <3
+If you like the project, and want to support me can to throw some bits at my [PayPal](https://www.paypal.com/donate?business=XZX2VLBCVA766&currency_code=NZD) ❤️
 <br>
 
 If you encounter any issues please **[create a issue](https://github.com/Inrixia/Floatplane-Downloader/issues/new)**. Feel free to also ping me on our **[Discord](https://discord.gg/aNTyMME)**
 <br>
+
+If you want to **contribute** please work on the `dev` branch and not `master` for pull requests
 
 # Install Guide
 Looking for **Docker**?<br>
