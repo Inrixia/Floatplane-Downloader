@@ -99,6 +99,10 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 					check: 'CC: ',
 					type: 'title',
 				},
+				{
+					check: 'TJM: ',
+					type: 'title',
+				},
 			],
 		},
 		ShortCircuit: {
