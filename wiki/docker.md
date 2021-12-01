@@ -16,6 +16,7 @@ There is a interactive series of console prompts to help you setup the downloade
     	-v [path]:/fp/videos \
     	-e headless="true" \
     	-e runQuickstartPrompts=true \
+    	--restart unless-stopped \
         inrix/floatplane-downloader
 
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
@@ -27,6 +28,7 @@ There is a interactive series of console prompts to help you setup the downloade
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
     	-e headless="true" \
+    	--restart unless-stopped \
         inrixia/floatplane-downloader
 
 <br>
@@ -44,6 +46,7 @@ Setting environment variables allows you to pass in your login details, removing
     	-e username="YourUsernameHere" \
     	-e password="YourPasswordHere" \
     	-e token="Your2FactorCodeHere" \
+    	--restart unless-stopped \
     	inrix/floatplane-downloader
 
 **For login + plex:**
@@ -56,6 +59,7 @@ Setting environment variables allows you to pass in your login details, removing
     	-e password="YourPasswordHere" \
     	-e plexUsername="YourPlexUsernameHere" \
     	-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
+    	--restart unless-stopped \
     	inrix/floatplane-downloader
 
 You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.<br>
@@ -69,4 +73,5 @@ To do this you must take the key for the setting in the settings.json and write 
     	-e headless="true" \
     	-e floatplane_videoResolution="1080" \
     	-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
+    	--restart unless-stopped \
     	inrix/floatplane-downloader
