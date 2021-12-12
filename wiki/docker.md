@@ -27,7 +27,7 @@ There is a interactive series of console prompts to help you setup the downloade
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
     	-e headless="true" \
-        inrixia/floatplane-downloader
+        inrix/floatplane-downloader
 
 <br>
 
