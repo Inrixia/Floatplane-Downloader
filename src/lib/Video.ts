@@ -16,7 +16,6 @@ import { fApi } from './FloatplaneAPI';
 
 import type { FilePathFormattingOptions } from './types';
 import type { BlogPost } from 'floatplane/creator';
-import type Request from 'got/dist/source/core';
 import type Channel from './Channel';
 
 export default class Video {
@@ -97,7 +96,7 @@ export default class Video {
 	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes('partial')) === this.expectedSize;
 	public isMuxed = async (): Promise<boolean> => (await this.fileBytes('mp4')) === this.expectedSize;
 
-	public async download(quality: string, allowRangeQuery = true): Promise<Request[]> {
+	public async download(quality: string, allowRangeQuery = true): Promise<ReturnType<typeof fApi.got.stream>[]> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
