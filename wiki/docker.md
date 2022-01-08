@@ -28,8 +28,8 @@ There is a interactive series of console prompts to help you setup the downloade
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
     	-e headless="true" \
-    	--restart unless-stopped \
-        inrixia/floatplane-downloader
+        --restart unless-stopped \
+        inrix/floatplane-downloader
 
 <br>
 
