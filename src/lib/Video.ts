@@ -154,13 +154,14 @@ export default class Video {
 		}
 
 		let writeStreamOptions, requestOptions, downloadedBytes;
-		// Download resumption is not currently supported for multi part videos...
-		if (this.videoAttachments.length === 1) {
-			// Handle download resumption if video was partially downloaded
-			if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.fileBytes('partial')) !== -1) {
-				[writeStreamOptions, requestOptions] = [{ start: downloadedBytes, flags: 'r+' }, { headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }];
-			}
-		}
+		// Disable download resumption as floatplane has a poor history of edges failing to support it causing issues
+		// // Download resumption is not currently supported for multi part videos...
+		// if (this.videoAttachments.length === 1) {
+		// 	// Handle download resumption if video was partially downloaded
+		// 	if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.fileBytes('partial')) !== -1) {
+		// 		[writeStreamOptions, requestOptions] = [{ start: downloadedBytes, flags: 'r+' }, { headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }];
+		// 	}
+		// }
 
 		let downloadRequests = [];
 		for (const i in this.videoAttachments) {
@@ -201,6 +202,10 @@ export default class Video {
 		return this.channel.markVideoCompleted(this.guid, this.releaseDate.toString());
 	}
 
+	get ffmpegDesc() {
+		return htmlToText(this.description);
+	}
+
 	public async muxffmpegMetadata(): Promise<void> {
 		if (!this.isDownloaded())
 			throw new Error(
@@ -220,22 +225,25 @@ export default class Video {
 								'-metadata',
 								`AUTHOR=${this.channel.title}`,
 								'-metadata',
-								`YEAR=${this.releaseDate}`,
+								`YEAR=${this.releaseDate.getFullYear().toString()}`,
 								'-metadata',
 								`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
 								'-metadata',
-								`description=${htmlToText(this.description)}`,
+								`description=${this.ffmpegDesc}`,
 								'-metadata',
-								`synopsis=${htmlToText(this.description)}`,
+								`synopsis=${this.ffmpegDesc}`,
 								'-c:a',
 								'copy',
 								'-c:v',
 								'copy',
 								`${this.filePath}${this.multiPartSuffix(i)}.mp4`,
 							],
-							(error, stdout) => {
-								if (error !== null) reject(error);
-								else resolve(stdout);
+							(error, stdout, stderr) => {
+								if (error !== null) {
+									error.message ??= '';
+									error.message += stderr;
+									reject(error);
+								} else resolve(stdout);
 							}
 						)
 					)
