@@ -26,15 +26,6 @@ Sets the maximum amount of downloads that can run concurrently. Default's to -1 
 
 <br>
 
-**daysToKeepVideos**:<br>
-Number of days to keep videos. Default's to -1 which is unlimited, 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted.<br>
-
-```json
-"daysToKeepVideos": -1
-```
-
-<br>
-
 ## Floatplane
 
 **floatplane.videosToSearch**:<br>
@@ -233,6 +224,9 @@ A **channel** is made up of a `title`, `skip`, an array of `identifiers` and `co
 `skip` can be set to true to skip downloading videos matched on the given channel.<br>
 `identifiers` specify the conditions for a video to be added to a channel.<br>
 `consoleColor` is optional and is used for having colors in console output for seperate channels.<br>
+`daysToKeepVideos` is the number of days to keep videos for this channe. Default's to -1 which is unlimited, 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted if previously downloaded.
+
+<br>
 <br>
 
 An Identifier contains two entries `check` and `type`.<br>
@@ -252,7 +246,8 @@ For example:
             "type": "title"
         }
     ],
-    "consoleColor": "\u001b[38;5;200m"
+    "consoleColor": "\u001b[38;5;200m",
+    "daysToKeepVideos": -1
 }
 ```
 

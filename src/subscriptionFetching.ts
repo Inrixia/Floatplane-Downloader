@@ -25,6 +25,7 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> =>
 					title: titleAlias,
 					skip: false,
 					identifiers: false,
+					daysToKeepVideos: -1,
 				};
 			return new Subscription(settings.subscriptions[subscription.creator]);
 		})

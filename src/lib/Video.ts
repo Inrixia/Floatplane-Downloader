@@ -199,7 +199,7 @@ export default class Video {
 					'mp4'
 				)} bytes...`
 			);
-		return this.channel.markVideoCompleted(this.guid, this.releaseDate.toString());
+		return this.channel.markVideoCompleted(this.guid, this.releaseDate.getTime());
 	}
 
 	get ffmpegDesc() {

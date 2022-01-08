@@ -8,18 +8,17 @@ import type Video from './Video';
 
 type LastSeenVideo = {
 	guid: BlogPost['guid'];
-	releaseDate: BlogPost['releaseDate'];
+	releaseDate: number;
 };
 type SubscriptionDB = {
 	lastSeenVideo: LastSeenVideo;
-	videos: BlogPost[];
 };
 
 export default class Subscription {
 	public channels: Channel[];
 	public defaultChannel: Channel;
 
-	public creatorId: string;
+	public readonly creatorId: string;
 
 	private _db: SubscriptionDB;
 	constructor(subscription: SubscriptionSettings) {
@@ -31,7 +30,7 @@ export default class Subscription {
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
 		try {
-			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: '', releaseDate: '' }, videos: [] } });
+			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: '', releaseDate: 0 } } });
 		} catch {
 			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
@@ -42,15 +41,18 @@ export default class Subscription {
 	}
 
 	public updateLastSeenVideo(videoSeen: LastSeenVideo): void {
-		if (this.lastSeenVideo.releaseDate === '' || new Date(videoSeen.releaseDate) > new Date(this.lastSeenVideo.releaseDate)) this._db.lastSeenVideo = videoSeen;
+		if (videoSeen.releaseDate > this.lastSeenVideo.releaseDate) this._db.lastSeenVideo = videoSeen;
 	}
+
+	public deleteOldVideos = async () => {
+		for (const channel of this.channels) await channel.deleteOldVideos();
+	};
 
 	/**
 	 * @param {fApiVideo} video
 	 */
 	public addVideo(video: BlogPost, overrideSkip: true, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']>;
 	public addVideo(video: BlogPost, overrideSkip?: false, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']> | null;
-
 	public addVideo(video: BlogPost, overrideSkip = false, stripSubchannelPrefix = true): ReturnType<Channel['addVideo']> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
@@ -79,7 +81,7 @@ export default class Subscription {
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, ignoreBeforeTimestamp: number | false): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos = [];
@@ -91,9 +93,8 @@ export default class Subscription {
 				// If we have found the last seen video, check if its downloaded.
 				// If it is then break here and return the videos we have found.
 				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
-				const isDownloaded = await this.addVideo(video, true, stripSubchannelPrefix).isDownloaded();
-				if (!isDownloaded) this.lastSeenVideo.guid = '';
-				else break;
+				const channelVideo = this.addVideo(video, true, stripSubchannelPrefix);
+				if (channelVideo === null || channelVideo.isDownloaded()) break;
 			}
 			// Stop searching if we have looked through videosToSearch
 			if (videos.length >= videosToSearch) break;
@@ -107,7 +108,6 @@ export default class Subscription {
 			.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
 			.map((video) => this.addVideo(video, false, stripSubchannelPrefix))) {
 			if (video === null || (await video.isMuxed())) continue;
-			if (ignoreBeforeTimestamp !== false && new Date(video.releaseDate).getTime() < ignoreBeforeTimestamp) continue;
 			incompleteVideos.push(video);
 		}
 		process.stdout.write(` Skipped ${videos.length - incompleteVideos.length}.\n`);
