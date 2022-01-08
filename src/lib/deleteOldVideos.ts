@@ -12,7 +12,7 @@ export const deleteOldVideos = async (rootVideoFolder: string, daysToKeepVideos:
 			if (await stats.isDirectory()) await recursiveDelete(filePath);
 			else if (stats.mtime.getTime() < Date.now() - daysToKeepVideos * 24 * 60 * 60 * 1000) {
 				if (!(filePath.endsWith('.mp4') || filePath.endsWith('.nfo') || filePath.endsWith('.png'))) {
-					console.log(`\n\n!!WARNING!! - Found file for deletion in ${rootVideoFolder} that is not a mp4, nfo or png file!`);
+					console.log(`\n\n!!WARNING!! - Found file "${filePath}" for deletion in ${rootVideoFolder} that is not a mp4, nfo or png file!`);
 					console.log('This could indicate that the root video folder is not being detected properly.');
 					console.log('Please report this as a Issue at https://github.com/Inrixia/Floatplane-Downloader/issues/new');
 					process.exit(0);
