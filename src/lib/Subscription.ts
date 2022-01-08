@@ -88,10 +88,15 @@ export default class Subscription {
 
 		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: 'video' })) {
 			if (video.guid === this.lastSeenVideo.guid) {
-				if (!(await this.addVideo(video, true, stripSubchannelPrefix).isDownloaded())) this.lastSeenVideo.guid = '';
+				// If we have found the last seen video, check if its downloaded.
+				// If it is then break here and return the videos we have found.
+				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
+				const isDownloaded = await this.addVideo(video, true, stripSubchannelPrefix).isDownloaded();
+				if (!isDownloaded) this.lastSeenVideo.guid = '';
 				else break;
 			}
-			if (this.lastSeenVideo.guid === '' && videos.length >= videosToSearch) break;
+			// Stop searching if we have looked through videosToSearch
+			if (videos.length >= videosToSearch) break;
 			videos.push(video);
 			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
