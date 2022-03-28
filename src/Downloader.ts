@@ -71,12 +71,13 @@ export default class Downloader {
 		);
 		// (videos remaining * avg time to download a video)
 		const totalVideos = this.videoQueue.length + this.videosProcessed + this.videosProcessing;
-		const whitespace = '                        ';
-		const processed = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}${whitespace}`;
-		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + 'MB')}${whitespace}`;
-		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + 'Mb/s')}${whitespace}`;
-		process.stdout.write('                                                         ');
-		process.stdout.write(`\n${processed}\n${downloaded}\n${speed}\n\n\n`);
+		const processed = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}`;
+		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + 'MB')}`;
+		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + 'Mb/s')}`;
+		this.mpb?.setFooter({
+			message: `${processed}    ${downloaded}    ${speed}`,
+			pattern: '',
+		});
 	}
 
 	/**
@@ -124,7 +125,7 @@ export default class Downloader {
 
 				await Promise.all(
 					downloadRequests.map(async (request, i) => {
-						request.on('downloadProgress', (downloadProgress) => {
+						request.on('downloadProgress', (downloadProgress: { total: number; transferred: number; percent: number }) => {
 							const timeElapsed = (Date.now() - startTime) / 1000;
 
 							totalBytes[i] = downloadProgress.total;

@@ -8,6 +8,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: false,
 			consoleColor: '\u001b[38;5;10m',
+			daysToKeepVideos: -1,
 		},
 	},
 	'BitWit Ultr': {
@@ -16,6 +17,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: false,
 			consoleColor: '\u001b[38;5;105m',
+			daysToKeepVideos: -1,
 		},
 	},
 	'Linus Tech Tips': {
@@ -24,6 +26,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			skip: false,
 			identifiers: false,
 			consoleColor: '\u001b[38;5;208m',
+			daysToKeepVideos: -1,
 		},
 		'Mac Address': {
 			title: 'Mac Address',
@@ -35,6 +38,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;189m',
+			daysToKeepVideos: -1,
 		},
 		'Floatplane Exclusive': {
 			title: 'Floatplane Exclusive',
@@ -46,6 +50,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;200m',
+			daysToKeepVideos: -1,
 		},
 		TalkLinked: {
 			title: 'TalkLinked',
@@ -57,6 +62,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[36m',
+			daysToKeepVideos: -1,
 		},
 		TechLinked: {
 			title: 'TechLinked',
@@ -68,6 +74,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;14m',
+			daysToKeepVideos: -1,
 		},
 		'TechLinked Shorts': {
 			title: 'TechLinked Shorts',
@@ -79,6 +86,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;14m',
+			daysToKeepVideos: -1,
 		},
 		TechQuickie: {
 			title: 'TechQuickie',
@@ -90,6 +98,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;153m',
+			daysToKeepVideos: -1,
 		},
 		'Carpool Critics': {
 			title: 'Carpool Critics',
@@ -99,7 +108,12 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 					check: 'CC: ',
 					type: 'title',
 				},
+				{
+					check: 'TJM: ',
+					type: 'title',
+				},
 			],
+			daysToKeepVideos: -1,
 		},
 		ShortCircuit: {
 			title: 'ShortCircuit',
@@ -110,6 +124,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 					type: 'title',
 				},
 			],
+			daysToKeepVideos: -1,
 		},
 		ChannelSuperFun: {
 			title: 'ChannelSuperFun',
@@ -121,6 +136,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;220m',
+			daysToKeepVideos: -1,
 		},
 		'LMG Livestream VODs': {
 			title: 'LMG Livestream VODs',
@@ -132,6 +148,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: '\u001b[38;5;208m',
+			daysToKeepVideos: -1,
 		},
 	},
 };
@@ -148,7 +165,6 @@ export const defaultArgs: Args = {
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	downloadThreads: -1,
-	daysToKeepVideos: -1,
 	floatplane: {
 		videosToSearch: 5,
 		videoResolution: '1080',
