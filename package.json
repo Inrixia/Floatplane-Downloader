@@ -20,7 +20,7 @@
 		"ffbinaries": "^1.1.4",
 		"floatplane": "^3.2.0",
 		"html-to-text": "^8.1.0",
-		"multi-progress-bars": "^4.2.0",
+		"multi-progress-bars": "^4.2.1",
 		"process.argv": "^0.6.0",
 		"prompts": "^2.4.2",
 		"sanitize-filename": "^1.6.3",

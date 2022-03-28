@@ -76,7 +76,7 @@ export default class Downloader {
 		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + 'Mb/s')}`;
 		this.mpb?.setFooter({
 			message: `${processed}    ${downloaded}    ${speed}`,
-			pattern: ' ',
+			pattern: '',
 		});
 	}
 
