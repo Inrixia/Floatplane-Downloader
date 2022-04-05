@@ -92,7 +92,13 @@ export default class Channel {
 		if (this.daysToKeepVideos !== -1 && releaseDate < this.ignoreBeforeTimestamp) return null;
 
 		// Set db info, have to instigate the db first before setting filepath
-		this._db.videos[video.guid] ??= { episodeNo: this._db.nextEpisodeNo++, releaseDate, filePath: '' };
+		if (this._db.videos[video.guid] === undefined) {
+			this._db.videos[video.guid] ??= {
+				episodeNo: this._db.nextEpisodeNo++,
+				releaseDate,
+				filePath: '',
+			};
+		}
 		const videoInstance = new Video(video, this);
 		this._db.videos[video.guid].filePath = videoInstance.filePath;
 
