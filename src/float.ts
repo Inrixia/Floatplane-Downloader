@@ -18,7 +18,11 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	for (const subscription of subscriptions) {
 		await subscription.deleteOldVideos();
 		console.log();
-		await Promise.all(videoProcessor.processVideos(await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix)));
+		await Promise.all(
+			videoProcessor.processVideos(
+				await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix, settings.floatplane.forceFullSearch)
+			)
+		);
 	}
 
 	if (settings.plex.enabled) {

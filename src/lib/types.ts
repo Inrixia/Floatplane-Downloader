@@ -73,6 +73,7 @@ export type Settings = {
 	floatplane: {
 		videoResolution: Resolution;
 		videosToSearch: number;
+		forceFullSearch: boolean;
 		waitForNewVideos: boolean;
 		_availableResolutions: Resolutions;
 		downloadEdge: string;

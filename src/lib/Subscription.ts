@@ -81,7 +81,7 @@ export default class Subscription {
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Array<Video>> {
 		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos = [];
@@ -89,7 +89,7 @@ export default class Subscription {
 		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
 		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: 'video' })) {
-			if (video.guid === this.lastSeenVideo.guid) {
+			if (!forceFullSearch && video.guid === this.lastSeenVideo.guid) {
 				// If we have found the last seen video, check if its downloaded.
 				// If it is then break here and return the videos we have found.
 				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.

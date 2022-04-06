@@ -39,6 +39,17 @@ Number of videos to search through when looking for undownloaded videos **per su
 
 <br>
 
+**floatplane.forceFullSearch**:<br>
+Force the downloader to search the full `videosToSearch` regardless of what has been downloaded. Note: Will not result in downloaded videos being redownloaded.<br>
+
+```json
+"floatplane": {
+    "forceFullSearch": true
+}
+```
+
+<br>
+
 **floatplane.videoResolution**:<br>
 Resolution to download the videos in. See `_availableResolutions` for options.<br>
 
