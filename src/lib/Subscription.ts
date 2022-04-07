@@ -103,14 +103,22 @@ export default class Subscription {
 		}
 
 		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
-		const incompleteVideos: Video[] = [];
-		for (const video of videos
-			.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
-			.map((video) => this.addVideo(video, false, stripSubchannelPrefix))) {
-			if (video === null || (await video.isMuxed())) continue;
-			incompleteVideos.push(video);
-		}
+		const incompleteVideos = (
+			await Promise.all(
+				videos
+					.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
+					.map(async (video) => {
+						const subVideo = this.addVideo(video, false, stripSubchannelPrefix);
+						if (subVideo === null) return null;
+						if ((await subVideo.isMuxed()) === true) return null;
+						return subVideo;
+					})
+			)
+		).filter(notNull);
 		process.stdout.write(` Skipped ${videos.length - incompleteVideos.length}.\n`);
 		return incompleteVideos;
 	}
 }
+
+// This is used to allow typescript to enforce strict type checking
+const notNull = <T>(value: T | null): value is T => value !== null;
