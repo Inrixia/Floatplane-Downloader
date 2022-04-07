@@ -176,7 +176,7 @@ export default class Video {
 			const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name).sort((a, b) => +b - +a);
 
 			// Set the quality to use based on whats given in the settings.json or the highest available
-			const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[availableQualities.length - 1];
+			const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[0];
 
 			const downloadRequest = fApi.got.stream(
 				`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace('{qualityLevels}', downloadQuality).replace('{token}', cdnInfo.resource.data.token)}`,
