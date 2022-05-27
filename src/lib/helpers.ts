@@ -12,11 +12,11 @@ recursiveUpdate(settings, defaultSettings);
 
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 rebuildTypes<PartialArgs, Settings & Args>(argv, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
+recursiveUpdate(settings, argv, { setUndefined: true, setDefined: true });
 
 const env = getEnv();
 rebuildTypes<PartialArgs, Settings & Args>(env, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
+recursiveUpdate(settings, env, { setUndefined: true, setDefined: true });
 
 export const args = { ...argv, ...env };
 
