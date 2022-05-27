@@ -6,6 +6,7 @@ import db from '@inrixia/db';
 import fs from 'fs';
 
 import 'dotenv/config';
+import { parse } from 'json5';
 
 import type { Args, PartialArgs, Settings } from './types';
 
@@ -18,6 +19,9 @@ recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 
 const env = getEnv();
 rebuildTypes<PartialArgs, Settings & Args>(env, { ...defaultSettings, ...defaultArgs });
+
+if (env.__FPDSettings !== undefined) recursiveUpdate(settings, parse(env.__FPDSettings.replaceAll('\\"', '"')), { setUndefined: false, setDefined: true });
+
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
 export const args = { ...argv, ...env };
