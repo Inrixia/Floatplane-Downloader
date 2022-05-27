@@ -8,6 +8,7 @@ There are two ways you can use enviroment variables to set settings:
 
 To do this you must take the key for the setting in the `settings.json` and write it with the dots **.** replaced with underscores **\_** you can see an example for the setting `floatplane.videoResolution` below:
 
+```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
@@ -16,10 +17,11 @@ To do this you must take the key for the setting in the `settings.json` and writ
     	-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
     	--restart unless-stopped \
     	inrix/floatplane-downloader
+```
 
 or in a .env file:
 
-```env
+```
 headless=true
 floatplane_videoResolution=1080
 ```

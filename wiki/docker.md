@@ -11,6 +11,7 @@
 
 There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
 
+```dockerfile
     $ docker run -it \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
@@ -18,18 +19,21 @@ There is a interactive series of console prompts to help you setup the downloade
     	-e runQuickstartPrompts=true \
     	--restart unless-stopped \
         inrix/floatplane-downloader
+```
 
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
 - Setting the Quickstart environment variable to true will create an interactive terminal to walk you through setting up the downloader.
 
 **After going through the Quickstart, run without quickstart prompts:**
 
+```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
     	-e headless="true" \
         --restart unless-stopped \
         inrix/floatplane-downloader
+```
 
 <br>
 
@@ -39,6 +43,7 @@ Setting environment variables allows you to pass in your login details, removing
 
 **For login:**
 
+```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
@@ -48,9 +53,11 @@ Setting environment variables allows you to pass in your login details, removing
     	-e token="Your2FactorCodeHere" \
     	--restart unless-stopped \
     	inrix/floatplane-downloader
+```
 
 **For login + plex:**
 
+```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
@@ -61,6 +68,7 @@ Setting environment variables allows you to pass in your login details, removing
     	-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
     	--restart unless-stopped \
     	inrix/floatplane-downloader
+```
 
 You can also use enviroment variables to set any config values which will be persisted.<br>
 For more info on advanced environment variables, please see **[Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)**
