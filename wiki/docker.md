@@ -62,16 +62,5 @@ Setting environment variables allows you to pass in your login details, removing
     	--restart unless-stopped \
     	inrix/floatplane-downloader
 
-You can also use enviroment variables to overwrite/set config values, though the config is persisted under db/config.json.<br>
-To do this you must take the key for the setting in the settings.json and write it with the dots **.** replaced with underscores **\_** you can see an example for the setting `floatplane.videoResolution` below:
-
-**For settings:**
-
-    $ docker run \
-    	-v [path]:/fp/db \
-    	-v [path]:/fp/videos \
-    	-e headless="true" \
-    	-e floatplane_videoResolution="1080" \
-    	-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
-    	--restart unless-stopped \
-    	inrix/floatplane-downloader
+You can also use enviroment variables to set any config values which will be persisted.<br>
+For more info on advanced environment variables, please see **[Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)**

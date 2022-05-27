@@ -5,7 +5,7 @@
 **Join our discord! [discord.gg/aNTyMME](https://discord.gg/aNTyMME)**
 <br>
 
-**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/). 
+**Floatplane Downloader** Automagically downloads the latest videos from [Floatplane](https://floatplane.com) and optionally formats them to be viewed in [Plex](https://www.plex.tv/).
 
 Both downloading videos as they release and archiving the entire backlog is supported!<br>
 This requires a **[Floatplane](http://floatplane.com)** subscription.<br>
@@ -20,6 +20,7 @@ If you encounter any issues please **[create a issue](https://github.com/Inrixia
 If you want to **contribute** please work on the `dev` branch and not `master` for pull requests
 
 # Install Guide
+
 Looking for **Docker**?<br>
 Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.docker.com/r/inrix/floatplane-downloader)** and see instructions at **[the wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)**!
 
@@ -30,14 +31,16 @@ Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.d
 3. **Profit?!**:<br>
    At this point you should be completely set-up and ready to go!<br>
    To start the downloader in the future all you need to do is run the binary.
-<br>
+   <br>
 
 For more info on setting up plex & available settings check out the Wikis:
 
 # Wikis:
-*  [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
-*  [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
-*  [Docker Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)
+
+- [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
+- [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
+- [Docker Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)
+- [Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)
 
 <br>
 
@@ -46,6 +49,7 @@ For more info on setting up plex & available settings check out the Wikis:
 <br>
 
 ### Images:
+
 ![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
 ![image](https://user-images.githubusercontent.com/6373693/115112389-69ff7100-9fd9-11eb-92e2-b83c3241627b.png)
 ![image](https://user-images.githubusercontent.com/6373693/115112394-6e2b8e80-9fd9-11eb-9c3d-ecaa3f87eb16.png)
