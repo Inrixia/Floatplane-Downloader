@@ -94,7 +94,7 @@ export default class Subscription {
 				// If it is then break here and return the videos we have found.
 				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
 				const channelVideo = this.addVideo(video, true, stripSubchannelPrefix);
-				if (channelVideo === null || channelVideo.isDownloaded()) break;
+				if (channelVideo === null || (await channelVideo.isDownloaded())) break;
 			}
 			// Stop searching if we have looked through videosToSearch
 			if (videos.length >= videosToSearch) break;
