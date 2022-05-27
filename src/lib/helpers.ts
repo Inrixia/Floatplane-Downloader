@@ -5,6 +5,8 @@ import ARGV from 'process.argv';
 import db from '@inrixia/db';
 import fs from 'fs';
 
+import 'dotenv/config';
+
 import type { Args, PartialArgs, Settings } from './types';
 
 export const settings = db<Settings>('./db/settings.json', { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
@@ -12,11 +14,11 @@ recursiveUpdate(settings, defaultSettings);
 
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 rebuildTypes<PartialArgs, Settings & Args>(argv, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, argv, { setUndefined: true, setDefined: true });
+recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 
 const env = getEnv();
 rebuildTypes<PartialArgs, Settings & Args>(env, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, env, { setUndefined: true, setDefined: true });
+recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
 export const args = { ...argv, ...env };
 

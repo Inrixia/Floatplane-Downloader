@@ -17,6 +17,7 @@
 		"@inrixia/db": "^1.8.0",
 		"@inrixia/helpers": "^1.23.1",
 		"chalk": "^4.1.2",
+		"dotenv": "^16.0.1",
 		"ffbinaries": "^1.1.4",
 		"floatplane": "^3.2.0",
 		"html-to-text": "^8.2.0",
