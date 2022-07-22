@@ -195,4 +195,5 @@ export const defaultSettings: Settings = {
 	},
 	subscriptions: {},
 	postProcessingCommand: '',
+	considerAllNonPartialDownloaded: false,
 };

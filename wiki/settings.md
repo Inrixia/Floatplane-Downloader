@@ -1,11 +1,9 @@
 # Settings Wiki
 
-![image](https://user-images.githubusercontent.com/6373693/115116213-953f8b80-9fec-11eb-9633-08518331aa27.png)<br>
-
 Defaults for any setting is defined in the **[Defaults File](https://github.com/Inrixia/Floatplane-Downloader/blob/master/src/lib/defaults.ts)**.<br>
 **You can find settings under /db/setttings.json**<br>
 Note: Settings can be set in settings.json, using environment variables or passed in as arguments.
-For more info on how this work see the section in environment variables in the **[Docker Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)**
+For more info on how this work see the section in environment variables in the **[Docker Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)** and **[Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)**
 <br><br>
 
 **runQuickstartPrompts**:<br>
@@ -165,6 +163,16 @@ Strings surounded by % will be replaced with their respective values.<br>
 
 ```json
 "postProcessingCommand": ""
+```
+
+<br>
+
+**considerAllNonPartialDownloaded**:<br>
+When this is set to true the downloader will skip size checks for non `.mp4` files.<br>
+This may result in files without muxed metadata and should only be used for recovery if your `db` is lost.<br>
+
+```json
+"considerAllNonPartialDownloaded": true
 ```
 
 <br>

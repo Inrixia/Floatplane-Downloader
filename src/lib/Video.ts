@@ -94,7 +94,12 @@ export default class Video {
 		return bytes;
 	};
 	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes('partial')) === this.expectedSize;
-	public isMuxed = async (): Promise<boolean> => (await this.fileBytes('mp4')) === this.expectedSize;
+	public isMuxed = async (): Promise<boolean> => {
+		const fileBytes = await this.fileBytes('mp4');
+		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
+		if (settings.considerAllNonPartialDownloaded) return fileBytes !== -1;
+		return fileBytes === this.expectedSize;
+	};
 
 	public async download(quality: string, allowRangeQuery = true): Promise<ReturnType<typeof fApi.got.stream>[]> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);

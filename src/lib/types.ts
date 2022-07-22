@@ -91,4 +91,5 @@ export type Settings = {
 	};
 	plex: PlexSettings;
 	postProcessingCommand: string;
+	considerAllNonPartialDownloaded: boolean;
 };

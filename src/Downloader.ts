@@ -115,7 +115,7 @@ export default class Downloader {
 
 		try {
 			// If the video is already downloaded then just mux its metadata
-			if (!(await video.isMuxed()) && !(await video.isDownloaded())) {
+			if (!(await video.isDownloaded())) {
 				const startTime = Date.now();
 				const downloadRequests = await video.download(settings.floatplane.videoResolution as string, allowRangeQuery);
 
