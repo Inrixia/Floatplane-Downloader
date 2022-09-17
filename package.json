@@ -2,26 +2,24 @@
 	"name": "floatplane-plex-downloader",
 	"version": "5.4.0",
 	"private": true,
-	"type": "module",
 	"scripts": {
 		"prep": "npm install && npm run build",
 		"prestart": "tsc",
 		"start": "node ./dist/float.js",
 		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
-		"buildLinux": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux",
-		"buildMac": "tsc && pkg ./dist/float.js --out-path=./build -t latest-mac",
-		"buildWin": "tsc && pkg ./dist/float.js --out-path=./build -t latest-win"
+		"build": "tsc && pkg ./dist/float.js --out-path=./build --no-bytecode --public -t latest-linux,latest-mac,latest-win --compress GZip",
+		"buildLinux": "tsc && pkg ./dist/float.js --no-bytecode --public --out-path=./build -t latest-linux",
+		"buildMac": "tsc && pkg ./dist/float.js --no-bytecode --public --out-path=./build -t latest-mac",
+		"buildWin": "tsc && pkg ./dist/float.js --no-bytecode --public --out-path=./build -t latest-win"
 	},
 	"dependencies": {
 		"@ctrl/plex": "^1.5.3",
-		"@inrixia/db": "^2.0.0",
+		"@inrixia/db": "1.9.1",
 		"@inrixia/helpers": "^1.23.4",
 		"chalk": "^5.0.1",
-		"default-import": "^1.1.5",
 		"dotenv": "^16.0.2",
 		"ffbinaries": "^1.1.4",
-		"floatplane": "^4.0.0",
+		"floatplane": "^4.0.2",
 		"html-to-text": "^8.2.1",
 		"json5": "^2.2.1",
 		"multi-progress-bars": "^4.3.1",
@@ -50,6 +48,7 @@
 		"@types/tough-cookie-file-store": "^2.0.1",
 		"@typescript-eslint/eslint-plugin": "^5.37.0",
 		"@typescript-eslint/parser": "^5.37.0",
+		"babel-cli": "^7.0.0-beta.3",
 		"eslint": "^8.23.1",
 		"eslint-plugin-prettier": "^4.2.1"
 	}

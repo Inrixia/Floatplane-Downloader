@@ -1,6 +1,6 @@
 import { loopError } from '@inrixia/helpers/object';
 import { floatplane, plex } from './lib/prompts/index.js';
-import { fApi } from './lib/FloatplaneAPI.js';
+import { fApi } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
 import { args } from './lib/helpers.js';
 

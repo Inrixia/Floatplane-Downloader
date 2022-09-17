@@ -1,5 +1,5 @@
 import { BlogPost } from 'floatplane/creator';
-import { fApi } from './FloatplaneAPI.js';
+import { fApi } from './helpers.js';
 import Channel from './Channel.js';
 import db from '@inrixia/db';
 

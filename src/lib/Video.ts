@@ -5,14 +5,13 @@ import fs from 'fs/promises';
 
 const exec = promisify(execCallback);
 
-import { settings, args } from './helpers.js';
+import { settings, args, fApi } from './helpers.js';
 
 import { htmlToText } from 'html-to-text';
 import sanitize from 'sanitize-filename';
 import builder from 'xmlbuilder';
 
 import { nPad } from '@inrixia/helpers/math';
-import { fApi } from './FloatplaneAPI.js';
 
 import type { FilePathFormattingOptions } from './types.js';
 import type { BlogPost } from 'floatplane/creator';

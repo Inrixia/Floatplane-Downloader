@@ -1,8 +1,7 @@
 import fs from 'fs/promises';
-import chalk from 'chalk';
-
 import db from '@inrixia/db';
 import Video from './Video.js';
+import { chalk } from '../lib/helpers.js';
 
 import type { BlogPost } from 'floatplane/creator';
 import type { ChannelOptions } from './types.js';

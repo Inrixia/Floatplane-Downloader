@@ -1,8 +1,7 @@
 import { loginFloatplane, loginPlex } from './logins.js';
 import { defaultResolutions } from './lib/defaults.js';
-import { args, settings } from './lib/helpers.js';
+import { args, settings, fApi } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
-import { fApi } from './lib/FloatplaneAPI.js';
 import * as prompts from './lib/prompts/index.js';
 
 import type { Extras } from './lib/types.js';
