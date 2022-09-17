@@ -1,15 +1,15 @@
-import { quickStart, validatePlexSettings } from './quickStart';
-import { fetchSubscriptions } from './subscriptionFetching';
-import { settings, fetchFFMPEG } from './lib/helpers';
+import { quickStart, validatePlexSettings } from './quickStart.js';
+import { fetchSubscriptions } from './subscriptionFetching.js';
+import { settings, fetchFFMPEG } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
-import { fApi } from './lib/FloatplaneAPI';
-import { loginFloatplane } from './logins';
-import Downloader from './Downloader';
+import { fApi } from './lib/FloatplaneAPI.js';
+import { loginFloatplane } from './logins.js';
+import Downloader from './Downloader.js';
 import { gt, diff } from 'semver';
 import { resolve } from 'path';
 import chalk from 'chalk';
 
-import type Subscription from './lib/Subscription';
+import type Subscription from './lib/Subscription.js';
 
 /**
  * Main function that triggeres everything else in the script

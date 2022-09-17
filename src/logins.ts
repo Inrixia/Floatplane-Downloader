@@ -1,8 +1,8 @@
 import { loopError } from '@inrixia/helpers/object';
-import { floatplane, plex } from './lib/prompts';
-import { fApi } from './lib/FloatplaneAPI';
+import { floatplane, plex } from './lib/prompts/index.js';
+import { fApi } from './lib/FloatplaneAPI.js';
 import { MyPlexAccount } from '@ctrl/plex';
-import { args } from './lib/helpers';
+import { args } from './lib/helpers.js';
 
 export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;
@@ -29,7 +29,7 @@ export const loginFloatplane = async (): Promise<void> => {
 			);
 		}
 	}
-	console.log(`\nSigned in as \u001b[36m${loginResponse.user.username}\u001b[0m!\n`);
+	if (loginResponse.user !== undefined) console.log(`\nSigned in as \u001b[36m${loginResponse.user.username}\u001b[0m!\n`);
 };
 
 export const loginPlex = async (): Promise<string> => {

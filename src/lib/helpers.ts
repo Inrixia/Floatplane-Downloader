@@ -1,14 +1,16 @@
 import { downloadBinaries, detectPlatform, getBinaryFilename } from 'ffbinaries';
 import { getEnv, rebuildTypes, recursiveUpdate } from '@inrixia/helpers/object';
-import { defaultArgs, defaultSettings } from './defaults';
-import ARGV from 'process.argv';
+import { defaultArgs, defaultSettings } from './defaults.js';
 import db from '@inrixia/db';
 import fs from 'fs';
+
+import { defaultImport } from 'default-import';
+const ARGV = defaultImport(await import('process.argv'));
 
 import 'dotenv/config';
 import { parse } from 'json5';
 
-import type { Args, PartialArgs, Settings } from './types';
+import type { Args, PartialArgs, Settings } from './types.js';
 
 export const settings = db<Settings>('./db/settings.json', { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, defaultSettings);

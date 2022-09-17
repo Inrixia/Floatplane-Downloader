@@ -1,16 +1,16 @@
 export type Resolutions = ['360', '720', '1080', '2160'];
 
+import type { ValueOfA } from '@inrixia/helpers/ts';
 import type { BlogPost } from 'floatplane/creator';
 
+type ChannelIdentifier = {
+	check: string;
+	type: keyof BlogPost | 'description';
+};
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
-	identifiers:
-		| Array<{
-				check: string;
-				type: keyof BlogPost | 'description';
-		  }>
-		| false;
+	identifiers: ChannelIdentifier[] | false;
 	consoleColor?: string;
 	daysToKeepVideos: number;
 };
@@ -51,8 +51,6 @@ export type Extras = {
 	saveNfo: boolean;
 };
 
-export type ValueOf<T> = T[keyof T];
-
 export type FilePathFormattingOptions = {
 	'%channelTitle%': string;
 	'%episodeNumber%': string;
@@ -65,7 +63,7 @@ export type FilePathFormattingOptions = {
 	'%videoTitle%': string;
 };
 
-export type Resolution = ValueOf<Resolutions>;
+export type Resolution = ValueOfA<Resolutions>;
 
 export type Settings = {
 	runQuickstartPrompts: boolean;

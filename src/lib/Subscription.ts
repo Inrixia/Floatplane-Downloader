@@ -1,10 +1,10 @@
 import { BlogPost } from 'floatplane/creator';
-import { fApi } from './FloatplaneAPI';
-import Channel from './Channel';
+import { fApi } from './FloatplaneAPI.js';
+import Channel from './Channel.js';
 import db from '@inrixia/db';
 
-import type { SubscriptionSettings } from './types';
-import type Video from './Video';
+import type { SubscriptionSettings } from './types.js';
+import type Video from './Video.js';
 
 type LastSeenVideo = {
 	guid: BlogPost['guid'];
@@ -88,7 +88,7 @@ export default class Subscription {
 
 		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
-		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { type: 'video' })) {
+		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
 			if (!forceFullSearch && video.guid === this.lastSeenVideo.guid) {
 				// If we have found the last seen video, check if its downloaded.
 				// If it is then break here and return the videos we have found.

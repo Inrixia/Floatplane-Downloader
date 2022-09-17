@@ -1,7 +1,7 @@
-import { defaultSubChannels } from './lib/defaults';
-import Subscription from './lib/Subscription';
-import { fApi } from './lib/FloatplaneAPI';
-import { settings } from './lib/helpers';
+import { defaultSubChannels } from './lib/defaults.js';
+import Subscription from './lib/Subscription.js';
+import { fApi } from './lib/FloatplaneAPI.js';
+import { settings } from './lib/helpers.js';
 
 export const fetchSubscriptions = async (): Promise<Subscription[]> =>
 	(await fApi.user.subscriptions())

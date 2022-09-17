@@ -5,18 +5,18 @@ import fs from 'fs/promises';
 
 const exec = promisify(execCallback);
 
-import { settings, args } from './helpers';
+import { settings, args } from './helpers.js';
 
 import { htmlToText } from 'html-to-text';
 import sanitize from 'sanitize-filename';
 import builder from 'xmlbuilder';
 
 import { nPad } from '@inrixia/helpers/math';
-import { fApi } from './FloatplaneAPI';
+import { fApi } from './FloatplaneAPI.js';
 
-import type { FilePathFormattingOptions } from './types';
+import type { FilePathFormattingOptions } from './types.js';
 import type { BlogPost } from 'floatplane/creator';
-import type Channel from './Channel';
+import type Channel from './Channel.js';
 
 export default class Video {
 	public guid: BlogPost['guid'];
@@ -174,6 +174,7 @@ export default class Video {
 			const cdnInfo = await fApi.cdn.delivery('download', this.videoAttachments[i]);
 
 			// Pick a random edge to download off, eventual even distribution
+			if (cdnInfo.edges === undefined) throw new Error('No edges found for video');
 			const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
 			if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
 

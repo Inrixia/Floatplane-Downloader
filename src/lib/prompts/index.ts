@@ -1,3 +1,3 @@
-export * as settings from './settings';
-export * as floatplane from './floatplane';
-export * as plex from './plex';
+export * as settings from './settings.js';
+export * as floatplane from './floatplane.js';
+export * as plex from './plex.js';

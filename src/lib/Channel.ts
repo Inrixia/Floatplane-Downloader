@@ -2,11 +2,11 @@ import fs from 'fs/promises';
 import chalk from 'chalk';
 
 import db from '@inrixia/db';
-import Video from './Video';
+import Video from './Video.js';
 
 import type { BlogPost } from 'floatplane/creator';
-import type { ChannelOptions } from './types';
-import type Subscription from './Subscription';
+import type { ChannelOptions } from './types.js';
+import type Subscription from './Subscription.js';
 
 // e = episodeNo, d = downloaded, s = filesize in bytes, f = file
 export type VideoDBEntry = { episodeNo: number; expectedSize?: number; filePath?: string; releaseDate: number };

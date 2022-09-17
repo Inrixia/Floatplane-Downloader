@@ -1,11 +1,11 @@
-import { loginFloatplane, loginPlex } from './logins';
-import { defaultResolutions } from './lib/defaults';
-import { args, settings } from './lib/helpers';
+import { loginFloatplane, loginPlex } from './logins.js';
+import { defaultResolutions } from './lib/defaults.js';
+import { args, settings } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
-import { fApi } from './lib/FloatplaneAPI';
-import * as prompts from './lib/prompts';
+import { fApi } from './lib/FloatplaneAPI.js';
+import * as prompts from './lib/prompts/index.js';
 
-import type { Extras } from './lib/types';
+import type { Extras } from './lib/types.js';
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();

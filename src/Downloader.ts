@@ -1,7 +1,7 @@
 import { MultiProgressBars, UpdateOptions } from 'multi-progress-bars';
-import Video from './lib/Video';
+import Video from './lib/Video.js';
 
-import { settings, args } from './lib/helpers';
+import { settings, args } from './lib/helpers.js';
 
 type promiseFunction = (f: Promise<void>) => void;
 

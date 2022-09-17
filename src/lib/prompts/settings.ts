@@ -1,5 +1,5 @@
 import prompts from 'prompts';
-import type { Extras, Resolution } from '../types';
+import type { Extras, Resolution } from '../types.js';
 
 /**
  * Prompts user to set the max number of parallel downloads.
