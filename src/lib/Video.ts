@@ -70,6 +70,10 @@ export default class Video {
 		return `${this.folderPath}/${sanitize(this.fullPath.split('/').slice(-1)[0])}`;
 	}
 
+	public get artworkPath(): string {
+		return `${this.filePath}${settings.artworkSuffix}.png`;
+	}
+
 	/**
 	 * Get the suffix for a video file if there are multiple videoAttachments for this video
 	 */
@@ -99,7 +103,7 @@ export default class Video {
 		return fileBytes === this.expectedSize;
 	};
 
-	public async download(quality: string, allowRangeQuery = true): Promise<ReturnType<typeof fApi.got.stream>[]> {
+	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>[]> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		// Make sure the folder for the video exists
@@ -107,11 +111,10 @@ export default class Video {
 
 		// If downloading artwork is enabled download it
 		if (settings.extras.downloadArtwork && this.thumbnail !== null) {
-			const artworkFile = `${this.filePath}${settings.artworkSuffix}.png`;
 			fApi.got
 				.stream(this.thumbnail.path)
-				.pipe(createWriteStream(artworkFile))
-				.once('end', () => fs.utimes(artworkFile, new Date(), this.releaseDate));
+				.pipe(createWriteStream(this.artworkPath))
+				.once('end', () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
@@ -150,15 +153,7 @@ export default class Video {
 			await fs.utimes(`${this.filePath}.nfo`, new Date(), this.releaseDate);
 		}
 
-		let writeStreamOptions, requestOptions, downloadedBytes;
-		// Disable download resumption as floatplane has a poor history of edges failing to support it causing issues
-		// // Download resumption is not currently supported for multi part videos...
-		// if (this.videoAttachments.length === 1) {
-		// 	// Handle download resumption if video was partially downloaded
-		// 	if (allowRangeQuery && this.expectedSize !== undefined && (downloadedBytes = await this.fileBytes('partial')) !== -1) {
-		// 		[writeStreamOptions, requestOptions] = [{ start: downloadedBytes, flags: 'r+' }, { headers: { range: `bytes=${downloadedBytes}-${this.expectedSize}` } }];
-		// 	}
-		// }
+		let writeStreamOptions, requestOptions;
 
 		let downloadRequests = [];
 		for (const i in this.videoAttachments) {
@@ -209,6 +204,7 @@ export default class Video {
 			throw new Error(
 				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes('partial')} bytes...`
 			);
+		const artworkEmbed: string[] = settings.extras.downloadArtwork && this.thumbnail !== null ? ['-i', this.artworkPath, '-map', '1', '-map', '0', '-disposition:0', 'attached_pic'] : [];
 		await Promise.all(
 			this.videoAttachments.map(
 				(a, i) =>
@@ -218,6 +214,7 @@ export default class Video {
 							[
 								'-i',
 								`${this.filePath}${this.multiPartSuffix(i)}.partial`,
+								...artworkEmbed,
 								'-metadata',
 								`title=${this.title}${this.multiPartSuffix(i)}`,
 								'-metadata',
@@ -230,9 +227,7 @@ export default class Video {
 								`description=${this.ffmpegDesc}`,
 								'-metadata',
 								`synopsis=${this.ffmpegDesc}`,
-								'-c:a',
-								'copy',
-								'-c:v',
+								'-c',
 								'copy',
 								`${this.filePath}${this.multiPartSuffix(i)}.mp4`,
 							],

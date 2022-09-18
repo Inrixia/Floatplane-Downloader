@@ -94,7 +94,7 @@ export default class Downloader {
 		} else if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, barUpdate);
 	}
 
-	private async processVideo(video: Video, retries = 0, allowRangeQuery = true): Promise<void> {
+	private async processVideo(video: Video, retries = 0): Promise<void> {
 		let formattedTitle: string;
 		if (args.headless === true) formattedTitle = `${video.channel.title} - ${video.title}`;
 		else if (video.channel.consoleColor !== undefined) {
@@ -119,7 +119,7 @@ export default class Downloader {
 			// If the video is already downloaded then just mux its metadata
 			if (!(await video.isDownloaded())) {
 				const startTime = Date.now();
-				const downloadRequests = await video.download(settings.floatplane.videoResolution as string, allowRangeQuery);
+				const downloadRequests = await video.download(settings.floatplane.videoResolution as string);
 
 				const totalBytes: number[] = [];
 				const downloadedBytes: number[] = [];
@@ -182,7 +182,7 @@ export default class Downloader {
 			// Handle errors when downloading nicely
 			if (retries < settings.floatplane.retries) {
 				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
-				if (info.message.indexOf('Range Not Satisfiable')) await this.processVideo(video, ++retries, false);
+				if (info.message.indexOf('Range Not Satisfiable')) await this.processVideo(video, ++retries);
 				else await this.processVideo(video, ++retries);
 			} else
 				this.updateBar(
