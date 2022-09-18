@@ -174,7 +174,7 @@ export const defaultSettings: Settings = {
 		downloadEdge: '',
 		retries: 3,
 	},
-	_filePathFormattingOPTIONS: ['%channelTitle%', '%episodeNumber%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],
+	_filePathFormattingOPTIONS: ['%channelTitle%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],
 	filePathFormatting: './videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%',
 	extras: {
 		stripSubchannelPrefix: true,

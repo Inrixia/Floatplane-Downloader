@@ -66,7 +66,7 @@ export default class Subscription {
 					// Description is named text on videos, kept description for ease of use for users but have to change it here...
 					const identifierType = identifier.type === 'description' ? 'text' : identifier.type;
 
-					if ((video[identifierType] as string).toLowerCase().indexOf(identifier.check.toLowerCase()) !== -1) {
+					if ((video[identifierType] as string).toLowerCase().includes(identifier.check.toLowerCase())) {
 						if (overrideSkip === false && channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
 						const idCheck = identifier.check.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -94,7 +94,7 @@ export default class Subscription {
 				// If it is then break here and return the videos we have found.
 				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
 				const channelVideo = this.addVideo(video, true, stripSubchannelPrefix);
-				if (channelVideo === null || (await channelVideo.isDownloaded())) break;
+				if (channelVideo !== null && (await channelVideo.isDownloaded())) break;
 			}
 			// Stop searching if we have looked through videosToSearch
 			if (videos.length >= videosToSearch) break;

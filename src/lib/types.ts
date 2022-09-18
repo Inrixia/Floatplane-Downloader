@@ -53,7 +53,6 @@ export type Extras = {
 
 export type FilePathFormattingOptions = {
 	'%channelTitle%': string;
-	'%episodeNumber%': string;
 	'%year%': string;
 	'%month%': string;
 	'%day%': string;

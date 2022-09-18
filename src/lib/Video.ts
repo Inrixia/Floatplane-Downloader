@@ -42,7 +42,6 @@ export default class Video {
 	private formatString(string: string): string {
 		const formatLookup: FilePathFormattingOptions = {
 			'%channelTitle%': this.channel.title,
-			'%episodeNumber%': this.channel.lookupVideoDB(this.guid).episodeNo.toString(),
 			'%year%': this.releaseDate.getFullYear().toString(),
 			'%month%': nPad(this.releaseDate.getMonth() + 1),
 			'%day%': nPad(this.releaseDate.getDate()),

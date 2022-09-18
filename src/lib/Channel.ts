@@ -8,7 +8,7 @@ import type { ChannelOptions } from './types.js';
 import type Subscription from './Subscription.js';
 
 // e = episodeNo, d = downloaded, s = filesize in bytes, f = file
-export type VideoDBEntry = { episodeNo: number; expectedSize?: number; filePath?: string; releaseDate: number };
+export type VideoDBEntry = { expectedSize?: number; filePath?: string; releaseDate: number };
 export type ChannelDB = {
 	videos: { [key: string]: VideoDBEntry };
 	nextEpisodeNo: number;
@@ -93,7 +93,6 @@ export default class Channel {
 		// Set db info, have to instigate the db first before setting filepath
 		if (this._db.videos[video.guid] === undefined) {
 			this._db.videos[video.guid] ??= {
-				episodeNo: this._db.nextEpisodeNo++,
 				releaseDate,
 				filePath: '',
 			};

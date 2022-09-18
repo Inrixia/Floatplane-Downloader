@@ -99,7 +99,7 @@ You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<b
 Strings surounded by % will be replaced with their respective values.<br>
 
 ```json
-"filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S01E%episodeNumber% - %videoTitle%"
+"filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%
 ```
 
 <br>
