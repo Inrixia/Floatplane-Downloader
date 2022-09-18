@@ -51,9 +51,9 @@ export default class Subscription {
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo(video: BlogPost, overrideSkip: true, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']>;
-	public addVideo(video: BlogPost, overrideSkip?: false, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']> | null;
-	public addVideo(video: BlogPost, overrideSkip = false, stripSubchannelPrefix = true): ReturnType<Channel['addVideo']> | null {
+	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']>;
+	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']> | null;
+	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel['addVideo']> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;
@@ -67,7 +67,7 @@ export default class Subscription {
 					const identifierType = identifier.type === 'description' ? 'text' : identifier.type;
 
 					if ((video[identifierType] as string).toLowerCase().includes(identifier.check.toLowerCase())) {
-						if (overrideSkip === false && channel.skip === true) return null;
+						if (channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
 						const idCheck = identifier.check.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 						const regIDCheck = new RegExp(idCheck, 'i');
@@ -77,48 +77,31 @@ export default class Subscription {
 				}
 			}
 		}
-		if (overrideSkip === false && this.defaultChannel.skip === true) return null;
+		if (this.defaultChannel.skip === true) return null;
 		return this.defaultChannel.addVideo(video);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Array<Video>> {
+	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Video[]> {
 		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
 
-		const videos = [];
+		const videos: Video[] = [];
 
 		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
-		for await (const video of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
-			if (!forceFullSearch && video.guid === this.lastSeenVideo.guid) {
-				// If we have found the last seen video, check if its downloaded.
-				// If it is then break here and return the videos we have found.
-				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
-				const channelVideo = this.addVideo(video, true, stripSubchannelPrefix);
-				if (channelVideo !== null && (await channelVideo.isDownloaded())) break;
-			}
+		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
+			const video = this.addVideo(blogPost, stripSubchannelPrefix);
+			if (video === null) continue;
+			// If we have found the last seen video, check if its downloaded.
+			// If it is then break here and return the videos we have found.
+			// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
+			if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
+			videos.push(video);
 			// Stop searching if we have looked through videosToSearch
 			if (videos.length >= videosToSearch) break;
-			videos.push(video);
 			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
 
-		// Make sure videos are in correct order for episode numbering, null episodes are part of a channel that is marked to be skipped
-		const incompleteVideos = (
-			await Promise.all(
-				videos
-					.sort((a, b) => +new Date(a.releaseDate) - +new Date(b.releaseDate))
-					.map(async (video) => {
-						const subVideo = this.addVideo(video, false, stripSubchannelPrefix);
-						if (subVideo === null) return null;
-						if ((await subVideo.isMuxed()) === true) return null;
-						return subVideo;
-					})
-			)
-		).filter(notNull);
-		process.stdout.write(` Skipped ${videos.length - incompleteVideos.length}.\n`);
-		return incompleteVideos;
+		process.stdout.write(` Skipped ${videos.length - videos.length}.\n`);
+		return videos;
 	}
 }
-
-// This is used to allow typescript to enforce strict type checking
-const notNull = <T>(value: T | null): value is T => value !== null;
