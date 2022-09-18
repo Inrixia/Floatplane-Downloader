@@ -46,15 +46,17 @@ export default class Downloader {
 	}
 
 	processVideos(videos: Video[]): Array<Promise<void>> {
-		if (videos.length !== 0) {
-			console.log(`> Processing ${videos.length} videos...`);
-			if (args.headless !== true) this.mpb = new MultiProgressBars({ initMessage: '', anchor: 'top' });
-			this.summaryStats = {};
-			this.videosProcessed = 0;
-		}
+		if (videos.length === 0) return [];
+
+		console.log(`> Processing ${videos.length} videos...`);
+		if (args.headless !== true) this.mpb = new MultiProgressBars({ initMessage: '', anchor: 'top' });
+		this.summaryStats = {};
+		this.videosProcessed = 0;
+
 		const processingPromises = videos.reverse().map((video) => new Promise<void>((res) => this.videoQueue.push({ video, res })));
+
 		// Handler for when all downloads are done.
-		if (videos.length !== 0) Promise.all(processingPromises).then(() => this.updateSummaryBar());
+		Promise.all(processingPromises).then(() => this.updateSummaryBar());
 		return processingPromises;
 	}
 
