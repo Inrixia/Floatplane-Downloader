@@ -23,7 +23,7 @@ RUN npm install
 COPY ./src /fp/src
 
 # Compile the project
-RUN tsc
+RUN npx tsc
 
 # Runs on container start
 CMD node ./dist/float.js
