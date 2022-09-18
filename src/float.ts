@@ -1,10 +1,12 @@
 import { quickStart, validatePlexSettings } from './quickStart.js';
 import { fetchSubscriptions } from './subscriptionFetching.js';
-import { settings, fetchFFMPEG, chalk, fApi, esmOverload } from './lib/helpers.js';
+import { settings, fetchFFMPEG, fApi } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
 import { loginFloatplane } from './logins.js';
 import Downloader from './Downloader.js';
 import { gt, diff } from 'semver';
+
+import chalk from 'chalk-template';
 
 import type Subscription from './lib/Subscription.js';
 
@@ -32,10 +34,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	}
 };
 
-// Async start
 (async () => {
-	// ESM Hack to make loading async esm modules globally not painful
-	await esmOverload;
 	const version: string = require('../package.json').version;
 	const latest = await fApi
 		.got('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json', { resolveBodyOnly: true })
@@ -81,8 +80,4 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		};
 		waitLoop();
 	} else downloader.stop();
-})().catch((err) => {
-	console.error('An error occurred!');
-	console.error(err);
-	process.exit(1);
-});
+})();

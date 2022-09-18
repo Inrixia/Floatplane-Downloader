@@ -4,7 +4,10 @@ import { defaultArgs, defaultSettings } from './defaults.js';
 import db from '@inrixia/db';
 import fs from 'fs';
 
-import ARGV from 'process.argv';
+import { defaultImport } from 'default-import';
+
+import _ARGV from 'process.argv';
+const ARGV = defaultImport(_ARGV);
 
 import 'dotenv/config';
 import { parse } from 'json5';
@@ -15,16 +18,8 @@ import { FileCookieStore } from 'tough-cookie-file-store';
 import { CookieJar } from 'tough-cookie';
 export const cookieJar = new CookieJar(new FileCookieStore('./db/cookies.json'));
 
-// ESM Hack
-import type { ChalkInstance } from 'chalk';
-export let chalk: ChalkInstance;
-import type { Floatplane } from 'floatplane';
-export let fApi: Floatplane;
-
-export const esmOverload = (async () => {
-	chalk = (await eval("import('chalk')")).default;
-	fApi = new (await eval("import('floatplane')")).Floatplane(cookieJar);
-})();
+import { Floatplane } from 'floatplane';
+export const fApi = new Floatplane(cookieJar);
 
 export const settings = db<Settings>('./db/settings.json', { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, defaultSettings);

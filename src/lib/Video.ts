@@ -107,7 +107,7 @@ export default class Video {
 		await fs.mkdir(this.folderPath, { recursive: true });
 
 		// If downloading artwork is enabled download it
-		if (settings.extras.downloadArtwork && this.thumbnail !== undefined) {
+		if (settings.extras.downloadArtwork && this.thumbnail !== null) {
 			const artworkFile = `${this.filePath}${settings.artworkSuffix}.png`;
 			fApi.got
 				.stream(this.thumbnail.path)

@@ -2,35 +2,32 @@
 	"name": "floatplane-plex-downloader",
 	"version": "5.4.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"prep": "npm install && npm run build",
 		"prestart": "tsc",
 		"start": "node ./dist/float.js",
 		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
-		"buildLinux": "tsc && pkg ./dist/float.js --out-path=./build -t latest-linux",
-		"buildMac": "tsc && pkg ./dist/float.js --out-path=./build -t latest-mac",
-		"buildWin": "tsc && pkg ./dist/float.js --out-path=./build -t latest-win"
+		"build": "esbuild ./src/float.ts --bundle --platform=node --outfile=dist/float.cjs &&  pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip"
 	},
 	"dependencies": {
 		"@ctrl/plex": "^1.5.3",
-		"@inrixia/db": "1.9.1",
+		"@inrixia/db": "2.0.0",
 		"@inrixia/helpers": "^1.23.4",
-		"chalk": "^5.0.1",
+		"chalk-template": "^0.4.0",
+		"default-import": "^1.1.5",
 		"dotenv": "^16.0.2",
 		"ffbinaries": "^1.1.4",
-		"floatplane": "^4.0.2",
+		"floatplane": "^4.0.3",
 		"html-to-text": "^8.2.1",
 		"json5": "^2.2.1",
 		"multi-progress-bars": "^4.3.1",
-		"pkg": "^5.8.0",
 		"process.argv": "^0.6.0",
 		"prompts": "^2.4.2",
 		"sanitize-filename": "^1.6.3",
 		"semver": "^7.3.7",
 		"tough-cookie": "^4.1.2",
-		"tough-cookie-file-store": "^2.0.3",
-		"typescript": "^4.8.3"
+		"tough-cookie-file-store": "^2.0.3"
 	},
 	"pkg": {
 		"scripts": "./float.js",
@@ -38,6 +35,9 @@
 			"node10-linux-x64",
 			"node10-macos-x64",
 			"node10-win-x64"
+		],
+		"assets": [
+			"package.json"
 		]
 	},
 	"devDependencies": {
@@ -48,8 +48,10 @@
 		"@types/tough-cookie-file-store": "^2.0.1",
 		"@typescript-eslint/eslint-plugin": "^5.37.0",
 		"@typescript-eslint/parser": "^5.37.0",
-		"babel-cli": "^7.0.0-beta.3",
+		"esbuild": "^0.15.7",
 		"eslint": "^8.23.1",
-		"eslint-plugin-prettier": "^4.2.1"
+		"eslint-plugin-prettier": "^4.2.1",
+		"pkg": "^5.8.0",
+		"typescript": "^4.8.3"
 	}
 }
