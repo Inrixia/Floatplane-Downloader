@@ -115,18 +115,12 @@ export default class Video {
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
-			let seasonNumberFormat = '%year%%month%';
-			let episodeNumberFormat = '%day%%hour%%minute%%second%';
-			const seRegEx = new RegExp(' - S(.+)E(.+) - ', '');
-			const xRegEx = new RegExp(' - (.+)X(.+) - ', 'i');
-			const seMatch = seRegEx.exec(settings.filePathFormatting);
-			const xMatch = xRegEx.exec(settings.filePathFormatting);
-			if (seMatch !== null) {
-				seasonNumberFormat = seMatch[1];
-				episodeNumberFormat = seMatch[2];
-			} else if (xMatch !== null) {
-				seasonNumberFormat = xMatch[1];
-				episodeNumberFormat = xMatch[2];
+			let season = '';
+			let episode = '';
+			const match = /- S(.+)E(.+) -/i.exec(this.fullPath);
+			if (match !== null) {
+				season = match[1];
+				episode = match[2];
 			}
 			const nfo = builder
 				.create('episodedetails')
@@ -146,10 +140,10 @@ export default class Video {
 				.text(this.releaseDate.getFullYear().toString() + '-' + nPad(this.releaseDate.getMonth() + 1) + '-' + nPad(this.releaseDate.getDate()))
 				.up()
 				.ele('season')
-				.text(this.formatString(seasonNumberFormat))
+				.text(season)
 				.up()
 				.ele('episode')
-				.text(this.formatString(episodeNumberFormat))
+				.text(episode)
 				.up()
 				.end({ pretty: true });
 			await fs.writeFile(`${this.filePath}.nfo`, nfo, 'utf8');
