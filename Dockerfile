@@ -13,9 +13,6 @@ WORKDIR /fp
 VOLUME /fp/db
 VOLUME /fp/videos
 
-# Install typescript so we can use the tsc command
-RUN npm install -g typescript
-
 # Copy package configs into working Directory
 COPY ./package.json ./package-lock.json ./tsconfig.json /fp/
 
