@@ -1,5 +1,5 @@
 import { downloadBinaries, detectPlatform, getBinaryFilename } from 'ffbinaries';
-import { getEnv, rebuildTypes, recursiveUpdate } from '@inrixia/helpers/object';
+import { getEnv, rebuildTypes, recursiveUpdate } from '@inrixia/helpers/object.js';
 import { defaultArgs, defaultSettings } from './defaults.js';
 import db from '@inrixia/db';
 import fs from 'fs';
@@ -10,9 +10,11 @@ import _ARGV from 'process.argv';
 const ARGV = defaultImport(_ARGV);
 
 import 'dotenv/config';
-import { parse } from 'json5';
 
-import type { Args, PartialArgs, Settings } from './types.js';
+import json5 from 'json5';
+const { parse } = json5;
+
+import type { PartialArgs, Settings } from './types.js';
 
 import { FileCookieStore } from 'tough-cookie-file-store';
 import { CookieJar } from 'tough-cookie';
@@ -25,13 +27,16 @@ export const settings = db<Settings>('./db/settings.json', { template: defaultSe
 recursiveUpdate(settings, defaultSettings);
 
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
-rebuildTypes<PartialArgs, Settings & Args>(argv, { ...defaultSettings, ...defaultArgs });
+rebuildTypes(argv, { ...defaultSettings, ...defaultArgs });
 recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 
 const env = getEnv();
-rebuildTypes<PartialArgs, Settings & Args>(env, { ...defaultSettings, ...defaultArgs });
+rebuildTypes(env, { ...defaultSettings, ...defaultArgs });
 
-if (env.__FPDSettings !== undefined) recursiveUpdate(settings, parse(env.__FPDSettings.replaceAll('\\"', '"')), { setUndefined: false, setDefined: true });
+if (env.__FPDSettings !== undefined) {
+	if (typeof env.__FPDSettings !== 'string') throw new Error('The __FPDSettings environment variable cannot be parsed!');
+	recursiveUpdate(settings, parse(env.__FPDSettings.replaceAll('\\"', '"')), { setUndefined: false, setDefined: true });
+}
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 

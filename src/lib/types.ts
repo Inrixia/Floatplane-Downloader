@@ -1,6 +1,6 @@
 export type Resolutions = ['360', '720', '1080', '2160'];
 
-import type { ValueOfA } from '@inrixia/helpers/ts';
+import type { ValueOfA } from '@inrixia/helpers/ts.js';
 import type { BlogPost } from 'floatplane/creator';
 
 type ChannelIdentifier = {

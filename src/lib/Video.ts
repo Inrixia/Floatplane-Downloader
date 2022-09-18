@@ -11,7 +11,7 @@ import { htmlToText } from 'html-to-text';
 import sanitize from 'sanitize-filename';
 import builder from 'xmlbuilder';
 
-import { nPad } from '@inrixia/helpers/math';
+import { nPad } from '@inrixia/helpers/math.js';
 
 import type { FilePathFormattingOptions } from './types.js';
 import type { BlogPost } from 'floatplane/creator';

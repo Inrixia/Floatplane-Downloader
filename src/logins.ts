@@ -1,8 +1,7 @@
-import { loopError } from '@inrixia/helpers/object';
+import { loopError } from '@inrixia/helpers/object.js';
 import { floatplane, plex } from './lib/prompts/index.js';
-import { fApi } from './lib/helpers.js';
+import { fApi, args } from './lib/helpers.js';
 import { MyPlexAccount } from '@ctrl/plex';
-import { args } from './lib/helpers.js';
 
 export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;
