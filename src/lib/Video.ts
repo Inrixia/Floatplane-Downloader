@@ -1,30 +1,30 @@
-import { exec as execCallback, execFile } from 'child_process';
-import { createWriteStream } from 'fs';
-import { promisify } from 'util';
-import fs from 'fs/promises';
+import { exec as execCallback, execFile } from "child_process";
+import { createWriteStream } from "fs";
+import { promisify } from "util";
+import fs from "fs/promises";
 
 const exec = promisify(execCallback);
 
-import { settings, args, fApi } from './helpers.js';
+import { settings, args, fApi } from "./helpers.js";
 
-import { htmlToText } from 'html-to-text';
-import sanitize from 'sanitize-filename';
-import builder from 'xmlbuilder';
+import { htmlToText } from "html-to-text";
+import sanitize from "sanitize-filename";
+import builder from "xmlbuilder";
 
-import { nPad } from '@inrixia/helpers/math.js';
+import { nPad } from "@inrixia/helpers/math";
 
-import type { FilePathFormattingOptions } from './types.js';
-import type { BlogPost } from 'floatplane/creator';
-import type Channel from './Channel.js';
+import type { FilePathFormattingOptions } from "./types.js";
+import type { BlogPost } from "floatplane/creator";
+import type Channel from "./Channel.js";
 
 export default class Video {
-	public guid: BlogPost['guid'];
-	public title: BlogPost['title'];
-	public description: BlogPost['text'];
+	public guid: BlogPost["guid"];
+	public title: BlogPost["title"];
+	public description: BlogPost["text"];
 	public releaseDate: Date;
-	public thumbnail: BlogPost['thumbnail'];
+	public thumbnail: BlogPost["thumbnail"];
 
-	public videoAttachments: BlogPost['videoAttachments'];
+	public videoAttachments: BlogPost["videoAttachments"];
 
 	public channel: Channel;
 
@@ -41,18 +41,18 @@ export default class Video {
 
 	private formatString(string: string): string {
 		const formatLookup: FilePathFormattingOptions = {
-			'%channelTitle%': this.channel.title,
-			'%year%': this.releaseDate.getFullYear().toString(),
-			'%month%': nPad(this.releaseDate.getMonth() + 1),
-			'%day%': nPad(this.releaseDate.getDate()),
-			'%hour%': nPad(this.releaseDate.getHours()),
-			'%minute%': nPad(this.releaseDate.getMinutes()),
-			'%second%': nPad(this.releaseDate.getSeconds()),
-			'%videoTitle%': this.title.replace(/ - /g, ' ').replace(/\//g, ' ').replace(/\\/g, ' '),
+			"%channelTitle%": this.channel.title,
+			"%year%": this.releaseDate.getFullYear().toString(),
+			"%month%": nPad(this.releaseDate.getMonth() + 1),
+			"%day%": nPad(this.releaseDate.getDate()),
+			"%hour%": nPad(this.releaseDate.getHours()),
+			"%minute%": nPad(this.releaseDate.getMinutes()),
+			"%second%": nPad(this.releaseDate.getSeconds()),
+			"%videoTitle%": this.title.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " "),
 		};
 
 		for (const [match, value] of Object.entries(formatLookup)) {
-			string = string.replace(new RegExp(match, 'g'), value);
+			string = string.replace(new RegExp(match, "g"), value);
 		}
 
 		return string;
@@ -63,11 +63,11 @@ export default class Video {
 	}
 
 	private get folderPath(): string {
-		return this.fullPath.split('/').slice(0, -1).join('/');
+		return this.fullPath.split("/").slice(0, -1).join("/");
 	}
 
 	public get filePath(): string {
-		return `${this.folderPath}/${sanitize(this.fullPath.split('/').slice(-1)[0])}`;
+		return `${this.folderPath}/${sanitize(this.fullPath.split("/").slice(-1)[0])}`;
 	}
 
 	public get artworkPath(): string {
@@ -77,7 +77,7 @@ export default class Video {
 	/**
 	 * Get the suffix for a video file if there are multiple videoAttachments for this video
 	 */
-	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - Part ${+attachmentIndex + 1}` : ''}`;
+	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - Part ${+attachmentIndex + 1}` : ""}`;
 
 	get expectedSize(): number | undefined {
 		return this.channel.lookupVideoDB(this.guid).expectedSize;
@@ -95,9 +95,9 @@ export default class Video {
 		}
 		return bytes;
 	};
-	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes('partial')) === this.expectedSize;
+	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes("partial")) === this.expectedSize;
 	public isMuxed = async (): Promise<boolean> => {
-		const fileBytes = await this.fileBytes('mp4');
+		const fileBytes = await this.fileBytes("mp4");
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
 		if (settings.considerAllNonPartialDownloaded) return fileBytes !== -1;
 		return fileBytes === this.expectedSize;
@@ -114,42 +114,42 @@ export default class Video {
 			fApi.got
 				.stream(this.thumbnail.path)
 				.pipe(createWriteStream(this.artworkPath))
-				.once('end', () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
+				.once("end", () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
 		} // Save the thumbnail with the same name as the video so plex will use it
 
 		if (settings.extras.saveNfo) {
-			let season = '';
-			let episode = '';
+			let season = "";
+			let episode = "";
 			const match = /- S(.+)E(.+) -/i.exec(this.fullPath);
 			if (match !== null) {
 				season = match[1];
 				episode = match[2];
 			}
 			const nfo = builder
-				.create('episodedetails')
-				.ele('title')
+				.create("episodedetails")
+				.ele("title")
 				.text(this.title)
 				.up()
-				.ele('showtitle')
+				.ele("showtitle")
 				.text(this.channel.title)
 				.up()
-				.ele('description')
+				.ele("description")
 				.text(htmlToText(this.description))
 				.up()
-				.ele('plot') // Kodi/Plex NFO format uses `plot` as the episode description
+				.ele("plot") // Kodi/Plex NFO format uses `plot` as the episode description
 				.text(htmlToText(this.description))
 				.up()
-				.ele('aired') // format: yyyy-mm-dd required for Kodi/Plex
-				.text(this.releaseDate.getFullYear().toString() + '-' + nPad(this.releaseDate.getMonth() + 1) + '-' + nPad(this.releaseDate.getDate()))
+				.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
+				.text(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
 				.up()
-				.ele('season')
+				.ele("season")
 				.text(season)
 				.up()
-				.ele('episode')
+				.ele("episode")
 				.text(episode)
 				.up()
 				.end({ pretty: true });
-			await fs.writeFile(`${this.filePath}.nfo`, nfo, 'utf8');
+			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
 			await fs.utimes(`${this.filePath}.nfo`, new Date(), this.releaseDate);
 		}
 
@@ -158,12 +158,12 @@ export default class Video {
 		const downloadRequests = [];
 		for (const i in this.videoAttachments) {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-			const cdnInfo = await fApi.cdn.delivery('download', this.videoAttachments[i]);
+			const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[i]);
 
 			// Pick a random edge to download off, eventual even distribution
-			if (cdnInfo.edges === undefined) throw new Error('No edges found for video');
+			if (cdnInfo.edges === undefined) throw new Error("No edges found for video");
 			const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
-			if (settings.floatplane.downloadEdge !== '') downloadEdge.hostname = settings.floatplane.downloadEdge;
+			if (settings.floatplane.downloadEdge !== "") downloadEdge.hostname = settings.floatplane.downloadEdge;
 
 			// Convert the qualities into an array of resolutions and sorts them smallest to largest
 			const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name).sort((a, b) => +b - +a);
@@ -172,13 +172,13 @@ export default class Video {
 			const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[0];
 
 			const downloadRequest = fApi.got.stream(
-				`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace('{qualityLevels}', downloadQuality).replace('{token}', cdnInfo.resource.data.token)}`,
+				`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`,
 				requestOptions
 			);
 			// Pipe the download to the file once response starts
 			downloadRequest.pipe(createWriteStream(`${this.filePath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
-			if (this.expectedSize === undefined) downloadRequest.once('downloadProgress', (progress) => (this.expectedSize = progress.total));
+			if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", (progress) => (this.expectedSize = progress.total));
 			downloadRequests.push(downloadRequest);
 		}
 
@@ -189,7 +189,7 @@ export default class Video {
 		if (!(await this.isMuxed()))
 			throw new Error(
 				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(
-					'mp4'
+					"mp4"
 				)} bytes...`
 			);
 		return this.channel.markVideoCompleted(this.guid, this.releaseDate.getTime());
@@ -202,39 +202,39 @@ export default class Video {
 	public async muxffmpegMetadata(): Promise<void> {
 		if (!this.isDownloaded())
 			throw new Error(
-				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes('partial')} bytes...`
+				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes("partial")} bytes...`
 			);
 		const artworkEmbed: string[] =
-			settings.extras.downloadArtwork && this.thumbnail !== null ? ['-i', this.artworkPath, '-map', '1', '-map', '0', '-disposition:0', 'attached_pic'] : [];
+			settings.extras.downloadArtwork && this.thumbnail !== null ? ["-i", this.artworkPath, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"] : [];
 		await Promise.all(
 			this.videoAttachments.map(
 				(a, i) =>
 					new Promise((resolve, reject) =>
 						execFile(
-							args.headless === true ? './ffmpeg' : './db/ffmpeg',
+							args.headless === true ? "./ffmpeg" : "./db/ffmpeg",
 							[
-								'-i',
+								"-i",
 								`${this.filePath}${this.multiPartSuffix(i)}.partial`,
 								...artworkEmbed,
-								'-metadata',
+								"-metadata",
 								`title=${this.title}${this.multiPartSuffix(i)}`,
-								'-metadata',
+								"-metadata",
 								`AUTHOR=${this.channel.title}`,
-								'-metadata',
+								"-metadata",
 								`YEAR=${this.releaseDate.getFullYear().toString()}`,
-								'-metadata',
+								"-metadata",
 								`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
-								'-metadata',
+								"-metadata",
 								`description=${this.ffmpegDesc}`,
-								'-metadata',
+								"-metadata",
 								`synopsis=${this.ffmpegDesc}`,
-								'-c',
-								'copy',
+								"-c",
+								"copy",
 								`${this.filePath}${this.multiPartSuffix(i)}.mp4`,
 							],
 							(error, stdout, stderr) => {
 								if (error !== null) {
-									error.message ??= '';
+									error.message ??= "";
 									error.message += stderr;
 									reject(error);
 								} else resolve(stdout);
@@ -243,7 +243,7 @@ export default class Video {
 					)
 			)
 		);
-		this.expectedSize = await this.fileBytes('mp4');
+		this.expectedSize = await this.fileBytes("mp4");
 		await this.markCompleted();
 		for (const i in this.videoAttachments) {
 			await fs.unlink(`${this.filePath}${this.multiPartSuffix(i)}.partial`);
@@ -254,6 +254,6 @@ export default class Video {
 
 	public async postProcessingCommand(): Promise<void> {
 		const result = await exec(this.formatString(settings.postProcessingCommand));
-		if (result.stderr !== '') throw new Error(result.stderr);
+		if (result.stderr !== "") throw new Error(result.stderr);
 	}
 }

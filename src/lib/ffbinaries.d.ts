@@ -1,4 +1,4 @@
-declare module 'ffbinaries' {
+declare module "ffbinaries" {
 	/**
 	 * Gets binaries for the platform
 	 * It will get the data from ffbinaries, pick the correct files

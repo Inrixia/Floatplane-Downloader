@@ -1,11 +1,11 @@
-export type Resolutions = ['360', '720', '1080', '2160'];
+export type Resolutions = ["360", "720", "1080", "2160"];
 
-import type { ValueOfA } from '@inrixia/helpers/ts.js';
-import type { BlogPost } from 'floatplane/creator';
+import type { ValueOfA } from "@inrixia/helpers/ts";
+import type { BlogPost } from "floatplane/creator";
 
 type ChannelIdentifier = {
 	check: string;
-	type: keyof BlogPost | 'description';
+	type: keyof BlogPost | "description";
 };
 export type ChannelOptions = {
 	title: string;
@@ -52,14 +52,14 @@ export type Extras = {
 };
 
 export type FilePathFormattingOptions = {
-	'%channelTitle%': string;
-	'%year%': string;
-	'%month%': string;
-	'%day%': string;
-	'%hour%': string;
-	'%minute%': string;
-	'%second%': string;
-	'%videoTitle%': string;
+	"%channelTitle%": string;
+	"%year%": string;
+	"%month%": string;
+	"%day%": string;
+	"%hour%": string;
+	"%minute%": string;
+	"%second%": string;
+	"%videoTitle%": string;
 };
 
 export type Resolution = ValueOfA<Resolutions>;

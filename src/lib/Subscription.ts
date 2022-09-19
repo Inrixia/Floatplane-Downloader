@@ -1,13 +1,13 @@
-import { BlogPost } from 'floatplane/creator';
-import { fApi } from './helpers.js';
-import Channel from './Channel.js';
-import db from '@inrixia/db';
+import { BlogPost } from "floatplane/creator";
+import { fApi } from "./helpers.js";
+import Channel from "./Channel.js";
+import db from "@inrixia/db";
 
-import type { SubscriptionSettings } from './types.js';
-import type Video from './Video.js';
+import type { SubscriptionSettings } from "./types.js";
+import type Video from "./Video.js";
 
 type LastSeenVideo = {
-	guid: BlogPost['guid'];
+	guid: BlogPost["guid"];
 	releaseDate: number;
 };
 type SubscriptionDB = {
@@ -30,13 +30,13 @@ export default class Subscription {
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
 		try {
-			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: '', releaseDate: 0 } } });
+			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: "", releaseDate: 0 } } });
 		} catch {
 			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
 	}
 
-	get lastSeenVideo(): SubscriptionDB['lastSeenVideo'] {
+	get lastSeenVideo(): SubscriptionDB["lastSeenVideo"] {
 		return this._db.lastSeenVideo;
 	}
 
@@ -51,27 +51,27 @@ export default class Subscription {
 	/**
 	 * @param {fApiVideo} video
 	 */
-	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']>;
-	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel['addVideo']> | null;
-	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel['addVideo']> | null {
+	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]>;
+	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]> | null;
+	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel["addVideo"]> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
 			if (channel.identifiers === false) continue;
 			for (const identifier of channel.identifiers) {
-				if (typeof identifier.type !== 'string')
+				if (typeof identifier.type !== "string")
 					throw new Error(
 						`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`
 					);
 				else {
 					// Description is named text on videos, kept description for ease of use for users but have to change it here...
-					const identifierType = identifier.type === 'description' ? 'text' : identifier.type;
+					const identifierType = identifier.type === "description" ? "text" : identifier.type;
 
 					if ((video[identifierType] as string).toLowerCase().includes(identifier.check.toLowerCase())) {
 						if (channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						const idCheck = identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-						const regIDCheck = new RegExp(idCheck, 'i');
-						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, '').trim();
+						const idCheck = identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+						const regIDCheck = new RegExp(idCheck, "i");
+						if (identifierType === "title" && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, "").trim();
 						return channel.addVideo(video);
 					}
 				}
@@ -82,7 +82,7 @@ export default class Subscription {
 	}
 
 	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Video[]> {
-		const coloredTitle = `${this.defaultChannel.consoleColor || '\u001b[38;5;208m'}${this.defaultChannel.title}\u001b[0m`;
+		const coloredTitle = `${this.defaultChannel.consoleColor || "\u001b[38;5;208m"}${this.defaultChannel.title}\u001b[0m`;
 
 		const videos: Video[] = [];
 

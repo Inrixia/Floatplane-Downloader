@@ -1,165 +1,165 @@
-import { Resolutions, SubChannels, Settings, Args } from './types.js';
+import { Resolutions, SubChannels, Settings, Args } from "./types.js";
 
-export const defaultResolutions: Resolutions = ['360', '720', '1080', '2160'];
+export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
-	'Tech Deals': {
+	"Tech Deals": {
 		_default: {
-			title: 'Teach Deals',
+			title: "Teach Deals",
 			skip: false,
 			identifiers: false,
-			consoleColor: '\u001b[38;5;10m',
+			consoleColor: "\u001b[38;5;10m",
 			daysToKeepVideos: -1,
 		},
 	},
-	'BitWit Ultr': {
+	"BitWit Ultr": {
 		_default: {
-			title: 'BitWit Ultr',
+			title: "BitWit Ultr",
 			skip: false,
 			identifiers: false,
-			consoleColor: '\u001b[38;5;105m',
+			consoleColor: "\u001b[38;5;105m",
 			daysToKeepVideos: -1,
 		},
 	},
-	'Linus Tech Tips': {
+	"Linus Tech Tips": {
 		_default: {
-			title: 'Linus Tech Tips',
+			title: "Linus Tech Tips",
 			skip: false,
 			identifiers: false,
-			consoleColor: '\u001b[38;5;208m',
+			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
-		'Mac Address': {
-			title: 'Mac Address',
+		"Mac Address": {
+			title: "Mac Address",
 			skip: false,
 			identifiers: [
 				{
-					check: 'MA: ',
-					type: 'title',
+					check: "MA: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;189m',
+			consoleColor: "\u001b[38;5;189m",
 			daysToKeepVideos: -1,
 		},
-		'Floatplane Exclusive': {
-			title: 'Floatplane Exclusive',
+		"Floatplane Exclusive": {
+			title: "Floatplane Exclusive",
 			skip: false,
 			identifiers: [
 				{
-					check: 'FP Exclusive: ',
-					type: 'title',
+					check: "FP Exclusive: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;200m',
+			consoleColor: "\u001b[38;5;200m",
 			daysToKeepVideos: -1,
 		},
 		TalkLinked: {
-			title: 'TalkLinked',
+			title: "TalkLinked",
 			skip: false,
 			identifiers: [
 				{
-					check: 'talklinked',
-					type: 'title',
+					check: "talklinked",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[36m',
+			consoleColor: "\u001b[36m",
 			daysToKeepVideos: -1,
 		},
 		TechLinked: {
-			title: 'TechLinked',
+			title: "TechLinked",
 			skip: false,
 			identifiers: [
 				{
-					check: 'TL: ',
-					type: 'title',
+					check: "TL: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;14m',
+			consoleColor: "\u001b[38;5;14m",
 			daysToKeepVideos: -1,
 		},
-		'TechLinked Shorts': {
-			title: 'TechLinked Shorts',
+		"TechLinked Shorts": {
+			title: "TechLinked Shorts",
 			skip: false,
 			identifiers: [
 				{
-					check: 'TL Short: ',
-					type: 'title',
+					check: "TL Short: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;14m',
+			consoleColor: "\u001b[38;5;14m",
 			daysToKeepVideos: -1,
 		},
 		TechQuickie: {
-			title: 'TechQuickie',
+			title: "TechQuickie",
 			skip: false,
 			identifiers: [
 				{
-					check: 'TQ: ',
-					type: 'title',
+					check: "TQ: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;153m',
+			consoleColor: "\u001b[38;5;153m",
 			daysToKeepVideos: -1,
 		},
-		'Carpool Critics': {
-			title: 'Carpool Critics',
+		"Carpool Critics": {
+			title: "Carpool Critics",
 			skip: false,
 			identifiers: [
 				{
-					check: 'CC: ',
-					type: 'title',
+					check: "CC: ",
+					type: "title",
 				},
 				{
-					check: 'TJM: ',
-					type: 'title',
+					check: "TJM: ",
+					type: "title",
 				},
 			],
 			daysToKeepVideos: -1,
 		},
 		ShortCircuit: {
-			title: 'ShortCircuit',
+			title: "ShortCircuit",
 			skip: false,
 			identifiers: [
 				{
-					check: 'SC: ',
-					type: 'title',
+					check: "SC: ",
+					type: "title",
 				},
 			],
 			daysToKeepVideos: -1,
 		},
 		ChannelSuperFun: {
-			title: 'ChannelSuperFun',
+			title: "ChannelSuperFun",
 			skip: false,
 			identifiers: [
 				{
-					check: 'CSF: ',
-					type: 'title',
+					check: "CSF: ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;220m',
+			consoleColor: "\u001b[38;5;220m",
 			daysToKeepVideos: -1,
 		},
-		'LMG Livestream VODs': {
-			title: 'LMG Livestream VODs',
+		"LMG Livestream VODs": {
+			title: "LMG Livestream VODs",
 			skip: false,
 			identifiers: [
 				{
-					check: 'Livestream VOD – ',
-					type: 'title',
+					check: "Livestream VOD – ",
+					type: "title",
 				},
 			],
-			consoleColor: '\u001b[38;5;208m',
+			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
 	},
 };
 
 export const defaultArgs: Args = {
-	username: '',
-	password: '',
-	token: '',
+	username: "",
+	password: "",
+	token: "",
 	headless: false,
-	plexUsername: '',
-	plexPassword: '',
+	plexUsername: "",
+	plexPassword: "",
 };
 
 export const defaultSettings: Settings = {
@@ -168,32 +168,32 @@ export const defaultSettings: Settings = {
 	floatplane: {
 		videosToSearch: 5,
 		forceFullSearch: false,
-		videoResolution: '1080',
+		videoResolution: "1080",
 		waitForNewVideos: true,
 		_availableResolutions: defaultResolutions,
-		downloadEdge: '',
+		downloadEdge: "",
 		retries: 3,
 	},
-	_filePathFormattingOPTIONS: ['%channelTitle%', '%videoTitle%', '%year%', '%month%', '%day%', '%hour%', '%minute%', '%second%'],
-	filePathFormatting: './videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%',
+	_filePathFormattingOPTIONS: ["%channelTitle%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],
+	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%",
 	extras: {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,
 		saveNfo: true,
 	},
-	artworkSuffix: '',
+	artworkSuffix: "",
 	plex: {
 		sectionsToUpdate: [],
 		enabled: false,
-		token: '',
+		token: "",
 	},
 	channelAliases: {
-		'linus tech tips': 'Linus Tech Tips',
-		'ltt supporter (og)': 'Linus Tech Tips',
-		'ltt supporter (1080p)': 'Linus Tech Tips',
-		'ltt supporter plus': 'Linus Tech Tips',
+		"linus tech tips": "Linus Tech Tips",
+		"ltt supporter (og)": "Linus Tech Tips",
+		"ltt supporter (1080p)": "Linus Tech Tips",
+		"ltt supporter plus": "Linus Tech Tips",
 	},
 	subscriptions: {},
-	postProcessingCommand: '',
+	postProcessingCommand: "",
 	considerAllNonPartialDownloaded: false,
 };

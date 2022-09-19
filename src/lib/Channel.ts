@@ -1,11 +1,11 @@
-import fs from 'fs/promises';
-import db from '@inrixia/db';
-import Video from './Video.js';
-import chalk from 'chalk-template';
+import fs from "fs/promises";
+import db from "@inrixia/db";
+import Video from "./Video.js";
+import chalk from "chalk-template";
 
-import type { BlogPost } from 'floatplane/creator';
-import type { ChannelOptions } from './types.js';
-import type Subscription from './Subscription.js';
+import type { BlogPost } from "floatplane/creator";
+import type { ChannelOptions } from "./types.js";
+import type Subscription from "./Subscription.js";
 
 // e = episodeNo, d = downloaded, s = filesize in bytes, f = file
 export type VideoDBEntry = { expectedSize?: number; filePath?: string; releaseDate: number };
@@ -15,14 +15,14 @@ export type ChannelDB = {
 };
 
 export default class Channel {
-	public readonly title: ChannelOptions['title'];
-	public readonly identifiers: ChannelOptions['identifiers'];
-	public readonly skip: ChannelOptions['skip'];
-	public readonly daysToKeepVideos: ChannelOptions['daysToKeepVideos'];
+	public readonly title: ChannelOptions["title"];
+	public readonly identifiers: ChannelOptions["identifiers"];
+	public readonly skip: ChannelOptions["skip"];
+	public readonly daysToKeepVideos: ChannelOptions["daysToKeepVideos"];
 
 	public readonly ignoreBeforeTimestamp: number;
 
-	public readonly consoleColor: ChannelOptions['consoleColor'];
+	public readonly consoleColor: ChannelOptions["consoleColor"];
 
 	public subscription: Subscription;
 
@@ -69,11 +69,11 @@ export default class Channel {
 						fs.rm(`${video.filePath}.png`),
 					]);
 					for (const result of deletionResults) {
-						if (result.status === 'fulfilled') deletedFiles++;
+						if (result.status === "fulfilled") deletedFiles++;
 					}
 				}
 			}
-			if (deletedFiles === 0) console.log(' No files found for deletion.');
+			if (deletedFiles === 0) console.log(" No files found for deletion.");
 			else console.log(chalk` Deleted {redBright ${deletedVideos}} videos, {redBright ${deletedFiles}} files.`);
 		}
 	};
@@ -94,7 +94,7 @@ export default class Channel {
 		if (this._db.videos[video.guid] === undefined) {
 			this._db.videos[video.guid] ??= {
 				releaseDate,
-				filePath: '',
+				filePath: "",
 			};
 		}
 		const videoInstance = new Video(video, this);

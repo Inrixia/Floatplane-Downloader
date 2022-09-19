@@ -1,14 +1,14 @@
-import { quickStart, validatePlexSettings } from './quickStart.js';
-import { fetchSubscriptions } from './subscriptionFetching.js';
-import { settings, fetchFFMPEG, fApi } from './lib/helpers.js';
-import { MyPlexAccount } from '@ctrl/plex';
-import { loginFloatplane } from './logins.js';
-import Downloader from './Downloader.js';
-import chalk from 'chalk-template';
+import { quickStart, validatePlexSettings } from "./quickStart.js";
+import { fetchSubscriptions } from "./subscriptionFetching.js";
+import { settings, fetchFFMPEG, fApi } from "./lib/helpers.js";
+import { MyPlexAccount } from "@ctrl/plex";
+import { loginFloatplane } from "./logins.js";
+import Downloader from "./Downloader.js";
+import chalk from "chalk-template";
 
-import type Subscription from './lib/Subscription.js';
+import type Subscription from "./lib/Subscription.js";
 
-import semver from 'semver';
+import semver from "semver";
 const { gt, diff } = semver;
 
 /**
@@ -26,7 +26,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	}
 
 	if (settings.plex.enabled) {
-		process.stdout.write('> Refreshing plex sections... ');
+		process.stdout.write("> Refreshing plex sections... ");
 		const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
 		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
 			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
@@ -37,9 +37,9 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 
 (async () => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const version: string = process.env.npm_package_version ?? require('../package.json').version;
+	const version: string = process.env.npm_package_version ?? require("../package.json").version;
 	const latest = await fApi
-		.got('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json', { resolveBodyOnly: true })
+		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json", { resolveBodyOnly: true })
 		.then(JSON.parse)
 		.catch(() => ({ version }));
 
@@ -65,7 +65,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		await loginFloatplane();
 	}
 
-	process.stdout.write('> Fetching user subscriptions... ');
+	process.stdout.write("> Fetching user subscriptions... ");
 	const subscriptions = await fetchSubscriptions();
 	process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 
@@ -78,7 +78,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		const waitLoop = async () => {
 			await fetchNewVideos(subscriptions, downloader);
 			setTimeout(waitLoop, 5 * 60 * 1000);
-			console.log('Checking for new videos in 5 minutes...');
+			console.log("Checking for new videos in 5 minutes...");
 		};
 		waitLoop();
 	} else downloader.stop();

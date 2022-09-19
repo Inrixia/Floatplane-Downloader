@@ -1,7 +1,7 @@
-import { loopError } from '@inrixia/helpers/object.js';
-import { floatplane, plex } from './lib/prompts/index.js';
-import { fApi, args } from './lib/helpers.js';
-import { MyPlexAccount } from '@ctrl/plex';
+import { loopError } from "@inrixia/helpers/object";
+import { floatplane, plex } from "./lib/prompts/index.js";
+import { fApi, args } from "./lib/helpers.js";
+import { MyPlexAccount } from "@ctrl/plex";
 
 export const loginFloatplane = async (): Promise<void> => {
 	let loginResponse;
@@ -21,7 +21,7 @@ export const loginFloatplane = async (): Promise<void> => {
 		);
 
 		if (loginResponse.needs2FA) {
-			console.log('Looks like you have 2Factor authentication enabled. Nice!\n');
+			console.log("Looks like you have 2Factor authentication enabled. Nice!\n");
 			loginResponse = await loopError(
 				async () => fApi.auth.factor(await floatplane.token()),
 				async (err) => console.error(`\nLooks like that 2Factor token didnt work, Please try again... ${err}`)
@@ -41,7 +41,7 @@ export const loginPlex = async (): Promise<string> => {
 			async (err) => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`)
 		)) as string;
 	} else {
-		console.log('\n> Please enter your plex details. (Username and Password is not saved, only used to generate a token.)');
+		console.log("\n> Please enter your plex details. (Username and Password is not saved, only used to generate a token.)");
 		plexToken = (await loopError(
 			async () => (await new MyPlexAccount(undefined, await plex.username(), await plex.password()).connect()).token,
 			async (err) => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`)

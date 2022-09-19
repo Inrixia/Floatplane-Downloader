@@ -1,4 +1,4 @@
-import prompts from 'prompts';
+import prompts from "prompts";
 
 /**
  * Prompts a user for input, onCancel tries again `maxDepth` times.
@@ -9,7 +9,7 @@ import prompts from 'prompts';
 export const requiredPrompts = (
 	prompt: prompts.PromptObject,
 	maxDepth = 2,
-	cancelPrompt = '\nAnswering this prompt is required to continue.\n',
+	cancelPrompt = "\nAnswering this prompt is required to continue.\n",
 	depth = 0
 ): Promise<prompts.Answers<string>> =>
 	new Promise((res) => {

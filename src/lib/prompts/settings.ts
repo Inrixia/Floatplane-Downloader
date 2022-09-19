@@ -1,5 +1,5 @@
-import prompts from 'prompts';
-import type { Extras, Resolution } from '../types.js';
+import prompts from "prompts";
+import type { Extras, Resolution } from "../types.js";
 
 /**
  * Prompts user to set the max number of parallel downloads.
@@ -9,9 +9,9 @@ import type { Extras, Resolution } from '../types.js';
 export const downloadThreads = async (initial: number): Promise<number> =>
 	(
 		await prompts({
-			type: 'number',
-			name: 'downloadThreads',
-			message: 'What is the number of threads to use for downloads? (-1 for unlimited).',
+			type: "number",
+			name: "downloadThreads",
+			message: "What is the number of threads to use for downloads? (-1 for unlimited).",
 			initial,
 			min: -1,
 		})
@@ -26,9 +26,9 @@ export const downloadThreads = async (initial: number): Promise<number> =>
 export const videoResolution = async (initial: Resolution, resolutions: Array<Resolution>): Promise<Resolution> =>
 	(
 		await prompts({
-			type: 'select',
-			name: 'resolution',
-			message: 'What resolution would you like to download in?',
+			type: "select",
+			name: "resolution",
+			message: "What resolution would you like to download in?",
 			choices: resolutions.map((res) => ({ title: `${res}p`, value: res, disabled: false })),
 			initial: resolutions.indexOf(initial),
 		})
@@ -43,9 +43,9 @@ export const videoResolution = async (initial: Resolution, resolutions: Array<Re
 export const fileFormatting = async (initial: string, options: Array<string>): Promise<string> =>
 	(
 		await prompts({
-			type: 'text',
-			name: 'fileFormatting',
-			message: 'What format should be used for saving videos? The following values can be used:\n' + options.reduce((str, option) => `${str} - ${option}\n`, ''),
+			type: "text",
+			name: "fileFormatting",
+			message: "What format should be used for saving videos? The following values can be used:\n" + options.reduce((str, option) => `${str} - ${option}\n`, ""),
 			initial,
 		})
 	).fileFormatting || initial;
@@ -58,11 +58,11 @@ export const fileFormatting = async (initial: string, options: Array<string>): P
 export const extras = async (initial: Extras): Promise<Array<string> | undefined> =>
 	(
 		await prompts({
-			type: 'multiselect',
-			name: 'extras',
-			message: 'Enable/Disable Extra Options:',
+			type: "multiselect",
+			name: "extras",
+			message: "Enable/Disable Extra Options:",
 			choices: (Object.keys(initial) as [keyof Extras]).map((option) => ({ title: option, value: option, selected: initial[option] })),
-			hint: '- Space to select. Return to submit',
+			hint: "- Space to select. Return to submit",
 		})
 	).extras;
 
@@ -72,12 +72,12 @@ export const extras = async (initial: Extras): Promise<Array<string> | undefined
 export const deleteOldVideos = async (initial: boolean): Promise<boolean> =>
 	(
 		await prompts({
-			type: 'toggle',
-			name: 'deleteOldVideos',
-			message: 'Do you want to automatically delete videos after a specified number of days?',
+			type: "toggle",
+			name: "deleteOldVideos",
+			message: "Do you want to automatically delete videos after a specified number of days?",
 			initial,
-			active: 'Yes',
-			inactive: 'No',
+			active: "Yes",
+			inactive: "No",
 		})
 	).deleteOldVideos;
 
@@ -87,9 +87,9 @@ export const deleteOldVideos = async (initial: boolean): Promise<boolean> =>
 export const daysToKeepVideos = async (initial: number): Promise<number> =>
 	(
 		await prompts({
-			type: 'number',
-			name: 'daysToKeepVideos',
-			message: 'How many days do you want to keep videos before they are deleted?',
+			type: "number",
+			name: "daysToKeepVideos",
+			message: "How many days do you want to keep videos before they are deleted?",
 			initial,
 			min: 1,
 		})

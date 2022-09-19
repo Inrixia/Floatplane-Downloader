@@ -1,5 +1,5 @@
-import prompts from 'prompts';
-import { requiredPrompts } from './helpers.js';
+import prompts from "prompts";
+import { requiredPrompts } from "./helpers.js";
 
 /**
  * Prompts user if they want to automatically refresh plex libraries.
@@ -9,17 +9,17 @@ import { requiredPrompts } from './helpers.js';
 export const usePlex = async (initial: boolean): Promise<boolean> =>
 	(
 		await prompts({
-			type: 'toggle',
-			name: 'usePlex',
-			message: 'Do you want to automatically refresh plex libraries?',
+			type: "toggle",
+			name: "usePlex",
+			message: "Do you want to automatically refresh plex libraries?",
 			initial,
-			active: 'Yes',
-			inactive: 'No',
+			active: "Yes",
+			inactive: "No",
 		})
 	).usePlex;
 
-import type { Section } from '@ctrl/plex';
-import { PlexSections } from '../types.js';
+import type { Section } from "@ctrl/plex";
+import { PlexSections } from "../types.js";
 /**
  * Prompts user to select plex sections to refresh
  * @param selectedSections Sections already selected
@@ -28,15 +28,15 @@ import { PlexSections } from '../types.js';
 export const sections = async (selectedSections: PlexSections, availableSections: Section[]): Promise<PlexSections> =>
 	(
 		await prompts({
-			type: 'multiselect',
-			name: 'sections',
+			type: "multiselect",
+			name: "sections",
 			message: "Please select the plex section's you want to refresh.",
 			choices: Object.values(availableSections).map((availableSection) => ({
 				title: `[${availableSection.server.friendlyName}]: ${availableSection.title}`,
 				value: { server: availableSection.server.friendlyName, section: availableSection.title },
 				selected: selectedSections.includes({ server: availableSection.server.friendlyName, section: availableSection.title }),
 			})),
-			hint: '- Space to select. Return to submit',
+			hint: "- Space to select. Return to submit",
 		})
 	).sections || selectedSections;
 
@@ -48,9 +48,9 @@ export const sections = async (selectedSections: PlexSections, availableSections
 export const username = async (): Promise<string> =>
 	(
 		await requiredPrompts({
-			type: 'text',
-			name: 'username',
-			message: 'Plex account email/username:',
+			type: "text",
+			name: "username",
+			message: "Plex account email/username:",
 		})
 	).username;
 
@@ -62,9 +62,9 @@ export const username = async (): Promise<string> =>
 export const password = async (): Promise<string> =>
 	(
 		await requiredPrompts({
-			type: 'password',
-			name: 'password',
-			message: 'Plex account password, (If you have 2factor enabled add your 2factor code at the end):',
+			type: "password",
+			name: "password",
+			message: "Plex account password, (If you have 2factor enabled add your 2factor code at the end):",
 		})
 	).password;
 
@@ -76,9 +76,9 @@ export const password = async (): Promise<string> =>
 export const hostname = async (initial: string): Promise<string> =>
 	(
 		await prompts({
-			type: 'text',
-			name: 'hostname',
-			message: 'Plex server IP/Hostname:',
+			type: "text",
+			name: "hostname",
+			message: "Plex server IP/Hostname:",
 			initial,
 		})
 	).hostname || initial;
@@ -91,9 +91,9 @@ export const hostname = async (initial: string): Promise<string> =>
 export const port = async (initial: number): Promise<number> =>
 	(
 		await prompts({
-			type: 'text',
-			name: 'port',
-			message: 'Plex server port:',
+			type: "text",
+			name: "port",
+			message: "Plex server port:",
 			initial,
 		})
 	).port || initial;
