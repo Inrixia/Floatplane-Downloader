@@ -69,7 +69,7 @@ export default class Subscription {
 					if ((video[identifierType] as string).toLowerCase().includes(identifier.check.toLowerCase())) {
 						if (channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
-						const idCheck = identifier.check.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+						const idCheck = identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 						const regIDCheck = new RegExp(idCheck, 'i');
 						if (identifierType === 'title' && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, '').trim();
 						return channel.addVideo(video);

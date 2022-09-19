@@ -14,11 +14,11 @@ const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
 export default class Downloader {
 	private mpb?: MultiProgressBars;
 	private videoQueue: Array<{ video: Video; res: promiseFunction }> = [];
-	private videosProcessing: number = 0;
-	private videosProcessed: number = 0;
+	private videosProcessing = 0;
+	private videosProcessed = 0;
 	private summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } } = {};
 
-	private runQueue: boolean = false;
+	private runQueue = false;
 
 	start(): void {
 		if (this.runQueue === false) {

@@ -155,7 +155,7 @@ export default class Video {
 
 		let writeStreamOptions, requestOptions;
 
-		let downloadRequests = [];
+		const downloadRequests = [];
 		for (const i in this.videoAttachments) {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 			const cdnInfo = await fApi.cdn.delivery('download', this.videoAttachments[i]);
@@ -204,7 +204,8 @@ export default class Video {
 			throw new Error(
 				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes('partial')} bytes...`
 			);
-		const artworkEmbed: string[] = settings.extras.downloadArtwork && this.thumbnail !== null ? ['-i', this.artworkPath, '-map', '1', '-map', '0', '-disposition:0', 'attached_pic'] : [];
+		const artworkEmbed: string[] =
+			settings.extras.downloadArtwork && this.thumbnail !== null ? ['-i', this.artworkPath, '-map', '1', '-map', '0', '-disposition:0', 'attached_pic'] : [];
 		await Promise.all(
 			this.videoAttachments.map(
 				(a, i) =>

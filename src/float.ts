@@ -5,11 +5,10 @@ import { MyPlexAccount } from '@ctrl/plex';
 import { loginFloatplane } from './logins.js';
 import Downloader from './Downloader.js';
 import chalk from 'chalk-template';
-import fs from 'fs';
 
 import type Subscription from './lib/Subscription.js';
 
-import semver from "semver";
+import semver from 'semver';
 const { gt, diff } = semver;
 
 /**
@@ -37,7 +36,8 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 };
 
 (async () => {
-	const version: string = process.env.npm_package_version ?? JSON.parse(fs.readFileSync('./package.json').toString()).version;
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const version: string = process.env.npm_package_version ?? require('../package.json').version;
 	const latest = await fApi
 		.got('https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json', { resolveBodyOnly: true })
 		.then(JSON.parse)
