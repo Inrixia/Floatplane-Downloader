@@ -65,7 +65,7 @@ Setting environment variables allows you to pass in your login details, removing
     	-e username="YourUsernameHere" \
     	-e password="YourPasswordHere" \
     	-e plexUsername="YourPlexUsernameHere" \
-    	-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
+    	-e plexPassword="YourPlexPasswordHere2FactorCodeHereIfYouHaveOne" \
     	--restart unless-stopped \
     	inrix/floatplane-downloader
 ```
