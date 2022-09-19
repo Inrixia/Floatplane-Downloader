@@ -27,6 +27,7 @@ export default class Video {
 	public videoAttachments: BlogPost["videoAttachments"];
 
 	public channel: Channel;
+	private static edgeSelector = 0;
 
 	constructor(video: BlogPost, channel: Channel) {
 		this.channel = channel;
@@ -160,9 +161,13 @@ export default class Video {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 			const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[i]);
 
-			// Pick a random edge to download off, eventual even distribution
 			if (cdnInfo.edges === undefined) throw new Error("No edges found for video");
-			const downloadEdge = cdnInfo.edges[Math.floor(Math.random() * cdnInfo.edges.length)];
+
+			// Round robin edges with download enabled
+			const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
+			if (Video.edgeSelector > edges.length - 1) Video.edgeSelector = 0;
+			const downloadEdge = edges[Video.edgeSelector++];
+
 			if (settings.floatplane.downloadEdge !== "") downloadEdge.hostname = settings.floatplane.downloadEdge;
 
 			// Convert the qualities into an array of resolutions and sorts them smallest to largest
