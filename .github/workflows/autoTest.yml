@@ -1,21 +1,32 @@
 ---
-name: 'Compile TS'
+name: "Code Checks"
 
 on:
  pull_request:
-  types: ['opened', 'edited', 'reopened', 'synchronize', 'ready_for_review', 'review_requested']
+  types: ["opened", "edited", "reopened", "synchronize", "ready_for_review", "review_requested"]
 
 jobs:
  TSC:
-  name: 'Compile TS'
-  runs-on: 'ubuntu-latest'
+  name: "Compile TS"
+  runs-on: "ubuntu-latest"
 
   steps:
    - uses: actions/checkout@v2
-   - name: 'Install dependencies'
+   - name: "Install dependencies"
      run: |
       npm install
 
-   - name: 'Compile'
+   - name: "Compile"
      run: |
       npm run prestart
+
+ eslint:
+  name: eslint
+  runs-on: ubuntu-latest
+  steps:
+   - uses: actions/checkout@v2
+   - uses: reviewdog/action-eslint@v1
+     with:
+      reporter: github-check
+      eslint_flags: "src/"
+      github_token: ${{ secrets.GITHUB_TOKEN }}
