@@ -111,6 +111,18 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				{
 					check: 'CC: ',
 					type: 'title'
+				},
+				{
+					check: '\'Carpool Critics\': ',
+					type: 'title'
+				},
+				{
+					check: 'Movie Podcast: ',
+					type: 'title'
+				},
+				{
+					check: 'Movie Podcast : ',
+					type: 'title'
 				}
 			],
 			daysToKeepVideos: -1
