@@ -8,7 +8,9 @@
 		"prestart": "tsc",
 		"start": "node ./dist/float.js",
 		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "esbuild ./src/float.ts --bundle --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip"
+		"build": "esbuild ./src/float.ts --bundle --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
+		"checkLint": "eslint ./src",
+		"lint": "eslint ./src --fix"
 	},
 	"dependencies": {
 		"@ctrl/plex": "^1.5.3",
