@@ -11,9 +11,9 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			daysToKeepVideos: -1,
 		},
 	},
-	"BitWit Ultr": {
+	"BitWit Ultra": {
 		_default: {
-			title: "BitWit Ultr",
+			title: "BitWit Ultra",
 			skip: false,
 			identifiers: false,
 			consoleColor: "\u001b[38;5;105m",
