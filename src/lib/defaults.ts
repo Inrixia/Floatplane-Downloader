@@ -100,16 +100,28 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;153m",
 			daysToKeepVideos: -1,
 		},
-		"Carpool Critics": {
-			title: "Carpool Critics",
+		"Theyre Just Movies": {
+			title: "Theyre Just Movies",
 			skip: false,
 			identifiers: [
+				{
+					check: "TJM: ",
+					type: "title",
+				},
 				{
 					check: "CC: ",
 					type: "title",
 				},
 				{
-					check: "TJM: ",
+					check: "'Carpool Critics': ",
+					type: "title",
+				},
+				{
+					check: "Movie Podcast: ",
+					type: "title",
+				},
+				{
+					check: "Movie Podcast : ",
 					type: "title",
 				},
 			],
@@ -136,6 +148,18 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 				},
 			],
 			consoleColor: "\u001b[38;5;220m",
+			daysToKeepVideos: -1,
+		},
+		"The WAN Show": {
+			title: "The WAN Show",
+			skip: false,
+			identifiers: [
+				{
+					check: "WAN Show",
+					type: "title",
+				},
+			],
+			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
 		"LMG Livestream VODs": {
