@@ -35,10 +35,12 @@
 		"@types/prompts": "^2.0.14",
 		"@types/semver": "^7.3.12",
 		"@types/tough-cookie-file-store": "^2.0.1",
-		"esbuild": "^0.15.8",
-		"pkg": "^5.8.0",
 		"@typescript-eslint/eslint-plugin": "^5.37.0",
+		"esbuild": "^0.15.8",
 		"eslint": "^8.23.1",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"pkg": "^5.8.0",
 		"typescript": "^4.8.3"
 	}
 }
