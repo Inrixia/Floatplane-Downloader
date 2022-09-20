@@ -11,6 +11,7 @@
 
 There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
 
+Docker CLI:
 ```dockerfile
     $ docker run -it \
     	-v [path]:/fp/db \
@@ -43,6 +44,7 @@ Setting environment variables allows you to pass in your login details, removing
 
 **For login:**
 
+Docker CLI:
 ```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
@@ -55,8 +57,27 @@ Setting environment variables allows you to pass in your login details, removing
     	inrix/floatplane-downloader
 ```
 
+Docker-Compose:
+```yaml
+version: "3.8"
+services:
+  floatplane-downloader:
+    image: inrix/floatplane-downloader
+    container_name: floatplane-downloader
+    environment:
+      - headless="true"
+      - username="YourUsernameHere"
+      - password="YourPasswordHere"
+      - token="Your2FactorCodeHere"
+    volumes:
+      - [path]:/fp/db
+      - [path]:/fp/videos
+    restart: unless-stopped
+```
+
 **For login + plex:**
 
+Docker CLI:
 ```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
@@ -68,6 +89,25 @@ Setting environment variables allows you to pass in your login details, removing
     	-e plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne" \
     	--restart unless-stopped \
     	inrix/floatplane-downloader
+```
+
+Docker-Compose:
+```yaml
+version: "3.8"
+services:
+  floatplane-downloader:
+    image: inrix/floatplane-downloader
+    container_name: floatplane-downloader
+    environment:
+      - headless="true"
+      - username="YourUsernameHere"
+      - password="YourPasswordHere"
+      - plexUsername="YourPlexUsernameHere"
+      - plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne"
+    volumes:
+      - [path]:/fp/db
+      - [path]:/fp/videos
+    restart: unless-stopped
 ```
 
 You can also use enviroment variables to set any config values which will be persisted.<br>
