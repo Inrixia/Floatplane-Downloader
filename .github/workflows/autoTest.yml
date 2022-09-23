@@ -19,7 +19,7 @@ jobs:
      run: |
       npm install
 
-   - name: "Compile"
+   - name: "Compile & Sanity Test"
      run: |
       npm run testESM
 
@@ -33,7 +33,7 @@ jobs:
      run: |
       npm install
 
-   - name: "Compile"
+   - name: "Build & Sanity Test"
      run: |
       npm run testBinaryLinux
 

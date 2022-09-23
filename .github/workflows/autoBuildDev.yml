@@ -1,39 +1,39 @@
 ---
-name: 'dev Build'
+name: "dev Build"
 
 on:
  push:
   branches:
-   - 'dev'
+   - "dev"
 
 jobs:
  GitHub:
-  name: 'dev Pre-Release - GitHub'
-  runs-on: 'ubuntu-latest'
+  name: "dev Build - GitHub"
+  runs-on: "ubuntu-latest"
 
   steps:
    - uses: actions/checkout@v2
-   - name: 'Install dependencies'
+   - name: "Install dependencies"
      run: |
       npm install
 
-   - name: 'Build'
+   - name: "Build"
      run: |
       npm run build
 
    - name: Publish dev build on GitHub
-     uses: 'marvinpinto/action-automatic-releases@latest'
+     uses: "marvinpinto/action-automatic-releases@latest"
      with:
-      repo_token: '${{ secrets.GITHUB_TOKEN }}'
-      automatic_release_tag: 'dev'
+      repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      automatic_release_tag: "dev"
       prerelease: true
-      title: 'dev Pre-Release - Auto'
+      title: "Latest dev build"
       files: |
        build/*
 
  DockerHub:
-  name: 'dev Pre-Release - DockerHub'
-  runs-on: 'ubuntu-latest'
+  name: "dev Build - DockerHub"
+  runs-on: "ubuntu-latest"
 
   steps:
    - name: Set up Docker Buildx
