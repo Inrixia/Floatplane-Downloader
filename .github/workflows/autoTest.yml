@@ -6,8 +6,8 @@ on:
   types: ["opened", "edited", "reopened", "synchronize", "ready_for_review", "review_requested"]
 
 jobs:
- TSC:
-  name: "Compile TS"
+ ESM:
+  name: "Compile & Sanity Check ESM"
   runs-on: "ubuntu-latest"
 
   steps:
@@ -18,7 +18,21 @@ jobs:
 
    - name: "Compile"
      run: |
-      npm run prestart
+      npm run testESM
+
+ Binary:
+  name: "Build & Sanity Check Linux Binary"
+  runs-on: "ubuntu-latest"
+
+  steps:
+   - uses: actions/checkout@v2
+   - name: "Install dependencies"
+     run: |
+      npm install
+
+   - name: "Compile"
+     run: |
+      npm run testBinaryLinux
 
  eslint:
   name: eslint

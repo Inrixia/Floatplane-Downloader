@@ -1,6 +1,6 @@
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
-import { settings, fetchFFMPEG, fApi } from "./lib/helpers.js";
+import { settings, fetchFFMPEG, fApi, args } from "./lib/helpers.js";
 import { MyPlexAccount } from "@ctrl/plex";
 import { loginFloatplane } from "./logins.js";
 import Downloader from "./Downloader.js";
@@ -10,6 +10,10 @@ import type Subscription from "./lib/Subscription.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore Yes, package.json isnt under src, this is fine
+import pkg from "../package.json" assert { type: "json" };
 
 /**
  * Main function that triggeres everything else in the script
@@ -36,11 +40,10 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 };
 
 (async () => {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const version: string = process.env.npm_package_version ?? require("../package.json").version;
+	const version: string = process.env.npm_package_version ?? pkg.version;
 	const latest = await fApi
-		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json", { resolveBodyOnly: true })
-		.then(JSON.parse)
+		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json")
+		.json<{ version: string }>()
 		.catch(() => ({ version }));
 
 	if (gt(latest.version, version))
@@ -49,6 +52,11 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 				latest.version
 			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`
 		);
+
+	if (args.sanityCheck) {
+		console.log("Sanity check passed!");
+		process.exit();
+	}
 
 	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.

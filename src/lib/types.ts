@@ -41,6 +41,7 @@ export type Args = {
 	headless: boolean;
 	plexUsername: string;
 	plexPassword: string;
+	sanityCheck: boolean;
 };
 
 export type PartialArgs = Partial<Args & Settings>;

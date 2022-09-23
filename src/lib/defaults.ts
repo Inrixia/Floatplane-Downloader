@@ -184,6 +184,7 @@ export const defaultArgs: Args = {
 	headless: false,
 	plexUsername: "",
 	plexPassword: "",
+	sanityCheck: false,
 };
 
 export const defaultSettings: Settings = {
