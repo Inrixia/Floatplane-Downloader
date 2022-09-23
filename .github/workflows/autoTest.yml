@@ -4,6 +4,9 @@ name: "Code Checks"
 on:
  pull_request:
   types: ["opened", "edited", "reopened", "synchronize", "ready_for_review", "review_requested"]
+ push:
+  branches:
+   - "dev"
 
 jobs:
  ESM:
