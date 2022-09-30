@@ -24,7 +24,7 @@ export default class Video {
 	public releaseDate: Date;
 	public thumbnail: BlogPost["thumbnail"];
 
-	public videoAttachments: BlogPost["videoAttachments"];
+	public videoAttachments: string[];
 
 	public channel: Channel;
 	private static edgeSelector = 0;
@@ -33,7 +33,7 @@ export default class Video {
 		this.channel = channel;
 
 		this.guid = video.guid;
-		this.videoAttachments = video.attachmentOrder.filter((a) => video.videoAttachments.includes(a));
+		this.videoAttachments = video.attachmentOrder.filter((a) => video.videoAttachments?.includes(a));
 		this.title = video.title;
 		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
@@ -161,7 +161,8 @@ export default class Video {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 			const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[i]);
 
-			if (cdnInfo.edges === undefined) throw new Error("No edges found for video");
+			if (cdnInfo.edges === undefined) throw new Error("Video has no edges!");
+			if (cdnInfo.resource.data.qualityLevels === undefined) throw new Error("Video has no qualityLevels!");
 
 			// Round robin edges with download enabled
 			const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
@@ -170,16 +171,13 @@ export default class Video {
 
 			if (settings.floatplane.downloadEdge !== "") downloadEdge.hostname = settings.floatplane.downloadEdge;
 
-			// Convert the qualities into an array of resolutions and sorts them smallest to largest
-			const availableQualities = cdnInfo.resource.data.qualityLevels.map((quality) => quality.name).sort((a, b) => +b - +a);
+			// Sort qualities from highest to smallest
+			const availableQualities = cdnInfo.resource.data.qualityLevels.sort((a, b) => b.order - a.order).map((level) => level.name);
 
 			// Set the quality to use based on whats given in the settings.json or the highest available
-			const downloadQuality = availableQualities.includes(quality) ? quality : availableQualities[0];
+			const downloadQuality = availableQualities.find((name) => name.includes(quality)) ?? availableQualities[0];
 
-			const downloadRequest = fApi.got.stream(
-				`https://${downloadEdge.hostname}${cdnInfo.resource.uri.replace("{qualityLevels}", downloadQuality).replace("{token}", cdnInfo.resource.data.token)}`,
-				requestOptions
-			);
+			const downloadRequest = fApi.got.stream(`https://${downloadEdge.hostname}${fApi.cdn.fillUrl(cdnInfo, downloadQuality)}`, requestOptions);
 			// Pipe the download to the file once response starts
 			downloadRequest.pipe(createWriteStream(`${this.filePath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
