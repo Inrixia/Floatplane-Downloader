@@ -9,6 +9,7 @@
 		"build": "esbuild ./src/float.ts --bundle --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
 		"checkLint": "eslint ./src",
 		"lint": "eslint ./src --fix",
+		"sanity": "npm run checkLint && npm run testESM && npm run testBinaryWin",
 		"testESM": "tsc && node ./dist/float.js --sanityCheck",
 		"testBinaryLinux": "npm run build && ./build/float-linux --sanityCheck",
 		"testBinaryWin": "npm run build && cd ./build && float-win.exe --sanityCheck"
