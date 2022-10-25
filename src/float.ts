@@ -43,7 +43,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 };
 
 (async () => {
-	const version = "5.5.0";
+	const version = "5.6.0";
 	if (args.sanityCheck && version !== pkg.version) {
 		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${version}`);
 	}
