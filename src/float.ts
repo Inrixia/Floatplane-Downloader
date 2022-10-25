@@ -19,17 +19,20 @@ import pkg from "../package.json" assert { type: "json" };
  * Main function that triggeres everything else in the script
  */
 const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: Downloader) => {
+	let newVideos = 0;
 	for (const subscription of subscriptions) {
 		await subscription.deleteOldVideos();
 		console.log();
-		await Promise.all(
-			videoProcessor.processVideos(
-				await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix, settings.floatplane.forceFullSearch)
+		newVideos += (
+			await Promise.all(
+				videoProcessor.processVideos(
+					await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix, settings.floatplane.forceFullSearch)
+				)
 			)
-		);
+		).length;
 	}
 
-	if (settings.plex.enabled) {
+	if (newVideos !== 0 && settings.plex.enabled) {
 		process.stdout.write("> Refreshing plex sections... ");
 		const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
 		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
