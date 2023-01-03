@@ -93,6 +93,17 @@ Defaults to 3
 
 <br>
 
+**floatplane.seekAndDestroy**:<br>
+You can put video id's here and the downloader will find, sort and download them normally.<br>
+
+```json
+"floatplane": {
+    "seekAndDestroy": ["xL64iWbreb"]
+}
+```
+
+<br>
+
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
 You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>

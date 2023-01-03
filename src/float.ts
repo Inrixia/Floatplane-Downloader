@@ -7,6 +7,7 @@ import Downloader from "./Downloader.js";
 import chalk from "chalk-template";
 
 import type Subscription from "./lib/Subscription.js";
+import type { ContentPost } from "floatplane/content";
 
 import semver from "semver";
 const { gt, diff } = semver;
@@ -19,17 +20,24 @@ import pkg from "../package.json" assert { type: "json" };
  * Main function that triggeres everything else in the script
  */
 const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: Downloader) => {
+	// Function that pops items out of seek and destroy until the array is empty
+	const posts: Promise<ContentPost>[] = [];
+	while (settings.floatplane.seekAndDestroy.length > 0) {
+		const guid = settings.floatplane.seekAndDestroy.pop();
+		if (guid === undefined) continue;
+		posts.push(fApi.content.post(guid));
+	}
 	let newVideos = 0;
 	for (const subscription of subscriptions) {
 		await subscription.deleteOldVideos();
 		console.log();
-		newVideos += (
-			await Promise.all(
-				videoProcessor.processVideos(
-					await subscription.fetchNewVideos(settings.floatplane.videosToSearch, settings.extras.stripSubchannelPrefix, settings.floatplane.forceFullSearch)
-				)
-			)
-		).length;
+		const subVideos = await subscription.fetchNewVideos(
+			settings.floatplane.videosToSearch,
+			settings.extras.stripSubchannelPrefix,
+			settings.floatplane.forceFullSearch
+		);
+		const seekVideos = await subscription.seekAndDestroy(await Promise.all(posts), settings.extras.stripSubchannelPrefix);
+		newVideos += (await Promise.all(videoProcessor.processVideos([...subVideos, ...seekVideos]))).length;
 	}
 
 	if (newVideos !== 0 && settings.plex.enabled) {

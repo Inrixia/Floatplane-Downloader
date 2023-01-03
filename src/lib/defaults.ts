@@ -198,6 +198,7 @@ export const defaultSettings: Settings = {
 		_availableResolutions: defaultResolutions,
 		downloadEdge: "",
 		retries: 3,
+		seekAndDestroy: [],
 	},
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%",

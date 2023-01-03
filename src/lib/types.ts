@@ -76,6 +76,7 @@ export type Settings = {
 		_availableResolutions: Resolutions;
 		downloadEdge: string;
 		retries: number;
+		seekAndDestroy: string[];
 	};
 	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;

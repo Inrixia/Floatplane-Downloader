@@ -1,10 +1,11 @@
-import { BlogPost } from "floatplane/creator";
 import { fApi } from "./helpers.js";
 import Channel from "./Channel.js";
 import db from "@inrixia/db";
 
 import type { SubscriptionSettings } from "./types.js";
 import type Video from "./Video.js";
+import type { ContentPost } from "floatplane/content";
+import type { BlogPost } from "floatplane/creator";
 
 type LastSeenVideo = {
 	guid: BlogPost["guid"];
@@ -101,6 +102,40 @@ export default class Subscription {
 			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
 		process.stdout.write(` Skipped ${videos.length - videos.length}.\n`);
+		return videos;
+	}
+
+	public async seekAndDestroy(contentPosts: ContentPost[], stripSubchannelPrefix: boolean): Promise<Video[]> {
+		const thisSubsPosts = contentPosts.filter((post) => post.creator.id === this.creatorId);
+		if (thisSubsPosts.length === 0) return [];
+		process.stdout.write(`> Seeking and destroying ${thisSubsPosts.length} videos... Destroyed 0`);
+		let count = 0;
+		const videos: Video[] = [];
+		for (const contentPost of thisSubsPosts) {
+			// Convert as best able to a BlogPost
+			const blogPost: BlogPost = <BlogPost>(<unknown>{
+				...contentPost,
+				videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
+				audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
+				pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
+				creator: {
+					...contentPost.creator,
+					owner: {
+						id: contentPost.creator.owner,
+						username: "",
+					},
+					category: {
+						title: contentPost.creator.category,
+					},
+					card: null,
+				},
+			});
+			const video = this.addVideo(blogPost, stripSubchannelPrefix);
+			if (video === null) continue;
+			videos.push(video);
+			process.stdout.write(`\r> Seeking and destroying ${thisSubsPosts.length} videos... Destroyed ${++count}`);
+		}
+		console.log();
 		return videos;
 	}
 }
