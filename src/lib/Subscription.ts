@@ -64,10 +64,17 @@ export default class Subscription {
 						`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`
 					);
 				else {
+					if (
+						(identifier.type === "runtimeLessThan" && video.metadata.videoDuration < +identifier.check) ||
+						(identifier.type === "runtimeGreaterThan" && video.metadata.videoDuration > +identifier.check)
+					) {
+						if (channel.skip === true) return null;
+						return channel.addVideo(video);
+					}
+
 					// Description is named text on videos, kept description for ease of use for users but have to change it here...
 					const identifierType = identifier.type === "description" ? "text" : identifier.type;
-
-					if ((video[identifierType] as string).toLowerCase().includes(identifier.check.toLowerCase())) {
+					if (identifierType in video && video[identifierType as keyof typeof video]?.toString().toLowerCase().includes(identifier.check.toLowerCase())) {
 						if (channel.skip === true) return null;
 						// Remove the identifier from the video title if to give a nicer title
 						const idCheck = identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
