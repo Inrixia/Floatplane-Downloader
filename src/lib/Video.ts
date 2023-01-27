@@ -78,7 +78,7 @@ export default class Video {
 	/**
 	 * Get the suffix for a video file if there are multiple videoAttachments for this video
 	 */
-	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - Part ${+attachmentIndex + 1}` : ""}`;
+	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - part${+attachmentIndex + 1}` : ""}`;
 
 	get expectedSize(): number | undefined {
 		return this.channel.lookupVideoDB(this.guid).expectedSize;
