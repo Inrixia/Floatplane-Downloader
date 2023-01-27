@@ -189,7 +189,7 @@ export const defaultArgs: Args = {
 
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
-	downloadThreads: -1,
+	downloadThreads: 1,
 	floatplane: {
 		videosToSearch: 5,
 		forceFullSearch: false,

@@ -16,10 +16,10 @@ Setting this to true will cause the quickStartPrompts to run on startup.
 <br>
 
 **downloadThreads**:<br>
-Sets the maximum amount of downloads that can run concurrently. Default's to -1 which is unlimited, 2 would mean only 2 videos download at once.<br>
+Sets the maximum amount of downloads that can run concurrently. Default's to 1, 2 would mean only 2 videos download at once, -1 is unlimited. This value should be set low when downloading a large number of videos.<br>
 
 ```json
-"downloadThreads": -1
+"downloadThreads": 1
 ```
 
 <br>
