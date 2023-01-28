@@ -65,10 +65,10 @@ services:
     image: inrix/floatplane-downloader
     container_name: floatplane-downloader
     environment:
-      - headless="true"
-      - username="YourUsernameHere"
-      - password="YourPasswordHere"
-      - token="Your2FactorCodeHere"
+      - headless=true
+      - username=YourUsernameHere
+      - password=YourPasswordHere
+      - token=Your2FactorCodeHere
     volumes:
       - [path]:/fp/db
       - [path]:/fp/videos
@@ -99,11 +99,11 @@ services:
     image: inrix/floatplane-downloader
     container_name: floatplane-downloader
     environment:
-      - headless="true"
-      - username="YourUsernameHere"
-      - password="YourPasswordHere"
-      - plexUsername="YourPlexUsernameHere"
-      - plexPassword="YourPexPasswordHere2FactorCodeHereIfYouHaveOne"
+      - headless=true
+      - username=YourUsernameHere
+      - password=YourPasswordHere
+      - plexUsername=YourPlexUsernameHere
+      - plexPassword=YourPexPasswordHere2FactorCodeHereIfYouHaveOne
     volumes:
       - [path]:/fp/db
       - [path]:/fp/videos
