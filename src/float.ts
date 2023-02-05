@@ -15,6 +15,7 @@ const { gt, diff } = semver;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
+import Video from "./lib/Video.js";
 
 /**
  * Main function that triggeres everything else in the script
@@ -27,7 +28,8 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		if (guid === undefined) continue;
 		posts.push(fApi.content.post(guid));
 	}
-	let newVideos = 0;
+	let newVideos: Video[] = [];
+
 	for (const subscription of subscriptions) {
 		await subscription.deleteOldVideos();
 		console.log();
@@ -37,16 +39,19 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 			settings.floatplane.forceFullSearch
 		);
 		const seekVideos = await subscription.seekAndDestroy(await Promise.all(posts), settings.extras.stripSubchannelPrefix);
-		newVideos += (await Promise.all(videoProcessor.processVideos([...subVideos, ...seekVideos]))).length;
+		newVideos = [...newVideos, ...subVideos, ...seekVideos];
 	}
 
-	if (newVideos !== 0 && settings.plex.enabled) {
-		process.stdout.write("> Refreshing plex sections... ");
-		const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
-		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
-			await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+	if (newVideos.length !== 0) {
+		await Promise.all(videoProcessor.processVideos(newVideos));
+		if (settings.plex.enabled) {
+			process.stdout.write("> Refreshing plex sections... ");
+			const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
+			for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
+				await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+			}
+			process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 		}
-		process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 	}
 };
 

@@ -16,6 +16,9 @@ import { nPad } from "@inrixia/helpers/math";
 import type { FilePathFormattingOptions } from "./types.js";
 import type { BlogPost } from "floatplane/creator";
 import type Channel from "./Channel.js";
+import { DownloadDeliveryResponse } from "floatplane/cdn";
+
+const EXT = "mp4";
 
 export default class Video {
 	public guid: BlogPost["guid"];
@@ -98,7 +101,7 @@ export default class Video {
 	};
 	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes("partial")) === this.expectedSize;
 	public isMuxed = async (): Promise<boolean> => {
-		const fileBytes = await this.fileBytes("mp4");
+		const fileBytes = await this.fileBytes(EXT);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
 		if (settings.considerAllNonPartialDownloaded) return fileBytes !== -1;
 		return fileBytes === this.expectedSize;
@@ -165,9 +168,7 @@ export default class Video {
 			if (cdnInfo.resource.data.qualityLevels === undefined) throw new Error("Video has no qualityLevels!");
 
 			// Round robin edges with download enabled
-			const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
-			if (Video.edgeSelector > edges.length - 1) Video.edgeSelector = 0;
-			const downloadEdge = edges[Video.edgeSelector++];
+			const downloadEdge = this.getEdge(cdnInfo);
 
 			if (settings.floatplane.downloadEdge !== "") downloadEdge.hostname = settings.floatplane.downloadEdge;
 
@@ -188,12 +189,17 @@ export default class Video {
 		return downloadRequests;
 	}
 
+	private getEdge(cdnInfo: DownloadDeliveryResponse) {
+		const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
+		if (Video.edgeSelector > edges.length - 1) Video.edgeSelector = 0;
+		const downloadEdge = edges[Video.edgeSelector++];
+		return downloadEdge;
+	}
+
 	public async markCompleted(): Promise<void> {
 		if (!(await this.isMuxed()))
 			throw new Error(
-				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(
-					"mp4"
-				)} bytes...`
+				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(EXT)} bytes...`
 			);
 		return this.channel.markVideoCompleted(this.guid, this.releaseDate.getTime());
 	}
@@ -233,7 +239,7 @@ export default class Video {
 								`synopsis=${this.ffmpegDesc}`,
 								"-c",
 								"copy",
-								`${this.filePath}${this.multiPartSuffix(i)}.mp4`,
+								`${this.filePath}${this.multiPartSuffix(i)}.${EXT}`,
 							],
 							(error, stdout, stderr) => {
 								if (error !== null) {
@@ -246,12 +252,12 @@ export default class Video {
 					)
 			)
 		);
-		this.expectedSize = await this.fileBytes("mp4");
+		this.expectedSize = await this.fileBytes(EXT);
 		await this.markCompleted();
 		for (const i in this.videoAttachments) {
 			await fs.unlink(`${this.filePath}${this.multiPartSuffix(i)}.partial`);
 			// Set the files update time to when the video was released
-			await fs.utimes(`${this.filePath}${this.multiPartSuffix(i)}.mp4`, new Date(), this.releaseDate);
+			await fs.utimes(`${this.filePath}${this.multiPartSuffix(i)}.${EXT}`, new Date(), this.releaseDate);
 		}
 	}
 

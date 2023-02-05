@@ -11,6 +11,8 @@ const gr = (str: string | number) => `\u001b[32;1m${str}\u001b[0m`;
 const ye = (str: string | number) => `\u001b[33;1m${str}\u001b[0m`;
 const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
 
+type DownloadProgress = { total: number; transferred: number; percent: number };
+
 export default class Downloader {
 	private mpb?: MultiProgressBars;
 	private videoQueue: Array<{ video: Video; res: promiseFunction }> = [];
@@ -56,7 +58,7 @@ export default class Downloader {
 		const processingPromises = videos.reverse().map((video) => new Promise<void>((res) => this.videoQueue.push({ video, res })));
 
 		// Handler for when all downloads are done.
-		Promise.all(processingPromises).then(() => this.updateSummaryBar());
+		Promise.all(processingPromises).then(this.updateSummaryBar.bind(this));
 		return processingPromises;
 	}
 
@@ -119,7 +121,7 @@ export default class Downloader {
 			// If the video is already downloaded then just mux its metadata
 			if (!(await video.isDownloaded())) {
 				const startTime = Date.now();
-				const downloadRequests = await video.download(settings.floatplane.videoResolution as string);
+				const downloadRequests = await video.download(settings.floatplane.videoResolution);
 
 				const totalBytes: number[] = [];
 				const downloadedBytes: number[] = [];
@@ -127,30 +129,8 @@ export default class Downloader {
 
 				await Promise.all(
 					downloadRequests.map(async (request, i) => {
-						request.on("downloadProgress", (downloadProgress: { total: number; transferred: number; percent: number }) => {
-							const timeElapsed = (Date.now() - startTime) / 1000;
-
-							totalBytes[i] = downloadProgress.total;
-							downloadedBytes[i] = downloadProgress.transferred;
-							percentage[i] = downloadProgress.percent;
-
-							// Sum the stats for multi part video downloads
-							const total = totalBytes.reduce((sum, b) => sum + b, 0);
-							const transferred = downloadedBytes.reduce((sum, b) => sum + b, 0);
-
-							const totalMB = total / 1024000;
-							const downloadedMB = transferred / 1024000;
-							const downloadSpeed = transferred / timeElapsed;
-							const downloadETA = total / downloadSpeed - timeElapsed; // Round to 4 decimals
-
-							this.updateBar(formattedTitle, {
-								percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
-								message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")} ETA: ${bl(
-									Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
-								)}`,
-							});
-							this.summaryStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
-							if (args.headless !== true) this.updateSummaryBar();
+						request.on("downloadProgress", (downloadProgress: DownloadProgress) => {
+							this.onDownloadProgress(startTime, totalBytes, i, downloadProgress, downloadedBytes, percentage, formattedTitle);
 						});
 						await new Promise((res, rej) => {
 							request.on("end", res);
@@ -191,5 +171,39 @@ export default class Downloader {
 					true
 				);
 		}
+	}
+
+	private onDownloadProgress(
+		startTime: number,
+		totalBytes: number[],
+		i: number,
+		downloadProgress: DownloadProgress,
+		downloadedBytes: number[],
+		percentage: number[],
+		formattedTitle: string
+	) {
+		const timeElapsed = (Date.now() - startTime) / 1000;
+
+		totalBytes[i] = downloadProgress.total;
+		downloadedBytes[i] = downloadProgress.transferred;
+		percentage[i] = downloadProgress.percent;
+
+		// Sum the stats for multi part video downloads
+		const total = totalBytes.reduce((sum, b) => sum + b, 0);
+		const transferred = downloadedBytes.reduce((sum, b) => sum + b, 0);
+
+		const totalMB = total / 1024000;
+		const downloadedMB = transferred / 1024000;
+		const downloadSpeed = transferred / timeElapsed;
+		const downloadETA = total / downloadSpeed - timeElapsed; // Round to 4 decimals
+
+		this.updateBar(formattedTitle, {
+			percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
+			message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")} ETA: ${bl(
+				Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
+			)}`,
+		});
+		this.summaryStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
+		if (args.headless !== true) this.updateSummaryBar();
 	}
 }
