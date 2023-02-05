@@ -7,11 +7,9 @@ import type { BlogPost } from "floatplane/creator";
 import type { ChannelOptions } from "./types.js";
 import type Subscription from "./Subscription.js";
 
-// e = episodeNo, d = downloaded, s = filesize in bytes, f = file
 export type VideoDBEntry = { expectedSize?: number; filePath?: string; releaseDate: number };
 export type ChannelDB = {
 	videos: { [key: string]: VideoDBEntry };
-	nextEpisodeNo: number;
 };
 
 export default class Channel {
@@ -45,7 +43,7 @@ export default class Channel {
 
 		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
-			this._db = db<ChannelDB>(databaseFilePath, { template: { videos: {}, nextEpisodeNo: 1 } });
+			this._db = db<ChannelDB>(databaseFilePath, { template: { videos: {} } });
 		} catch {
 			throw new Error(`Cannot load Channel database file ${databaseFilePath}! Please delete the file or fix it!`);
 		}
@@ -78,11 +76,9 @@ export default class Channel {
 		}
 	};
 
-	public lookupVideoDB = (guid: string): VideoDBEntry => this._db.videos[guid];
-
-	public markVideoCompleted(guid: string, releaseDate: number): void {
+	public markVideoFinished(guid: string, releaseDate: number): void {
 		// Redundant check but worth keeping
-		if (this.lookupVideoDB(guid) === undefined) throw new Error(`Cannot mark unknown video ${guid} as completed. Video does not exist in channel database.`);
+		if (this._db.videos[guid] === undefined) throw new Error(`Cannot mark unknown video ${guid} as completed. Video does not exist in channel database.`);
 		this.subscription.updateLastSeenVideo({ guid, releaseDate });
 	}
 
@@ -97,7 +93,7 @@ export default class Channel {
 				filePath: "",
 			};
 		}
-		const videoInstance = new Video(video, this);
+		const videoInstance = new Video(video, this, this._db.videos[video.guid]);
 		this._db.videos[video.guid].filePath = videoInstance.filePath;
 
 		return videoInstance;

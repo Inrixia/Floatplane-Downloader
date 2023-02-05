@@ -17,6 +17,7 @@ import type { FilePathFormattingOptions } from "./types.js";
 import type { BlogPost } from "floatplane/creator";
 import type Channel from "./Channel.js";
 import { DownloadDeliveryResponse } from "floatplane/cdn";
+import { VideoDBEntry } from "./Channel.js";
 
 const EXT = "mp4";
 
@@ -30,10 +31,14 @@ export default class Video {
 	public videoAttachments: string[];
 
 	public channel: Channel;
-	private static edgeSelector = 0;
+	private videoDBEntry: VideoDBEntry;
 
-	constructor(video: BlogPost, channel: Channel) {
+	private static EdgeSelector = 0;
+	private edgeSelector = Video.EdgeSelector;
+
+	constructor(video: BlogPost, channel: Channel, videoDBEntry: VideoDBEntry) {
 		this.channel = channel;
+		this.videoDBEntry = videoDBEntry;
 
 		this.guid = video.guid;
 		this.videoAttachments = video.attachmentOrder.filter((a) => video.videoAttachments?.includes(a));
@@ -84,10 +89,10 @@ export default class Video {
 	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - part${+attachmentIndex + 1}` : ""}`;
 
 	get expectedSize(): number | undefined {
-		return this.channel.lookupVideoDB(this.guid).expectedSize;
+		return this.videoDBEntry.expectedSize;
 	}
 	set expectedSize(expectedSize: number | undefined) {
-		this.channel.lookupVideoDB(this.guid).expectedSize = expectedSize;
+		this.videoDBEntry.expectedSize = expectedSize;
 	}
 
 	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
@@ -99,8 +104,13 @@ export default class Video {
 		}
 		return bytes;
 	};
-	public isDownloaded = async (): Promise<boolean> => (await this.isMuxed()) || (await this.fileBytes("partial")) === this.expectedSize;
+	public isDownloaded = async (): Promise<boolean> => {
+		if (this.expectedSize === undefined) return false;
+		if (await this.isMuxed()) return true;
+		return (await this.fileBytes("partial")) === this.expectedSize;
+	};
 	public isMuxed = async (): Promise<boolean> => {
+		if (this.expectedSize === undefined) return false;
 		const fileBytes = await this.fileBytes(EXT);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
 		if (settings.considerAllNonPartialDownloaded) return fileBytes !== -1;
@@ -191,9 +201,12 @@ export default class Video {
 
 	private getEdge(cdnInfo: DownloadDeliveryResponse) {
 		const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
-		if (Video.edgeSelector > edges.length - 1) Video.edgeSelector = 0;
-		const downloadEdge = edges[Video.edgeSelector++];
-		return downloadEdge;
+		if (this.edgeSelector > edges.length - 1) this.edgeSelector = 0;
+		if (this.edgeSelector === 0) {
+			if (Video.EdgeSelector > edges.length - 1) Video.EdgeSelector = 0;
+			return edges[Video.EdgeSelector++];
+		}
+		return edges[this.edgeSelector++];
 	}
 
 	public async markCompleted(): Promise<void> {
@@ -201,7 +214,7 @@ export default class Video {
 			throw new Error(
 				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(EXT)} bytes...`
 			);
-		return this.channel.markVideoCompleted(this.guid, this.releaseDate.getTime());
+		return this.channel.markVideoFinished(this.guid, this.releaseDate.getTime());
 	}
 
 	get ffmpegDesc() {
