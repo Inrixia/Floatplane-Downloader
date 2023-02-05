@@ -197,7 +197,7 @@ export const defaultSettings: Settings = {
 		waitForNewVideos: true,
 		_availableResolutions: defaultResolutions,
 		downloadEdge: "",
-		retries: 3,
+		retries: 9,
 		seekAndDestroy: [],
 	},
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],
