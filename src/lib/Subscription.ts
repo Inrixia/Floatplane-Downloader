@@ -110,7 +110,7 @@ export default class Subscription {
 			if (videosSearched++ >= videosToSearch) break;
 			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
-		process.stdout.write(` Skipped ${videos.length - videos.length}.\n`);
+		process.stdout.write(` Skipped ${videosSearched - videos.length}.\n`);
 		return videos;
 	}
 

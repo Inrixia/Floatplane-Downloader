@@ -12,6 +12,8 @@ import type { ContentPost } from "floatplane/content";
 import semver from "semver";
 const { gt, diff } = semver;
 
+import { promptVideos } from "./lib/prompts/downloader.js";
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
@@ -43,6 +45,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	}
 
 	if (newVideos.length !== 0) {
+		if (settings.extras.promptVideos) newVideos = await promptVideos(newVideos);
 		// If processing videos does not complete then forceFullSearch next run to recover
 		settings.floatplane.forceFullSearch = true;
 		await Promise.all(videoProcessor.processVideos(newVideos));

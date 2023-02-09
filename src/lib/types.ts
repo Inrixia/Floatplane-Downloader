@@ -47,6 +47,7 @@ export type Extras = {
 	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
 	saveNfo: boolean;
+	promptVideos: boolean;
 };
 
 export type FilePathFormattingOptions = {

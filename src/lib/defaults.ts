@@ -203,6 +203,7 @@ export const defaultSettings: Settings = {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,
 		saveNfo: true,
+		promptVideos: false,
 	},
 	artworkSuffix: "",
 	plex: {
