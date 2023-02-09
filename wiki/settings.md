@@ -155,6 +155,17 @@ Saves video metadata to nfo files alongside each video.<br>
 
 <br>
 
+**extras.promptVideos**:<br>
+Prompts the user to confirm videos to download after fetching.<br>
+
+```json
+"extras": {
+    "promptVideos": true
+}
+```
+
+<br>
+
 **artworkSuffix**:<br>
 Suffix appended to artwork filename.<br>
 Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
