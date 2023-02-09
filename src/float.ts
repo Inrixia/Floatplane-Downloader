@@ -43,7 +43,10 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	}
 
 	if (newVideos.length !== 0) {
+		// If processing videos does not complete then forceFullSearch next run to recover
+		settings.floatplane.forceFullSearch = true;
 		await Promise.all(videoProcessor.processVideos(newVideos));
+		settings.floatplane.forceFullSearch = false;
 		if (settings.plex.enabled) {
 			process.stdout.write("> Refreshing plex sections... ");
 			const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
