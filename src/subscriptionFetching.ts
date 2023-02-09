@@ -13,19 +13,27 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> =>
 				skip: false,
 				channels: defaultSubChannels[titleAlias],
 			};
+
+			const sub = settings.subscriptions[subscription.creator];
+
+			// Translate old configs
+			if (sub.channels !== undefined && !Array.isArray(sub.channels)) sub.channels = Object.values(sub.channels);
+
 			// Make sure that new subchannels from defaults are added to settings
-			settings.subscriptions[subscription.creator].channels = {
-				...defaultSubChannels[titleAlias],
-				...settings.subscriptions[subscription.creator].channels,
-			};
-			// If no defaultSubChannels have been created for this subscription make sure the _default channel exists regardless
-			if (settings.subscriptions[subscription.creator].channels._default === undefined)
-				settings.subscriptions[subscription.creator].channels._default = {
-					title: titleAlias,
-					skip: false,
-					identifiers: false,
-					daysToKeepVideos: -1,
-				};
+			const channelsToAdd = defaultSubChannels[titleAlias].filter((channel) => sub.channels.findIndex((chan) => chan.title === channel.title) === -1);
+			if (channelsToAdd.length > 0) {
+				sub.channels = [...sub.channels, ...channelsToAdd];
+			}
+
+			// If a default channel isnt specified for this in defaultSubChannels then create a default
+			if (settings.subscriptions[subscription.creator].channels.length === 0)
+				settings.subscriptions[subscription.creator].channels = [
+					{
+						title: titleAlias,
+						skip: false,
+						daysToKeepVideos: -1,
+					},
+				];
 			return new Subscription(settings.subscriptions[subscription.creator]);
 		})
 		.filter((subscription) => settings.subscriptions[subscription.creatorId].skip !== true);

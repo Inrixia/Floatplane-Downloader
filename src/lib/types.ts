@@ -10,15 +10,12 @@ type ChannelIdentifier = {
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
-	identifiers: ChannelIdentifier[] | false;
+	identifiers?: ChannelIdentifier[];
 	consoleColor?: string;
 	daysToKeepVideos: number;
 };
 
-export type SubChannels = {
-	_default: ChannelOptions;
-	[key: string]: ChannelOptions;
-};
+export type SubChannels = ChannelOptions[];
 
 export type PlexSections = Array<{ server: string; section: string }>;
 export type PlexSettings = {

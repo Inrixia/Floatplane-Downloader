@@ -25,8 +25,8 @@ export default class Subscription {
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 
-		this.channels = Object.values(subscription.channels).map((channel) => new Channel(channel, this));
-		this.defaultChannel = new Channel(subscription.channels._default, this);
+		this.channels = subscription.channels.map((channel) => new Channel(channel, this));
+		this.defaultChannel = this.channels[0];
 
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
@@ -57,7 +57,7 @@ export default class Subscription {
 	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel["addVideo"]> | null {
 		for (const channel of this.channels) {
 			// Check if the video belongs to this channel
-			if (channel.identifiers === false) continue;
+			if (!channel.identifiers) continue;
 			for (const identifier of channel.identifiers) {
 				if (typeof identifier.type !== "string")
 					throw new Error(
@@ -96,16 +96,18 @@ export default class Subscription {
 
 		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
+		let videosSearched = 0;
 		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
 			const video = this.addVideo(blogPost, stripSubchannelPrefix);
-			if (video === null) continue;
-			// If we have found the last seen video, check if its downloaded.
-			// If it is then break here and return the videos we have found.
-			// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
-			if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
-			videos.push(video);
+			if (video !== null) {
+				// If we have found the last seen video, check if its downloaded.
+				// If it is then break here and return the videos we have found.
+				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
+				if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
+				videos.push(video);
+			}
 			// Stop searching if we have looked through videosToSearch
-			if (videos.length >= videosToSearch) break;
+			if (videosSearched++ >= videosToSearch) break;
 			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 		}
 		process.stdout.write(` Skipped ${videos.length - videos.length}.\n`);

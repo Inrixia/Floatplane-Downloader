@@ -2,33 +2,30 @@ import { Resolutions, SubChannels, Settings, Args } from "./types.js";
 
 export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: { [key: string]: SubChannels } = {
-	"Tech Deals": {
-		_default: {
+	"Tech Deals": [
+		{
 			title: "Teach Deals",
 			skip: false,
-			identifiers: false,
 			consoleColor: "\u001b[38;5;10m",
 			daysToKeepVideos: -1,
 		},
-	},
-	"BitWit Ultra": {
-		_default: {
+	],
+	"BitWit Ultra": [
+		{
 			title: "BitWit Ultra",
 			skip: false,
-			identifiers: false,
 			consoleColor: "\u001b[38;5;105m",
 			daysToKeepVideos: -1,
 		},
-	},
-	"Linus Tech Tips": {
-		_default: {
+	],
+	"Linus Tech Tips": [
+		{
 			title: "Linus Tech Tips",
 			skip: false,
-			identifiers: false,
 			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
-		"Mac Address": {
+		{
 			title: "Mac Address",
 			skip: false,
 			identifiers: [
@@ -40,7 +37,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;189m",
 			daysToKeepVideos: -1,
 		},
-		"Floatplane Exclusive": {
+		{
 			title: "Floatplane Exclusive",
 			skip: false,
 			identifiers: [
@@ -52,7 +49,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;200m",
 			daysToKeepVideos: -1,
 		},
-		TalkLinked: {
+		{
 			title: "TalkLinked",
 			skip: false,
 			identifiers: [
@@ -64,7 +61,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[36m",
 			daysToKeepVideos: -1,
 		},
-		TechLinked: {
+		{
 			title: "TechLinked",
 			skip: false,
 			identifiers: [
@@ -76,7 +73,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;14m",
 			daysToKeepVideos: -1,
 		},
-		"TechLinked Shorts": {
+		{
 			title: "TechLinked Shorts",
 			skip: false,
 			identifiers: [
@@ -88,7 +85,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;14m",
 			daysToKeepVideos: -1,
 		},
-		TechQuickie: {
+		{
 			title: "TechQuickie",
 			skip: false,
 			identifiers: [
@@ -100,7 +97,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;153m",
 			daysToKeepVideos: -1,
 		},
-		"Theyre Just Movies": {
+		{
 			title: "Theyre Just Movies",
 			skip: false,
 			identifiers: [
@@ -127,7 +124,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			],
 			daysToKeepVideos: -1,
 		},
-		ShortCircuit: {
+		{
 			title: "ShortCircuit",
 			skip: false,
 			identifiers: [
@@ -138,7 +135,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			],
 			daysToKeepVideos: -1,
 		},
-		ChannelSuperFun: {
+		{
 			title: "ChannelSuperFun",
 			skip: false,
 			identifiers: [
@@ -150,7 +147,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;220m",
 			daysToKeepVideos: -1,
 		},
-		"The WAN Show": {
+		{
 			title: "The WAN Show",
 			skip: false,
 			identifiers: [
@@ -162,7 +159,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
-		"LMG Livestream VODs": {
+		{
 			title: "LMG Livestream VODs",
 			skip: false,
 			identifiers: [
@@ -174,7 +171,7 @@ export const defaultSubChannels: { [key: string]: SubChannels } = {
 			consoleColor: "\u001b[38;5;208m",
 			daysToKeepVideos: -1,
 		},
-	},
+	],
 };
 
 export const defaultArgs: Args = {
