@@ -12,10 +12,14 @@ const ye = (str: string | number) => `\u001b[33;1m${str}\u001b[0m`;
 const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
 
 type DownloadProgress = { total: number; transferred: number; percent: number };
+type Task = { video: Video; res: promiseFunction; formattedTitle: string };
+
+// Ew, I really need to refactor this monster of a class
 
 export default class Downloader {
 	private mpb?: MultiProgressBars;
-	private videoQueue: Array<{ video: Video; res: promiseFunction }> = [];
+	private taskQueue: Task[] = [];
+	private barsQueued = 0;
 	private videosProcessing = 0;
 	private videosProcessed = 0;
 	private summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } } = {};
@@ -31,14 +35,24 @@ export default class Downloader {
 
 	private tickQueue(): void {
 		if (this.runQueue === false) return;
-		while (this.videoQueue.length > 0 && (settings.downloadThreads === -1 || this.videosProcessing < settings.downloadThreads)) {
+		while (this.taskQueue.length !== 0 && (settings.downloadThreads === -1 || this.videosProcessing < settings.downloadThreads)) {
 			this.videosProcessing++;
-			const task = this.videoQueue.pop();
+			this.barsQueued--;
+			const task = this.taskQueue.pop();
 			if (task !== undefined) {
-				const processingVideoPromise = this.processVideo(task.video);
+				const processingVideoPromise = this.processVideo(task);
 				task.res(processingVideoPromise);
 				processingVideoPromise.then(() => this.videosProcessing-- && this.videosProcessed++);
 			}
+		}
+		for (let i = 0; i < 10; i++) {
+			if (this.taskQueue[i] === undefined) break;
+			if (this.mpb === undefined) throw new Error("Progressbar failed to initialize! Cannot continue download");
+			this.mpb.addTask(this.taskQueue[i].formattedTitle, {
+				type: "percentage",
+				barTransformFn: (str) => `${this.taskQueue[i].video.channel.consoleColor || ""}${str}`,
+				message: "Queued",
+			});
 		}
 		setTimeout(() => this.tickQueue(), 50);
 	}
@@ -55,7 +69,9 @@ export default class Downloader {
 		this.summaryStats = {};
 		this.videosProcessed = 0;
 
-		const processingPromises = videos.reverse().map((video) => new Promise<void>((res) => this.videoQueue.push({ video, res })));
+		const processingPromises = videos
+			.reverse()
+			.map((video) => new Promise<void>((res) => this.taskQueue.push({ video, res, formattedTitle: this.formatTitle(video) })));
 
 		// Handler for when all downloads are done.
 		Promise.all(processingPromises).then(this.updateSummaryBar.bind(this));
@@ -74,7 +90,7 @@ export default class Downloader {
 			{ totalMB: 0, downloadedMB: 0, downloadSpeed: 0 }
 		);
 		// (videos remaining * avg time to download a video)
-		const totalVideos = this.videoQueue.length + this.videosProcessed + this.videosProcessing;
+		const totalVideos = this.taskQueue.length + this.videosProcessed + this.videosProcessing;
 		const processed = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}`;
 		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")}`;
 		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")}`;
@@ -96,7 +112,7 @@ export default class Downloader {
 		} else if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, barUpdate);
 	}
 
-	private async processVideo(video: Video, retries = 0): Promise<void> {
+	private formatTitle(video: Video) {
 		let formattedTitle: string;
 		if (args.headless === true) formattedTitle = `${video.channel.title} - ${video.title}`;
 		else if (video.channel.consoleColor !== undefined) {
@@ -108,14 +124,17 @@ export default class Downloader {
 
 		if (this.summaryStats !== undefined) while (formattedTitle in this.summaryStats) formattedTitle = `.${formattedTitle}`.slice(0, 32);
 
+		return formattedTitle;
+	}
+
+	private async processVideo(task: Task, retries = 0): Promise<void> {
+		const { video, formattedTitle } = task;
 		if (args.headless === true) console.log(`${formattedTitle} - Downloading...`);
-		else {
-			if (this.mpb === undefined) throw new Error("Progressbar failed to initialize! Cannot continue download");
-			this.mpb.addTask(formattedTitle, {
-				type: "percentage",
-				barTransformFn: (str) => `${video.channel.consoleColor || ""}${str}`,
-			});
-		}
+		this.mpb?.addTask(formattedTitle, {
+			type: "percentage",
+			barTransformFn: (str) => `${video.channel.consoleColor || ""}${str}`,
+			message: "Download Starting...",
+		});
 
 		try {
 			// If the video is already downloaded then just mux its metadata
@@ -162,8 +181,8 @@ export default class Downloader {
 			// Handle errors when downloading nicely
 			if (retries < settings.floatplane.retries) {
 				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
-				if (info.message.indexOf("Range Not Satisfiable")) await this.processVideo(video, ++retries);
-				else await this.processVideo(video, ++retries);
+				if (info.message.indexOf("Range Not Satisfiable")) await this.processVideo(task, ++retries);
+				else await this.processVideo(task, ++retries);
 			} else
 				this.updateBar(
 					formattedTitle,
