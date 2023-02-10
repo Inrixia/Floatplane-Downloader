@@ -27,6 +27,7 @@ export default class Downloader {
 	private runQueue = false;
 
 	start(): void {
+		if (this.mpb === undefined && args.headless !== true) this.mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
 		if (this.runQueue === false) {
 			this.runQueue = true;
 			this.tickQueue();
@@ -65,7 +66,6 @@ export default class Downloader {
 		if (videos.length === 0) return [];
 
 		console.log(`> Processing ${videos.length} videos...`);
-		if (args.headless !== true) this.mpb = new MultiProgressBars({ initMessage: "", anchor: "top" });
 		this.summaryStats = {};
 		this.videosProcessed = 0;
 
