@@ -97,19 +97,20 @@ export default class Subscription {
 		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 
 		let videosSearched = 0;
-		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
-			const video = this.addVideo(blogPost, stripSubchannelPrefix);
-			if (video !== null) {
-				// If we have found the last seen video, check if its downloaded.
-				// If it is then break here and return the videos we have found.
-				// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
-				if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
-				videos.push(video);
+		if (videosToSearch > 0)
+			for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
+				const video = this.addVideo(blogPost, stripSubchannelPrefix);
+				if (video !== null) {
+					// If we have found the last seen video, check if its downloaded.
+					// If it is then break here and return the videos we have found.
+					// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
+					if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
+					videos.push(video);
+				}
+				// Stop searching if we have looked through videosToSearch
+				if (videosSearched++ >= videosToSearch) break;
+				process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
 			}
-			// Stop searching if we have looked through videosToSearch
-			if (videosSearched++ >= videosToSearch) break;
-			process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
-		}
 		process.stdout.write(` Skipped ${videosSearched - videos.length}.\n`);
 		return videos;
 	}

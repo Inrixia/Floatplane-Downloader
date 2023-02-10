@@ -94,7 +94,7 @@ export default class Channel {
 			};
 		}
 		const videoInstance = new Video(video, this, this._db.videos[video.guid]);
-		this._db.videos[video.guid].filePath = videoInstance.filePath;
+		this._db.videos[video.guid].filePath = videoInstance.fullPath;
 
 		return videoInstance;
 	}

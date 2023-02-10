@@ -36,6 +36,10 @@ export default class Video {
 	private static EdgeSelector = 0;
 	private edgeSelector = Video.EdgeSelector;
 
+	public fullPath: string;
+	private folderPath: string;
+	private artworkPath: string;
+
 	constructor(video: BlogPost, channel: Channel, videoDBEntry: VideoDBEntry) {
 		this.channel = channel;
 		this.videoDBEntry = videoDBEntry;
@@ -46,6 +50,14 @@ export default class Video {
 		this.description = video.text;
 		this.releaseDate = new Date(video.releaseDate);
 		this.thumbnail = video.thumbnail;
+
+		this.fullPath = this.formatString(settings.filePathFormatting)
+			.split("/")
+			.map((pathPart) => (pathPart.startsWith(".") ? pathPart : sanitize(pathPart)))
+			.join("/");
+
+		this.folderPath = this.fullPath.substring(0, this.fullPath.lastIndexOf("/"));
+		this.artworkPath = `${this.fullPath}${settings.artworkSuffix}.png`;
 	}
 
 	private formatString(string: string): string {
@@ -67,22 +79,6 @@ export default class Video {
 		return string;
 	}
 
-	private get fullPath(): string {
-		return this.formatString(settings.filePathFormatting);
-	}
-
-	private get folderPath(): string {
-		return this.fullPath.split("/").slice(0, -1).join("/");
-	}
-
-	public get filePath(): string {
-		return `${this.folderPath}/${sanitize(this.fullPath.split("/").slice(-1)[0])}`;
-	}
-
-	public get artworkPath(): string {
-		return `${this.filePath}${settings.artworkSuffix}.png`;
-	}
-
 	/**
 	 * Get the suffix for a video file if there are multiple videoAttachments for this video
 	 */
@@ -100,7 +96,7 @@ export default class Video {
 	public fileBytes = async (extension: string): Promise<number> => {
 		let bytes = 0;
 		for (const i in this.videoAttachments) {
-			bytes += await Video.getFileBytes(`${this.filePath}${this.multiPartSuffix(i)}.${extension}`);
+			bytes += await Video.getFileBytes(`${this.fullPath}${this.multiPartSuffix(i)}.${extension}`);
 		}
 		return bytes;
 	};
@@ -163,8 +159,8 @@ export default class Video {
 				.text(episode)
 				.up()
 				.end({ pretty: true });
-			await fs.writeFile(`${this.filePath}.nfo`, nfo, "utf8");
-			await fs.utimes(`${this.filePath}.nfo`, new Date(), this.releaseDate);
+			await fs.writeFile(`${this.fullPath}.nfo`, nfo, "utf8");
+			await fs.utimes(`${this.fullPath}.nfo`, new Date(), this.releaseDate);
 		}
 
 		let writeStreamOptions, requestOptions;
@@ -190,7 +186,7 @@ export default class Video {
 
 			const downloadRequest = fApi.got.stream(`https://${downloadEdge.hostname}${fApi.cdn.fillUrl(cdnInfo, downloadQuality)}`, requestOptions);
 			// Pipe the download to the file once response starts
-			downloadRequest.pipe(createWriteStream(`${this.filePath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
+			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
 			if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", (progress) => (this.expectedSize = progress.total));
 			downloadRequests.push(downloadRequest);
@@ -236,7 +232,7 @@ export default class Video {
 							args.headless === true ? "./ffmpeg" : "./db/ffmpeg",
 							[
 								"-i",
-								`${this.filePath}${this.multiPartSuffix(i)}.partial`,
+								`${this.fullPath}${this.multiPartSuffix(i)}.partial`,
 								...artworkEmbed,
 								"-metadata",
 								`title=${this.title}${this.multiPartSuffix(i)}`,
@@ -252,7 +248,7 @@ export default class Video {
 								`synopsis=${this.ffmpegDesc}`,
 								"-c",
 								"copy",
-								`${this.filePath}${this.multiPartSuffix(i)}.${EXT}`,
+								`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`,
 							],
 							(error, stdout, stderr) => {
 								if (error !== null) {
@@ -268,9 +264,9 @@ export default class Video {
 		this.expectedSize = await this.fileBytes(EXT);
 		await this.markCompleted();
 		for (const i in this.videoAttachments) {
-			await fs.unlink(`${this.filePath}${this.multiPartSuffix(i)}.partial`);
+			await fs.unlink(`${this.fullPath}${this.multiPartSuffix(i)}.partial`);
 			// Set the files update time to when the video was released
-			await fs.utimes(`${this.filePath}${this.multiPartSuffix(i)}.${EXT}`, new Date(), this.releaseDate);
+			await fs.utimes(`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`, new Date(), this.releaseDate);
 		}
 	}
 
