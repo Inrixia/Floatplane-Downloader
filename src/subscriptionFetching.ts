@@ -20,9 +20,11 @@ export const fetchSubscriptions = async (): Promise<Subscription[]> =>
 			if (sub.channels !== undefined && !Array.isArray(sub.channels)) sub.channels = Object.values(sub.channels);
 
 			// Make sure that new subchannels from defaults are added to settings
-			const channelsToAdd = defaultSubChannels[titleAlias].filter((channel) => sub.channels.findIndex((chan) => chan.title === channel.title) === -1);
-			if (channelsToAdd.length > 0) {
-				sub.channels = [...sub.channels, ...channelsToAdd];
+			if (defaultSubChannels[titleAlias] !== undefined) {
+				const channelsToAdd = defaultSubChannels[titleAlias].filter((channel) => sub.channels.findIndex((chan) => chan.title === channel.title) === -1);
+				if (channelsToAdd.length > 0) {
+					sub.channels = [...sub.channels, ...channelsToAdd];
+				}
 			}
 
 			// If a default channel isnt specified for this in defaultSubChannels then create a default

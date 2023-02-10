@@ -1,7 +1,7 @@
 import { Resolutions, SubChannels, Settings, Args } from "./types.js";
 
 export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
-export const defaultSubChannels: { [key: string]: SubChannels } = {
+export const defaultSubChannels: Record<string, SubChannels> = {
 	"Tech Deals": [
 		{
 			title: "Teach Deals",
