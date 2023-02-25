@@ -130,7 +130,7 @@ export default class Video {
 		if (settings.extras.saveNfo) {
 			let season = "";
 			let episode = "";
-			const match = /- S(.+)E(.+) -/i.exec(this.fullPath);
+			const match = /S(\d+)E(\d+)/i.exec(this.fullPath);
 			if (match !== null) {
 				season = match[1];
 				episode = match[2];
