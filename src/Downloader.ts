@@ -48,12 +48,13 @@ export default class Downloader {
 		}
 		for (let i = 0; i < 10; i++) {
 			if (this.taskQueue[i] === undefined) break;
-			if (this.mpb === undefined) throw new Error("Progressbar failed to initialize! Cannot continue download");
-			this.mpb.addTask(this.taskQueue[i].formattedTitle, {
-				type: "percentage",
-				barTransformFn: (str) => `${this.taskQueue[i].video.channel.consoleColor || ""}${str}`,
-				message: "Queued",
-			});
+			if (args.headless !== true) {
+				this.mpb?.addTask(this.taskQueue[i].formattedTitle, {
+					type: "percentage",
+					barTransformFn: (str) => `${this.taskQueue[i].video.channel.consoleColor || ""}${str}`,
+					message: "Queued",
+				});
+			}
 		}
 		setTimeout(() => this.tickQueue(), 50);
 	}
@@ -79,7 +80,7 @@ export default class Downloader {
 	}
 
 	private updateSummaryBar(): void {
-		if (this.summaryStats === undefined) return;
+		if (this.summaryStats === undefined || args.headless === true) return;
 		const { totalMB, downloadedMB, downloadSpeed } = Object.values(this.summaryStats).reduce(
 			(summary, stats) => {
 				for (const key in stats) {
@@ -101,15 +102,15 @@ export default class Downloader {
 	}
 
 	/**
-	 * Updsate the progress bar for a specific video.
+	 * Log the progress bar for a specific video.
 	 * @param formattedTitle Title of bar to update.
 	 * @param barUpdate Update object to update the bar with.
 	 * @param displayNow If the update should be immediately sent to console (Only applied if running in headless mode)
 	 */
-	private updateBar(formattedTitle: string, barUpdate: UpdateOptions, displayNow = false): void {
+	private log(formattedTitle: string, barUpdate: UpdateOptions, displayNow = false): void {
 		if (args.headless === true) {
 			if (displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
-		} else if (this.mpb !== undefined) this.mpb.updateTask(formattedTitle, barUpdate);
+		} else this.mpb?.updateTask(formattedTitle, barUpdate);
 	}
 
 	private formatTitle(video: Video) {
@@ -130,11 +131,13 @@ export default class Downloader {
 	private async processVideo(task: Task, retries = 0): Promise<void> {
 		const { video, formattedTitle } = task;
 		if (args.headless === true) console.log(`${formattedTitle} - Downloading...`);
-		this.mpb?.addTask(formattedTitle, {
-			type: "percentage",
-			barTransformFn: (str) => `${video.channel.consoleColor || ""}${str}`,
-			message: "Download Starting...",
-		});
+		else {
+			this.mpb?.addTask(formattedTitle, {
+				type: "percentage",
+				barTransformFn: (str) => `${video.channel.consoleColor || ""}${str}`,
+				message: "Download Starting...",
+			});
+		}
 
 		try {
 			// If the video is already downloaded then just mux its metadata
@@ -160,35 +163,31 @@ export default class Downloader {
 				this.summaryStats[formattedTitle].downloadSpeed = 0;
 			}
 			if (!(await video.isMuxed())) {
-				this.updateBar(formattedTitle, {
+				this.log(formattedTitle, {
 					percentage: 0.99,
 					message: "Muxing ffmpeg metadata...",
 				});
 				await video.muxffmpegMetadata();
 			}
 			if (settings.postProcessingCommand !== "") {
-				this.updateBar(formattedTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` });
+				this.log(formattedTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` });
 				await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
 			}
 			if (args.headless === true) {
-				this.updateBar(formattedTitle, { message: `Downloaded!` });
-				this.updateSummaryBar();
-			} else if (this.mpb !== undefined) this.mpb.done(formattedTitle);
+				this.log(formattedTitle, { message: `Downloaded!` });
+			} else this.mpb?.done(formattedTitle);
+			this.updateSummaryBar();
 		} catch (error) {
 			let info;
 			if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
 			else info = error;
 			// Handle errors when downloading nicely
 			if (retries < settings.floatplane.retries) {
-				this.updateBar(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
+				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
 				if (info.message.indexOf("Range Not Satisfiable")) await this.processVideo(task, ++retries);
 				else await this.processVideo(task, ++retries);
 			} else
-				this.updateBar(
-					formattedTitle,
-					{ message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` },
-					true
-				);
+				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` }, true);
 		}
 	}
 
@@ -216,13 +215,13 @@ export default class Downloader {
 		const downloadSpeed = transferred / timeElapsed;
 		const downloadETA = total / downloadSpeed - timeElapsed; // Round to 4 decimals
 
-		this.updateBar(formattedTitle, {
+		this.log(formattedTitle, {
 			percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
 			message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")} ETA: ${bl(
 				Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
 			)}`,
 		});
 		this.summaryStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
-		if (args.headless !== true) this.updateSummaryBar();
+		this.updateSummaryBar();
 	}
 }
