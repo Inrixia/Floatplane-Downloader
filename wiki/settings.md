@@ -203,20 +203,6 @@ Plex token generated from your login details for updating remote servers.<br>
 
 <br>
 
-**channelAliases**:<br>
-Array of alias's used to convert subscription names to nice channel names.<br>
-
-```json
-"channelAliases": {
-    "linus tech tips": "Linus Tech Tips",
-    "ltt supporter (og)": "Linus Tech Tips",
-    "ltt supporter (1080p)": "Linus Tech Tips",
-    "ltt supporter plus": "Linus Tech Tips"
-}
-```
-
-<br>
-
 ## Subscriptions:
 
 All the Floatplane creators you are subscribed to.<br>

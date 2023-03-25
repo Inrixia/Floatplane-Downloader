@@ -77,9 +77,6 @@ export type Settings = {
 	filePathFormatting: string;
 	extras: Extras;
 	artworkSuffix: string;
-	channelAliases: {
-		[key: string]: string;
-	};
 	subscriptions: {
 		[key: string]: SubscriptionSettings;
 	};

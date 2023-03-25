@@ -2,6 +2,13 @@ import { defaultSubChannels } from "./lib/defaults.js";
 import Subscription from "./lib/Subscription.js";
 import { settings, fApi } from "./lib/helpers.js";
 
+const channelAliases = {
+	"linus tech tips": "Linus Tech Tips",
+	"ltt supporter (og)": "Linus Tech Tips",
+	"ltt supporter (1080p)": "Linus Tech Tips",
+	"ltt supporter plus": "Linus Tech Tips",
+};
+
 export const fetchSubscriptions = async (): Promise<Subscription[]> =>
 	(await fApi.user.subscriptions())
 		.map((subscription) => {

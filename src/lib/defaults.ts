@@ -208,12 +208,6 @@ export const defaultSettings: Settings = {
 		enabled: false,
 		token: "",
 	},
-	channelAliases: {
-		"linus tech tips": "Linus Tech Tips",
-		"ltt supporter (og)": "Linus Tech Tips",
-		"ltt supporter (1080p)": "Linus Tech Tips",
-		"ltt supporter plus": "Linus Tech Tips",
-	},
 	subscriptions: {},
 	postProcessingCommand: "",
 	considerAllNonPartialDownloaded: false,
