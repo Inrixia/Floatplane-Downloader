@@ -16,7 +16,7 @@ import { nPad } from "@inrixia/helpers/math";
 import type { FilePathFormattingOptions } from "./types.js";
 import type { BlogPost } from "floatplane/creator";
 import type Channel from "./Channel.js";
-import { DownloadDeliveryResponse } from "floatplane/cdn";
+import { DeliveryResponse } from "floatplane/cdn";
 import { VideoDBEntry } from "./Channel.js";
 
 const EXT = "mp4";
@@ -33,8 +33,8 @@ export default class Video {
 	public channel: Channel;
 	private videoDBEntry: VideoDBEntry;
 
-	private static EdgeSelector = 0;
-	private edgeSelector = Video.EdgeSelector;
+	private static OriginSelector = 0;
+	private originSelector = Video.OriginSelector;
 
 	public fullPath: string;
 	private folderPath: string;
@@ -168,23 +168,22 @@ export default class Video {
 		const downloadRequests = [];
 		for (const i in this.videoAttachments) {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-			const cdnInfo = await fApi.cdn.delivery("download", this.videoAttachments[i]);
+			const {
+				groups: [delivery],
+			} = await fApi.cdn.delivery("download", this.videoAttachments[i]);
 
-			if (cdnInfo.edges === undefined) throw new Error("Video has no edges!");
-			if (cdnInfo.resource.data.qualityLevels === undefined) throw new Error("Video has no qualityLevels!");
+			if (delivery.origins === undefined) throw new Error("Video has no origins to download from!");
 
 			// Round robin edges with download enabled
-			const downloadEdge = this.getEdge(cdnInfo);
-
-			if (settings.floatplane.downloadEdge !== "") downloadEdge.hostname = settings.floatplane.downloadEdge;
+			const downloadOrigin = this.getOrigin(delivery.origins);
 
 			// Sort qualities from highest to smallest
-			const availableQualities = cdnInfo.resource.data.qualityLevels.sort((a, b) => b.order - a.order).map((level) => level.name);
+			const availableVariants = delivery.variants.sort((a, b) => (b.order || 0) - (a.order || 0));
 
 			// Set the quality to use based on whats given in the settings.json or the highest available
-			const downloadQuality = availableQualities.find((name) => name.includes(quality)) ?? availableQualities[0];
+			const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
 
-			const downloadRequest = fApi.got.stream(`https://${downloadEdge.hostname}${fApi.cdn.fillUrl(cdnInfo, downloadQuality)}`, requestOptions);
+			const downloadRequest = fApi.got.stream(`https://${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
 			// Pipe the download to the file once response starts
 			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
@@ -195,14 +194,13 @@ export default class Video {
 		return downloadRequests;
 	}
 
-	private getEdge(cdnInfo: DownloadDeliveryResponse) {
-		const edges = cdnInfo.edges.filter((edge) => edge.allowDownload);
-		if (this.edgeSelector > edges.length - 1) this.edgeSelector = 0;
-		if (this.edgeSelector === 0) {
-			if (Video.EdgeSelector > edges.length - 1) Video.EdgeSelector = 0;
-			return edges[Video.EdgeSelector++];
+	private getOrigin(origins: Required<DeliveryResponse["groups"][0]>["origins"]) {
+		if (this.originSelector > origins.length - 1) this.originSelector = 0;
+		if (this.originSelector === 0) {
+			if (Video.OriginSelector > origins.length - 1) Video.OriginSelector = 0;
+			return origins[Video.OriginSelector++];
 		}
-		return edges[this.edgeSelector++];
+		return origins[this.originSelector++];
 	}
 
 	public async markCompleted(): Promise<void> {
