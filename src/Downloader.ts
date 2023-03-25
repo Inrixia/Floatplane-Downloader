@@ -14,6 +14,8 @@ const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
 type DownloadProgress = { total: number; transferred: number; percent: number };
 type Task = { video: Video; res: promiseFunction; formattedTitle: string };
 
+const MaxRetries = 5;
+
 // Ew, I really need to refactor this monster of a class
 
 export default class Downloader {
@@ -36,7 +38,7 @@ export default class Downloader {
 
 	private tickQueue(): void {
 		if (this.runQueue === false) return;
-		while (this.taskQueue.length !== 0 && (settings.downloadThreads === -1 || this.videosProcessing < settings.downloadThreads)) {
+		while (this.taskQueue.length !== 0 && this.videosProcessing < 2) {
 			this.videosProcessing++;
 			this.barsQueued--;
 			const task = this.taskQueue.pop();
@@ -182,12 +184,11 @@ export default class Downloader {
 			if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
 			else info = error;
 			// Handle errors when downloading nicely
-			if (retries < settings.floatplane.retries) {
-				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${settings.floatplane.retries}` }, true);
+			if (retries < MaxRetries) {
+				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${MaxRetries}` }, true);
 				if (info.message.indexOf("Range Not Satisfiable")) await this.processVideo(task, ++retries);
 				else await this.processVideo(task, ++retries);
-			} else
-				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${settings.floatplane.retries}` }, true);
+			} else this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${MaxRetries}` }, true);
 		}
 	}
 

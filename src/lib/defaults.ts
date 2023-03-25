@@ -186,15 +186,12 @@ export const defaultArgs: Args = {
 
 export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
-	downloadThreads: 1,
 	floatplane: {
 		videosToSearch: 5,
 		forceFullSearch: false,
 		videoResolution: "1080",
 		waitForNewVideos: true,
 		_availableResolutions: defaultResolutions,
-		downloadEdge: "",
-		retries: 9,
 		seekAndDestroy: [],
 	},
 	_filePathFormattingOPTIONS: ["%channelTitle%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],

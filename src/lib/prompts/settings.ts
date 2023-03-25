@@ -2,22 +2,6 @@ import prompts from "prompts";
 import type { Extras, Resolution } from "../types.js";
 
 /**
- * Prompts user to set the max number of parallel downloads.
- * @param {number} initial Default value
- * @returns {Promise<number>} Max number of parallel downloads
- */
-export const downloadThreads = async (initial: number): Promise<number> =>
-	(
-		await prompts({
-			type: "number",
-			name: "downloadThreads",
-			message: "What is the number of threads to use for downloads? (-1 for unlimited).",
-			initial,
-			min: -1,
-		})
-	).downloadThreads || initial;
-
-/**
  * Prompts user for the video resolution they want to download in.
  * @param {number} initial Initial resolution to be selected
  * @param {Array<number>} resolutions Available resolutions

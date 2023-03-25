@@ -52,7 +52,6 @@ export const quickStart = async (): Promise<void> => {
 
 	console.log("\n== \u001b[38;5;208mGeneral\u001b[0m ==\n");
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
-	settings.downloadThreads = await prompts.settings.downloadThreads(settings.downloadThreads);
 	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResolutions);
 	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
 
