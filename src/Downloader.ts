@@ -3,6 +3,9 @@ import Video from "./lib/Video.js";
 
 import { settings, args } from "./lib/helpers.js";
 
+import { promisify } from "util";
+const sleep = promisify(setTimeout);
+
 type promiseFunction = (f: Promise<void>) => void;
 
 const reset = "\u001b[0m";
@@ -185,10 +188,13 @@ export default class Downloader {
 			else info = error;
 			// Handle errors when downloading nicely
 			if (retries < MaxRetries) {
-				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying ${retries}/${MaxRetries}` }, true);
-				if (info.message.indexOf("Range Not Satisfiable")) await this.processVideo(task, ++retries);
-				else await this.processVideo(task, ++retries);
-			} else this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! ${retries}/${MaxRetries}` }, true);
+				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying in ${retries}s [${retries}/${MaxRetries}]` }, true);
+
+				// Wait between retries
+				await sleep(1000 * retries);
+
+				await this.processVideo(task, ++retries);
+			} else this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! [${retries}/${MaxRetries}]` }, true);
 		}
 	}
 
