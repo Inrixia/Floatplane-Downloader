@@ -184,7 +184,7 @@ export default class Downloader {
 				this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying in ${retries}s [${retries}/${MaxRetries}]` }, true);
 
 				// Wait between retries
-				await sleep(1000 * retries);
+				await sleep(1000 * (retries + 1));
 
 				await this.processVideo(task, ++retries);
 			} else this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! [${retries}/${MaxRetries}]` }, true);

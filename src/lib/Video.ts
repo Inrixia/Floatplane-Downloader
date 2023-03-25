@@ -184,7 +184,7 @@ export default class Video {
 			// Set the quality to use based on whats given in the settings.json or the highest available
 			const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
 
-			const downloadRequest = fApi.got.stream(`https://${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
+			const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
 			// Pipe the download to the file once response starts
 			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
