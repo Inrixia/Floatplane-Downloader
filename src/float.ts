@@ -1,6 +1,6 @@
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
-import { settings, fetchFFMPEG, fApi, args } from "./lib/helpers.js";
+import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
 import { MyPlexAccount } from "@ctrl/plex";
 import { loginFloatplane } from "./logins.js";
 import Downloader from "./Downloader.js";
@@ -62,19 +62,18 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 };
 
 (async () => {
-	const version = "5.6.0";
-	if (args.sanityCheck && version !== pkg.version) {
-		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${version}`);
+	if (args.sanityCheck && DownloaderVersion !== pkg.version) {
+		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${DownloaderVersion}`);
 	}
 
 	const latest = await fApi
 		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json")
 		.json<{ version: string }>()
-		.catch(() => ({ version }));
+		.catch(() => ({ version: DownloaderVersion }));
 
-	if (gt(latest.version, version))
+	if (gt(latest.version, DownloaderVersion))
 		console.log(
-			chalk`There is a ${diff(latest.version, version)} update available! ${version} > ${
+			chalk`There is a ${diff(latest.version, DownloaderVersion)} update available! ${DownloaderVersion} > ${
 				latest.version
 			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`
 		);
