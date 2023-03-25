@@ -5,6 +5,7 @@ import { MyPlexAccount } from "@ctrl/plex";
 import * as prompts from "./lib/prompts/index.js";
 
 import type { Extras } from "./lib/types.js";
+import Video from "./lib/Video.js";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
@@ -53,7 +54,7 @@ export const quickStart = async (): Promise<void> => {
 	console.log("\n== \u001b[38;5;208mGeneral\u001b[0m ==\n");
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);
 	settings.floatplane.videoResolution = await prompts.settings.videoResolution(settings.floatplane.videoResolution, defaultResolutions);
-	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, settings._filePathFormattingOPTIONS);
+	settings.filePathFormatting = await prompts.settings.fileFormatting(settings.filePathFormatting, Video.FilePathOptions);
 
 	const extras = await prompts.settings.extras(settings.extras);
 	if (extras !== undefined) {

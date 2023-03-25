@@ -1,54 +1,8 @@
-import { Resolutions, SubChannels, Settings, Args } from "./types.js";
+import { Resolutions, Channels, Settings, Args } from "./types.js";
 
 export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
-export const defaultSubChannels: Record<string, SubChannels> = {
-	"Tech Deals": [
-		{
-			title: "Teach Deals",
-			skip: false,
-			consoleColor: "\u001b[38;5;10m",
-			daysToKeepVideos: -1,
-		},
-	],
-	"BitWit Ultra": [
-		{
-			title: "BitWit Ultra",
-			skip: false,
-			consoleColor: "\u001b[38;5;105m",
-			daysToKeepVideos: -1,
-		},
-	],
-	"Linus Tech Tips": [
-		{
-			title: "Linus Tech Tips",
-			skip: false,
-			consoleColor: "\u001b[38;5;208m",
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "Mac Address",
-			skip: false,
-			identifiers: [
-				{
-					check: "MA: ",
-					type: "title",
-				},
-			],
-			consoleColor: "\u001b[38;5;189m",
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "Floatplane Exclusive",
-			skip: false,
-			identifiers: [
-				{
-					check: "FP Exclusive: ",
-					type: "title",
-				},
-			],
-			consoleColor: "\u001b[38;5;200m",
-			daysToKeepVideos: -1,
-		},
+export const defaultSubChannels: Record<string, Channels> = {
+	"59f94c0bdd241b70349eb72b": [
 		{
 			title: "TalkLinked",
 			skip: false,
@@ -58,20 +12,6 @@ export const defaultSubChannels: Record<string, SubChannels> = {
 					type: "title",
 				},
 			],
-			consoleColor: "\u001b[36m",
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "TechLinked",
-			skip: false,
-			identifiers: [
-				{
-					check: "TL: ",
-					type: "title",
-				},
-			],
-			consoleColor: "\u001b[38;5;14m",
-			daysToKeepVideos: -1,
 		},
 		{
 			title: "TechLinked Shorts",
@@ -82,70 +22,6 @@ export const defaultSubChannels: Record<string, SubChannels> = {
 					type: "title",
 				},
 			],
-			consoleColor: "\u001b[38;5;14m",
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "TechQuickie",
-			skip: false,
-			identifiers: [
-				{
-					check: "TQ: ",
-					type: "title",
-				},
-			],
-			consoleColor: "\u001b[38;5;153m",
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "Theyre Just Movies",
-			skip: false,
-			identifiers: [
-				{
-					check: "TJM: ",
-					type: "title",
-				},
-				{
-					check: "CC: ",
-					type: "title",
-				},
-				{
-					check: "'Carpool Critics': ",
-					type: "title",
-				},
-				{
-					check: "Movie Podcast: ",
-					type: "title",
-				},
-				{
-					check: "Movie Podcast : ",
-					type: "title",
-				},
-			],
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "ShortCircuit",
-			skip: false,
-			identifiers: [
-				{
-					check: "SC: ",
-					type: "title",
-				},
-			],
-			daysToKeepVideos: -1,
-		},
-		{
-			title: "ChannelSuperFun",
-			skip: false,
-			identifiers: [
-				{
-					check: "CSF: ",
-					type: "title",
-				},
-			],
-			consoleColor: "\u001b[38;5;220m",
-			daysToKeepVideos: -1,
 		},
 		{
 			title: "The WAN Show",
@@ -156,8 +32,6 @@ export const defaultSubChannels: Record<string, SubChannels> = {
 					type: "title",
 				},
 			],
-			consoleColor: "\u001b[38;5;208m",
-			daysToKeepVideos: -1,
 		},
 		{
 			title: "LMG Livestream VODs",
@@ -168,8 +42,6 @@ export const defaultSubChannels: Record<string, SubChannels> = {
 					type: "title",
 				},
 			],
-			consoleColor: "\u001b[38;5;208m",
-			daysToKeepVideos: -1,
 		},
 	],
 };
@@ -185,30 +57,29 @@ export const defaultArgs: Args = {
 };
 
 export const defaultSettings: Settings = {
+	__SettingsWiki: "https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md",
 	runQuickstartPrompts: true,
 	floatplane: {
 		videosToSearch: 5,
 		forceFullSearch: false,
 		videoResolution: "1080",
 		waitForNewVideos: true,
-		_availableResolutions: defaultResolutions,
 		seekAndDestroy: [],
 	},
-	_filePathFormattingOPTIONS: ["%channelTitle%", "%videoTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%"],
+	plex: {
+		sectionsToUpdate: [],
+		enabled: false,
+		token: "",
+	},
 	filePathFormatting: "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%",
 	extras: {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,
 		saveNfo: true,
 		promptVideos: false,
+		considerAllNonPartialDownloaded: false,
 	},
 	artworkSuffix: "",
-	plex: {
-		sectionsToUpdate: [],
-		enabled: false,
-		token: "",
-	},
-	subscriptions: {},
 	postProcessingCommand: "",
-	considerAllNonPartialDownloaded: false,
+	subscriptions: {},
 };

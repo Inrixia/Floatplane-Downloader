@@ -1,6 +1,6 @@
 {
 	"name": "floatplane-plex-downloader",
-	"version": "5.6.0",
+	"version": "5.7.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -22,7 +22,7 @@
 		"default-import": "^1.1.5",
 		"dotenv": "^16.0.3",
 		"ffbinaries": "^1.1.5",
-		"floatplane": "^4.4.1",
+		"floatplane": "^4.4.4",
 		"html-to-text": "^9.0.5",
 		"json5": "^2.2.3",
 		"multi-progress-bars": "^5.0.3",

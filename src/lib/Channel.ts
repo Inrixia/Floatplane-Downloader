@@ -20,8 +20,6 @@ export default class Channel {
 
 	public readonly ignoreBeforeTimestamp: number;
 
-	public readonly consoleColor: ChannelOptions["consoleColor"];
-
 	public subscription: Subscription;
 
 	private readonly _db: ChannelDB;
@@ -35,7 +33,6 @@ export default class Channel {
 		this.title = channel.title;
 		this.identifiers = channel.identifiers;
 		this.skip = channel.skip;
-		this.consoleColor = channel.consoleColor;
 
 		if (channel.daysToKeepVideos === undefined) channel.daysToKeepVideos = -1;
 		this.daysToKeepVideos = channel.daysToKeepVideos;

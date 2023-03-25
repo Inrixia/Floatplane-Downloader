@@ -56,7 +56,6 @@ export default class Downloader {
 			if (args.headless !== true) {
 				this.mpb?.addTask(this.taskQueue[i].formattedTitle, {
 					type: "percentage",
-					barTransformFn: (str) => `${this.taskQueue[i].video.channel.consoleColor || ""}${str}`,
 					message: "Queued",
 				});
 			}
@@ -121,12 +120,7 @@ export default class Downloader {
 	private formatTitle(video: Video) {
 		let formattedTitle: string;
 		if (args.headless === true) formattedTitle = `${video.channel.title} - ${video.title}`;
-		else if (video.channel.consoleColor !== undefined) {
-			formattedTitle = `${video.channel.consoleColor}${video.channel.title}${reset} - ${video.title}`.slice(
-				0,
-				32 + video.channel.consoleColor.length + reset.length
-			);
-		} else formattedTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
+		else formattedTitle = `${video.channel.title} - ${video.title}`.slice(0, 32);
 
 		if (this.summaryStats !== undefined) while (formattedTitle in this.summaryStats) formattedTitle = `.${formattedTitle}`.slice(0, 32);
 
@@ -139,7 +133,6 @@ export default class Downloader {
 		else {
 			this.mpb?.addTask(formattedTitle, {
 				type: "percentage",
-				barTransformFn: (str) => `${video.channel.consoleColor || ""}${str}`,
 				message: "Download Starting...",
 			});
 		}

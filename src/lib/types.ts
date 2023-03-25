@@ -5,17 +5,16 @@ import type { BlogPost } from "floatplane/creator";
 
 type ChannelIdentifier = {
 	check: string;
-	type: keyof BlogPost | "description" | "runtimeLessThan" | "runtimeGreaterThan";
+	type: keyof BlogPost | "description" | "runtimeLessThan" | "runtimeGreaterThan" | "channelId";
 };
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
 	identifiers?: ChannelIdentifier[];
-	consoleColor?: string;
-	daysToKeepVideos: number;
+	daysToKeepVideos?: number;
 };
 
-export type SubChannels = ChannelOptions[];
+export type Channels = ChannelOptions[];
 
 export type PlexSections = Array<{ server: string; section: string }>;
 export type PlexSettings = {
@@ -28,7 +27,7 @@ export type SubscriptionSettings = {
 	creatorId: string;
 	plan: string;
 	skip: boolean;
-	channels: SubChannels;
+	channels: Channels;
 };
 
 export type Args = {
@@ -48,39 +47,27 @@ export type Extras = {
 	downloadArtwork: boolean;
 	saveNfo: boolean;
 	promptVideos: boolean;
-};
-
-export type FilePathFormattingOptions = {
-	"%channelTitle%": string;
-	"%year%": string;
-	"%month%": string;
-	"%day%": string;
-	"%hour%": string;
-	"%minute%": string;
-	"%second%": string;
-	"%videoTitle%": string;
+	considerAllNonPartialDownloaded: boolean;
 };
 
 export type Resolution = ValueOfA<Resolutions>;
 
 export type Settings = {
+	__SettingsWiki: string;
 	runQuickstartPrompts: boolean;
 	floatplane: {
 		videoResolution: Resolution;
 		videosToSearch: number;
 		forceFullSearch: boolean;
 		waitForNewVideos: boolean;
-		_availableResolutions: Resolutions;
 		seekAndDestroy: string[];
 	};
-	_filePathFormattingOPTIONS: (keyof FilePathFormattingOptions)[];
 	filePathFormatting: string;
+	plex: PlexSettings;
 	extras: Extras;
 	artworkSuffix: string;
+	postProcessingCommand: string;
 	subscriptions: {
 		[key: string]: SubscriptionSettings;
 	};
-	plex: PlexSettings;
-	postProcessingCommand: string;
-	considerAllNonPartialDownloaded: boolean;
 };

@@ -17,16 +17,16 @@ type SubscriptionDB = {
 
 export default class Subscription {
 	public channels: Channel[];
-	public defaultChannel: Channel;
 
 	public readonly creatorId: string;
+	private readonly plan: string;
 
 	private _db: SubscriptionDB;
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
+		this.plan = subscription.plan;
 
 		this.channels = subscription.channels.map((channel) => new Channel(channel, this));
-		this.defaultChannel = this.channels[0];
 
 		// Load/Create database
 		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
@@ -56,14 +56,17 @@ export default class Subscription {
 	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]> | null;
 	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel["addVideo"]> | null {
 		for (const channel of this.channels) {
-			// Check if the video belongs to this channel
 			if (!channel.identifiers) continue;
 			for (const identifier of channel.identifiers) {
 				if (typeof identifier.type !== "string")
 					throw new Error(
-						`Video value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`
+						`Value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`
 					);
 				else {
+					if (identifier.type === "channelId" && video.channel.id === identifier.check) {
+						if (channel.skip === true) return null;
+						return channel.addVideo(video);
+					}
 					if (
 						(identifier.type === "runtimeLessThan" && video.metadata.videoDuration < +identifier.check) ||
 						(identifier.type === "runtimeGreaterThan" && video.metadata.videoDuration > +identifier.check)
@@ -85,16 +88,13 @@ export default class Subscription {
 				}
 			}
 		}
-		if (this.defaultChannel.skip === true) return null;
-		return this.defaultChannel.addVideo(video);
+		throw new Error(`Video ${video.title} could not be matched to a channel!`);
 	}
 
 	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Video[]> {
-		const coloredTitle = `${this.defaultChannel.consoleColor || "\u001b[38;5;208m"}${this.defaultChannel.title}\u001b[0m`;
-
 		const videos: Video[] = [];
 
-		process.stdout.write(`> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+		process.stdout.write(`> Fetching latest videos from [${this.plan}]... Fetched ${videos.length} videos!`);
 
 		let videosSearched = 0;
 		if (videosToSearch > 0)
@@ -109,7 +109,7 @@ export default class Subscription {
 				}
 				// Stop searching if we have looked through videosToSearch
 				if (videosSearched++ >= videosToSearch) break;
-				process.stdout.write(`\r> Fetching latest videos from [${coloredTitle}]... Fetched ${videos.length} videos!`);
+				process.stdout.write(`\r> Fetching latest videos from [${this.plan}]... Fetched ${videos.length} videos!`);
 			}
 		process.stdout.write(` Skipped ${videosSearched - videos.length}.\n`);
 		return videos;

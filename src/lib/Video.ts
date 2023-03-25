@@ -13,11 +13,11 @@ import builder from "xmlbuilder";
 
 import { nPad } from "@inrixia/helpers/math";
 
-import type { FilePathFormattingOptions } from "./types.js";
 import type { BlogPost } from "floatplane/creator";
 import type Channel from "./Channel.js";
 import { DeliveryResponse } from "floatplane/cdn";
 import { VideoDBEntry } from "./Channel.js";
+import { ValueOfA } from "@inrixia/helpers/ts";
 
 const EXT = "mp4";
 
@@ -60,8 +60,9 @@ export default class Video {
 		this.artworkPath = `${this.fullPath}${settings.artworkSuffix}.png`;
 	}
 
+	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;
 	private formatString(string: string): string {
-		const formatLookup: FilePathFormattingOptions = {
+		const formatLookup: Record<ValueOfA<typeof Video.FilePathOptions>, string> = {
 			"%channelTitle%": this.channel.title,
 			"%year%": this.releaseDate.getFullYear().toString(),
 			"%month%": nPad(this.releaseDate.getMonth() + 1),
@@ -109,7 +110,7 @@ export default class Video {
 		if (this.expectedSize === undefined) return false;
 		const fileBytes = await this.fileBytes(EXT);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
-		if (settings.considerAllNonPartialDownloaded) return fileBytes !== -1;
+		if (settings.extras.considerAllNonPartialDownloaded) return fileBytes !== -1;
 		return fileBytes === this.expectedSize;
 	};
 
