@@ -61,6 +61,9 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 	}
 };
 
+// Fix for docker
+process.on("SIGTERM", process.exit);
+
 (async () => {
 	if (args.sanityCheck && DownloaderVersion !== pkg.version) {
 		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${DownloaderVersion}`);
