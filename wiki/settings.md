@@ -134,6 +134,18 @@ Prompts the user to confirm videos to download after fetching.<br>
 
 <br>
 
+**extras.considerAllNonPartialDownloaded**:<br>
+When this is set to true the downloader will skip size checks for non `.mp4` files.<br>
+This may result in files without muxed metadata and should only be used for recovery if your `db` is lost.<br>
+
+```json
+"extras": {
+    "considerAllNonPartialDownloaded": true
+}
+```
+
+<br>
+
 **artworkSuffix**:<br>
 Suffix appended to artwork filename.<br>
 Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
@@ -153,16 +165,6 @@ Strings surounded by % will be replaced with their respective values.<br>
 
 ```json
 "postProcessingCommand": ""
-```
-
-<br>
-
-**considerAllNonPartialDownloaded**:<br>
-When this is set to true the downloader will skip size checks for non `.mp4` files.<br>
-This may result in files without muxed metadata and should only be used for recovery if your `db` is lost.<br>
-
-```json
-"considerAllNonPartialDownloaded": true
 ```
 
 <br>
@@ -210,7 +212,6 @@ All the Floatplane creators you are subscribed to.<br>
 At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.<br>
 <br>
 
-All creators will have a `_default` channel, this is what videos are sorted under by default if there are no other channels that match.<br>
 You can add as many channels to a creator as you like, each **channel** has its own episode count and is considered its own "series".<br>
 <br>
 
@@ -218,8 +219,7 @@ A **channel** is made up of a `title`, `skip`, an array of `identifiers` and `co
 `title` is the nice name used for the channel.<br>
 `skip` can be set to true to skip downloading videos matched on the given channel.<br>
 `identifiers` specify the conditions for a video to be added to a channel.<br>
-`consoleColor` is optional and is used for having colors in console output for seperate channels.<br>
-`daysToKeepVideos` is the number of days to keep videos for this channe. Default's to -1 which is unlimited, 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted if previously downloaded.
+`daysToKeepVideos` is the optional number of days to keep videos for this channe. 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted if previously downloaded.
 
 <br>
 <br>
@@ -243,13 +243,13 @@ For example:
             "type": "title"
         }
     ],
-    "consoleColor": "\u001b[38;5;200m",
-    "daysToKeepVideos": -1
+    "daysToKeepVideos": 5
 }
 ```
 
 This is a channel named "Floatplane Exclusive".<br>
 Videos that have "FP Exclusive: " in their title will be sorted into this channel.<br>
+Videos released more than 5 days ago will be automatically deleted.<br>
 <br>
 
 A few more notes regarding channels:<br>
