@@ -16,9 +16,9 @@ export default class Channel {
 	public readonly title: ChannelOptions["title"];
 	public readonly identifiers: ChannelOptions["identifiers"];
 	public readonly skip: ChannelOptions["skip"];
-	public readonly daysToKeepVideos: ChannelOptions["daysToKeepVideos"];
+	public readonly daysToKeepVideos?: ChannelOptions["daysToKeepVideos"];
 
-	public readonly ignoreBeforeTimestamp: number;
+	public readonly ignoreBeforeTimestamp?: number;
 
 	public subscription: Subscription;
 
@@ -34,9 +34,10 @@ export default class Channel {
 		this.identifiers = channel.identifiers;
 		this.skip = channel.skip;
 
-		if (channel.daysToKeepVideos === undefined) channel.daysToKeepVideos = -1;
-		this.daysToKeepVideos = channel.daysToKeepVideos;
-		this.ignoreBeforeTimestamp = Date.now() - this.daysToKeepVideos * 24 * 60 * 60 * 1000;
+		if (channel.daysToKeepVideos !== undefined) {
+			this.daysToKeepVideos = channel.daysToKeepVideos;
+			this.ignoreBeforeTimestamp = Date.now() - this.daysToKeepVideos * 24 * 60 * 60 * 1000;
+		}
 
 		const databaseFilePath = `./db/channels/${subscription.creatorId}/${channel.title}.json`;
 		try {
@@ -47,7 +48,7 @@ export default class Channel {
 	}
 
 	public deleteOldVideos = async () => {
-		if (this.daysToKeepVideos !== -1) {
+		if (this.daysToKeepVideos !== undefined) {
 			process.stdout.write(
 				chalk`Checking for videos older than {cyanBright ${this.daysToKeepVideos}} days in channel {yellow ${this.title}} for {redBright deletion}...`
 			);
@@ -55,7 +56,7 @@ export default class Channel {
 			let deletedVideos = 0;
 			for (const video of Object.values(this._db.videos)) {
 				if (video.releaseDate === undefined || video.filePath === undefined) continue;
-				if (video.releaseDate < this.ignoreBeforeTimestamp) {
+				if (this.ignoreBeforeTimestamp !== undefined && video.releaseDate < this.ignoreBeforeTimestamp) {
 					deletedVideos++;
 					const deletionResults = await Promise.allSettled([
 						fs.rm(`${video.filePath}.mp4`),
@@ -81,7 +82,7 @@ export default class Channel {
 
 	public addVideo(video: BlogPost): Video | null {
 		const releaseDate = new Date(video.releaseDate).getTime();
-		if (this.daysToKeepVideos !== -1 && releaseDate < this.ignoreBeforeTimestamp) return null;
+		if (this.ignoreBeforeTimestamp !== undefined && releaseDate < this.ignoreBeforeTimestamp) return null;
 
 		// Set db info, have to instigate the db first before setting filepath
 		if (this._db.videos[video.guid] === undefined) {
