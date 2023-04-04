@@ -228,7 +228,7 @@ export default class Video {
 				(a, i) =>
 					new Promise((resolve, reject) =>
 						execFile(
-							args.headless === true ? "./ffmpeg" : "./db/ffmpeg",
+							"./db/ffmpeg",
 							[
 								"-i",
 								`${this.fullPath}${this.multiPartSuffix(i)}.partial`,
