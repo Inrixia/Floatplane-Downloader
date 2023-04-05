@@ -114,8 +114,7 @@ process.on("SIGTERM", process.exit);
 		const waitLoop = async () => {
 			await fetchNewVideos(subscriptions, downloader);
 			setTimeout(waitLoop, 5 * 60 * 1000);
-			const now = new Date(Date.now());
-			console.log("[" + now.toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
+			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
 		};
 		waitLoop();
 	} else downloader.stop();
