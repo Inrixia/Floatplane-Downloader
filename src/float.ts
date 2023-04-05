@@ -113,8 +113,9 @@ process.on("SIGTERM", process.exit);
 	if (settings.floatplane.waitForNewVideos === true) {
 		const waitLoop = async () => {
 			await fetchNewVideos(subscriptions, downloader);
-			setTimeout(waitLoop, 5 * 60 * 1000);
-			console.log("Checking for new videos in 5 minutes...");
+			setTimeout(waitLoop, 15 * 60 * 1000);
+			const now = new Date(Date.now());
+			console.log("[" + now.toTimeString() + "]" + " Checking for new videos in 15 minutes...");
 		};
 		waitLoop();
 	} else downloader.stop();
