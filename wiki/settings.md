@@ -74,7 +74,7 @@ You can put video id's here and the downloader will find, sort and download them
 
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...<br>
-You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
+You can refer to the `Path Formatting Options` section in this wiki for what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
 
 ```json
@@ -87,6 +87,7 @@ Strings surounded by % will be replaced with their respective values.<br>
 
 **extras.stripSubchannelPrefix**:<br>
 Removes the Subchannel prefix from the video title when a video is sorted into a subchannel.<br>
+Note that this only works for videos that are sorted using title matching for channels. Newer channel id matching will not remove any prefix.<br>
 For example:<br>
 `TechLinked - SXXEXX - VideoTitle` - **true**<br>
 vs
@@ -160,7 +161,7 @@ Windows example:
 
 **postProcessingCommand**:<br>
 A command to run after each video has sucessfully downloaded.<br>
-You can refer to `_filePathFormattingOPTIONS` for options on what can be used.<br>
+You can refer to the `Path Formatting Options` section in this wiki for what can be used.<br>
 Strings surounded by % will be replaced with their respective values.<br>
 
 ```json
@@ -168,6 +169,19 @@ Strings surounded by % will be replaced with their respective values.<br>
 ```
 
 <br>
+
+## Path Formatting Options
+
+The following options are available to be used:
+
+- **%channelTitle%** Title of the channel the video belongs to
+- **%year%** Year the video was released
+- **%month%** Month the video was released
+- **%day%** Day the video was released
+- **%hour%** Hour the video was released
+- **%minute%** Minute the video was released
+- **%second%** Second the video was released
+- **%videoTitle%** Title of the video
 
 ## Plex
 
