@@ -16,7 +16,6 @@ Docker CLI:
     $ docker run -it \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
-    	-e headless="true" \
     	-e runQuickstartPrompts=true \
     	--restart unless-stopped \
         inrix/floatplane-downloader
