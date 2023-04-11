@@ -138,6 +138,8 @@ export default class Downloader {
 		}
 
 		try {
+			if (settings.extras.saveNfo) await video.saveNfo();
+			if (settings.extras.downloadArtwork) await video.downloadArtwork();
 			// If the video is already downloaded then just mux its metadata
 			if (!(await video.isDownloaded())) {
 				const startTime = Date.now();

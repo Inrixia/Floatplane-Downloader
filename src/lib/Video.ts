@@ -2,10 +2,11 @@ import { exec as execCallback, execFile } from "child_process";
 import { createWriteStream } from "fs";
 import { promisify } from "util";
 import fs from "fs/promises";
+import { constants } from "fs";
 
 const exec = promisify(execCallback);
 
-import { settings, args, fApi } from "./helpers.js";
+import { settings, fApi } from "./helpers.js";
 
 import { htmlToText } from "html-to-text";
 import sanitize from "sanitize-filename";
@@ -18,6 +19,15 @@ import type Channel from "./Channel.js";
 import { DeliveryResponse } from "floatplane/cdn";
 import { VideoDBEntry } from "./Channel.js";
 import { ValueOfA } from "@inrixia/helpers/ts";
+
+const fileExists = async (path: string): Promise<boolean> => {
+	try {
+		await fs.access(path, constants.F_OK);
+		return true;
+	} catch {
+		return false;
+	}
+};
 
 const EXT = "mp4";
 
@@ -114,57 +124,69 @@ export default class Video {
 		return fileBytes === this.expectedSize;
 	};
 
-	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>[]> {
-		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
+	public async saveNfo() {
+		const nfoPath = `${this.fullPath}.nfo`;
+		if (await fileExists(nfoPath)) return;
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		// If downloading artwork is enabled download it
-		if (settings.extras.downloadArtwork && this.thumbnail !== null) {
-			fApi.got
-				.stream(this.thumbnail.path)
-				.pipe(createWriteStream(this.artworkPath))
-				.once("end", () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
-		} // Save the thumbnail with the same name as the video so plex will use it
-
-		if (settings.extras.saveNfo) {
-			let season = "";
-			let episode = "";
-			const match = /S(\d+)E(\d+)/i.exec(this.fullPath);
-			if (match !== null) {
-				season = match[1];
-				episode = match[2];
-			}
-			const nfo = builder
-				.create("episodedetails")
-				.ele("title")
-				.text(this.title)
-				.up()
-				.ele("showtitle")
-				.text(this.channel.title)
-				.up()
-				.ele("description")
-				.text(htmlToText(this.description))
-				.up()
-				.ele("plot") // Kodi/Plex NFO format uses `plot` as the episode description
-				.text(htmlToText(this.description))
-				.up()
-				.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
-				.text(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
-				.up()
-				.ele("season")
-				.text(season)
-				.up()
-				.ele("episode")
-				.text(episode)
-				.up()
-				.end({ pretty: true });
-			await fs.writeFile(`${this.fullPath}.nfo`, nfo, "utf8");
-			await fs.utimes(`${this.fullPath}.nfo`, new Date(), this.releaseDate);
+		let season = "";
+		let episode = "";
+		const match = /S(\d+)E(\d+)/i.exec(this.fullPath);
+		if (match !== null) {
+			season = match[1];
+			episode = match[2];
 		}
+		const nfo = builder
+			.create("episodedetails")
+			.ele("title")
+			.text(this.title)
+			.up()
+			.ele("showtitle")
+			.text(this.channel.title)
+			.up()
+			.ele("description")
+			.text(htmlToText(this.description))
+			.up()
+			.ele("plot") // Kodi/Plex NFO format uses `plot` as the episode description
+			.text(htmlToText(this.description))
+			.up()
+			.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
+			.text(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
+			.up()
+			.ele("season")
+			.text(season)
+			.up()
+			.ele("episode")
+			.text(episode)
+			.up()
+			.end({ pretty: true });
+		await fs.writeFile(nfoPath, nfo, "utf8");
+		await fs.utimes(nfoPath, new Date(), this.releaseDate);
+	}
+
+	public async downloadArtwork() {
+		if (this.thumbnail === null) return;
+		if (await fileExists(this.artworkPath)) return;
+
+		// Make sure the folder for the video exists
+		await fs.mkdir(this.folderPath, { recursive: true });
+
+		fApi.got
+			.stream(this.thumbnail.path)
+			.pipe(createWriteStream(this.artworkPath))
+			.once("end", () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
+		// Save the thumbnail with the same name as the video so plex will use it
+	}
+
+	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>[]> {
+		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		let writeStreamOptions, requestOptions;
+
+		// Make sure the folder for the video exists
+		await fs.mkdir(this.folderPath, { recursive: true });
 
 		const downloadRequests = [];
 		for (const i in this.videoAttachments) {
