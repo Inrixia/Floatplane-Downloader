@@ -246,7 +246,9 @@ export default class Video {
 			const downloadOrigin = this.getOrigin(delivery.origins);
 
 			// Sort qualities from highest to smallest
-			const availableVariants = delivery.variants.sort((a, b) => (b.order || 0) - (a.order || 0));
+			const availableVariants = delivery.variants.filter((variant) => variant.url !== "").sort((a, b) => (b.order || 0) - (a.order || 0));
+
+			if (availableVariants.length === 0) throw new Error("No variants available for download!");
 
 			// Set the quality to use based on whats given in the settings.json or the highest available
 			const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
