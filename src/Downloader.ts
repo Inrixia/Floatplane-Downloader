@@ -143,23 +143,29 @@ export default class Downloader {
 			// If the video is already downloaded then just mux its metadata
 			if (!(await video.isDownloaded())) {
 				const startTime = Date.now();
-				const downloadRequests = await video.download(settings.floatplane.videoResolution);
 
 				const totalBytes: number[] = [];
 				const downloadedBytes: number[] = [];
 				const percentage: number[] = [];
 
-				await Promise.all(
-					downloadRequests.map(async (request, i) => {
-						request.on("downloadProgress", (downloadProgress: DownloadProgress) => {
-							this.onDownloadProgress(startTime, totalBytes, i, downloadProgress, downloadedBytes, percentage, formattedTitle);
-						});
-						await new Promise((res, rej) => {
-							request.on("end", res);
-							request.on("error", rej);
-						});
-					})
-				);
+				const downloadPromises: Promise<void>[] = [];
+
+				let i = 0;
+				for await (const downloadRequest of video.download(settings.floatplane.videoResolution)) {
+					((index) =>
+						downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
+							this.onDownloadProgress(startTime, totalBytes, index, downloadProgress, downloadedBytes, percentage, formattedTitle);
+						}))(i++);
+
+					downloadPromises.push(
+						new Promise((res, rej) => {
+							downloadRequest.on("end", res);
+							downloadRequest.on("error", rej);
+						})
+					);
+				}
+
+				await Promise.all(downloadPromises);
 				this.summaryStats[formattedTitle].downloadSpeed = 0;
 			}
 			if (!(await video.isMuxed())) {

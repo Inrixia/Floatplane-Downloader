@@ -180,7 +180,7 @@ export default class Video {
 		// Save the thumbnail with the same name as the video so plex will use it
 	}
 
-	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>[]> {
+	public async *download(quality: string): AsyncGenerator<ReturnType<typeof fApi.got.stream>> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		let writeStreamOptions, requestOptions;
@@ -188,7 +188,6 @@ export default class Video {
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		const downloadRequests = [];
 		for (const i in this.videoAttachments) {
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 			const {
@@ -211,10 +210,8 @@ export default class Video {
 			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
 			if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", (progress) => (this.expectedSize = progress.total));
-			downloadRequests.push(downloadRequest);
+			yield downloadRequest;
 		}
-
-		return downloadRequests;
 	}
 
 	private getOrigin(origins: Required<DeliveryResponse["groups"][0]>["origins"]) {
