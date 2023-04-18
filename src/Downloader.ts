@@ -98,7 +98,7 @@ export default class Downloader {
 		const totalVideos = this.taskQueue.length + this.videosProcessed + this.videosProcessing;
 		const processed = `Processed:        ${ye(this.videosProcessed)}/${ye(totalVideos)}`;
 		const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")}`;
-		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")}`;
+		const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")}`;
 		this.mpb?.setFooter({
 			message: `${processed}    ${downloaded}    ${speed}`,
 			pattern: "",
@@ -225,7 +225,7 @@ export default class Downloader {
 
 		this.log(formattedTitle, {
 			percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
-			message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "Mb/s")} ETA: ${bl(
+			message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")} ETA: ${bl(
 				Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
 			)}`,
 		});
