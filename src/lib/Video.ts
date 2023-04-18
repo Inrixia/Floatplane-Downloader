@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import { constants } from "fs";
 
 const exec = promisify(execCallback);
+const sleep = promisify(setTimeout);
 
 import { settings, fApi } from "./helpers.js";
 
@@ -30,6 +31,7 @@ const fileExists = async (path: string): Promise<boolean> => {
 };
 
 const EXT = "mp4";
+const DeliveryTimeout = 60 * 1000; // 60 seconds in milliseconds
 
 export default class Video {
 	public guid: BlogPost["guid"];
@@ -180,6 +182,54 @@ export default class Video {
 		// Save the thumbnail with the same name as the video so plex will use it
 	}
 
+	private static DeliveryQueue: (() => void)[] = [];
+	private static LastTwoDeliveryCalls: number[] = [];
+
+	private static waitDelivery(): Promise<void> {
+		return new Promise((resolve) => {
+			// Add the resolve function to the queue
+			Video.DeliveryQueue.push(resolve);
+
+			// If the current item is the only one in the queue, start processing
+			if (Video.DeliveryQueue.length > 1) return;
+			(async () => {
+				while (Video.DeliveryQueue.length > 0) {
+					// Calculate the next available time
+					const currentTime = Date.now();
+
+					// Remove calls older than DeliveryTimeout from the array
+					Video.LastTwoDeliveryCalls = Video.LastTwoDeliveryCalls.filter((callTime) => currentTime - callTime <= DeliveryTimeout);
+
+					// If there are less than 2 calls in the last DeliveryTimeout, set waitTime to 0,
+					// otherwise, set it to the appropriate waiting time
+					const waitTime = Video.LastTwoDeliveryCalls.length < 2 ? 0 : Video.LastTwoDeliveryCalls[0] + DeliveryTimeout - currentTime;
+
+					// Wait for the calculated waitTime
+					if (waitTime > 0) await sleep(waitTime);
+
+					// Add the current timestamp to the lastTwoCalls array
+					Video.LastTwoDeliveryCalls.push(Date.now());
+
+					// Resolve the next item in the queue and remove it from the queue
+					const nextInQueue = Video.DeliveryQueue.shift();
+					if (nextInQueue) nextInQueue();
+				}
+			})();
+		});
+	}
+
+	private async *getDeliveries() {
+		for (const attachment of this.videoAttachments) {
+			// Ensure that we only call the delivery endpoint twice a minute at most
+			await Video.waitDelivery();
+			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
+			const {
+				groups: [delivery],
+			} = await fApi.cdn.delivery("download", attachment);
+			yield delivery;
+		}
+	}
+
 	public async *download(quality: string): AsyncGenerator<ReturnType<typeof fApi.got.stream>> {
 		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
@@ -188,12 +238,8 @@ export default class Video {
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		for (const i in this.videoAttachments) {
-			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-			const {
-				groups: [delivery],
-			} = await fApi.cdn.delivery("download", this.videoAttachments[i]);
-
+		let i = 0;
+		for await (const delivery of this.getDeliveries()) {
 			if (delivery.origins === undefined) throw new Error("Video has no origins to download from!");
 
 			// Round robin edges with download enabled
@@ -207,7 +253,7 @@ export default class Video {
 
 			const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
 			// Pipe the download to the file once response starts
-			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i)}.partial`, writeStreamOptions));
+			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i++)}.partial`, writeStreamOptions));
 			// Set the videos expectedSize once we know how big it should be for download validation.
 			if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", (progress) => (this.expectedSize = progress.total));
 			yield downloadRequest;
