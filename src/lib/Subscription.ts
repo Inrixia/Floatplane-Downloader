@@ -75,8 +75,8 @@ export default class Subscription {
 						return channel.addVideo(video);
 					}
 					if (
-						(identifier.type === "releasedBefore" && video.releaseDate < +identifier.check) ||
-						(identifier.type === "releasedAfter" && video.releaseDate > +identifier.check)
+						(identifier.type === "releasedBefore" && video.releaseDate < identifier.check) ||
+						(identifier.type === "releasedAfter" && video.releaseDate > identifier.check)
 					) {
 						if (channel.skip === true) return null;
 						return channel.addVideo(video);
