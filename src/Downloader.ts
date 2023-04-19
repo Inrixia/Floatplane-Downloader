@@ -18,14 +18,13 @@ type DownloadProgress = { total: number; transferred: number; percent: number };
 type Task = { video: Video; res: promiseFunction; formattedTitle: string };
 
 const MaxRetries = 5;
-const DownloadThreads = 8;
+const DownloadThreads = 16;
 
 // Ew, I really need to refactor this monster of a class
 
 export default class Downloader {
 	private mpb?: MultiProgressBars;
 	private taskQueue: Task[] = [];
-	private barsQueued = 0;
 	private videosProcessing = 0;
 	private videosProcessed = 0;
 	private summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } } = {};
@@ -44,21 +43,11 @@ export default class Downloader {
 		if (this.runQueue === false) return;
 		while (this.taskQueue.length !== 0 && this.videosProcessing < DownloadThreads) {
 			this.videosProcessing++;
-			this.barsQueued--;
 			const task = this.taskQueue.pop();
 			if (task !== undefined) {
 				const processingVideoPromise = this.processVideo(task);
 				task.res(processingVideoPromise);
-				processingVideoPromise.then(() => this.videosProcessing-- && this.videosProcessed++);
-			}
-		}
-		for (let i = 0; i < 10; i++) {
-			if (this.taskQueue[i] === undefined) break;
-			if (args.headless !== true) {
-				this.mpb?.addTask(this.taskQueue[i].formattedTitle, {
-					type: "percentage",
-					message: "Queued",
-				});
+				processingVideoPromise.then(() => this.videosProcessing-- && this.videosProcessed++ && this.updateSummaryBar());
 			}
 		}
 		setTimeout(() => this.tickQueue(), 50);
@@ -151,15 +140,52 @@ export default class Downloader {
 
 				const downloadPromises: Promise<void>[] = [];
 
+				this.mpb?.addTask(formattedTitle, {
+					type: "percentage",
+					message: "Waiting on delivery cdn...",
+				});
+
+				const getStats = () => {
+					const timeElapsed = (Date.now() - startTime) / 1000;
+
+					// Sum the stats for multi part video downloads
+					const total = totalBytes.reduce((sum, b) => sum + b, 0);
+					const transferred = downloadedBytes.reduce((sum, b) => sum + b, 0);
+
+					const totalMB = total / 1024000;
+					const downloadedMB = transferred / 1024000;
+					const downloadSpeed = transferred / timeElapsed;
+					const downloadETA = total / downloadSpeed - timeElapsed; // Round to 4 decimals
+
+					return { totalMB, downloadedMB, downloadSpeed, downloadETA };
+				};
+
 				let i = 0;
 				for await (const downloadRequest of video.download(settings.floatplane.videoResolution)) {
-					this.mpb?.addTask(formattedTitle, {
-						type: "percentage",
-						message: "Waiting on delivery cdn...",
+					downloadRequest.on("end", () => {
+						const { totalMB, downloadedMB } = getStats();
+						this.log(formattedTitle, {
+							percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
+							message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} - Waiting on delivery cdn...`,
+						});
 					});
+
 					((index) =>
 						downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
-							this.onDownloadProgress(startTime, totalBytes, index, downloadProgress, downloadedBytes, percentage, formattedTitle);
+							totalBytes[index] = downloadProgress.total;
+							downloadedBytes[index] = downloadProgress.transferred;
+							percentage[index] = downloadProgress.percent;
+
+							const { totalMB, downloadedMB, downloadSpeed, downloadETA } = getStats();
+
+							this.log(formattedTitle, {
+								percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
+								message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")} ETA: ${bl(
+									Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
+								)}`,
+							});
+							this.summaryStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
+							this.updateSummaryBar();
 						}))(i++);
 
 					downloadPromises.push(
@@ -186,7 +212,10 @@ export default class Downloader {
 			}
 			if (args.headless === true) {
 				this.log(formattedTitle, { message: `Downloaded!` });
-			} else this.mpb?.done(formattedTitle);
+			} else {
+				this.mpb?.done(formattedTitle);
+				setTimeout(() => this.mpb?.removeTask(formattedTitle), 5000);
+			}
 			this.updateSummaryBar();
 		} catch (error) {
 			let info;
@@ -202,39 +231,5 @@ export default class Downloader {
 				await this.processVideo(task, ++retries);
 			} else this.log(formattedTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! [${retries}/${MaxRetries}]` }, true);
 		}
-	}
-
-	private onDownloadProgress(
-		startTime: number,
-		totalBytes: number[],
-		i: number,
-		downloadProgress: DownloadProgress,
-		downloadedBytes: number[],
-		percentage: number[],
-		formattedTitle: string
-	) {
-		const timeElapsed = (Date.now() - startTime) / 1000;
-
-		totalBytes[i] = downloadProgress.total;
-		downloadedBytes[i] = downloadProgress.transferred;
-		percentage[i] = downloadProgress.percent;
-
-		// Sum the stats for multi part video downloads
-		const total = totalBytes.reduce((sum, b) => sum + b, 0);
-		const transferred = downloadedBytes.reduce((sum, b) => sum + b, 0);
-
-		const totalMB = total / 1024000;
-		const downloadedMB = transferred / 1024000;
-		const downloadSpeed = transferred / timeElapsed;
-		const downloadETA = total / downloadSpeed - timeElapsed; // Round to 4 decimals
-
-		this.log(formattedTitle, {
-			percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
-			message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")} ETA: ${bl(
-				Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
-			)}`,
-		});
-		this.summaryStats[formattedTitle] = { totalMB, downloadedMB, downloadSpeed };
-		this.updateSummaryBar();
 	}
 }
