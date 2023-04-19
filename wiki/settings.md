@@ -242,7 +242,7 @@ An Identifier contains two entries `check` and `type`.<br>
 `check` is the string to look for.<br>
 `type` is where in the video returned from the floatplane api to search for the check string.
 This can be `description`, `title` etc any property that exists on the video. See [FloatplaneApiDocs/getBlogPost](https://jman012.github.io/FloatplaneAPIDocs/Redoc/redoc-static.html#operation/getBlogPost) for more info...
-You can also use `runtimeLessThan` and `runtimeGreaterThan` to only match videos whos runtime is greated or lower than the specified value in seconds. This can be used with a generic skip channel to skip videos with a runtime greater or less than the desired amount.<br>
+The identifiers `releasedAfter` and `releasedBefore` can also be used to match videos that were released before or after a specified date. You can also use `runtimeLessThan` and `runtimeGreaterThan` to only match videos whos runtime is greated or lower than the specified value in seconds. This can be used with a generic skip channel to skip videos with a runtime greater or less than the desired amount.<br>
 <br>
 
 For example:
@@ -261,7 +261,6 @@ For example:
 }
 ```
 <br>
-The identifiers `releasedAfter` and `releasedBefore` can also be used to match videos that were released before or after a specified date.
 
 
 This is a channel named "Floatplane Exclusive".<br>
