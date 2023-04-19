@@ -260,6 +260,9 @@ For example:
     "daysToKeepVideos": 5
 }
 ```
+<br>
+The identifiers `releasedAfter` and `releasedBefore` can also be used to match videos that were released before or after a specified date.
+
 
 This is a channel named "Floatplane Exclusive".<br>
 Videos that have "FP Exclusive: " in their title will be sorted into this channel.<br>
