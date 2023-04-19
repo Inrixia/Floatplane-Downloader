@@ -41,7 +41,7 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 			settings.floatplane.forceFullSearch
 		);
 		const seekVideos = await subscription.seekAndDestroy(await Promise.all(posts), settings.extras.stripSubchannelPrefix);
-		newVideos = [...newVideos, ...subVideos, ...seekVideos];
+		newVideos = [...subVideos, ...seekVideos];
 	}
 
 	if (newVideos.length !== 0) {

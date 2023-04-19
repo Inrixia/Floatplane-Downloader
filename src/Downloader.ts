@@ -18,6 +18,7 @@ type DownloadProgress = { total: number; transferred: number; percent: number };
 type Task = { video: Video; res: promiseFunction; formattedTitle: string };
 
 const MaxRetries = 5;
+const DownloadThreads = 8;
 
 // Ew, I really need to refactor this monster of a class
 
@@ -41,7 +42,7 @@ export default class Downloader {
 
 	private tickQueue(): void {
 		if (this.runQueue === false) return;
-		while (this.taskQueue.length !== 0 && this.videosProcessing < 2) {
+		while (this.taskQueue.length !== 0 && this.videosProcessing < DownloadThreads) {
 			this.videosProcessing++;
 			this.barsQueued--;
 			const task = this.taskQueue.pop();
@@ -152,6 +153,10 @@ export default class Downloader {
 
 				let i = 0;
 				for await (const downloadRequest of video.download(settings.floatplane.videoResolution)) {
+					this.mpb?.addTask(formattedTitle, {
+						type: "percentage",
+						message: "Waiting on delivery cdn...",
+					});
 					((index) =>
 						downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
 							this.onDownloadProgress(startTime, totalBytes, index, downloadProgress, downloadedBytes, percentage, formattedTitle);
