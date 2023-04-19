@@ -5,7 +5,7 @@ import type { BlogPost } from "floatplane/creator";
 
 type ChannelIdentifier = {
 	check: string;
-	type: keyof BlogPost | "description" | "runtimeLessThan" | "runtimeGreaterThan" | "channelId";
+	type: keyof BlogPost | "description" | "runtimeLessThan" | "runtimeGreaterThan" | "channelId" | "releasedBefore" | "releasedAfter";
 };
 export type ChannelOptions = {
 	title: string;
