@@ -74,6 +74,13 @@ export default class Subscription {
 						if (channel.skip === true) return null;
 						return channel.addVideo(video);
 					}
+					if (
+						(identifier.type === "releasedBefore" && video.releaseDate < +identifier.check) ||
+						(identifier.type === "releasedAfter" && video.releaseDate > +identifier.check)
+					) {
+						if (channel.skip === true) return null;
+						return channel.addVideo(video);
+					}
 
 					// Description is named text on videos, kept description for ease of use for users but have to change it here...
 					const identifierType = identifier.type === "description" ? "text" : identifier.type;
