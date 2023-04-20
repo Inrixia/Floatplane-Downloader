@@ -18,7 +18,7 @@ type DownloadProgress = { total: number; transferred: number; percent: number };
 type Task = { video: Video; res: promiseFunction; formattedTitle: string };
 
 const MaxRetries = 5;
-const DownloadThreads = 16;
+const DownloadThreads = 8;
 
 // Ew, I really need to refactor this monster of a class
 
@@ -214,7 +214,7 @@ export default class Downloader {
 				this.log(formattedTitle, { message: `Downloaded!` });
 			} else {
 				this.mpb?.done(formattedTitle);
-				setTimeout(() => this.mpb?.removeTask(formattedTitle), 5000);
+				setTimeout(() => this.mpb?.removeTask(formattedTitle), 30000);
 			}
 			this.updateSummaryBar();
 		} catch (error) {

@@ -3,11 +3,9 @@ import { createWriteStream } from "fs";
 import { promisify } from "util";
 import fs from "fs/promises";
 import { constants } from "fs";
+import { settings, fApi } from "./helpers.js";
 
 const exec = promisify(execCallback);
-const sleep = promisify(setTimeout);
-
-import { settings, fApi } from "./helpers.js";
 
 import { htmlToText } from "html-to-text";
 import sanitize from "sanitize-filename";
@@ -31,7 +29,6 @@ const fileExists = async (path: string): Promise<boolean> => {
 };
 
 const EXT = "mp4";
-const DeliveryTimeout = 60 * 1000; // 60 seconds in milliseconds
 
 export default class Video {
 	public guid: BlogPost["guid"];
@@ -182,50 +179,43 @@ export default class Video {
 		// Save the thumbnail with the same name as the video so plex will use it
 	}
 
+	// The number of available slots for making delivery requests,
+	// limiting the rate of requests to avoid exceeding the API rate limit.
+	private static AvalibleDeliverySlots = 2;
+	private static DeliveryTimeout = 61000;
 	private static DeliveryQueue: (() => void)[] = [];
-	private static LastTwoDeliveryCalls: number[] = [];
 
-	private static waitDelivery(): Promise<void> {
-		return new Promise((resolve) => {
-			// Add the resolve function to the queue
-			Video.DeliveryQueue.push(resolve);
+	private static async requestDeliverySemaphore(): Promise<void> {
+		// If there is an available request slot, proceed immediately
+		if (Video.AvalibleDeliverySlots > 0) {
+			Video.AvalibleDeliverySlots -= 1;
+			return;
+		}
 
-			// If the current item is the only one in the queue, start processing
-			if (Video.DeliveryQueue.length > 1) return;
-			(async () => {
-				while (Video.DeliveryQueue.length > 0) {
-					// Calculate the next available time
-					const currentTime = Date.now();
+		// Otherwise, wait for a request slot to become available
+		await new Promise((r) => Video.DeliveryQueue.push(() => r((Video.AvalibleDeliverySlots -= 1))));
+	}
 
-					// Remove calls older than DeliveryTimeout from the array
-					Video.LastTwoDeliveryCalls = Video.LastTwoDeliveryCalls.filter((callTime) => currentTime - callTime <= DeliveryTimeout);
+	private static releaseDeliverySemaphore(): void {
+		Video.AvalibleDeliverySlots += 1;
 
-					// If there are less than 2 calls in the last DeliveryTimeout, set waitTime to 0,
-					// otherwise, set it to the appropriate waiting time
-					const waitTime = Video.LastTwoDeliveryCalls.length < 2 ? 0 : Video.LastTwoDeliveryCalls[0] + DeliveryTimeout - currentTime;
-
-					// Wait for the calculated waitTime
-					if (waitTime > 0) await sleep(waitTime);
-
-					// Add the current timestamp to the lastTwoCalls array
-					Video.LastTwoDeliveryCalls.push(Date.now());
-
-					// Resolve the next item in the queue and remove it from the queue
-					const nextInQueue = Video.DeliveryQueue.shift();
-					if (nextInQueue) nextInQueue();
-				}
-			})();
-		});
+		// If there are queued requests, resolve the first one in the queue
+		Video.DeliveryQueue.shift()?.();
 	}
 
 	private async *getDeliveries() {
 		for (const attachment of this.videoAttachments) {
 			// Ensure that we only call the delivery endpoint twice a minute at most
-			await Video.waitDelivery();
+			await Video.requestDeliverySemaphore();
+
 			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 			const {
 				groups: [delivery],
 			} = await fApi.cdn.delivery("download", attachment);
+
+			// Release the semaphore after DeliveryTimeout
+			setTimeout(() => Video.releaseDeliverySemaphore(), Video.DeliveryTimeout);
+
 			yield delivery;
 		}
 	}
