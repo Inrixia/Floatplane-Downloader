@@ -22,29 +22,30 @@
 		"default-import": "^1.1.5",
 		"dotenv": "^16.0.3",
 		"ffbinaries": "^1.1.5",
-		"floatplane": "^4.4.5",
+		"floatplane": "^4.5.0",
 		"html-to-text": "^9.0.5",
 		"json5": "^2.2.3",
 		"multi-progress-bars": "^5.0.3",
 		"process.argv": "^0.6.1",
 		"prompts": "^2.4.2",
 		"sanitize-filename": "^1.6.3",
-		"semver": "^7.3.8",
+		"semver": "^7.5.0",
+		"sequelize": "^6.31.0",
 		"tough-cookie": "^4.1.2",
 		"tough-cookie-file-store": "^2.0.3"
 	},
 	"devDependencies": {
 		"@types/html-to-text": "^9.0.0",
 		"@types/multi-progress": "^2.0.3",
-		"@types/prompts": "^2.4.3",
+		"@types/prompts": "^2.4.4",
 		"@types/semver": "^7.3.13",
 		"@types/tough-cookie-file-store": "^2.0.1",
-		"@typescript-eslint/eslint-plugin": "^5.56.0",
-		"esbuild": "^0.17.13",
-		"eslint": "^8.36.0",
+		"@typescript-eslint/eslint-plugin": "^5.59.1",
+		"esbuild": "^0.17.18",
+		"eslint": "^8.39.0",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"pkg": "^5.8.1",
-		"typescript": "^5.0.2"
+		"typescript": "^5.0.4"
 	}
 }
