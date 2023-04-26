@@ -34,8 +34,8 @@ export enum VideoState {
 }
 
 type Attachment = {
-	partialSize?: number;
-	muxedSize?: number;
+	partialBytes?: number;
+	muxedBytes?: number;
 	filePath: string;
 	releaseDate: number;
 	channelTitle: string;
@@ -145,11 +145,11 @@ export class Video {
 
 		const muxedBytes = await Video.pathBytes(this.muxedPath);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
-		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) attrStore.muxedSize = muxedBytes;
-		if (attrStore.muxedSize === muxedBytes) return VideoState.Muxed;
+		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) attrStore.muxedBytes = muxedBytes;
+		if (attrStore.muxedBytes === muxedBytes) return VideoState.Muxed;
 
 		const partialBytes = await Video.pathBytes(this.partialPath);
-		if (attrStore.partialSize === partialBytes) return VideoState.Partial;
+		if (attrStore.partialBytes === partialBytes) return VideoState.Partial;
 
 		return VideoState.Missing;
 	}
@@ -271,7 +271,7 @@ export class Video {
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(this.partialPath, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
-		downloadRequest.once("downloadProgress", (progress) => this.attrStore().then((attrStore) => (attrStore.partialSize = progress.total)));
+		downloadRequest.once("downloadProgress", (progress) => this.attrStore().then((attrStore) => (attrStore.partialBytes = progress.total)));
 
 		return downloadRequest;
 	}
@@ -329,7 +329,7 @@ export class Video {
 
 		const attrStore = await this.attrStore();
 
-		attrStore.muxedSize = await Video.pathBytes(this.muxedPath);
+		attrStore.muxedBytes = await Video.pathBytes(this.muxedPath);
 	}
 
 	public async postProcessingCommand(): Promise<void> {
