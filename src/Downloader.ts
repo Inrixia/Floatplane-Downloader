@@ -119,7 +119,6 @@ export default class Downloader {
 	private async processVideo(task: Task, retries = 0): Promise<void> {
 		const { video, formattedTitle } = task;
 
-		if (args.headless === true) console.log(`${formattedTitle} - Initalizing...`);
 		this.mpb?.addTask(formattedTitle, {
 			type: "percentage",
 			message: "Initalizing...",
