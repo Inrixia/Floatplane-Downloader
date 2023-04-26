@@ -64,13 +64,13 @@ export class Video {
 	private partialPath: string;
 	private muxedPath: string;
 
-	constructor(post: BlogPost, attachmentId: string, channelTitle: string) {
+	constructor(post: BlogPost, attachmentId: string, channelTitle: string, dateOffset: number) {
 		this.channelTitle = channelTitle;
 		this.title = post.title;
 		this.attachmentId = attachmentId;
 
 		this.description = post.text;
-		this.releaseDate = new Date(post.releaseDate);
+		this.releaseDate = new Date(new Date(post.releaseDate).getTime() + dateOffset);
 		this.thumbnail = post.thumbnail;
 
 		this.filePath = this.formatString(settings.filePathFormatting)

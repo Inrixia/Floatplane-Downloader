@@ -67,10 +67,12 @@ export default class Subscription {
 
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
-		for (const attachment of blogPost.videoAttachments) {
+		let dateOffset = 0;
+		for (const attachment of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
 			if (blogPost.videoAttachments.length > 1) {
+				dateOffset++;
 				const { title: attachmentTitle } = await fApi.content.video(attachment);
 				post.title = removeRepeatedSentences(post.title, attachmentTitle);
 			}
@@ -138,7 +140,7 @@ export default class Subscription {
 
 						post.title = post.title.trim();
 					}
-					yield new Video(post, attachment, channel.title);
+					yield new Video(post, attachment, channel.title, dateOffset * 1000);
 				}
 			}
 		}
