@@ -18,10 +18,10 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 
 	const uniqueAttachmentTitleSentences = attachmentTitleSentences?.filter((sentence) => !postTitleSentences?.includes(sentence));
 
-	if (uniqueAttachmentTitleSentences === undefined) return postTitle;
+	if (uniqueAttachmentTitleSentences === undefined) return `${postTitle.trim()} - ${attachmentTitle.trim()}`.trim();
 
 	// Remove trailing separator
-	return `${postTitle} - ${uniqueAttachmentTitleSentences?.join("")}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
+	return `${postTitle.trim()} - ${uniqueAttachmentTitleSentences.join("").trim()}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
 
 export default class Subscription {
@@ -145,6 +145,7 @@ export default class Subscription {
 	}
 
 	public async *fetchNewVideos(): AsyncGenerator<Video> {
+		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
 		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
 			for await (const video of this.matchChannel(blogPost)) yield video;
