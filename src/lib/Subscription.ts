@@ -1,5 +1,8 @@
 import { fApi } from "./helpers.js";
 
+import chalk from "chalk";
+import { rm } from "fs/promises";
+
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
@@ -36,31 +39,26 @@ export default class Subscription {
 		for (const channel of this.channels) {
 			if (channel.daysToKeepVideos !== undefined) {
 				const ignoreBeforeTimestamp = Subscription.getIgnoreBeforeTimestamp(channel);
-				// TODO
-				// if (this.daysToKeepVideos !== undefined) {
-				// 	process.stdout.write(
-				// 		chalk`Checking for videos older than {cyanBright ${this.daysToKeepVideos}} days in channel {yellow ${this.title}} for {redBright deletion}...`
-				// 	);
-				// 	let deletedFiles = 0;
-				// 	let deletedVideos = 0;
-				// 	for (const video of Object.values(this._db.videos)) {
-				// 		if (video.releaseDate === undefined || video.filePath === undefined) continue;
-				// 		if (this.ignoreBeforeTimestamp !== undefined && video.releaseDate < this.ignoreBeforeTimestamp) {
-				// 			deletedVideos++;
-				// 			const deletionResults = await Promise.allSettled([
-				// 				fs.rm(`${video.filePath}.mp4`),
-				// 				fs.rm(`${video.filePath}.partial`),
-				// 				fs.rm(`${video.filePath}.nfo`),
-				// 				fs.rm(`${video.filePath}.png`),
-				// 			]);
-				// 			for (const result of deletionResults) {
-				// 				if (result.status === "fulfilled") deletedFiles++;
-				// 			}
-				// 		}
-				// 	}
-				// 	if (deletedFiles === 0) console.log(" No files found for deletion.");
-				// 	else console.log(chalk` Deleted {redBright ${deletedVideos}} videos, {redBright ${deletedFiles}} files.`);
-				// }
+				process.stdout.write(
+					chalk`Checking for videos older than {cyanBright ${channel.daysToKeepVideos}} days in channel {yellow ${channel.title}} for {redBright deletion}...`
+				);
+				let deletedFiles = 0;
+				let deletedVideos = 0;
+
+				for (const video of Video.GetChannelVideos((video) => video.releaseDate < ignoreBeforeTimestamp && video.channelTitle === channel.title)) {
+					deletedVideos++;
+					const deletionResults = await Promise.allSettled([
+						rm(`${video.filePath}.mp4`),
+						rm(`${video.filePath}.partial`),
+						rm(`${video.filePath}.nfo`),
+						rm(`${video.filePath}.png`),
+					]);
+					for (const result of deletionResults) {
+						if (result.status === "fulfilled") deletedFiles++;
+					}
+				}
+				if (deletedFiles === 0) console.log(" No files found for deletion.");
+				else console.log(chalk` Deleted {redBright ${deletedVideos}} videos, {redBright ${deletedFiles}} files.`);
 			}
 		}
 	};

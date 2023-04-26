@@ -86,6 +86,10 @@ export class Video {
 		this.muxedPath = `${this.filePath}.mp4`;
 	}
 
+	public static GetChannelVideos(filter: (video: Attachment) => boolean) {
+		return Object.values(Video.Attachments).filter(filter);
+	}
+
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;
 	private formatString(string: string): string {
 		const formatLookup: Record<ValueOfA<typeof Video.FilePathOptions>, string> = {
