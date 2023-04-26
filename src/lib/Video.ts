@@ -280,50 +280,46 @@ export default class Video {
 			);
 		const artworkEmbed: string[] =
 			settings.extras.downloadArtwork && this.thumbnail !== null ? ["-i", this.artworkPath, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"] : [];
-		await Promise.all(
-			this.videoAttachments.map(
-				(a, i) =>
-					new Promise((resolve, reject) =>
-						execFile(
-							"./db/ffmpeg",
-							[
-								"-i",
-								`${this.fullPath}${this.multiPartSuffix(i)}.partial`,
-								...artworkEmbed,
-								"-metadata",
-								`title=${this.title}${this.multiPartSuffix(i)}`,
-								"-metadata",
-								`AUTHOR=${this.channel.title}`,
-								"-metadata",
-								`YEAR=${this.releaseDate.getFullYear().toString()}`,
-								"-metadata",
-								`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
-								"-metadata",
-								`description=${this.ffmpegDesc}`,
-								"-metadata",
-								`synopsis=${this.ffmpegDesc}`,
-								"-c",
-								"copy",
-								`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`,
-							],
-							(error, stdout, stderr) => {
-								if (error !== null) {
-									error.message ??= "";
-									error.message += stderr;
-									reject(error);
-								} else resolve(stdout);
-							}
-						)
-					)
-			)
-		);
-		this.expectedSize = await this.fileBytes(EXT);
-		await this.markCompleted();
 		for (const i in this.videoAttachments) {
+			await fs.unlink(`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`).catch(() => null);
+			await new Promise((resolve, reject) =>
+				execFile(
+					"./db/ffmpeg",
+					[
+						"-i",
+						`${this.fullPath}${this.multiPartSuffix(i)}.partial`,
+						...artworkEmbed,
+						"-metadata",
+						`title=${this.title}${this.multiPartSuffix(i)}`,
+						"-metadata",
+						`AUTHOR=${this.channel.title}`,
+						"-metadata",
+						`YEAR=${this.releaseDate.getFullYear().toString()}`,
+						"-metadata",
+						`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
+						"-metadata",
+						`description=${this.ffmpegDesc}`,
+						"-metadata",
+						`synopsis=${this.ffmpegDesc}`,
+						"-c",
+						"copy",
+						`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`,
+					],
+					(error, stdout, stderr) => {
+						if (error !== null) {
+							error.message ??= "";
+							error.message += stderr;
+							reject(error);
+						} else resolve(stdout);
+					}
+				)
+			);
 			await fs.unlink(`${this.fullPath}${this.multiPartSuffix(i)}.partial`);
 			// Set the files update time to when the video was released
 			await fs.utimes(`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`, new Date(), this.releaseDate);
 		}
+		this.expectedSize = await this.fileBytes(EXT);
+		await this.markCompleted();
 	}
 
 	public async postProcessingCommand(): Promise<void> {
