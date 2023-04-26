@@ -102,9 +102,8 @@ export default class Downloader {
 	 * @param displayNow If the update should be immediately sent to console (Only applied if running in headless mode)
 	 */
 	private log(formattedTitle: string, barUpdate: UpdateOptions, displayNow = false): void {
-		if (args.headless === true) {
-			if (displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
-		} else this.mpb?.updateTask(formattedTitle, barUpdate);
+		if (args.headless === true && displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
+		this.mpb?.updateTask(formattedTitle, barUpdate);
 	}
 
 	private formatTitle(video: Video) {
@@ -119,13 +118,12 @@ export default class Downloader {
 
 	private async processVideo(task: Task, retries = 0): Promise<void> {
 		const { video, formattedTitle } = task;
-		if (args.headless === true) console.log(`${formattedTitle} - Downloading...`);
-		else {
-			this.mpb?.addTask(formattedTitle, {
-				type: "percentage",
-				message: "Download Starting...",
-			});
-		}
+
+		if (args.headless === true) console.log(`${formattedTitle} - Initalizing...`);
+		this.mpb?.addTask(formattedTitle, {
+			type: "percentage",
+			message: "Initalizing...",
+		});
 
 		try {
 			if (settings.extras.saveNfo) await video.saveNfo();
@@ -139,11 +137,6 @@ export default class Downloader {
 				const percentage: number[] = [];
 
 				const downloadPromises: Promise<void>[] = [];
-
-				this.mpb?.addTask(formattedTitle, {
-					type: "percentage",
-					message: "Waiting on delivery cdn...",
-				});
 
 				const getStats = () => {
 					const timeElapsed = (Date.now() - startTime) / 1000;
@@ -160,14 +153,25 @@ export default class Downloader {
 					return { totalMB, downloadedMB, downloadSpeed, downloadETA };
 				};
 
+				this.mpb?.addTask(formattedTitle, {
+					type: "percentage",
+					message: "Waiting on delivery cdn...",
+				});
+
+				if (args.headless === true) console.log(`${formattedTitle} - Waiting on delivery cdn...`);
+
 				let i = 0;
 				for await (const downloadRequest of video.download(settings.floatplane.videoResolution)) {
 					downloadRequest.on("end", () => {
 						const { totalMB, downloadedMB } = getStats();
-						this.log(formattedTitle, {
-							percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
-							message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} - Waiting on delivery cdn...`,
-						});
+						this.log(
+							formattedTitle,
+							{
+								percentage: percentage.reduce((sum, b) => sum + b, 0) / percentage.length,
+								message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} - Waiting on delivery cdn...`,
+							},
+							true
+						);
 					});
 
 					((index) =>
@@ -200,22 +204,25 @@ export default class Downloader {
 				this.summaryStats[formattedTitle].downloadSpeed = 0;
 			}
 			if (!(await video.isMuxed())) {
-				this.log(formattedTitle, {
-					percentage: 0.99,
-					message: "Muxing ffmpeg metadata...",
-				});
+				this.log(
+					formattedTitle,
+					{
+						percentage: 0.99,
+						message: "Muxing ffmpeg metadata...",
+					},
+					true
+				);
 				await video.muxffmpegMetadata();
 			}
 			if (settings.postProcessingCommand !== "") {
-				this.log(formattedTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` });
+				this.log(formattedTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` }, true);
 				await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
 			}
-			if (args.headless === true) {
-				this.log(formattedTitle, { message: `Downloaded!` });
-			} else {
-				this.mpb?.done(formattedTitle);
-				setTimeout(() => this.mpb?.removeTask(formattedTitle), 30000);
-			}
+			this.log(formattedTitle, { message: `Downloaded!` }, true);
+
+			this.mpb?.done(formattedTitle);
+			setTimeout(() => this.mpb?.removeTask(formattedTitle), 30000);
+
 			this.updateSummaryBar();
 		} catch (error) {
 			let info;
