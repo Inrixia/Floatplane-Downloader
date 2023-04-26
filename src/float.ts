@@ -1,14 +1,13 @@
 import { quickStart, validatePlexSettings } from "./quickStart.js";
-import { fetchSubscriptions } from "./subscriptionFetching.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
 
 import { loginFloatplane } from "./logins.js";
 import { queueVideo } from "./Downloader.js";
 import chalk from "chalk-template";
 
-import type Subscription from "./lib/Subscription.js";
 import type { ContentPost } from "floatplane/content";
 import type { Video } from "./lib/Video.js";
+import { fetchSubscriptions } from "./subscriptionFetching.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
@@ -19,7 +18,7 @@ import { promptVideos } from "./lib/prompts/downloader.js";
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
 
-async function* fetchSubscriptionVideos(subscriptions: Array<Subscription>) {
+async function* fetchSubscriptionVideos() {
 	// Function that pops items out of seek and destroy until the array is empty
 	const posts: Promise<ContentPost>[] = [];
 	while (settings.floatplane.seekAndDestroy.length > 0) {
@@ -28,7 +27,7 @@ async function* fetchSubscriptionVideos(subscriptions: Array<Subscription>) {
 		posts.push(fApi.content.post(guid));
 	}
 
-	for (const subscription of subscriptions) {
+	for await (const subscription of fetchSubscriptions()) {
 		await subscription.deleteOldVideos();
 		for await (const video of subscription.fetchNewVideos()) yield video;
 		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) yield video;
@@ -38,15 +37,15 @@ async function* fetchSubscriptionVideos(subscriptions: Array<Subscription>) {
 /**
  * Main function that triggeres everything else in the script
  */
-const downloadNewVideos = async (subscriptions: Array<Subscription>) => {
+const downloadNewVideos = async () => {
 	if (settings.extras.promptVideos) {
 		const newVideos: Video[] = [];
-		for await (const video of fetchSubscriptionVideos(subscriptions)) newVideos.push(video);
+		for await (const video of fetchSubscriptionVideos()) newVideos.push(video);
 		promptVideos(newVideos).then((newVideos) => newVideos.map(queueVideo));
 		return;
 	}
 
-	for await (const video of fetchSubscriptionVideos(subscriptions)) await queueVideo(video);
+	for await (const video of fetchSubscriptionVideos()) await queueVideo(video);
 };
 
 // Fix for docker
@@ -89,15 +88,11 @@ process.on("SIGTERM", process.exit);
 		await loginFloatplane();
 	}
 
-	process.stdout.write("> Fetching user subscriptions... ");
-	const subscriptions = await fetchSubscriptions();
-	process.stdout.write(chalk`{cyanBright Done!}\n\n`);
-
-	await downloadNewVideos(subscriptions);
+	await downloadNewVideos();
 
 	if (settings.floatplane.waitForNewVideos === true) {
 		const waitLoop = async () => {
-			await downloadNewVideos(subscriptions);
+			await downloadNewVideos();
 			setTimeout(waitLoop, 5 * 60 * 1000);
 			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
 		};
