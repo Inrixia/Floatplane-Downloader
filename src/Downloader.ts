@@ -72,13 +72,15 @@ const updateSummaryBar = () => {
 
 const log = (formattedTitle: string, barUpdate: UpdateOptions, displayNow = true) => {
 	if (args.headless === true && displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
-	if (mpb?.getIndex(formattedTitle)) mpb?.updateTask(formattedTitle, barUpdate);
+	mpb?.updateTask(formattedTitle, barUpdate);
 };
 
 const formatTitle = (title: string) => {
-	let formattedTitle = args.headless === true ? title : title.slice(0, 32);
+	if (args.headless === true) return title;
 
-	if (summaryStats !== undefined) while (formattedTitle in summaryStats) formattedTitle = `.${formattedTitle}`.slice(0, 32);
+	let formattedTitle = title.slice(0, 32);
+	let i = 1;
+	if (mpb !== undefined) while (mpb.getIndex(formattedTitle) !== undefined) formattedTitle = `${title.slice(0, 32).trim()} [${++i}]`;
 
 	return formattedTitle;
 };
@@ -167,7 +169,7 @@ const processVideo = async (video: Video, retries = 0) => {
 			// eslint-disable-next-line no-fallthrough
 			case VideoState.Muxed: {
 				mpb?.done(fTitle);
-				setTimeout(() => mpb?.removeTask(fTitle), 10000);
+				setTimeout(() => mpb?.removeTask(fTitle), 10000 + Math.floor(Math.random() * 6000));
 				updateSummaryBar();
 			}
 		}
