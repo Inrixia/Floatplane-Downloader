@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "tsc && node ./dist/float.js",
 		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "esbuild ./src/float.ts --bundle --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
+		"build": "esbuild ./src/float.ts --bundle --external:pg-hstore --external:mock-aws-s3 --external:aws-sdk --external:nock --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
 		"checkLint": "eslint ./src",
 		"lint": "eslint ./src --fix",
 		"sanity": "npm run checkLint && npm run testESM && npm run testBinaryWin",
@@ -30,8 +30,6 @@
 		"prompts": "^2.4.2",
 		"sanitize-filename": "^1.6.3",
 		"semver": "^7.5.0",
-		"sequelize": "^6.31.0",
-		"sqlite3": "^5.1.6",
 		"tough-cookie": "^4.1.2",
 		"tough-cookie-file-store": "^2.0.3"
 	},

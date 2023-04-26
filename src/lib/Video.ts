@@ -16,8 +16,7 @@ import { nPad } from "@inrixia/helpers/math";
 import type { BlogPost } from "floatplane/creator";
 import type { DeliveryResponse } from "floatplane/cdn";
 import type { ValueOfA } from "@inrixia/helpers/ts";
-
-import { Attachment } from "./Sequelize.js";
+import db from "@inrixia/db";
 
 const fileExists = async (path: string): Promise<boolean> => {
 	try {
@@ -34,6 +33,14 @@ export enum VideoState {
 	Muxed,
 }
 
+type Attachment = {
+	partialSize?: number;
+	muxedSize?: number;
+	filePath: string;
+	releaseDate: number;
+	channelTitle: string;
+};
+
 export class Video {
 	private description: BlogPost["text"];
 	private releaseDate: Date;
@@ -46,6 +53,8 @@ export class Video {
 
 	private static OriginSelector = 0;
 	private originSelector = Video.OriginSelector;
+
+	private static Attachments = db<Record<string, Attachment>>(`./db/attachments.json`);
 
 	private folderPath: string;
 	private filePath: string;
@@ -98,8 +107,8 @@ export class Video {
 	}
 
 	private async attrStore() {
-		const attrStore = await Attachment.findByPk(this.attachmentId);
-		if (attrStore !== null) {
+		const attrStore = Video.Attachments[this.attachmentId];
+		if (attrStore !== undefined) {
 			// If the video was previously downloaded to another path then fix it.
 			if (attrStore.filePath !== this.filePath) {
 				await Promise.all([
@@ -113,12 +122,10 @@ export class Video {
 
 			if (attrStore.channelTitle !== this.channelTitle) attrStore.channelTitle = this.channelTitle;
 
-			await attrStore.save();
 			return attrStore;
 		}
-		return await Attachment.create({
-			id: this.attachmentId,
-			releaseDate: this.releaseDate,
+		return (Video.Attachments[this.attachmentId] = {
+			releaseDate: this.releaseDate.getTime(),
 			channelTitle: this.channelTitle,
 			filePath: this.filePath,
 		});
@@ -260,12 +267,7 @@ export class Video {
 		// Pipe the download to the file once response starts
 		downloadRequest.pipe(createWriteStream(this.partialPath, writeStreamOptions));
 		// Set the videos expectedSize once we know how big it should be for download validation.
-		downloadRequest.once("downloadProgress", (progress) =>
-			this.attrStore().then((attrStore) => {
-				attrStore.partialSize = progress.total;
-				attrStore.save();
-			})
-		);
+		downloadRequest.once("downloadProgress", (progress) => this.attrStore().then((attrStore) => (attrStore.partialSize = progress.total)));
 
 		return downloadRequest;
 	}
@@ -324,8 +326,6 @@ export class Video {
 		const attrStore = await this.attrStore();
 
 		attrStore.muxedSize = await Video.pathBytes(this.muxedPath);
-
-		await attrStore.save();
 	}
 
 	public async postProcessingCommand(): Promise<void> {
