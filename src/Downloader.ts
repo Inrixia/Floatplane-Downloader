@@ -109,13 +109,14 @@ const processVideo = async (video: Video, retries = 0) => {
 					message: "Waiting on delivery cdn...",
 				});
 
-				const startTime = Date.now();
+				let startTime;
 
 				if (args.headless === true) console.log(`${fTitle} - Waiting on delivery cdn...`);
 
 				const downloadRequest = await video.download(settings.floatplane.videoResolution);
 
 				downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
+					startTime ??= Date.now();
 					const timeElapsed = (Date.now() - startTime) / 1000;
 
 					const totalMB = downloadProgress.total / 1024000;
