@@ -141,15 +141,15 @@ export class Video {
 	}
 
 	public async getState() {
-		const { muxedSize, partialSize } = await this.attrStore();
+		const attrStore = await this.attrStore();
 
 		const muxedBytes = await Video.pathBytes(this.muxedPath);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
-		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) return true;
-		if (muxedSize === muxedBytes) return VideoState.Muxed;
+		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) attrStore.muxedSize = muxedBytes;
+		if (attrStore.muxedSize === muxedBytes) return VideoState.Muxed;
 
 		const partialBytes = await Video.pathBytes(this.partialPath);
-		if (partialSize === partialBytes) return VideoState.Partial;
+		if (attrStore.partialSize === partialBytes) return VideoState.Partial;
 
 		return VideoState.Missing;
 	}
