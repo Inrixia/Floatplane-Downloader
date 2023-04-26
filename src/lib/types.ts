@@ -58,7 +58,6 @@ export type Settings = {
 	floatplane: {
 		videoResolution: Resolution;
 		videosToSearch: number;
-		forceFullSearch: boolean;
 		waitForNewVideos: boolean;
 		seekAndDestroy: string[];
 	};

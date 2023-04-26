@@ -1,133 +1,145 @@
 import { fApi } from "./helpers.js";
-import Channel from "./Channel.js";
-import db from "@inrixia/db";
 
-import type { SubscriptionSettings } from "./types.js";
-import type Video from "./Video.js";
+import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
-type LastSeenVideo = {
-	guid: BlogPost["guid"];
-	releaseDate: number;
-};
-type SubscriptionDB = {
-	lastSeenVideo: LastSeenVideo;
+import { Video } from "./Video.js";
+
+import { settings } from "./helpers.js";
+
+const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
+	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;
+	const postTitleSentences = postTitle.match(separators)?.map((sentence) => sentence.trim());
+	const attachmentTitleSentences = attachmentTitle.match(separators)?.map((sentence) => sentence.trim());
+
+	const uniqueAttachmentTitleSentences = attachmentTitleSentences?.filter((sentence) => !postTitleSentences?.includes(sentence));
+
+	if (uniqueAttachmentTitleSentences === undefined) return postTitle;
+
+	// Remove trailing separator
+	return `${postTitle} - ${uniqueAttachmentTitleSentences?.join("")}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
 
 export default class Subscription {
-	public channels: Channel[];
+	public channels: SubscriptionSettings["channels"];
 
 	public readonly creatorId: string;
-	private readonly plan: string;
 
-	private _db: SubscriptionDB;
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
-		this.plan = subscription.plan;
 
-		this.channels = subscription.channels.map((channel) => new Channel(channel, this));
-
-		// Load/Create database
-		const databaseFilePath = `./db/subscriptions/${subscription.creatorId}.json`;
-		try {
-			this._db = db<SubscriptionDB>(databaseFilePath, { template: { lastSeenVideo: { guid: "", releaseDate: 0 } } });
-		} catch {
-			throw new Error(`Cannot load Subscription database file ${databaseFilePath}! Please delete the file or fix it!`);
-		}
-	}
-
-	get lastSeenVideo(): SubscriptionDB["lastSeenVideo"] {
-		return this._db.lastSeenVideo;
-	}
-
-	public updateLastSeenVideo(videoSeen: LastSeenVideo): void {
-		if (videoSeen.releaseDate > this.lastSeenVideo.releaseDate) this._db.lastSeenVideo = videoSeen;
+		this.channels = subscription.channels;
 	}
 
 	public deleteOldVideos = async () => {
-		for (const channel of this.channels) await channel.deleteOldVideos();
+		for (const channel of this.channels) {
+			if (channel.daysToKeepVideos !== undefined) {
+				const ignoreBeforeTimestamp = Subscription.getIgnoreBeforeTimestamp(channel);
+				// TODO
+				// if (this.daysToKeepVideos !== undefined) {
+				// 	process.stdout.write(
+				// 		chalk`Checking for videos older than {cyanBright ${this.daysToKeepVideos}} days in channel {yellow ${this.title}} for {redBright deletion}...`
+				// 	);
+				// 	let deletedFiles = 0;
+				// 	let deletedVideos = 0;
+				// 	for (const video of Object.values(this._db.videos)) {
+				// 		if (video.releaseDate === undefined || video.filePath === undefined) continue;
+				// 		if (this.ignoreBeforeTimestamp !== undefined && video.releaseDate < this.ignoreBeforeTimestamp) {
+				// 			deletedVideos++;
+				// 			const deletionResults = await Promise.allSettled([
+				// 				fs.rm(`${video.filePath}.mp4`),
+				// 				fs.rm(`${video.filePath}.partial`),
+				// 				fs.rm(`${video.filePath}.nfo`),
+				// 				fs.rm(`${video.filePath}.png`),
+				// 			]);
+				// 			for (const result of deletionResults) {
+				// 				if (result.status === "fulfilled") deletedFiles++;
+				// 			}
+				// 		}
+				// 	}
+				// 	if (deletedFiles === 0) console.log(" No files found for deletion.");
+				// 	else console.log(chalk` Deleted {redBright ${deletedVideos}} videos, {redBright ${deletedFiles}} files.`);
+				// }
+			}
+		}
 	};
 
-	/**
-	 * @param {fApiVideo} video
-	 */
-	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]>;
-	public addVideo(video: BlogPost, stripSubchannelPrefix?: boolean): ReturnType<Channel["addVideo"]> | null;
-	public addVideo(video: BlogPost, stripSubchannelPrefix = true): ReturnType<Channel["addVideo"]> | null {
-		for (const channel of this.channels) {
-			if (!channel.identifiers) continue;
-			for (const identifier of channel.identifiers) {
-				if (typeof identifier.type !== "string")
-					throw new Error(
-						`Value for channel identifier type ${video[identifier.type]} on channel ${channel.title} is of type ${typeof video[identifier.type]} not string!`
-					);
-				else {
-					if (identifier.type === "channelId" && video.channel.id === identifier.check) {
-						if (channel.skip === true) return null;
-						return channel.addVideo(video);
-					}
-					if (
-						(identifier.type === "runtimeLessThan" && video.metadata.videoDuration < +identifier.check) ||
-						(identifier.type === "runtimeGreaterThan" && video.metadata.videoDuration > +identifier.check)
-					) {
-						if (channel.skip === true) return null;
-						return channel.addVideo(video);
-					}
-					if (
-						(identifier.type === "releasedBefore" && video.releaseDate < identifier.check) ||
-						(identifier.type === "releasedAfter" && video.releaseDate > identifier.check)
-					) {
-						if (channel.skip === true) return null;
-						return channel.addVideo(video);
+	private static getIgnoreBeforeTimestamp = (channel: ChannelOptions) => Date.now() - (channel.daysToKeepVideos ?? 0) * 24 * 60 * 60 * 1000;
+
+	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
+		if (blogPost.videoAttachments === undefined) return;
+		for (const attachment of blogPost.videoAttachments) {
+			// Make sure we have a unique object for each attachment
+			const post = { ...blogPost };
+			if (blogPost.videoAttachments.length > 1) {
+				const { title: attachmentTitle } = await fApi.content.video(attachment);
+				post.title = removeRepeatedSentences(post.title, attachmentTitle);
+			}
+
+			for (const channel of this.channels) {
+				if (!channel.identifiers) continue;
+				for (const identifier of channel.identifiers) {
+					if (typeof identifier.type !== "string")
+						throw new Error(
+							`Value for channel identifier type ${post[identifier.type]} on channel ${channel.title} is of type ${typeof post[identifier.type]} not string!`
+						);
+
+					let nextChannel = false;
+					switch (identifier.type) {
+						case "channelId":
+							nextChannel = (typeof post.channel !== "string" ? post.channel.id : post.channel) !== identifier.check;
+							break;
+						case "runtimeLessThan":
+							nextChannel = post.metadata.videoDuration >= +identifier.check;
+							break;
+						case "runtimeGreaterThan":
+							nextChannel = post.metadata.videoDuration <= +identifier.check;
+							break;
+						case "releasedBefore":
+							nextChannel = post.releaseDate >= identifier.check;
+							break;
+						case "releasedAfter":
+							nextChannel = post.releaseDate <= identifier.check;
+							break;
+						case "description":
+							nextChannel = post.text?.toString().toLowerCase().includes(identifier.check.toLowerCase());
+							break;
+						default:
+							nextChannel = !post[identifier.type]?.toString().toLowerCase().includes(identifier.check.toLowerCase()) || false;
 					}
 
-					// Description is named text on videos, kept description for ease of use for users but have to change it here...
-					const identifierType = identifier.type === "description" ? "text" : identifier.type;
-					if (identifierType in video && video[identifierType as keyof typeof video]?.toString().toLowerCase().includes(identifier.check.toLowerCase())) {
-						if (channel.skip === true) return null;
-						// Remove the identifier from the video title if to give a nicer title
-						const idCheck = identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+					if (nextChannel) continue;
+					if (channel.skip) return;
+
+					if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
+
+					// Remove the identifier from the video title if to give a nicer title
+					if (settings.extras.stripSubchannelPrefix === true && (identifier.type === "title" || identifier.type === "channelId")) {
+						const idCheck =
+							identifier.type === "channelId" ? channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&") : identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 						const regIDCheck = new RegExp(idCheck, "i");
-						if (identifierType === "title" && stripSubchannelPrefix === true) video.title = video.title.replace(regIDCheck, "").trim();
-						return channel.addVideo(video);
+						post.title.replace(regIDCheck, "").trim();
 					}
+					yield new Video(post, attachment, channel.title);
 				}
 			}
 		}
-		throw new Error(`Video ${video.title} could not be matched to a channel!`);
 	}
 
-	public async fetchNewVideos(videosToSearch = 20, stripSubchannelPrefix: boolean, forceFullSearch: boolean): Promise<Video[]> {
-		const videos: Video[] = [];
-
-		process.stdout.write(`> Fetching latest videos from [${this.plan}]... Fetched ${videos.length} videos!`);
-
+	public async *fetchNewVideos(): AsyncGenerator<Video> {
 		let videosSearched = 0;
-		if (videosToSearch > 0)
-			for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
-				const video = this.addVideo(blogPost, stripSubchannelPrefix);
-				if (video !== null) {
-					// If we have found the last seen video, check if its downloaded.
-					// If it is then break here and return the videos we have found.
-					// Otherwise continue to fetch new videos up to the videosToSearch limit to ensure partially or non downloaded videos are returned.
-					if (!forceFullSearch && video.guid === this.lastSeenVideo.guid && (await video.isDownloaded())) break;
-					videos.push(video);
-				}
-				// Stop searching if we have looked through videosToSearch
-				if (videosSearched++ >= videosToSearch) break;
-				process.stdout.write(`\r> Fetching latest videos from [${this.plan}]... Fetched ${videos.length} videos!`);
-			}
-		process.stdout.write(` Skipped ${videosSearched - videos.length}.\n`);
-		return videos;
+		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
+			for await (const video of this.matchChannel(blogPost)) yield video;
+
+			// Stop searching if we have looked through videosToSearch
+			if (videosSearched++ >= settings.floatplane.videosToSearch) break;
+		}
 	}
 
-	public async seekAndDestroy(contentPosts: ContentPost[], stripSubchannelPrefix: boolean): Promise<Video[]> {
+	public async *seekAndDestroy(contentPosts: ContentPost[]): AsyncGenerator<Video> {
 		const thisSubsPosts = contentPosts.filter((post) => post.creator.id === this.creatorId);
-		if (thisSubsPosts.length === 0) return [];
-		process.stdout.write(`> Seeking and destroying ${thisSubsPosts.length} videos... Destroyed 0`);
-		let count = 0;
-		const videos: Video[] = [];
+		if (thisSubsPosts.length === 0) return;
 		for (const contentPost of thisSubsPosts) {
 			// Convert as best able to a BlogPost
 			const blogPost: BlogPost = <BlogPost>(<unknown>{
@@ -147,12 +159,7 @@ export default class Subscription {
 					card: null,
 				},
 			});
-			const video = this.addVideo(blogPost, stripSubchannelPrefix);
-			if (video === null) continue;
-			videos.push(video);
-			process.stdout.write(`\r> Seeking and destroying ${thisSubsPosts.length} videos... Destroyed ${++count}`);
+			for await (const video of this.matchChannel(blogPost)) yield video;
 		}
-		console.log();
-		return videos;
 	}
 }

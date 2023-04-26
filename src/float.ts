@@ -1,13 +1,14 @@
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
-import { MyPlexAccount } from "@ctrl/plex";
+
 import { loginFloatplane } from "./logins.js";
-import Downloader from "./Downloader.js";
+import { queueVideo } from "./Downloader.js";
 import chalk from "chalk-template";
 
 import type Subscription from "./lib/Subscription.js";
 import type { ContentPost } from "floatplane/content";
+import type { Video } from "./lib/Video.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
@@ -17,12 +18,8 @@ import { promptVideos } from "./lib/prompts/downloader.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
-import Video from "./lib/Video.js";
 
-/**
- * Main function that triggeres everything else in the script
- */
-const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor: Downloader) => {
+async function* fetchSubscriptionVideos(subscriptions: Array<Subscription>) {
 	// Function that pops items out of seek and destroy until the array is empty
 	const posts: Promise<ContentPost>[] = [];
 	while (settings.floatplane.seekAndDestroy.length > 0) {
@@ -30,35 +27,26 @@ const fetchNewVideos = async (subscriptions: Array<Subscription>, videoProcessor
 		if (guid === undefined) continue;
 		posts.push(fApi.content.post(guid));
 	}
-	let newVideos: Video[] = [];
 
 	for (const subscription of subscriptions) {
 		await subscription.deleteOldVideos();
-		console.log();
-		const subVideos = await subscription.fetchNewVideos(
-			settings.floatplane.videosToSearch,
-			settings.extras.stripSubchannelPrefix,
-			settings.floatplane.forceFullSearch
-		);
-		const seekVideos = await subscription.seekAndDestroy(await Promise.all(posts), settings.extras.stripSubchannelPrefix);
-		newVideos = [...subVideos, ...seekVideos];
+		for await (const video of subscription.fetchNewVideos()) yield video;
+		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) yield video;
+	}
+}
+
+/**
+ * Main function that triggeres everything else in the script
+ */
+const downloadNewVideos = async (subscriptions: Array<Subscription>) => {
+	if (settings.extras.promptVideos) {
+		const newVideos: Video[] = [];
+		for await (const video of fetchSubscriptionVideos(subscriptions)) newVideos.push(video);
+		promptVideos(newVideos).then((newVideos) => newVideos.map(queueVideo));
+		return;
 	}
 
-	if (newVideos.length !== 0) {
-		if (settings.extras.promptVideos) newVideos = await promptVideos(newVideos);
-		// If processing videos does not complete then forceFullSearch next run to recover
-		settings.floatplane.forceFullSearch = true;
-		await Promise.all(videoProcessor.processVideos(newVideos));
-		settings.floatplane.forceFullSearch = false;
-		if (settings.plex.enabled) {
-			process.stdout.write("> Refreshing plex sections... ");
-			const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
-			for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
-				await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
-			}
-			process.stdout.write(chalk`{cyanBright Done!}\n\n`);
-		}
-	}
+	for await (const video of fetchSubscriptionVideos(subscriptions)) await queueVideo(video);
 };
 
 // Fix for docker
@@ -105,17 +93,14 @@ process.on("SIGTERM", process.exit);
 	const subscriptions = await fetchSubscriptions();
 	process.stdout.write(chalk`{cyanBright Done!}\n\n`);
 
-	const downloader = new Downloader();
-	downloader.start();
-
-	await fetchNewVideos(subscriptions, downloader);
+	await downloadNewVideos(subscriptions);
 
 	if (settings.floatplane.waitForNewVideos === true) {
 		const waitLoop = async () => {
-			await fetchNewVideos(subscriptions, downloader);
+			await downloadNewVideos(subscriptions);
 			setTimeout(waitLoop, 5 * 60 * 1000);
 			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
 		};
 		waitLoop();
-	} else downloader.stop();
+	}
 })();

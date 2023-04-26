@@ -14,10 +14,10 @@ import builder from "xmlbuilder";
 import { nPad } from "@inrixia/helpers/math";
 
 import type { BlogPost } from "floatplane/creator";
-import type Channel from "./Channel.js";
-import { DeliveryResponse } from "floatplane/cdn";
-import { VideoDBEntry } from "./Channel.js";
-import { ValueOfA } from "@inrixia/helpers/ts";
+import type { DeliveryResponse } from "floatplane/cdn";
+import type { ValueOfA } from "@inrixia/helpers/ts";
+
+import { Attachment } from "./Sequelize.js";
 
 const fileExists = async (path: string): Promise<boolean> => {
 	try {
@@ -28,51 +28,59 @@ const fileExists = async (path: string): Promise<boolean> => {
 	}
 };
 
-const EXT = "mp4";
+export enum VideoState {
+	Missing,
+	Partial,
+	Muxed,
+}
 
-export default class Video {
-	public guid: BlogPost["guid"];
+export class Video {
+	private description: BlogPost["text"];
+	private releaseDate: Date;
+	private thumbnail: BlogPost["thumbnail"];
+
+	private attachmentId: string;
+
 	public title: BlogPost["title"];
-	public description: BlogPost["text"];
-	public releaseDate: Date;
-	public thumbnail: BlogPost["thumbnail"];
-
-	public videoAttachments: string[];
-
-	public channel: Channel;
-	private videoDBEntry: VideoDBEntry;
+	public channelTitle: string;
 
 	private static OriginSelector = 0;
 	private originSelector = Video.OriginSelector;
 
-	public fullPath: string;
 	private folderPath: string;
+	private filePath: string;
+
 	private artworkPath: string;
+	private nfoPath: string;
+	private partialPath: string;
+	private muxedPath: string;
 
-	constructor(video: BlogPost, channel: Channel, videoDBEntry: VideoDBEntry) {
-		this.channel = channel;
-		this.videoDBEntry = videoDBEntry;
+	constructor(post: BlogPost, attachmentId: string, channelTitle: string) {
+		this.channelTitle = channelTitle;
+		this.title = post.title;
+		this.attachmentId = attachmentId;
 
-		this.guid = video.guid;
-		this.videoAttachments = video.attachmentOrder.filter((a) => video.videoAttachments?.includes(a));
-		this.title = video.title;
-		this.description = video.text;
-		this.releaseDate = new Date(video.releaseDate);
-		this.thumbnail = video.thumbnail;
+		this.description = post.text;
+		this.releaseDate = new Date(post.releaseDate);
+		this.thumbnail = post.thumbnail;
 
-		this.fullPath = this.formatString(settings.filePathFormatting)
+		this.filePath = this.formatString(settings.filePathFormatting)
 			.split("/")
 			.map((pathPart) => (pathPart.startsWith(".") ? pathPart : sanitize(pathPart)))
 			.join("/");
 
-		this.folderPath = this.fullPath.substring(0, this.fullPath.lastIndexOf("/"));
-		this.artworkPath = `${this.fullPath}${settings.artworkSuffix}.png`;
+		this.folderPath = this.filePath.substring(0, this.filePath.lastIndexOf("/"));
+
+		this.artworkPath = `${this.filePath}${settings.artworkSuffix}.png`;
+		this.nfoPath = `${this.filePath}.nfo`;
+		this.partialPath = `${this.filePath}.partial`;
+		this.muxedPath = `${this.filePath}.mp4`;
 	}
 
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;
 	private formatString(string: string): string {
 		const formatLookup: Record<ValueOfA<typeof Video.FilePathOptions>, string> = {
-			"%channelTitle%": this.channel.title,
+			"%channelTitle%": this.channelTitle,
 			"%year%": this.releaseDate.getFullYear().toString(),
 			"%month%": nPad(this.releaseDate.getMonth() + 1),
 			"%day%": nPad(this.releaseDate.getDate()),
@@ -89,50 +97,61 @@ export default class Video {
 		return string;
 	}
 
-	/**
-	 * Get the suffix for a video file if there are multiple videoAttachments for this video
-	 */
-	private multiPartSuffix = (attachmentIndex: string | number): string => `${this.videoAttachments.length !== 1 ? ` - part${+attachmentIndex + 1}` : ""}`;
+	private async attrStore() {
+		const attrStore = await Attachment.findByPk(this.attachmentId);
+		if (attrStore !== null) {
+			// If the video was previously downloaded to another path then fix it.
+			if (attrStore.filePath !== this.filePath) {
+				await Promise.all([
+					fs.rename(this.artworkPath.replace(this.filePath, attrStore.filePath), this.artworkPath).catch(() => null),
+					fs.rename(this.partialPath.replace(this.filePath, attrStore.filePath), this.partialPath).catch(() => null),
+					fs.rename(this.muxedPath.replace(this.filePath, attrStore.filePath), this.muxedPath).catch(() => null),
+					fs.rename(this.nfoPath.replace(this.filePath, attrStore.filePath), this.nfoPath).catch(() => null),
+				]);
+				attrStore.filePath = this.filePath;
+			}
 
-	get expectedSize(): number | undefined {
-		return this.videoDBEntry.expectedSize;
-	}
-	set expectedSize(expectedSize: number | undefined) {
-		this.videoDBEntry.expectedSize = expectedSize;
-	}
+			if (attrStore.channelTitle !== this.channelTitle) attrStore.channelTitle = this.channelTitle;
 
-	static getFileBytes = async (path: string): Promise<number> => (await fs.stat(path).catch(() => ({ size: -1 }))).size;
-
-	public fileBytes = async (extension: string): Promise<number> => {
-		let bytes = 0;
-		for (const i in this.videoAttachments) {
-			bytes += await Video.getFileBytes(`${this.fullPath}${this.multiPartSuffix(i)}.${extension}`);
+			await attrStore.save();
+			return attrStore;
 		}
-		return bytes;
-	};
-	public isDownloaded = async (): Promise<boolean> => {
-		if (this.expectedSize === undefined) return false;
-		if (await this.isMuxed()) return true;
-		return (await this.fileBytes("partial")) === this.expectedSize;
-	};
-	public isMuxed = async (): Promise<boolean> => {
-		if (this.expectedSize === undefined) return false;
-		const fileBytes = await this.fileBytes(EXT);
+		return await Attachment.create({
+			id: this.attachmentId,
+			releaseDate: this.releaseDate,
+			channelTitle: this.channelTitle,
+			filePath: this.filePath,
+		});
+	}
+
+	private static async pathBytes(path: string) {
+		const { size } = await fs.stat(path).catch(() => ({ size: -1 }));
+		return size;
+	}
+
+	public async getState() {
+		const { muxedSize, partialSize } = await this.attrStore();
+
+		const muxedBytes = await Video.pathBytes(this.muxedPath);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
-		if (settings.extras.considerAllNonPartialDownloaded) return fileBytes !== -1;
-		return fileBytes === this.expectedSize;
-	};
+		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) return true;
+		if (muxedSize === muxedBytes) return VideoState.Muxed;
+
+		const partialBytes = await Video.pathBytes(this.partialPath);
+		if (partialSize === partialBytes) return VideoState.Partial;
+
+		return VideoState.Missing;
+	}
 
 	public async saveNfo() {
-		const nfoPath = `${this.fullPath}.nfo`;
-		if (await fileExists(nfoPath)) return;
+		if (await fileExists(this.nfoPath)) return;
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
 		let season = "";
 		let episode = "";
-		const match = /S(\d+)E(\d+)/i.exec(this.fullPath);
+		const match = /S(\d+)E(\d+)/i.exec(this.nfoPath);
 		if (match !== null) {
 			season = match[1];
 			episode = match[2];
@@ -143,7 +162,7 @@ export default class Video {
 			.text(this.title)
 			.up()
 			.ele("showtitle")
-			.text(this.channel.title)
+			.text(this.channelTitle)
 			.up()
 			.ele("description")
 			.text(htmlToText(this.description))
@@ -161,12 +180,12 @@ export default class Video {
 			.text(episode)
 			.up()
 			.end({ pretty: true });
-		await fs.writeFile(nfoPath, nfo, "utf8");
-		await fs.utimes(nfoPath, new Date(), this.releaseDate);
+		await fs.writeFile(this.nfoPath, nfo, "utf8");
+		await fs.utimes(this.nfoPath, new Date(), this.releaseDate);
 	}
 
 	public async downloadArtwork() {
-		if (this.thumbnail === null) return;
+		if (!this.thumbnail) return;
 		if (await fileExists(this.artworkPath)) return;
 
 		// Make sure the folder for the video exists
@@ -185,71 +204,70 @@ export default class Video {
 	private static DeliveryTimeout = 61000;
 	private static DeliveryQueue: (() => void)[] = [];
 
-	private static async requestDeliverySemaphore(): Promise<void> {
+	private static async requestDeliverySemaphore() {
 		// If there is an available request slot, proceed immediately
-		if (Video.AvalibleDeliverySlots > 0) {
-			Video.AvalibleDeliverySlots -= 1;
-			return;
-		}
+		if (Video.AvalibleDeliverySlots > 0) return Video.AvalibleDeliverySlots--;
 
 		// Otherwise, wait for a request slot to become available
-		await new Promise((r) => Video.DeliveryQueue.push(() => r((Video.AvalibleDeliverySlots -= 1))));
+		return new Promise((r) => Video.DeliveryQueue.push(() => r(Video.AvalibleDeliverySlots--)));
 	}
 
 	private static releaseDeliverySemaphore(): void {
-		Video.AvalibleDeliverySlots += 1;
+		Video.AvalibleDeliverySlots++;
 
 		// If there are queued requests, resolve the first one in the queue
 		Video.DeliveryQueue.shift()?.();
 	}
 
-	private async *getDeliveries() {
-		for (const attachment of this.videoAttachments) {
-			// Ensure that we only call the delivery endpoint twice a minute at most
-			await Video.requestDeliverySemaphore();
+	private async getDelivery() {
+		// Ensure that we only call the delivery endpoint twice a minute at most
+		await Video.requestDeliverySemaphore();
 
-			// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-			const {
-				groups: [delivery],
-			} = await fApi.cdn.delivery("download", attachment);
+		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
+		const {
+			groups: [delivery],
+		} = await fApi.cdn.delivery("download", this.attachmentId);
 
-			// Release the semaphore after DeliveryTimeout
-			setTimeout(() => Video.releaseDeliverySemaphore(), Video.DeliveryTimeout);
+		// Release the semaphore after DeliveryTimeout
+		setTimeout(() => Video.releaseDeliverySemaphore(), Video.DeliveryTimeout);
 
-			yield delivery;
-		}
+		return delivery;
 	}
 
-	public async *download(quality: string): AsyncGenerator<ReturnType<typeof fApi.got.stream>> {
-		if (await this.isDownloaded()) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
+	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>> {
+		if ((await this.getState()) === VideoState.Muxed) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
 		let writeStreamOptions, requestOptions;
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		let i = 0;
-		for await (const delivery of this.getDeliveries()) {
-			if (delivery.origins === undefined) throw new Error("Video has no origins to download from!");
+		const delivery = await this.getDelivery();
+		if (delivery.origins === undefined) throw new Error("Video has no origins to download from!");
 
-			// Round robin edges with download enabled
-			const downloadOrigin = this.getOrigin(delivery.origins);
+		// Round robin edges with download enabled
+		const downloadOrigin = this.getOrigin(delivery.origins);
 
-			// Sort qualities from highest to smallest
-			const availableVariants = delivery.variants.filter((variant) => variant.url !== "").sort((a, b) => (b.order || 0) - (a.order || 0));
+		// Sort qualities from highest to smallest
+		const availableVariants = delivery.variants.filter((variant) => variant.url !== "").sort((a, b) => (b.order || 0) - (a.order || 0));
 
-			if (availableVariants.length === 0) throw new Error("No variants available for download!");
+		if (availableVariants.length === 0) throw new Error("No variants available for download!");
 
-			// Set the quality to use based on whats given in the settings.json or the highest available
-			const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
+		// Set the quality to use based on whats given in the settings.json or the highest available
+		const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
 
-			const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
-			// Pipe the download to the file once response starts
-			downloadRequest.pipe(createWriteStream(`${this.fullPath}${this.multiPartSuffix(i++)}.partial`, writeStreamOptions));
-			// Set the videos expectedSize once we know how big it should be for download validation.
-			if (this.expectedSize === undefined) downloadRequest.once("downloadProgress", (progress) => (this.expectedSize = progress.total));
-			yield downloadRequest;
-		}
+		const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
+		// Pipe the download to the file once response starts
+		downloadRequest.pipe(createWriteStream(this.partialPath, writeStreamOptions));
+		// Set the videos expectedSize once we know how big it should be for download validation.
+		downloadRequest.once("downloadProgress", (progress) =>
+			this.attrStore().then((attrStore) => {
+				attrStore.partialSize = progress.total;
+				attrStore.save();
+			})
+		);
+
+		return downloadRequest;
 	}
 
 	private getOrigin(origins: Required<DeliveryResponse["groups"][0]>["origins"]) {
@@ -261,65 +279,53 @@ export default class Video {
 		return origins[this.originSelector++];
 	}
 
-	public async markCompleted(): Promise<void> {
-		if (!(await this.isMuxed()))
-			throw new Error(
-				`Cannot mark ${this.title} as completed as video file size is not correct. Expected: ${this.expectedSize} bytes, Got: ${await this.fileBytes(EXT)} bytes...`
-			);
-		return this.channel.markVideoFinished(this.guid, this.releaseDate.getTime());
-	}
-
-	get ffmpegDesc() {
-		return htmlToText(this.description);
-	}
-
 	public async muxffmpegMetadata(): Promise<void> {
-		if (!this.isDownloaded())
-			throw new Error(
-				`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded. Expected: ${this.expectedSize}, Got: ${await this.fileBytes("partial")} bytes...`
-			);
+		if ((await this.getState()) !== VideoState.Partial) throw new Error(`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded.`);
 		const artworkEmbed: string[] =
 			settings.extras.downloadArtwork && this.thumbnail !== null ? ["-i", this.artworkPath, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"] : [];
-		for (const i in this.videoAttachments) {
-			await fs.unlink(`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`).catch(() => null);
-			await new Promise((resolve, reject) =>
-				execFile(
-					"./db/ffmpeg",
-					[
-						"-i",
-						`${this.fullPath}${this.multiPartSuffix(i)}.partial`,
-						...artworkEmbed,
-						"-metadata",
-						`title=${this.title}${this.multiPartSuffix(i)}`,
-						"-metadata",
-						`AUTHOR=${this.channel.title}`,
-						"-metadata",
-						`YEAR=${this.releaseDate.getFullYear().toString()}`,
-						"-metadata",
-						`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
-						"-metadata",
-						`description=${this.ffmpegDesc}`,
-						"-metadata",
-						`synopsis=${this.ffmpegDesc}`,
-						"-c",
-						"copy",
-						`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`,
-					],
-					(error, stdout, stderr) => {
-						if (error !== null) {
-							error.message ??= "";
-							error.message += stderr;
-							reject(error);
-						} else resolve(stdout);
-					}
-				)
-			);
-			await fs.unlink(`${this.fullPath}${this.multiPartSuffix(i)}.partial`);
-			// Set the files update time to when the video was released
-			await fs.utimes(`${this.fullPath}${this.multiPartSuffix(i)}.${EXT}`, new Date(), this.releaseDate);
-		}
-		this.expectedSize = await this.fileBytes(EXT);
-		await this.markCompleted();
+
+		await fs.unlink(this.muxedPath).catch(() => null);
+		await new Promise((resolve, reject) =>
+			execFile(
+				"./db/ffmpeg",
+				[
+					"-i",
+					this.partialPath,
+					...artworkEmbed,
+					"-metadata",
+					`title=${this.title}`,
+					"-metadata",
+					`AUTHOR=${this.channelTitle}`,
+					"-metadata",
+					`YEAR=${this.releaseDate.getFullYear().toString()}`,
+					"-metadata",
+					`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
+					"-metadata",
+					`description=${htmlToText(this.description)}`,
+					"-metadata",
+					`synopsis=${htmlToText(this.description)}`,
+					"-c",
+					"copy",
+					this.muxedPath,
+				],
+				(error, stdout, stderr) => {
+					if (error !== null) {
+						error.message ??= "";
+						error.message += stderr;
+						reject(error);
+					} else resolve(stdout);
+				}
+			)
+		);
+		await fs.unlink(this.partialPath);
+		// Set the files update time to when the video was released
+		await fs.utimes(this.muxedPath, new Date(), this.releaseDate);
+
+		const attrStore = await this.attrStore();
+
+		attrStore.muxedSize = await Video.pathBytes(this.muxedPath);
+
+		await attrStore.save();
 	}
 
 	public async postProcessingCommand(): Promise<void> {

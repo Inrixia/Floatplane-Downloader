@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import type Video from "../Video.js";
+import type { Video } from "../Video.js";
 
 /**
  * Prompts user to select plex sections to refresh
@@ -13,7 +13,7 @@ export const promptVideos = async (videos: Video[]): Promise<Video[]> =>
 			name: "videos",
 			message: "Please select the videos you want to download.",
 			choices: videos.map((video) => ({
-				title: `[${video.channel.title}]: ${video.title}`,
+				title: `[${video.channelTitle}]: ${video.title}`,
 				value: video,
 				selected: true,
 			})),

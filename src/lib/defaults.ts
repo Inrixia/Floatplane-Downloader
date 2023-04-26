@@ -61,7 +61,6 @@ export const defaultSettings: Settings = {
 	runQuickstartPrompts: true,
 	floatplane: {
 		videosToSearch: 5,
-		forceFullSearch: false,
 		videoResolution: "1080",
 		waitForNewVideos: true,
 		seekAndDestroy: [],

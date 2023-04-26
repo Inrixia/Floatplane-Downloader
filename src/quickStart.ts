@@ -5,7 +5,7 @@ import { MyPlexAccount } from "@ctrl/plex";
 import * as prompts from "./lib/prompts/index.js";
 
 import type { Extras } from "./lib/types.js";
-import Video from "./lib/Video.js";
+import { Video } from "./lib/Video.js";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();

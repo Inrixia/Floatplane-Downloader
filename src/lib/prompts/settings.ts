@@ -1,6 +1,6 @@
 import prompts from "prompts";
 import type { Extras, Resolution } from "../types.js";
-import Video from "../Video.js";
+import { Video } from "../Video.js";
 
 /**
  * Prompts user for the video resolution they want to download in.
