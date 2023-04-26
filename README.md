@@ -24,6 +24,9 @@ If you want to **contribute** please work on the `dev` branch and not `master` f
 Looking for **Docker**?<br>
 Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.docker.com/r/inrix/floatplane-downloader)** and see instructions at **[the wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)**!
 
+Looking for **Unraid**?<br>
+Go install it using the unraid template! [**unraid template**](https://unraid.net/community/apps?q=floatplane#r)!
+
 1. Download the latest stable binary for your OS from **[Releases](https://github.com/Inrixia/Floatplane-PlexDownloader/releases)**<br>
 
 2. Run the binary and follow the setup prompts.<br>
