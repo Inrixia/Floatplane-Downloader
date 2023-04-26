@@ -116,10 +116,29 @@ export default class Subscription {
 
 					// Remove the identifier from the video title if to give a nicer title
 					if (settings.extras.stripSubchannelPrefix === true && (identifier.type === "title" || identifier.type === "channelId")) {
-						const idCheck =
-							identifier.type === "channelId" ? channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&") : identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
-						const regIDCheck = new RegExp(idCheck, "i");
-						post.title.replace(regIDCheck, "").trim();
+						const replacers = [
+							new RegExp(identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
+							new RegExp(channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
+							/MA: /i,
+							/FP Exclusive: /i,
+							/talklinked/i,
+							/TL: /i,
+							/TL Short: /i,
+							/TQ: /i,
+							/TJM: /i,
+							/SC: /i,
+							/CSF: /i,
+							/Livestream VOD – /i,
+							/ : /i,
+						];
+						for (const regIdCheck of replacers) {
+							post.title = post.title.replace(regIdCheck, "");
+						}
+
+						post.title = post.title.replaceAll("  ", " ");
+						if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
+
+						post.title = post.title.trim();
 					}
 					yield new Video(post, attachment, channel.title);
 				}

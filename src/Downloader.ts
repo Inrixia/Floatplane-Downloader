@@ -76,11 +76,11 @@ const log = (formattedTitle: string, barUpdate: UpdateOptions, displayNow = true
 };
 
 const formatTitle = (title: string) => {
-	if (args.headless === true) return title;
+	if (args.headless === true) return title.trim();
 
-	let formattedTitle = title.slice(0, 32);
+	let formattedTitle = title.trim().slice(0, 32).trim();
 	let i = 1;
-	if (mpb !== undefined) while (mpb.getIndex(formattedTitle) !== undefined) formattedTitle = `${title.slice(0, 32).trim()} [${++i}]`;
+	if (mpb !== undefined) while (mpb.getIndex(formattedTitle) !== undefined) formattedTitle = `${title.trim().slice(0, 32).trim()} [${++i}]`;
 
 	return formattedTitle;
 };
