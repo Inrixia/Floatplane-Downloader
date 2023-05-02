@@ -77,7 +77,7 @@ export default class Subscription {
 				post.title = removeRepeatedSentences(post.title, attachmentTitle);
 			}
 
-			for (const channel of this.channels) {
+			channelLoop: for (const channel of this.channels) {
 				if (!channel.identifiers) continue;
 				for (const identifier of channel.identifiers) {
 					if (typeof identifier.type !== "string")
@@ -141,6 +141,7 @@ export default class Subscription {
 						post.title = post.title.trim();
 					}
 					yield new Video(post, attachment, channel.title, dateOffset * 1000);
+					break channelLoop;
 				}
 			}
 		}
