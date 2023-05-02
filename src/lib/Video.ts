@@ -5,6 +5,9 @@ import fs from "fs/promises";
 import { constants } from "fs";
 import { settings, fApi } from "./helpers.js";
 
+import { extension } from "mime-types";
+import { dirname, basename, extname } from "path";
+
 const exec = promisify(execCallback);
 
 import { htmlToText } from "html-to-text";
@@ -80,7 +83,7 @@ export class Video {
 
 		this.folderPath = this.filePath.substring(0, this.filePath.lastIndexOf("/"));
 
-		this.artworkPath = `${this.filePath}${settings.artworkSuffix}.png`;
+		this.artworkPath = `${this.filePath}${settings.artworkSuffix}`;
 		this.nfoPath = `${this.filePath}.nfo`;
 		this.partialPath = `${this.filePath}.partial`;
 		this.muxedPath = `${this.filePath}.mp4`;
@@ -88,6 +91,16 @@ export class Video {
 
 	public static GetChannelVideos(filter: (video: Attachment) => boolean) {
 		return Object.values(Video.Attachments).filter(filter);
+	}
+
+	private static async GetFileExtension(filePath: string) {
+		const fileDir = dirname(filePath);
+		const fileName = basename(filePath);
+
+		const filesInDir = await fs.readdir(fileDir);
+		const matchingFile = filesInDir.find((file) => file.startsWith(fileName));
+		if (matchingFile) return extname(matchingFile);
+		return undefined;
 	}
 
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;
@@ -197,16 +210,25 @@ export class Video {
 
 	public async downloadArtwork() {
 		if (!this.thumbnail) return;
-		if (await fileExists(this.artworkPath)) return;
+		// If the file already exists
+		if (await Video.GetFileExtension(this.artworkPath)) return;
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
-		fApi.got
-			.stream(this.thumbnail.path)
-			.pipe(createWriteStream(this.artworkPath))
-			.once("end", () => fs.utimes(this.artworkPath, new Date(), this.releaseDate));
-		// Save the thumbnail with the same name as the video so plex will use it
+		// Fetch the thumbnail and get its content type
+		const response = await fApi.got(this.thumbnail.path, { responseType: "buffer" });
+		const contentType = response.headers["content-type"];
+
+		// Map the content type to a file extension
+		const fileExtension = contentType ? extension(contentType) : "png"; // Default to jpg if no extension found
+
+		// Update the artworkPath with the correct file extension
+		const artworkPathWithExtension = `${this.artworkPath}.${fileExtension}`;
+
+		// Save the thumbnail with the correct file extension
+		await fs.writeFile(artworkPathWithExtension, response.body);
+		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
 	}
 
 	// The number of available slots for making delivery requests,
@@ -286,9 +308,13 @@ export class Video {
 	}
 
 	public async muxffmpegMetadata(): Promise<void> {
-		if ((await this.getState()) !== VideoState.Partial) throw new Error(`Cannot mux ffmpeg metadata for ${this.title} as its not downloaded.`);
-		const artworkEmbed: string[] =
-			settings.extras.downloadArtwork && this.thumbnail !== null ? ["-i", this.artworkPath, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"] : [];
+		if ((await this.getState()) !== VideoState.Partial) throw new Error(`Cannot mux ffmpeg metadata! Video not downloaded.`);
+
+		let artworkEmbed: string[] = [];
+		const artworkExtension = await Video.GetFileExtension(this.artworkPath);
+		if (settings.extras.downloadArtwork && this.thumbnail !== null && artworkExtension) {
+			artworkEmbed = ["-i", `${this.artworkPath}.${artworkExtension}`, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"];
+		}
 
 		await fs.unlink(this.muxedPath).catch(() => null);
 		await new Promise((resolve, reject) =>
