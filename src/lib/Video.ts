@@ -93,12 +93,12 @@ export class Video {
 		return Object.values(Video.Attachments).filter(filter);
 	}
 
-	private static async GetFileExtension(filePath: string) {
+	private static async getThumbExt(filePath: string) {
 		const fileDir = dirname(filePath);
 		const fileName = basename(filePath);
 
 		const filesInDir = await fs.readdir(fileDir);
-		const matchingFile = filesInDir.find((file) => file.startsWith(fileName));
+		const matchingFile = filesInDir.find((file) => file.startsWith(fileName) && !file.endsWith(".nfo") && !file.endsWith(".partial") && !file.endsWith(".mp4"));
 		if (matchingFile) return extname(matchingFile);
 		return undefined;
 	}
@@ -211,7 +211,7 @@ export class Video {
 	public async downloadArtwork() {
 		if (!this.thumbnail) return;
 		// If the file already exists
-		if (await Video.GetFileExtension(this.artworkPath)) return;
+		if (await Video.getThumbExt(this.artworkPath)) return;
 
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
@@ -311,9 +311,9 @@ export class Video {
 		if ((await this.getState()) !== VideoState.Partial) throw new Error(`Cannot mux ffmpeg metadata! Video not downloaded.`);
 
 		let artworkEmbed: string[] = [];
-		const artworkExtension = await Video.GetFileExtension(this.artworkPath);
+		const artworkExtension = await Video.getThumbExt(this.artworkPath);
 		if (settings.extras.downloadArtwork && this.thumbnail !== null && artworkExtension) {
-			artworkEmbed = ["-i", `${this.artworkPath}.${artworkExtension}`, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"];
+			artworkEmbed = ["-i", `${this.artworkPath}${artworkExtension}`, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"];
 		}
 
 		await fs.unlink(this.muxedPath).catch(() => null);
