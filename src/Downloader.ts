@@ -87,12 +87,10 @@ const formatTitle = (title: string) => {
 
 export const queueVideo = async (video: Video) => {
 	await getDownloadSempahore();
-
-	processVideo(video).then(releaseDownloadSemaphore);
+	processVideo(formatTitle(video.title), video).then(releaseDownloadSemaphore);
 };
 
-const processVideo = async (video: Video, retries = 0) => {
-	const fTitle = formatTitle(video.title);
+const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 	try {
 		mpb?.addTask(fTitle, {
 			type: "percentage",
@@ -185,7 +183,7 @@ const processVideo = async (video: Video, retries = 0) => {
 			// Wait between retries
 			await sleep(1000 * (retries + 1));
 
-			await processVideo(video, ++retries);
+			await processVideo(fTitle, video, ++retries);
 		} else log(fTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! [${retries}/${MaxRetries}]` });
 	}
 };
