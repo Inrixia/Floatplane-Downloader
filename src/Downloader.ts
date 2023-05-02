@@ -144,6 +144,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 				summaryStats._.downloadedMB = summaryStats[fTitle].downloadedMB;
 				summaryStats._.totalMB = summaryStats[fTitle].totalMB;
 				delete summaryStats[fTitle];
+				updateSummaryBar();
 			}
 			// eslint-disable-next-line no-fallthrough
 			case VideoState.Partial: {
@@ -164,6 +165,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 						await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
 					}
 				}
+				updateSummaryBar();
 			}
 			// eslint-disable-next-line no-fallthrough
 			case VideoState.Muxed: {
