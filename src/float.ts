@@ -41,8 +41,7 @@ const downloadNewVideos = async () => {
 	if (settings.extras.promptVideos) {
 		const newVideos: Video[] = [];
 		for await (const video of fetchSubscriptionVideos()) newVideos.push(video);
-		promptVideos(newVideos).then((newVideos) => newVideos.map(queueVideo));
-		return;
+		return await promptVideos(newVideos).then((newVideos) => newVideos.map(queueVideo));
 	}
 
 	for await (const video of fetchSubscriptionVideos()) await queueVideo(video);
