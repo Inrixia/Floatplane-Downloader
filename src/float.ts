@@ -18,7 +18,7 @@ import { promptVideos } from "./lib/prompts/downloader.js";
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
 
-async function* fetchSubscriptionVideos() {
+async function fetchSubscriptionVideos(): Promise<Video[]> {
 	// Function that pops items out of seek and destroy until the array is empty
 	const posts: Promise<ContentPost>[] = [];
 	while (settings.floatplane.seekAndDestroy.length > 0) {
@@ -27,11 +27,13 @@ async function* fetchSubscriptionVideos() {
 		posts.push(fApi.content.post(guid));
 	}
 
+	const newVideos: Video[] = [];
 	for await (const subscription of fetchSubscriptions()) {
 		await subscription.deleteOldVideos();
-		for await (const video of subscription.fetchNewVideos()) yield video;
-		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) yield video;
+		for await (const video of subscription.fetchNewVideos()) newVideos.push(video);
+		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) newVideos.push(video);
 	}
+	return newVideos;
 }
 
 /**
@@ -39,12 +41,12 @@ async function* fetchSubscriptionVideos() {
  */
 const downloadNewVideos = async () => {
 	if (settings.extras.promptVideos) {
-		const newVideos: Video[] = [];
-		for await (const video of fetchSubscriptionVideos()) newVideos.push(video);
-		return await promptVideos(newVideos).then((newVideos) => newVideos.map(queueVideo));
+		const promptedVideos = await promptVideos(await fetchSubscriptionVideos());
+		return Promise.all(promptedVideos.map(queueVideo));
 	}
 
-	for await (const video of fetchSubscriptionVideos()) await queueVideo(video);
+	const subVideos = await fetchSubscriptionVideos();
+	return Promise.all(subVideos.map(queueVideo));
 };
 
 // Fix for docker

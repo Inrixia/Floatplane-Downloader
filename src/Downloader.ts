@@ -87,7 +87,7 @@ const formatTitle = (title: string) => {
 
 export const queueVideo = async (video: Video) => {
 	await getDownloadSempahore();
-	processVideo(formatTitle(video.title), video).then(releaseDownloadSemaphore);
+	return processVideo(formatTitle(video.title), video).then(releaseDownloadSemaphore);
 };
 
 const processVideo = async (fTitle: string, video: Video, retries = 0) => {
