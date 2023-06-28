@@ -43,7 +43,6 @@ const getDownloadSempahore = async () => {
 
 const releaseDownloadSemaphore = () => {
 	AvalibleDeliverySlots++;
-	completedVideos++;
 
 	// If there are queued requests, resolve the first one in the queue
 	DownloadQueue.shift()?.();
@@ -144,7 +143,6 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 				summaryStats._.downloadedMB = summaryStats[fTitle].downloadedMB;
 				summaryStats._.totalMB = summaryStats[fTitle].totalMB;
 				delete summaryStats[fTitle];
-				updateSummaryBar();
 			}
 			// eslint-disable-next-line no-fallthrough
 			case VideoState.Partial: {
@@ -165,13 +163,13 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 						await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
 					}
 				}
-				updateSummaryBar();
 			}
 			// eslint-disable-next-line no-fallthrough
 			case VideoState.Muxed: {
+				completedVideos++;
+				updateSummaryBar();
 				mpb?.done(fTitle);
 				setTimeout(() => mpb?.removeTask(fTitle), 10000 + Math.floor(Math.random() * 6000));
-				updateSummaryBar();
 			}
 		}
 	} catch (error) {
