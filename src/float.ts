@@ -66,7 +66,7 @@ process.on("SIGTERM", process.exit);
 		console.log(
 			chalk`There is a ${diff(latest.version, DownloaderVersion)} update available! ${DownloaderVersion} > ${
 				latest.version
-			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`
+			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`,
 		);
 
 	if (args.sanityCheck) {

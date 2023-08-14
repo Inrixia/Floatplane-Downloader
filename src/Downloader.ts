@@ -57,7 +57,7 @@ const updateSummaryBar = () => {
 			}
 			return summary;
 		},
-		{ totalMB: 0, downloadedMB: 0, downloadSpeed: 0 }
+		{ totalMB: 0, downloadedMB: 0, downloadSpeed: 0 },
 	);
 	// (videos remaining * avg time to download a video)
 	const processed = `Processed:        ${ye(completedVideos)}/${ye(totalVideos)}`;
@@ -126,10 +126,10 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 						{
 							percentage: downloadProgress.percent,
 							message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")} ETA: ${bl(
-								Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s"
+								Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s",
 							)}`,
 						},
-						false
+						false,
 					);
 					summaryStats[fTitle] = { totalMB, downloadedMB, downloadSpeed };
 					updateSummaryBar();

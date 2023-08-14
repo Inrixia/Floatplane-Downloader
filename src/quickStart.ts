@@ -15,11 +15,11 @@ export const promptPlexSections = async (): Promise<void> => {
 			const connectedServer = await server.connect();
 			const library = await connectedServer.library();
 			return (await library.sections()).filter((section) => section.type === "show");
-		})
+		}),
 	);
 	settings.plex.sectionsToUpdate = await prompts.plex.sections(
 		settings.plex.sectionsToUpdate,
-		serverSections.flatMap((sections) => sections)
+		serverSections.flatMap((sections) => sections),
 	);
 	if (settings.plex.sectionsToUpdate.length === 0) {
 		console.log("No sectionsToUpdate in config! Disabling plex integration...\n");

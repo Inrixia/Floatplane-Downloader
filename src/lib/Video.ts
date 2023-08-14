@@ -20,7 +20,7 @@ import type { BlogPost } from "floatplane/creator";
 import type { DeliveryResponse } from "floatplane/cdn";
 import type { ValueOfA } from "@inrixia/helpers/ts";
 import db from "@inrixia/db";
-import { ThrottleGroup } from "stream-throttle";
+import { ThrottleGroup, type ThrottleOptions } from "stream-throttle";
 
 const fileExists = async (path: string): Promise<boolean> => {
 	try {
@@ -62,7 +62,7 @@ export class Video {
 
 	private static Attachments = db<Record<string, Attachment>>(`./db/attachments.json`);
 
-	private static ThrottleGroup = new ThrottleGroup({ rate: settings.maxDownloadSpeed * byteToMbits });
+	private static ThrottleGroup = settings.maxDownloadSpeed > -1 ? new ThrottleGroup({ rate: settings.maxDownloadSpeed * byteToMbits }) : undefined;
 
 	private folderPath: string;
 	private filePath: string;
@@ -300,7 +300,7 @@ export class Video {
 		const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
 		// Pipe the download to the file once response starts
 		const writeStream = createWriteStream(this.partialPath, writeStreamOptions);
-		if (settings.maxDownloadSpeed !== -1) downloadRequest.pipe(Video.ThrottleGroup.throttle(<any>null)).pipe(writeStream);
+		if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(<ThrottleOptions>(<unknown>null))).pipe(writeStream);
 		downloadRequest.pipe(writeStream);
 
 		// Set the videos expectedSize once we know how big it should be for download validation.
@@ -357,8 +357,8 @@ export class Video {
 						error.message += stderr;
 						reject(error);
 					} else resolve(stdout);
-				}
-			)
+				},
+			),
 		);
 		await fs.unlink(this.partialPath);
 		// Set the files update time to when the video was released

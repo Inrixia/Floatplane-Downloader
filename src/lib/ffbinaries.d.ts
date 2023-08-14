@@ -10,7 +10,7 @@ declare module "ffbinaries" {
 			destination?: string;
 			platform?: string;
 		},
-		callback: (err: Error, result: ffbinariesResult) => void
+		callback: (err: Error, result: ffbinariesResult) => void,
 	): void;
 
 	function detectPlatform(): string;

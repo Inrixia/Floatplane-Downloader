@@ -40,7 +40,7 @@ export default class Subscription {
 			if (channel.daysToKeepVideos !== undefined) {
 				const ignoreBeforeTimestamp = Subscription.getIgnoreBeforeTimestamp(channel);
 				process.stdout.write(
-					chalk`Checking for videos older than {cyanBright ${channel.daysToKeepVideos}} days in channel {yellow ${channel.title}} for {redBright deletion}...`
+					chalk`Checking for videos older than {cyanBright ${channel.daysToKeepVideos}} days in channel {yellow ${channel.title}} for {redBright deletion}...`,
 				);
 				let deletedFiles = 0;
 				let deletedVideos = 0;
@@ -82,7 +82,7 @@ export default class Subscription {
 				for (const identifier of channel.identifiers) {
 					if (typeof identifier.type !== "string")
 						throw new Error(
-							`Value for channel identifier type ${post[identifier.type]} on channel ${channel.title} is of type ${typeof post[identifier.type]} not string!`
+							`Value for channel identifier type ${post[identifier.type]} on channel ${channel.title} is of type ${typeof post[identifier.type]} not string!`,
 						);
 
 					let nextChannel = false;

@@ -10,7 +10,7 @@ export const requiredPrompts = (
 	prompt: prompts.PromptObject,
 	maxDepth = 2,
 	cancelPrompt = "\nAnswering this prompt is required to continue.\n",
-	depth = 0
+	depth = 0,
 ): Promise<prompts.Answers<string>> =>
 	new Promise((res) => {
 		if (depth > 0 && depth < maxDepth) process.stdout.write(cancelPrompt);

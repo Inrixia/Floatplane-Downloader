@@ -16,7 +16,7 @@ export async function* fetchSubscriptions() {
 		// Make sure that new subchannels from defaults are added to settings
 		if (defaultSubChannels[userSubscription.creator] !== undefined) {
 			const channelsToAdd = defaultSubChannels[userSubscription.creator].filter(
-				(channel) => settingSubscription.channels.findIndex((chan) => chan.title === channel.title) === -1
+				(channel) => settingSubscription.channels.findIndex((chan) => chan.title === channel.title) === -1,
 			);
 			if (channelsToAdd.length > 0) settingSubscription.channels = [...settingSubscription.channels, ...channelsToAdd];
 		}

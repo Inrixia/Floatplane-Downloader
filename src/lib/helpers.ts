@@ -25,7 +25,7 @@ export const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"))
 import { Floatplane } from "floatplane";
 export const fApi = new Floatplane(
 	cookieJar,
-	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`
+	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
 );
 
 export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
@@ -77,7 +77,7 @@ export const fetchFFMPEG = (): Promise<void> =>
 						process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 						resolve();
 					}
-				}
+				},
 			);
 		} else resolve();
 	});
