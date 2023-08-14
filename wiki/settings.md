@@ -61,6 +61,8 @@ You can put video id's here and the downloader will find, sort and download them
 
 <br>
 
+## General Options
+
 **filePathFormatting**:<br>
 This defined the path/filename formatting for downloaded videos...  
 You can refer to the `Path Formatting Options` section in this wiki for what can be used.  
@@ -70,7 +72,7 @@ Strings surounded by % will be replaced with their respective values.
 "filePathFormatting": "./videos/%channelTitle%/%channelTitle% - S%year%E%month%%day%%hour%%minute%%second% - %videoTitle%"
 ```
 
-## Path Formatting Options
+#### Path Formatting Options
 
 The following options are available to be used:
 
@@ -92,6 +94,15 @@ Windows example:
 
 ```json
 "artworkSuffix": "echo %videoTitle% > example.txt"
+```
+
+<br>
+
+**maxDownloadSpeed**:  
+The maximum speed to download at in mbps.
+
+```json
+"maxDownloadSpeed": 8
 ```
 
 <br>

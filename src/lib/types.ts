@@ -61,6 +61,7 @@ export type Settings = {
 		waitForNewVideos: boolean;
 		seekAndDestroy: string[];
 	};
+	maxDownloadSpeed: number;
 	filePathFormatting: string;
 	plex: PlexSettings;
 	extras: Extras;
