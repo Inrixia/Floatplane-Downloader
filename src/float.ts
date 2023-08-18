@@ -1,5 +1,6 @@
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
+import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane } from "./logins.js";
 import { queueVideo } from "./Downloader.js";
@@ -33,6 +34,10 @@ async function fetchSubscriptionVideos(): Promise<Video[]> {
 		for await (const video of subscription.fetchNewVideos()) newVideos.push(video);
 		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) newVideos.push(video);
 	}
+
+	// If we havent found any new videos, then reset polling size to 5 to avoid excessive api requests.
+	if (newVideos.length === 0) settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
+
 	return newVideos;
 }
 
