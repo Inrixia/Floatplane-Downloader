@@ -31,7 +31,7 @@ const fileExists = async (path: string): Promise<boolean> => {
 	}
 };
 
-export enum VideoState {
+enum VideoState {
 	Missing,
 	Partial,
 	Muxed,
@@ -56,6 +56,8 @@ export class Video {
 
 	public title: BlogPost["title"];
 	public channelTitle: string;
+
+	public static State = VideoState;
 
 	private static OriginSelector = 0;
 	private originSelector = Video.OriginSelector;

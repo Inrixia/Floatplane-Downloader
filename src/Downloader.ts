@@ -1,5 +1,5 @@
 import { MultiProgressBars, UpdateOptions } from "multi-progress-bars";
-import { VideoState, Video } from "./lib/Video.js";
+import { Video } from "./lib/Video.js";
 
 import { settings, args } from "./lib/helpers.js";
 import { MyPlexAccount } from "@ctrl/plex";
@@ -100,7 +100,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 		if (settings.extras.downloadArtwork) await video.downloadArtwork();
 
 		switch (await video.getState()) {
-			case VideoState.Missing: {
+			case Video.State.Missing: {
 				mpb?.addTask(fTitle, {
 					type: "percentage",
 					message: "Waiting on delivery cdn...",
@@ -145,7 +145,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 				delete summaryStats[fTitle];
 			}
 			// eslint-disable-next-line no-fallthrough
-			case VideoState.Partial: {
+			case Video.State.Partial: {
 				log(fTitle, {
 					percentage: 0.99,
 					message: "Muxing ffmpeg metadata...",
@@ -165,7 +165,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 				}
 			}
 			// eslint-disable-next-line no-fallthrough
-			case VideoState.Muxed: {
+			case Video.State.Muxed: {
 				completedVideos++;
 				updateSummaryBar();
 				mpb?.done(fTitle);

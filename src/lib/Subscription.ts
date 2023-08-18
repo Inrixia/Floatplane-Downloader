@@ -151,7 +151,9 @@ export default class Subscription {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
 		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
-			for await (const video of this.matchChannel(blogPost)) yield video;
+			for await (const video of this.matchChannel(blogPost)) {
+				if ((await video.getState()) !== Video.State.Muxed) yield video;
+			}
 
 			// Stop searching if we have looked through videosToSearch
 			if (videosSearched++ >= settings.floatplane.videosToSearch) break;
