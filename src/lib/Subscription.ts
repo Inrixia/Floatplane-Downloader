@@ -4,7 +4,7 @@ import chalk from "chalk";
 import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
-import type { ContentPost } from "floatplane/content";
+import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
 import { Video } from "./Video.js";
@@ -23,6 +23,8 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 	// Remove trailing separator
 	return `${postTitle.trim()} - ${uniqueAttachmentTitleSentences.join("").trim()}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
+
+const t24Hrs = 24 * 60 * 60 * 1000;
 
 export default class Subscription {
 	public channels: SubscriptionSettings["channels"];
@@ -65,6 +67,22 @@ export default class Subscription {
 
 	private static getIgnoreBeforeTimestamp = (channel: ChannelOptions) => Date.now() - (channel.daysToKeepVideos ?? 0) * 24 * 60 * 60 * 1000;
 
+	private static attachmentCache = new Map<string, { t: number; attachment: VideoContent }>();
+	private static fetchAttachment = async (attachmentId: string): Promise<VideoContent> => {
+		if (Subscription.attachmentCache.has(attachmentId)) {
+			const { attachment, t } = Subscription.attachmentCache.get(attachmentId)!;
+			// Remove expired entries older than 24hrs
+			if (Date.now() - t > t24Hrs) {
+				Subscription.attachmentCache.delete(attachmentId);
+				return Subscription.fetchAttachment(attachmentId);
+			}
+			return attachment;
+		}
+		const attachment = await fApi.content.video(attachmentId);
+		Subscription.attachmentCache.set(attachmentId, { t: Date.now(), attachment });
+		return attachment;
+	};
+
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
@@ -73,7 +91,7 @@ export default class Subscription {
 			const post = { ...blogPost };
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				const { title: attachmentTitle } = await fApi.content.video(attachment);
+				const { title: attachmentTitle } = await Subscription.fetchAttachment(attachment);
 				post.title = removeRepeatedSentences(post.title, attachmentTitle);
 			}
 
