@@ -51,7 +51,10 @@ const downloadNewVideos = async () => {
 	}
 
 	const subVideos = await fetchSubscriptionVideos();
-	return Promise.all(subVideos.map(queueVideo));
+	return Promise.all(subVideos.map(queueVideo)).then(() => {
+		// Enforce search limits after searching once.
+		settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
+	});
 };
 
 // Fix for docker
@@ -99,7 +102,7 @@ process.on("SIGTERM", process.exit);
 	if (settings.floatplane.waitForNewVideos === true) {
 		const waitLoop = async () => {
 			await downloadNewVideos();
-			setTimeout(waitLoop, 5 * 60 * 1000);
+			setTimeout(waitLoop, 10 * 1000);
 			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
 		};
 		waitLoop();
