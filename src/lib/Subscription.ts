@@ -4,12 +4,13 @@ import chalk from "chalk";
 import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
-import type { ContentPost, VideoContent } from "floatplane/content";
+import type { ContentPost } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
 import { Video } from "./Video.js";
 
 import { settings } from "./helpers.js";
+import { ItemCache } from "./Caches.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
 	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;
@@ -24,16 +25,29 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 	return `${postTitle.trim()} - ${uniqueAttachmentTitleSentences.join("").trim()}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
 
-const t24Hrs = 24 * 60 * 60 * 1000;
-
+type BlogPosts = typeof fApi.creator.blogPostsIterable;
 export default class Subscription {
 	public channels: SubscriptionSettings["channels"];
 
 	public readonly creatorId: string;
 
+	private static AttachmentsCache = new ItemCache("./db/attachmentCache.json", fApi.content.video, 24 * 60);
+
+	private static PostCache = new ItemCache("./db/postCache.json", fApi.creator.blogPosts, 60);
+	private static async *PostIterable(creatorGUID: Parameters<BlogPosts>["0"], options: Parameters<BlogPosts>["1"]): ReturnType<BlogPosts> {
+		let fetchAfter = 0;
+		// First request should always not hit cache incase looking for new videos
+		let blogPosts = await Subscription.PostCache.get(creatorGUID, { ...options, fetchAfter }, true);
+		while (blogPosts.length > 0) {
+			yield* blogPosts;
+			fetchAfter += 20;
+			// After that use the cached data
+			blogPosts = await Subscription.PostCache.get(creatorGUID, { ...options, fetchAfter });
+		}
+	}
+
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
-
 		this.channels = subscription.channels;
 	}
 
@@ -67,22 +81,6 @@ export default class Subscription {
 
 	private static getIgnoreBeforeTimestamp = (channel: ChannelOptions) => Date.now() - (channel.daysToKeepVideos ?? 0) * 24 * 60 * 60 * 1000;
 
-	private static attachmentCache = new Map<string, { t: number; attachment: VideoContent }>();
-	private static fetchAttachment = async (attachmentId: string): Promise<VideoContent> => {
-		if (Subscription.attachmentCache.has(attachmentId)) {
-			const { attachment, t } = Subscription.attachmentCache.get(attachmentId)!;
-			// Remove expired entries older than 24hrs
-			if (Date.now() - t > t24Hrs) {
-				Subscription.attachmentCache.delete(attachmentId);
-				return Subscription.fetchAttachment(attachmentId);
-			}
-			return attachment;
-		}
-		const attachment = await fApi.content.video(attachmentId);
-		Subscription.attachmentCache.set(attachmentId, { t: Date.now(), attachment });
-		return attachment;
-	};
-
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
@@ -91,7 +89,7 @@ export default class Subscription {
 			const post = { ...blogPost };
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				const { title: attachmentTitle } = await Subscription.fetchAttachment(attachment);
+				const { title: attachmentTitle } = await Subscription.AttachmentsCache.get(attachment);
 				post.title = removeRepeatedSentences(post.title, attachmentTitle);
 			}
 
@@ -168,7 +166,7 @@ export default class Subscription {
 	public async *fetchNewVideos(): AsyncGenerator<Video> {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
-		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId, { hasVideo: true })) {
+		for await (const blogPost of Subscription.PostIterable(this.creatorId, { hasVideo: true })) {
 			for await (const video of this.matchChannel(blogPost)) {
 				if ((await video.getState()) !== Video.State.Muxed) yield video;
 			}

@@ -102,7 +102,7 @@ process.on("SIGTERM", process.exit);
 	if (settings.floatplane.waitForNewVideos === true) {
 		const waitLoop = async () => {
 			await downloadNewVideos();
-			setTimeout(waitLoop, 10 * 1000);
+			setTimeout(waitLoop, 5 * 60 * 1000);
 			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
 		};
 		waitLoop();
