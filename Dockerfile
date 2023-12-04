@@ -25,6 +25,7 @@ WORKDIR /fp
 
 COPY --from=build ${HOME}/node_modules node_modules
 COPY --from=build ${HOME}/dist dist
+COPY --from=build ${HOME}/package.json package.json
 
 # Environment variables
 ENV headless=true
