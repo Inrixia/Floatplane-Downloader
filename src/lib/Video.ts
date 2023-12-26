@@ -89,7 +89,7 @@ export class Video {
 			.join("/");
 
 		// Ensure filePath is not exceeding maximum length
-		if (this.filePath.length > 255) this.filePath = this.filePath.substring(0, 255);
+		if (this.filePath.length > 250) this.filePath = this.filePath.substring(0, 250);
 
 		this.folderPath = this.filePath.substring(0, this.filePath.lastIndexOf("/"));
 
