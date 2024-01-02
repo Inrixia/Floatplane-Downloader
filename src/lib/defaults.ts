@@ -64,6 +64,10 @@ export const defaultSettings: Settings = {
 		videoResolution: "1080",
 		waitForNewVideos: true,
 		seekAndDestroy: [],
+		captionVariants: {
+			captioned: true,
+			uncaptioned: true
+		}
 	},
 	maxDownloadSpeed: -1,
 	plex: {

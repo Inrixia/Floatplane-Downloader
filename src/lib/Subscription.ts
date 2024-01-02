@@ -90,6 +90,12 @@ export default class Subscription {
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
 				const { title: attachmentTitle } = await Subscription.AttachmentsCache.get(attachment);
+
+				// Apply captioned preferences
+				const { captioned: downloadCaptioned, uncaptioned: downloadUncaptioned } = settings.floatplane.captionVariants;
+				if (!downloadCaptioned && attachmentTitle.toLowerCase().startsWith('caption')) continue;
+				if (!downloadUncaptioned && attachmentTitle.toLowerCase().startsWith('uncaption')) continue;
+
 				post.title = removeRepeatedSentences(post.title, attachmentTitle);
 			}
 

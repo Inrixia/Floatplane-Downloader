@@ -60,6 +60,10 @@ export type Settings = {
 		videosToSearch: number;
 		waitForNewVideos: boolean;
 		seekAndDestroy: string[];
+		captionVariants: {
+			captioned: boolean;
+			uncaptioned: boolean;
+		};
 	};
 	maxDownloadSpeed: number;
 	filePathFormatting: string;
