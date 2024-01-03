@@ -1,16 +1,11 @@
 export type Resolutions = ["360", "720", "1080", "2160"];
 
 import type { ValueOfA } from "@inrixia/helpers/ts";
-import type { BlogPost } from "floatplane/creator";
 
-type ChannelIdentifier = {
-	check: string;
-	type: keyof BlogPost | "description" | "runtimeLessThan" | "runtimeGreaterThan" | "channelId" | "releasedBefore" | "releasedAfter";
-};
 export type ChannelOptions = {
 	title: string;
 	skip: boolean;
-	identifiers?: ChannelIdentifier[];
+	isChannel: string;
 	daysToKeepVideos?: number;
 };
 

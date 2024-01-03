@@ -27,7 +27,10 @@ export async function* fetchSubscriptions() {
 				settingSubscription.channels.push({
 					title: channel.title,
 					skip: false,
-					identifiers: [{ type: "channelId", check: channel.id }],
+					isChannel:
+						channel.id === "6413623f5b12cca228a28e78"
+							? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+							: `(post) => isChannel(post, '${channel.id}')`,
 				});
 		}
 

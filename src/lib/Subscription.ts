@@ -4,7 +4,7 @@ import chalk from "chalk";
 import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
-import type { ContentPost } from "floatplane/content";
+import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
 import { Video } from "./Video.js";
@@ -26,6 +26,7 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 };
 
 type BlogPosts = typeof fApi.creator.blogPostsIterable;
+type isChannel = (post: BlogPost, video?: VideoContent) => boolean;
 export default class Subscription {
 	public channels: SubscriptionSettings["channels"];
 
@@ -80,85 +81,58 @@ export default class Subscription {
 	};
 
 	private static getIgnoreBeforeTimestamp = (channel: ChannelOptions) => Date.now() - (channel.daysToKeepVideos ?? 0) * 24 * 60 * 60 * 1000;
+	private static isChannelCache: Record<string, isChannel> = {};
+	private static isChannelHelper = `const isChannel = (post, channelId) => (typeof post.channel !== 'string' ? post.channel.id : post.channel) === channelId`;
 
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
-		for (const attachment of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
+		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
+			let video: VideoContent | undefined = undefined;
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				const { title: attachmentTitle } = await Subscription.AttachmentsCache.get(attachment);
-				post.title = removeRepeatedSentences(post.title, attachmentTitle);
+				video = await Subscription.AttachmentsCache.get(attachmentId);
+				post.title = removeRepeatedSentences(post.title, video.title);
 			}
 
 			channelLoop: for (const channel of this.channels) {
-				if (!channel.identifiers) continue;
-				for (const identifier of channel.identifiers) {
-					if (typeof identifier.type !== "string")
-						throw new Error(
-							`Value for channel identifier type ${post[identifier.type]} on channel ${channel.title} is of type ${typeof post[identifier.type]} not string!`,
-						);
+				if (channel.isChannel === undefined) continue;
+				const isChannel =
+					Subscription.isChannelCache[channel.isChannel] ??
+					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
 
-					let nextChannel = false;
-					switch (identifier.type) {
-						case "channelId":
-							nextChannel = (typeof post.channel !== "string" ? post.channel.id : post.channel) !== identifier.check;
-							break;
-						case "runtimeLessThan":
-							nextChannel = post.metadata.videoDuration >= +identifier.check;
-							break;
-						case "runtimeGreaterThan":
-							nextChannel = post.metadata.videoDuration <= +identifier.check;
-							break;
-						case "releasedBefore":
-							nextChannel = post.releaseDate >= identifier.check;
-							break;
-						case "releasedAfter":
-							nextChannel = post.releaseDate <= identifier.check;
-							break;
-						case "description":
-							nextChannel = post.text?.toString().toLowerCase().includes(identifier.check.toLowerCase());
-							break;
-						default:
-							nextChannel = !post[identifier.type]?.toString().toLowerCase().includes(identifier.check.toLowerCase()) || false;
+				if (channel.skip || !isChannel(blogPost, video)) continue;
+				if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
+
+				// Remove the identifier from the video title if to give a nicer title
+				if (settings.extras.stripSubchannelPrefix === true) {
+					const replacers = [
+						new RegExp(channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
+						/MA: /i,
+						/FP Exclusive: /i,
+						/talklinked/i,
+						/TL: /i,
+						/TL Short: /i,
+						/TQ: /i,
+						/TJM: /i,
+						/SC: /i,
+						/CSF: /i,
+						/Livestream VOD – /i,
+						/ : /i,
+					];
+					for (const regIdCheck of replacers) {
+						post.title = post.title.replace(regIdCheck, "");
 					}
 
-					if (nextChannel) continue;
-					if (channel.skip) return;
+					post.title = post.title.replaceAll("  ", " ");
+					if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
 
-					if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
-
-					// Remove the identifier from the video title if to give a nicer title
-					if (settings.extras.stripSubchannelPrefix === true && (identifier.type === "title" || identifier.type === "channelId")) {
-						const replacers = [
-							new RegExp(identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
-							new RegExp(channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
-							/MA: /i,
-							/FP Exclusive: /i,
-							/talklinked/i,
-							/TL: /i,
-							/TL Short: /i,
-							/TQ: /i,
-							/TJM: /i,
-							/SC: /i,
-							/CSF: /i,
-							/Livestream VOD – /i,
-							/ : /i,
-						];
-						for (const regIdCheck of replacers) {
-							post.title = post.title.replace(regIdCheck, "");
-						}
-
-						post.title = post.title.replaceAll("  ", " ");
-						if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
-
-						post.title = post.title.trim();
-					}
-					yield new Video(post, attachment, channel.title, dateOffset * 1000);
-					break channelLoop;
+					post.title = post.title.trim();
 				}
+				yield new Video(post, attachmentId, channel.title, dateOffset * 1000);
+				break channelLoop;
 			}
 		}
 	}

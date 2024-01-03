@@ -6,42 +6,22 @@ export const defaultSubChannels: Record<string, Channels> = {
 		{
 			title: "TalkLinked",
 			skip: false,
-			identifiers: [
-				{
-					check: "talklinked",
-					type: "title",
-				},
-			],
+			isChannel: "(post) => post.title?.toLowerCase().includes('talklinked')",
 		},
 		{
 			title: "TechLinked Shorts",
 			skip: false,
-			identifiers: [
-				{
-					check: "TL Short: ",
-					type: "title",
-				},
-			],
+			isChannel: "(post) => post.title?.toLowerCase().includes('tl short: ')",
 		},
 		{
 			title: "The WAN Show",
 			skip: false,
-			identifiers: [
-				{
-					check: "WAN Show",
-					type: "title",
-				},
-			],
+			isChannel: "(post) => post.title?.toLowerCase().includes('wan Show')",
 		},
 		{
 			title: "LMG Livestream VODs",
 			skip: false,
-			identifiers: [
-				{
-					check: "Livestream VOD – ",
-					type: "title",
-				},
-			],
+			isChannel: "(post) => post.title?.toLowerCase().includes('livestream vod – ')",
 		},
 	],
 };
