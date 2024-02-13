@@ -326,29 +326,39 @@ export class Video {
 		let artworkEmbed: string[] = [];
 		const artworkExtension = await Video.getThumbExt(this.artworkPath);
 		if (settings.extras.downloadArtwork && this.thumbnail !== null && artworkExtension) {
-			artworkEmbed = ["-i", `${this.artworkPath}${artworkExtension}`, "-map", "1", "-map", "0", "-disposition:0", "attached_pic"];
+			artworkEmbed = ["-i", `${this.artworkPath}${artworkExtension}`, "-map", "2", "-disposition:0", "attached_pic"];
 		}
 
 		await fs.unlink(this.muxedPath).catch(() => null);
+
+		const description = htmlToText(this.description);
+		const metadata = {
+			title: this.title,
+			AUTHOR: this.channelTitle,
+			YEAR: this.releaseDate.getFullYear().toString(),
+			date: `${this.releaseDate.getFullYear().toString()}${nPad(this.releaseDate.getMonth() + 1)}${nPad(this.releaseDate.getDate())}`,
+			description: description,
+			synopsis: description,
+		};
+		const metadataFilePath = `${this.muxedPath}.metadata.txt`;
+		const metadataContent = Object.entries(metadata)
+			.map(([key, value]) => `${key}=${value.replaceAll(/\n/g, "\\\n")}`)
+			.join("\n");
+		await fs.writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
+
 		await new Promise((resolve, reject) =>
 			execFile(
 				"./db/ffmpeg",
 				[
 					"-i",
 					this.partialPath,
+					"-i",
+					metadataFilePath, // Include the metadata file as an input
 					...artworkEmbed,
-					"-metadata",
-					`title=${this.title}`,
-					"-metadata",
-					`AUTHOR=${this.channelTitle}`,
-					"-metadata",
-					`YEAR=${this.releaseDate.getFullYear().toString()}`,
-					"-metadata",
-					`date=${this.releaseDate.getFullYear().toString() + nPad(this.releaseDate.getMonth() + 1) + nPad(this.releaseDate.getDate())}`,
-					"-metadata",
-					`description=${htmlToText(this.description)}`,
-					"-metadata",
-					`synopsis=${htmlToText(this.description)}`,
+					"-map",
+					"0",
+					"-map_metadata",
+					"1",
 					"-c",
 					"copy",
 					this.muxedPath,
@@ -362,6 +372,8 @@ export class Video {
 				},
 			),
 		);
+		await fs.unlink(metadataFilePath).catch(() => null);
+
 		await fs.unlink(this.partialPath);
 		// Set the files update time to when the video was released
 		await fs.utimes(this.muxedPath, new Date(), this.releaseDate);
