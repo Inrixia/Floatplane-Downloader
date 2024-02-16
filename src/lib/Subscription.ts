@@ -151,6 +151,10 @@ export default class Subscription {
 							post.title = post.title.replace(regIdCheck, "");
 						}
 
+						if (channel.ignoreDescription === true) {
+							post.text = "";
+						}
+
 						post.title = post.title.replaceAll("  ", " ");
 						if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
 

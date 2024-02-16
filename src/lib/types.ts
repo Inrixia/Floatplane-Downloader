@@ -12,6 +12,7 @@ export type ChannelOptions = {
 	skip: boolean;
 	identifiers?: ChannelIdentifier[];
 	daysToKeepVideos?: number;
+	ignoreDescription?: boolean;
 };
 
 export type Channels = ChannelOptions[];
