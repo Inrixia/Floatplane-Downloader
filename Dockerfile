@@ -1,4 +1,4 @@
-FROM node:latest AS build
+FROM node:current-alpine AS build
 
 # working directory for the build
 WORKDIR ${HOME}
@@ -16,7 +16,7 @@ COPY ./src ${HOME}/src
 RUN npx tsc
 
 # Copy built artifacts and dependencies into a minimal release image
-FROM node:slim AS release
+FROM node:current-alpine AS release
 
 LABEL Description="Project for automatically organizing and downloading Floatplane videos for plex."
 
