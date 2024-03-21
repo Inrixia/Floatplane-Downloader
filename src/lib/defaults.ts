@@ -16,7 +16,7 @@ export const defaultSubChannels: Record<string, Channels> = {
 		{
 			title: "The WAN Show",
 			skip: false,
-			isChannel: "(post) => post.title?.toLowerCase().includes('wan Show')",
+			isChannel: "(post) => post.title?.toLowerCase().includes('wan show')",
 		},
 		{
 			title: "LMG Livestream VODs",
