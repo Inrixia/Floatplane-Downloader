@@ -97,13 +97,15 @@ export default class Subscription {
 				post.title = removeRepeatedSentences(post.title, video.title);
 			}
 
-			channelLoop: for (const channel of this.channels) {
+		 for (const channel of this.channels) {
 				if (channel.isChannel === undefined) continue;
 				const isChannel =
 					Subscription.isChannelCache[channel.isChannel] ??
 					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
 
-				if (channel.skip || !isChannel(blogPost, video)) return;
+
+				if (!isChannel(blogPost, video)) continue;
+				if (channel.skip) break;
 				if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
 
 				// Remove the identifier from the video title if to give a nicer title
@@ -132,7 +134,7 @@ export default class Subscription {
 					post.title = post.title.trim();
 				}
 				yield new Video(post, attachmentId, channel.title, dateOffset * 1000);
-				break channelLoop;
+				break;
 			}
 		}
 	}
