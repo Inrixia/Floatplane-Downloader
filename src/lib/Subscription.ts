@@ -103,7 +103,7 @@ export default class Subscription {
 					Subscription.isChannelCache[channel.isChannel] ??
 					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
 
-				if (channel.skip || !isChannel(blogPost, video)) continue;
+				if (channel.skip || !isChannel(blogPost, video)) return;
 				if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
 
 				// Remove the identifier from the video title if to give a nicer title
