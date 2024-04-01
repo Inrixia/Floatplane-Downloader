@@ -1,3 +1,4 @@
+import { Counter, Gauge } from "prom-client";
 import { MultiProgressBars, UpdateOptions } from "multi-progress-bars";
 import { Video } from "./lib/Video.js";
 
@@ -32,8 +33,39 @@ const summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; do
 let AvalibleDeliverySlots = DownloadThreads;
 const DownloadQueue: (() => void)[] = [];
 
+const videoLabels = ["title", "channel", "creator"];
+const promVideosQueued = new Gauge({
+	name: "queued",
+	help: "Videos waiting to download",
+	labelNames: videoLabels,
+});
+const promVideoErrors = new Counter({
+	name: "errors",
+	help: "Video errors",
+	labelNames: ["message", ...videoLabels],
+});
+const promVideosDownloaded = new Counter({
+	name: "downloaded",
+	help: "Videos downloaded",
+	labelNames: videoLabels,
+});
+const promDownloadedBytes = new Counter({
+	name: "downloaded_bytes",
+	help: "Video downloaded bytes",
+	labelNames: videoLabels,
+});
+const promVideosDownloadedTotal = new Counter({
+	name: "downloaded_total",
+	help: "Videos downloaded",
+});
+const promDownloadedBytesTotal = new Counter({
+	name: "downloaded_bytes_total",
+	help: "Video downloaded bytes",
+});
+
 const getDownloadSempahore = async () => {
 	totalVideos++;
+	promVideosQueued.inc();
 	// If there is an available request slot, proceed immediately
 	if (AvalibleDeliverySlots > 0) return AvalibleDeliverySlots--;
 
@@ -43,6 +75,7 @@ const getDownloadSempahore = async () => {
 
 const releaseDownloadSemaphore = () => {
 	AvalibleDeliverySlots++;
+	promVideosQueued.dec();
 
 	// If there are queued requests, resolve the first one in the queue
 	DownloadQueue.shift()?.();
@@ -90,6 +123,11 @@ export const queueVideo = async (video: Video) => {
 };
 
 const processVideo = async (fTitle: string, video: Video, retries = 0) => {
+	const promLabels = {
+		title: video.post.title,
+		creator: video.post.creator.title,
+		channel: typeof video.post.channel !== "string" ? video.post.channel.title : undefined,
+	};
 	try {
 		mpb?.addTask(fTitle, {
 			type: "percentage",
@@ -112,9 +150,17 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 
 				const downloadRequest = await video.download(settings.floatplane.videoResolution);
 
+				let _promDownloadedBytesLast = 0;
+				const _promDownloadedBytes = promDownloadedBytes.labels(promLabels);
+
 				downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
 					startTime ??= Date.now();
 					const timeElapsed = (Date.now() - startTime) / 1000;
+
+					const bytes = downloadProgress.transferred - _promDownloadedBytesLast;
+					_promDownloadedBytes.inc(bytes);
+					promDownloadedBytesTotal.inc(bytes);
+					_promDownloadedBytesLast = downloadProgress.transferred;
 
 					const totalMB = downloadProgress.total / 1024000;
 					const downloadedMB = downloadProgress.transferred / 1024000;
@@ -167,6 +213,8 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 			// eslint-disable-next-line no-fallthrough
 			case Video.State.Muxed: {
 				completedVideos++;
+				promVideosDownloaded.labels(promLabels).inc();
+				promVideosDownloadedTotal.inc();
 				updateSummaryBar();
 				mpb?.done(fTitle);
 				setTimeout(() => mpb?.removeTask(fTitle), 10000 + Math.floor(Math.random() * 6000));
@@ -176,6 +224,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 		let info;
 		if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
 		else info = error;
+		promVideoErrors.labels({ message: info.message.includes("ffmpeg") ? "ffmpeg" : info.message, ...promLabels }).inc();
 		// Handle errors when downloading nicely
 		if (retries < MaxRetries) {
 			log(fTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying in ${retries}s [${retries}/${MaxRetries}]` });

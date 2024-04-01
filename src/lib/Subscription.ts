@@ -90,19 +90,19 @@ export default class Subscription {
 		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
+			let videoTitle = post.title;
 			let video: VideoContent | undefined = undefined;
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
 				video = await Subscription.AttachmentsCache.get(attachmentId);
-				post.title = removeRepeatedSentences(post.title, video.title);
+				videoTitle = removeRepeatedSentences(videoTitle, video.title);
 			}
 
-		 for (const channel of this.channels) {
+			for (const channel of this.channels) {
 				if (channel.isChannel === undefined) continue;
 				const isChannel =
 					Subscription.isChannelCache[channel.isChannel] ??
 					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
-
 
 				if (!isChannel(blogPost, video)) continue;
 				if (channel.skip) break;
@@ -125,15 +125,15 @@ export default class Subscription {
 						/ : /i,
 					];
 					for (const regIdCheck of replacers) {
-						post.title = post.title.replace(regIdCheck, "");
+						videoTitle = videoTitle.replace(regIdCheck, "");
 					}
 
-					post.title = post.title.replaceAll("  ", " ");
-					if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
+					videoTitle = videoTitle.replaceAll("  ", " ");
+					if (videoTitle.startsWith(": ")) videoTitle = videoTitle.replace(": ", "");
 
-					post.title = post.title.trim();
+					videoTitle = videoTitle.trim();
 				}
-				yield new Video(post, attachmentId, channel.title, dateOffset * 1000);
+				yield new Video(post, attachmentId, channel.title, videoTitle, dateOffset * 1000);
 				break;
 			}
 		}

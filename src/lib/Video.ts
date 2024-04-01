@@ -52,9 +52,10 @@ export class Video {
 	private releaseDate: Date;
 	private thumbnail: BlogPost["thumbnail"];
 
-	private attachmentId: string;
+	public readonly attachmentId: string;
+	public readonly post: BlogPost;
 
-	public title: BlogPost["title"];
+	public title: string;
 	public channelTitle: string;
 
 	public static State = VideoState;
@@ -74,10 +75,12 @@ export class Video {
 	private partialPath: string;
 	private muxedPath: string;
 
-	constructor(post: BlogPost, attachmentId: string, channelTitle: string, dateOffset: number) {
+	constructor(post: BlogPost, attachmentId: string, channelTitle: string, videoTitle: string, dateOffset: number) {
 		this.channelTitle = channelTitle;
-		this.title = post.title;
+		this.title = videoTitle;
 		this.attachmentId = attachmentId;
+
+		this.post = post;
 
 		this.description = post.text;
 		this.releaseDate = new Date(new Date(post.releaseDate).getTime() + dateOffset);

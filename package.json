@@ -22,7 +22,7 @@
 		"default-import": "^1.1.5",
 		"dotenv": "^16.4.5",
 		"ffbinaries": "^1.1.6",
-		"floatplane": "^4.5.1",
+		"floatplane": "^4.5.2",
 		"html-to-text": "^9.0.5",
 		"json5": "^2.2.3",
 		"mime-types": "^2.1.35",
@@ -34,7 +34,8 @@
 		"semver": "^7.6.0",
 		"stream-throttle": "^0.1.3",
 		"tough-cookie": "^4.1.3",
-		"tough-cookie-file-store": "^2.0.3"
+		"tough-cookie-file-store": "^2.0.3",
+		"ws": "^8.16.0"
 	},
 	"devDependencies": {
 		"@types/html-to-text": "^9.0.4",
@@ -44,6 +45,7 @@
 		"@types/semver": "^7.5.8",
 		"@types/stream-throttle": "^0.1.4",
 		"@types/tough-cookie-file-store": "^2.0.4",
+		"@types/ws": "^8.5.10",
 		"@typescript-eslint/eslint-plugin": "^7.4.0",
 		"esbuild": "^0.20.2",
 		"eslint": "^8.57.0",
