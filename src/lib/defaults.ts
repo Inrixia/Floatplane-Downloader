@@ -62,4 +62,8 @@ export const defaultSettings: Settings = {
 	artworkSuffix: "",
 	postProcessingCommand: "",
 	subscriptions: {},
+	metrics: {
+		prometheusExporterPort: null,
+		contributeMetrics: true,
+	},
 };

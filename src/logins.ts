@@ -3,7 +3,10 @@ import { floatplane, plex } from "./lib/prompts/index.js";
 import { fApi, args } from "./lib/helpers.js";
 import { MyPlexAccount } from "@ctrl/plex";
 
-export const loginFloatplane = async (): Promise<void> => {
+import type { LoginSuccess } from "floatplane/auth";
+export type User = LoginSuccess["user"];
+
+export const loginFloatplane = async (): Promise<User> => {
 	let loginResponse;
 	if (args.headless === true) {
 		if (args.username === undefined || args.password === undefined)
@@ -29,6 +32,7 @@ export const loginFloatplane = async (): Promise<void> => {
 		}
 	}
 	if (loginResponse.user !== undefined) console.log(`\nSigned in as \u001b[36m${loginResponse.user.username}\u001b[0m!\n`);
+	return loginResponse.user;
 };
 
 export const loginPlex = async (): Promise<string> => {

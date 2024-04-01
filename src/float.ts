@@ -2,7 +2,8 @@ import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
 import { defaultSettings } from "./lib/defaults.js";
 
-import { loginFloatplane } from "./logins.js";
+import { loginFloatplane, User } from "./logins.js";
+import { initProm } from "./prometheus.js";
 import { queueVideo } from "./Downloader.js";
 import chalk from "chalk-template";
 
@@ -18,6 +19,7 @@ import { promptVideos } from "./lib/prompts/downloader.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
+import { Self } from "floatplane/user";
 
 async function fetchSubscriptionVideos(): Promise<Video[]> {
 	// Function that pops items out of seek and destroy until the array is empty
@@ -91,11 +93,17 @@ process.on("SIGTERM", process.exit);
 	await validatePlexSettings();
 
 	// Get Floatplane credentials if not saved
-	const isLoggedIn = await fApi.isAuthenticated();
-	if (isLoggedIn !== true) {
-		console.log(`Unable to authenticate with floatplane... ${isLoggedIn.message}\nPlease login to floatplane...`);
-		await loginFloatplane();
+	let user: Self | User;
+	try {
+		user = await fApi.user.self();
+	} catch (err) {
+		console.log(`Unable to authenticate with floatplane... ${(<Error>err).message}\nPlease login to floatplane...`);
+		user = await loginFloatplane();
 	}
+
+	await initProm(user!.id);
+	await new Promise((res) => setTimeout(res, 10000000));
+	process.exit();
 
 	await downloadNewVideos();
 

@@ -65,4 +65,8 @@ export type Settings = {
 	subscriptions: {
 		[key: string]: SubscriptionSettings;
 	};
+	metrics: {
+		prometheusExporterPort: number | null;
+		contributeMetrics: boolean;
+	};
 };
