@@ -1,9 +1,9 @@
+import { initProm } from "./prometheus.js";
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
 import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane, User } from "./logins.js";
-import { initProm } from "./prometheus.js";
 import { queueVideo } from "./Downloader.js";
 import chalk from "chalk-template";
 
@@ -102,8 +102,6 @@ process.on("SIGTERM", process.exit);
 	}
 
 	await initProm(user!.id);
-	await new Promise((res) => setTimeout(res, 10000000));
-	process.exit();
 
 	await downloadNewVideos();
 
