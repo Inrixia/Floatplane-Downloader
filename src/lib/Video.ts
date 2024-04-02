@@ -247,7 +247,7 @@ export class Video {
 	// The number of available slots for making delivery requests,
 	// limiting the rate of requests to avoid exceeding the API rate limit.
 	private static AvalibleDeliverySlots = 2;
-	private static DeliveryTimeout = 61000;
+	private static DeliveryTimeout = 65000;
 	private static DeliveryQueue: (() => void)[] = [];
 
 	private static async requestDeliverySemaphore() {
