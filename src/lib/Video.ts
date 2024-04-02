@@ -53,7 +53,6 @@ export class Video {
 	private thumbnail: BlogPost["thumbnail"];
 
 	public readonly attachmentId: string;
-	public readonly post: BlogPost;
 
 	public title: string;
 	public channelTitle: string;
@@ -79,8 +78,6 @@ export class Video {
 		this.channelTitle = channelTitle;
 		this.title = videoTitle;
 		this.attachmentId = attachmentId;
-
-		this.post = post;
 
 		this.description = post.text;
 		this.releaseDate = new Date(new Date(post.releaseDate).getTime() + dateOffset);
