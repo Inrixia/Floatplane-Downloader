@@ -1,4 +1,4 @@
-import { initProm } from "./lib/prometheus/index.js";
+import { initProm } from "./lib/prometheus.js";
 import { quickStart, validatePlexSettings } from "./quickStart.js";
 import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
 import { defaultSettings } from "./lib/defaults.js";

@@ -14,7 +14,7 @@ import "dotenv/config";
 import json5 from "json5";
 const { parse } = json5;
 
-export const DownloaderVersion = "5.10.2";
+export const DownloaderVersion = "5.11.3";
 
 import type { PartialArgs, Settings } from "./types.js";
 
