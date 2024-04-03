@@ -33,16 +33,16 @@ const summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; do
 let AvalibleDeliverySlots = DownloadThreads;
 const DownloadQueue: (() => void)[] = [];
 
-const promVideosQueued = new Gauge({
+const promQueued = new Gauge({
 	name: "queued",
 	help: "Videos waiting to download",
 });
-const promVideoErrors = new Counter({
+const promErrors = new Counter({
 	name: "errors",
 	help: "Video errors",
 	labelNames: ["message"],
 });
-const promVideosDownloadedTotal = new Counter({
+const promDownloadedTotal = new Counter({
 	name: "downloaded_total",
 	help: "Videos downloaded",
 });
@@ -53,7 +53,7 @@ const promDownloadedBytesTotal = new Counter({
 
 const getDownloadSempahore = async () => {
 	totalVideos++;
-	promVideosQueued.inc();
+	promQueued.inc();
 	// If there is an available request slot, proceed immediately
 	if (AvalibleDeliverySlots > 0) return AvalibleDeliverySlots--;
 
@@ -63,7 +63,7 @@ const getDownloadSempahore = async () => {
 
 const releaseDownloadSemaphore = () => {
 	AvalibleDeliverySlots++;
-	promVideosQueued.dec();
+	promQueued.dec();
 
 	// If there are queued requests, resolve the first one in the queue
 	DownloadQueue.shift()?.();
@@ -193,7 +193,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 			// eslint-disable-next-line no-fallthrough
 			case Video.State.Muxed: {
 				completedVideos++;
-				promVideosDownloadedTotal.inc();
+				promDownloadedTotal.inc();
 				updateSummaryBar();
 				mpb?.done(fTitle);
 				setTimeout(() => mpb?.removeTask(fTitle), 10000 + Math.floor(Math.random() * 6000));
@@ -203,7 +203,7 @@ const processVideo = async (fTitle: string, video: Video, retries = 0) => {
 		let info;
 		if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
 		else info = error;
-		promVideoErrors.labels({ message: info.message.includes("ffmpeg") ? "ffmpeg" : info.message }).inc();
+		promErrors.labels({ message: info.message.includes("ffmpeg") ? "ffmpeg" : info.message }).inc();
 		// Handle errors when downloading nicely
 		if (retries < MaxRetries) {
 			log(fTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying in ${retries}s [${retries}/${MaxRetries}]` });

@@ -1,6 +1,7 @@
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
 import { defaultArgs, defaultSettings } from "./defaults.js";
+import { Histogram } from "prom-client";
 import db from "@inrixia/db";
 import fs from "fs";
 
@@ -14,7 +15,7 @@ import "dotenv/config";
 import json5 from "json5";
 const { parse } = json5;
 
-export const DownloaderVersion = "5.11.3";
+export const DownloaderVersion = "5.11.4";
 
 import type { PartialArgs, Settings } from "./types.js";
 
@@ -27,6 +28,34 @@ export const fApi = new Floatplane(
 	cookieJar,
 	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
 );
+
+// Add floatplane api request metrics
+const httpRequestDurationmMs = new Histogram({
+	name: "request_duration_ms",
+	help: "Duration of HTTP requests in ms",
+	labelNames: ["method", "hostname", "pathname", "status"],
+	buckets: [1, 10, 50, 100, 250, 500],
+});
+type WithStartTime<T> = T & { _startTime: number };
+fApi.extend({
+	hooks: {
+		beforeRequest: [
+			(options) => {
+				(<WithStartTime<typeof options>>options)._startTime = Date.now();
+			},
+		],
+		afterResponse: [
+			(res) => {
+				const url = res.requestUrl;
+				const options = <WithStartTime<typeof res.request.options>>res.request.options;
+				const thumbsIndex = url.pathname.indexOf("thumbnails");
+				const pathname = thumbsIndex !== -1 ? url.pathname.substring(0, thumbsIndex + 10) : url.pathname;
+				httpRequestDurationmMs.observe({ method: options.method, hostname: url.hostname, pathname, status: res.statusCode }, Date.now() - options._startTime);
+				return res;
+			},
+		],
+	},
+});
 
 export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, defaultSettings);
