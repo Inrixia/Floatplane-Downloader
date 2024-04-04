@@ -11,14 +11,9 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	public static DownloadSpeed = 0;
 	public static Errors = 0;
 
-	private _startTime: undefined | number = undefined;
+	private _lastTick = 0;
 
 	private _downloadSpeed = 0;
-	private reset() {
-		ProgressBars.DownloadSpeed -= this._downloadSpeed;
-		this._downloadSpeed = 0;
-		this.downloadedBytes = 0;
-	}
 
 	readonly title: string;
 	constructor(title: string) {
@@ -32,6 +27,13 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 	public log(message: string) {
 		ProgressBars._Bars.updateTask(this.title, { message });
+	}
+	private reset() {
+		ProgressBars.DownloadSpeed -= this._downloadSpeed;
+		ProgressBars.DownloadSpeed = Math.abs(ProgressBars.DownloadSpeed);
+		this._downloadSpeed = 0;
+		this.downloadedBytes = 0;
+		this.updateSummaryBar();
 	}
 	public done() {
 		ProgressBars._Bars.done(this.title);
@@ -52,23 +54,26 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 	public onDownloadProgress(progress: Progress): void {
 		if (progress.total === undefined) return;
-		ProgressBars.DownloadedBytes += progress.transferred - this.downloadedBytes;
+
+		const bytesSinceLastTick = progress.transferred - this.downloadedBytes;
+		ProgressBars.DownloadedBytes += bytesSinceLastTick;
 		super.onDownloadProgress(progress);
 
-		if (this._startTime === undefined) {
-			this._startTime ??= Date.now();
+		if (this._lastTick === 0) {
 			ProgressBars.TotalBytes += progress.total;
+			this._lastTick = Date.now();
 		}
 
-		const elapsed = (Date.now() - this._startTime) / 1000;
+		const elapsedSinceLastTick = (Date.now() - this._lastTick) / 1000;
+		this._lastTick = Date.now();
 
-		const downloadSpeed = progress.transferred / elapsed;
+		const downloadSpeed = bytesSinceLastTick / elapsedSinceLastTick;
 		if (!isNaN(downloadSpeed)) {
 			ProgressBars.DownloadSpeed += downloadSpeed - this._downloadSpeed;
 			this._downloadSpeed = downloadSpeed;
 		}
 
-		const downloadETA = progress.total / this._downloadSpeed - elapsed;
+		const downloadETA = progress.total / this._downloadSpeed - elapsedSinceLastTick;
 
 		const downloaded = chalk`{cyan ${(progress.transferred / 1000000).toFixed(2)}}/{cyan ${(progress.total / 1000000).toFixed(2)}MB}`;
 		const speed = chalk`{green ${(this._downloadSpeed / 125000).toFixed(2)} mb/s}`;
@@ -79,6 +84,10 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 			message: `${downloaded} ${speed} ${eta}`,
 		});
 
+		this.updateSummaryBar();
+	}
+
+	private updateSummaryBar() {
 		const processed = chalk`Processed: {yellow ${ProgressBars.CompletedVideos}}/{yellow ${ProgressBars.TotalVideos}} Errors: {red ${ProgressBars.Errors}}`;
 		const downloadedTotal = chalk`Total Downloaded: {cyan ${(ProgressBars.DownloadedBytes / 1000000).toFixed(2)}}/{cyan ${(
 			ProgressBars.TotalBytes / 1000000

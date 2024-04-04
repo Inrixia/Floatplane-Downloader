@@ -62,7 +62,7 @@ export class VideoDownloader {
 	private static async processVideo(video: Video) {
 		const logger = new this.ProgressLogger(video.title);
 
-		for (let retries = 1; retries < VideoDownloader.MaxRetries + 1; retries++) {
+		for (let retries = 1; retries < this.MaxRetries + 1; retries++) {
 			try {
 				if (settings.extras.saveNfo) {
 					logger.log("Saving .nfo");
@@ -109,8 +109,8 @@ export class VideoDownloader {
 					}
 					// eslint-disable-next-line no-fallthrough
 					case Video.State.Muxed: {
+						this.ProgressLogger.CompletedVideos++;
 						logger.done("Download & Muxing complete!");
-						VideoDownloader.ProgressLogger.CompletedVideos++;
 						promDownloadedTotal.inc();
 					}
 				}
@@ -125,7 +125,7 @@ export class VideoDownloader {
 				}
 				promErrors.labels({ message: message }).inc();
 
-				if (retries < VideoDownloader.MaxRetries) {
+				if (retries < this.MaxRetries) {
 					logger.error(`${message} - Retrying in ${retries}s [${retries}/${this.MaxRetries}]`);
 					// Wait between retries
 					await sleep(1000 * retries);
