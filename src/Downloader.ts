@@ -1,5 +1,6 @@
 import { Counter, Gauge } from "prom-client";
 import { Video } from "./lib/Video.js";
+import type { Progress } from "got";
 
 import { settings, args } from "./lib/helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
@@ -8,7 +9,6 @@ import { ProgressHeadless } from "./lib/logging/ProgressConsole.js";
 import { ProgressBars } from "./lib/logging/ProgressBars.js";
 
 import { promisify } from "util";
-import { rateLimit } from "./lib/helpers/rateLimit.js";
 const sleep = promisify(setTimeout);
 
 const promQueued = new Gauge({
@@ -62,7 +62,7 @@ export class VideoDownloader {
 	private static async processVideo(video: Video) {
 		const logger = new this.ProgressLogger(video.title);
 
-		for (let retries = 0; retries < VideoDownloader.MaxRetries; retries++) {
+		for (let retries = 1; retries < VideoDownloader.MaxRetries + 1; retries++) {
 			try {
 				if (settings.extras.saveNfo) {
 					logger.log("Saving .nfo");
@@ -78,10 +78,19 @@ export class VideoDownloader {
 						logger.log("Waiting on delivery cdn...");
 
 						const downloadRequest = await video.download(settings.floatplane.videoResolution);
-						downloadRequest.on("downloadProgress", rateLimit(50, logger.onDownloadProgress.bind(logger)));
+
+						let downloadInterval: NodeJS.Timeout;
+						downloadRequest.once("downloadProgress", (downloadProgress: Progress) => {
+							downloadInterval = setInterval(() => logger.onDownloadProgress(downloadRequest.downloadProgress), 125);
+							logger.onDownloadProgress(downloadProgress);
+						});
+
 						await new Promise((res, rej) => {
 							downloadRequest.once("end", res);
 							downloadRequest.once("error", rej);
+						}).finally(() => {
+							clearInterval(downloadInterval);
+							logger.onDownloadProgress(downloadRequest.downloadProgress);
 						});
 					}
 					// eslint-disable-next-line no-fallthrough
@@ -117,9 +126,9 @@ export class VideoDownloader {
 				if (retries < VideoDownloader.MaxRetries) {
 					logger.error(`${message} - Retrying in ${retries}s [${retries}/${this.MaxRetries}]`);
 					// Wait between retries
-					await sleep(1000 * (retries + 1));
+					await sleep(1000 * retries);
 				} else {
-					logger.error(`${message} - Max Retries! [${retries}/${this.MaxRetries}]`);
+					logger.error(`${message} - Max Retries! [${retries}/${this.MaxRetries}]`, true);
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
+import type { Progress } from "got";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	private static readonly _reset = "\u001b[0m";
@@ -39,14 +40,19 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	public done() {
 		ProgressBars._Bars.done(this.title);
 		this.reset();
-		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
+		this.removeBar();
 	}
-	public error(message: string) {
+	public error(message: string, final?: true) {
 		this.log(`${ProgressLogger.ERR}: ${message}`);
 		this.reset();
+		if (final) this.removeBar();
+	}
+	private removeBar() {
+		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
 	}
 
-	public onDownloadProgress(progress: { total: number; transferred: number; percent: number }): void {
+	public onDownloadProgress(progress: Progress): void {
+		if (progress.total === undefined) return;
 		ProgressBars.DownloadedBytes += progress.transferred - this.downloadedBytes;
 		super.onDownloadProgress(progress);
 
@@ -65,7 +71,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 		const downloadETA = progress.total / this._downloadSpeed - elapsed;
 
-		const downloaded = `${ProgressBars.cy((this.downloadedBytes / 1000000).toFixed(2))}/${ProgressBars.cy(`${(progress.total / 1000000).toFixed(2)}MB`)}`;
+		const downloaded = `${ProgressBars.cy((progress.transferred / 1000000).toFixed(2))}/${ProgressBars.cy(`${(progress.total / 1000000).toFixed(2)}MB`)}`;
 		const speed = `${ProgressBars.gr((this._downloadSpeed / 125000).toFixed(2) + "mb/s")}`;
 		const eta = `ETA: ${ProgressBars.bl(`${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`)}`;
 

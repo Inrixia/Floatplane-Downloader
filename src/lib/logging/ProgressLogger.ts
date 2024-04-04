@@ -1,12 +1,11 @@
 import { Counter } from "prom-client";
-
-type DownloadProgress = { total: number; transferred: number; percent: number };
+import type { Progress } from "got";
 
 export interface IProgressLogger {
 	readonly title: string;
 	log(message: string): void;
 	error(message: string): void;
-	onDownloadProgress(progress: DownloadProgress): void;
+	onDownloadProgress(progress: Progress): void;
 	done(message: string): void;
 }
 
@@ -23,7 +22,7 @@ export class ProgressLogger {
 		help: "Video downloaded bytes",
 	});
 
-	public onDownloadProgress(progress: DownloadProgress) {
+	public onDownloadProgress(progress: Progress) {
 		ProgressLogger._downloadedBytesTotalCounter.inc(progress.transferred - this.downloadedBytes);
 		this.downloadedBytes = progress.transferred;
 	}
