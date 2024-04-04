@@ -3,7 +3,7 @@ import { createWriteStream } from "fs";
 import { promisify } from "util";
 import fs from "fs/promises";
 import { constants } from "fs";
-import { settings, fApi } from "./helpers.js";
+import { settings, fApi } from "./helpers/index.js";
 
 import { extension } from "mime-types";
 import { dirname, basename, extname } from "path";

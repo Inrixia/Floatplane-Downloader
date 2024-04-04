@@ -1,9 +1,7 @@
-import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
 import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
-import { defaultArgs, defaultSettings } from "./defaults.js";
+import { defaultArgs, defaultSettings } from "../defaults.js";
 import { Histogram } from "prom-client";
 import db from "@inrixia/db";
-import fs from "fs";
 
 import { defaultImport } from "default-import";
 
@@ -17,7 +15,7 @@ const { parse } = json5;
 
 export const DownloaderVersion = "5.11.4";
 
-import type { PartialArgs, Settings } from "./types.js";
+import type { PartialArgs, Settings } from "../types.js";
 
 import { FileCookieStore } from "tough-cookie-file-store";
 import { CookieJar } from "tough-cookie";
@@ -87,26 +85,3 @@ if (args.headless === true) {
 		return originalStdoutWrite(...params);
 	}) as typeof process.stdout.write;
 }
-
-export const fetchFFMPEG = (): Promise<void> =>
-	new Promise((resolve, reject) => {
-		const platform = detectPlatform();
-		const path = "./db/";
-		if (fs.existsSync(`${path}${getBinaryFilename("ffmpeg", platform)}`) === false) {
-			process.stdout.write("> Ffmpeg binary missing! Downloading... ");
-			downloadBinaries(
-				"ffmpeg",
-				{
-					destination: path,
-					platform,
-				},
-				(err) => {
-					if (err !== null) reject(err);
-					else {
-						process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
-						resolve();
-					}
-				},
-			);
-		} else resolve();
-	});

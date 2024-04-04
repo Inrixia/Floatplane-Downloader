@@ -1,6 +1,6 @@
 import { defaultSubChannels } from "./lib/defaults.js";
 import Subscription from "./lib/Subscription.js";
-import { settings, fApi } from "./lib/helpers.js";
+import { settings, fApi } from "./lib/helpers/index.js";
 
 export async function* fetchSubscriptions() {
 	for (const userSubscription of await fApi.user.subscriptions()) {

@@ -2,7 +2,7 @@ import { collectDefaultMetrics, Gauge, register } from "prom-client";
 import { createServer } from "http";
 import WebSocket from "ws";
 
-import { DownloaderVersion, settings } from "./helpers.js";
+import { DownloaderVersion, settings } from "./helpers/index.js";
 
 collectDefaultMetrics();
 

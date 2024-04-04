@@ -1,37 +1,15 @@
 import { Counter, Gauge } from "prom-client";
-import { MultiProgressBars, UpdateOptions } from "multi-progress-bars";
 import { Video } from "./lib/Video.js";
 
-import { settings, args } from "./lib/helpers.js";
+import { settings, args } from "./lib/helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
 
+import { ProgressHeadless } from "./lib/logging/ProgressConsole.js";
+import { ProgressBars } from "./lib/logging/ProgressBars.js";
+
 import { promisify } from "util";
+import { rateLimit } from "./lib/helpers/rateLimit.js";
 const sleep = promisify(setTimeout);
-
-const reset = "\u001b[0m";
-const cy = (str: string | number) => `\u001b[36;1m${str}\u001b[0m`;
-const gr = (str: string | number) => `\u001b[32;1m${str}\u001b[0m`;
-const ye = (str: string | number) => `\u001b[33;1m${str}\u001b[0m`;
-const bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
-
-type DownloadProgress = { total: number; transferred: number; percent: number };
-
-const MaxRetries = 5;
-const DownloadThreads = 8;
-
-let mpb: MultiProgressBars;
-if (args.headless !== true) mpb = new MultiProgressBars({ initMessage: "", anchor: "bottom" });
-
-let totalVideos = 0;
-let completedVideos = 0;
-const summaryStats: { [key: string]: { totalMB: number; downloadedMB: number; downloadSpeed: number } } = {
-	_: { totalMB: 0, downloadedMB: 0, downloadSpeed: 0 },
-};
-
-// The number of available slots for making delivery requests,
-// limiting the rate of requests to avoid exceeding the API rate limit.
-let AvalibleDeliverySlots = DownloadThreads;
-const DownloadQueue: (() => void)[] = [];
 
 const promQueued = new Gauge({
 	name: "queued",
@@ -46,172 +24,116 @@ const promDownloadedTotal = new Counter({
 	name: "downloaded_total",
 	help: "Videos downloaded",
 });
-const promDownloadedBytesTotal = new Counter({
-	name: "downloaded_bytes_total",
-	help: "Video downloaded bytes",
-});
 
-const getDownloadSempahore = async () => {
-	totalVideos++;
-	promQueued.inc();
-	// If there is an available request slot, proceed immediately
-	if (AvalibleDeliverySlots > 0) return AvalibleDeliverySlots--;
+export class VideoDownloader {
+	private static readonly MaxRetries = 5;
+	private static readonly DownloadThreads = 8;
 
-	// Otherwise, wait for a request slot to become available
-	return new Promise((r) => DownloadQueue.push(() => r(AvalibleDeliverySlots--)));
-};
+	// The number of available slots for making delivery requests,
+	// limiting the rate of requests to avoid exceeding the API rate limit.
+	private static AvalibleDeliverySlots = this.DownloadThreads;
+	private static readonly DownloadQueue: (() => void)[] = [];
 
-const releaseDownloadSemaphore = () => {
-	AvalibleDeliverySlots++;
-	promQueued.dec();
+	private static readonly ProgressLogger = args.headless ? ProgressHeadless : ProgressBars;
+	private static async getDownloadSempahore() {
+		// If there is an available request slot, proceed immediately
+		if (this.AvalibleDeliverySlots > 0) return this.AvalibleDeliverySlots--;
 
-	// If there are queued requests, resolve the first one in the queue
-	DownloadQueue.shift()?.();
-};
+		// Otherwise, wait for a request slot to become available
+		return new Promise((r) => this.DownloadQueue.push(() => r(this.AvalibleDeliverySlots--)));
+	}
 
-const updateSummaryBar = () => {
-	if (summaryStats === undefined || args.headless === true) return;
-	const { totalMB, downloadedMB, downloadSpeed } = Object.values(summaryStats).reduce(
-		(summary, stats) => {
-			for (const key in stats) {
-				summary[key as keyof typeof stats] += stats[key as keyof typeof stats];
-			}
-			return summary;
-		},
-		{ totalMB: 0, downloadedMB: 0, downloadSpeed: 0 },
-	);
-	// (videos remaining * avg time to download a video)
-	const processed = `Processed:        ${ye(completedVideos)}/${ye(totalVideos)}`;
-	const downloaded = `Total Downloaded: ${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")}`;
-	const speed = `Download Speed:   ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")}`;
-	mpb?.setFooter({
-		message: `${processed}    ${downloaded}    ${speed}`,
-		pattern: "",
-	});
-};
+	private static releaseDownloadSemaphore() {
+		this.AvalibleDeliverySlots++;
 
-const log = (formattedTitle: string, barUpdate: UpdateOptions, displayNow = true) => {
-	if (args.headless === true && displayNow === true && barUpdate.message !== undefined) console.log(`${formattedTitle} - ${barUpdate.message}`);
-	mpb?.updateTask(formattedTitle, barUpdate);
-};
+		// If there are queued requests, resolve the first one in the queue
+		this.DownloadQueue.shift()?.();
+	}
 
-const formatTitle = (title: string) => {
-	if (args.headless === true) return title.trim();
+	public static async queueVideo(video: Video) {
+		this.ProgressLogger.TotalVideos++;
+		promQueued.inc();
+		await this.getDownloadSempahore();
+		await this.processVideo(video);
+		await this.releaseDownloadSemaphore();
+		promQueued.dec();
+	}
 
-	let formattedTitle = title.trim().slice(0, 32).trim();
-	let i = 1;
-	if (mpb !== undefined) while (mpb.getIndex(formattedTitle) !== undefined) formattedTitle = `${title.trim().slice(0, 32).trim()} [${++i}]`;
+	private static async processVideo(video: Video) {
+		const logger = new this.ProgressLogger(video.title);
 
-	return formattedTitle;
-};
-
-export const queueVideo = async (video: Video) => {
-	await getDownloadSempahore();
-	return processVideo(formatTitle(video.title), video).then(releaseDownloadSemaphore);
-};
-
-const processVideo = async (fTitle: string, video: Video, retries = 0) => {
-	try {
-		mpb?.addTask(fTitle, {
-			type: "percentage",
-			message: "Checking download status...",
-		});
-
-		if (settings.extras.saveNfo) await video.saveNfo();
-		if (settings.extras.downloadArtwork) await video.downloadArtwork();
-
-		switch (await video.getState()) {
-			case Video.State.Missing: {
-				mpb?.addTask(fTitle, {
-					type: "percentage",
-					message: "Waiting on delivery cdn...",
-				});
-
-				let startTime;
-
-				if (args.headless === true) console.log(`${fTitle} - Waiting on delivery cdn...`);
-
-				const downloadRequest = await video.download(settings.floatplane.videoResolution);
-
-				let _promDownloadedBytesLast = 0;
-
-				downloadRequest.on("downloadProgress", (downloadProgress: DownloadProgress) => {
-					startTime ??= Date.now();
-					const timeElapsed = (Date.now() - startTime) / 1000;
-
-					promDownloadedBytesTotal.inc(downloadProgress.transferred - _promDownloadedBytesLast);
-					_promDownloadedBytesLast = downloadProgress.transferred;
-
-					const totalMB = downloadProgress.total / 1024000;
-					const downloadedMB = downloadProgress.transferred / 1024000;
-					const downloadSpeed = downloadProgress.transferred / timeElapsed;
-					const downloadETA = downloadProgress.total / downloadSpeed - timeElapsed; // Round to 4 decimals
-
-					log(
-						fTitle,
-						{
-							percentage: downloadProgress.percent,
-							message: `${reset}${cy(downloadedMB.toFixed(2))}/${cy(totalMB.toFixed(2) + "MB")} ${gr(((downloadSpeed / 1024000) * 8).toFixed(2) + "mb/s")} ETA: ${bl(
-								Math.floor(downloadETA / 60) + "m " + (Math.floor(downloadETA) % 60) + "s",
-							)}`,
-						},
-						false,
-					);
-					summaryStats[fTitle] = { totalMB, downloadedMB, downloadSpeed };
-					updateSummaryBar();
-				});
-
-				await new Promise((res, rej) => {
-					downloadRequest.on("end", res);
-					downloadRequest.on("error", rej);
-				});
-
-				summaryStats._.downloadedMB = summaryStats[fTitle].downloadedMB;
-				summaryStats._.totalMB = summaryStats[fTitle].totalMB;
-				delete summaryStats[fTitle];
-			}
-			// eslint-disable-next-line no-fallthrough
-			case Video.State.Partial: {
-				log(fTitle, {
-					percentage: 0.99,
-					message: "Muxing ffmpeg metadata...",
-				});
-				await video.muxffmpegMetadata();
-
-				if (settings.postProcessingCommand !== "") {
-					log(fTitle, { message: `Running post download command "${settings.postProcessingCommand}"...` }, true);
-					await video.postProcessingCommand().catch((err) => console.log(`An error occurred while executing the postProcessingCommand!\n${err.message}\n`));
+		for (let retries = 0; retries < VideoDownloader.MaxRetries; retries++) {
+			try {
+				if (settings.extras.saveNfo) {
+					logger.log("Saving .nfo");
+					await video.saveNfo();
+				}
+				if (settings.extras.downloadArtwork) {
+					logger.log("Saving artwork");
+					await video.downloadArtwork();
 				}
 
-				if (settings.plex.enabled) {
-					const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
-					for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
-						await (await (await (await (await plexApi.resource(sectionToUpdate.server)).connect()).library()).section(sectionToUpdate.section)).refresh();
+				switch (await video.getState()) {
+					case Video.State.Missing: {
+						logger.log("Waiting on delivery cdn...");
+
+						const downloadRequest = await video.download(settings.floatplane.videoResolution);
+						downloadRequest.on("downloadProgress", rateLimit(50, logger.onDownloadProgress.bind(logger)));
+						await new Promise((res, rej) => {
+							downloadRequest.once("end", res);
+							downloadRequest.once("error", rej);
+						});
+					}
+					// eslint-disable-next-line no-fallthrough
+					case Video.State.Partial: {
+						logger.log("Muxing ffmpeg metadata...");
+						await video.muxffmpegMetadata();
+
+						if (settings.postProcessingCommand !== "") {
+							logger.log(`Running post download command "${settings.postProcessingCommand}"...`);
+							await video.postProcessingCommand().catch((err) => logger.log(`postProcessingCommand failed! ${err.message}\n`));
+						}
+
+						if (settings.plex.enabled) await this.updatePlex();
+					}
+					// eslint-disable-next-line no-fallthrough
+					case Video.State.Muxed: {
+						logger.done("Muxed");
+						VideoDownloader.ProgressLogger.CompletedVideos++;
+						promDownloadedTotal.inc();
 					}
 				}
-			}
-			// eslint-disable-next-line no-fallthrough
-			case Video.State.Muxed: {
-				completedVideos++;
-				promDownloadedTotal.inc();
-				updateSummaryBar();
-				mpb?.done(fTitle);
-				setTimeout(() => mpb?.removeTask(fTitle), 10000 + Math.floor(Math.random() * 6000));
+				return;
+			} catch (error) {
+				let message = error instanceof Error ? error.message : `Something weird happened, whatever was thrown was not a error! ${error}`;
+				if (message.includes("ffmpeg")) {
+					const lastIndex = message.lastIndexOf(".partial");
+					if (lastIndex !== -1) {
+						message = `ffmpeg${message.substring(lastIndex + 9).replace(/\n|\r/g, "")}`;
+					}
+				}
+				promErrors.labels({ message: message }).inc();
+
+				if (retries < VideoDownloader.MaxRetries) {
+					logger.error(`${message} - Retrying in ${retries}s [${retries}/${this.MaxRetries}]`);
+					// Wait between retries
+					await sleep(1000 * (retries + 1));
+				} else {
+					logger.error(`${message} - Max Retries! [${retries}/${this.MaxRetries}]`);
+				}
 			}
 		}
-	} catch (error) {
-		let info;
-		if (!(error instanceof Error)) info = new Error(`Something weird happened, whatever was thrown was not a error! ${error}`);
-		else info = error;
-		promErrors.labels({ message: info.message.includes("ffmpeg") ? "ffmpeg" : info.message }).inc();
-		// Handle errors when downloading nicely
-		if (retries < MaxRetries) {
-			log(fTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} - Retrying in ${retries}s [${retries}/${MaxRetries}]` });
-
-			// Wait between retries
-			await sleep(1000 * (retries + 1));
-
-			await processVideo(fTitle, video, ++retries);
-		} else log(fTitle, { message: `\u001b[31m\u001b[1mERR\u001b[0m: ${info.message} Max Retries! [${retries}/${MaxRetries}]` });
 	}
-};
+
+	private static plexApi: MyPlexAccount;
+	private static async updatePlex() {
+		if (this.plexApi === undefined) this.plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
+		for (const sectionToUpdate of settings.plex.sectionsToUpdate) {
+			const resource = await this.plexApi.resource(sectionToUpdate.server);
+			const server = await resource.connect();
+			const library = await server.library();
+			const section = await library.section(sectionToUpdate.section);
+			await section.refresh();
+		}
+	}
+}

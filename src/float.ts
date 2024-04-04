@@ -1,10 +1,11 @@
 import { initProm } from "./lib/prometheus.js";
 import { quickStart, validatePlexSettings } from "./quickStart.js";
-import { settings, fetchFFMPEG, fApi, args, DownloaderVersion } from "./lib/helpers.js";
+import { settings, fApi, args, DownloaderVersion } from "./lib/helpers/index.js";
+import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG.js";
 import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane, User } from "./logins.js";
-import { queueVideo } from "./Downloader.js";
+import { VideoDownloader } from "./Downloader.js";
 import chalk from "chalk-template";
 
 import type { ContentPost } from "floatplane/content";
@@ -42,6 +43,8 @@ async function fetchSubscriptionVideos(): Promise<Video[]> {
 
 	return newVideos;
 }
+
+const queueVideo = VideoDownloader.queueVideo.bind(VideoDownloader);
 
 /**
  * Main function that triggeres everything else in the script

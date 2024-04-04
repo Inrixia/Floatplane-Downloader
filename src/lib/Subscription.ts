@@ -1,4 +1,4 @@
-import { fApi } from "./helpers.js";
+import { fApi } from "./helpers/index.js";
 
 import chalk from "chalk";
 import { rm } from "fs/promises";
@@ -9,7 +9,7 @@ import type { BlogPost } from "floatplane/creator";
 
 import { Video } from "./Video.js";
 
-import { settings } from "./helpers.js";
+import { settings } from "./helpers/index.js";
 import { ItemCache } from "./Caches.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
