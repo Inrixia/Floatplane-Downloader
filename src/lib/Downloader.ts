@@ -1,12 +1,12 @@
 import { Counter, Gauge } from "prom-client";
-import { Video } from "./lib/Video.js";
+import { Video } from "./Video.js";
 import type { Progress } from "got";
 
-import { settings, args } from "./lib/helpers/index.js";
+import { settings, args } from "./helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
 
-import { ProgressHeadless } from "./lib/logging/ProgressConsole.js";
-import { ProgressBars } from "./lib/logging/ProgressBars.js";
+import { ProgressHeadless } from "./logging/ProgressConsole.js";
+import { ProgressBars } from "./logging/ProgressBars.js";
 
 import { promisify } from "util";
 const sleep = promisify(setTimeout);
@@ -81,6 +81,7 @@ export class VideoDownloader {
 
 						let downloadInterval: NodeJS.Timeout;
 						downloadRequest.once("downloadProgress", (downloadProgress: Progress) => {
+							logger.log("Starting download...");
 							downloadInterval = setInterval(() => logger.onDownloadProgress(downloadRequest.downloadProgress), 125);
 							logger.onDownloadProgress(downloadProgress);
 						});
@@ -91,6 +92,7 @@ export class VideoDownloader {
 						}).finally(() => {
 							clearInterval(downloadInterval);
 							logger.onDownloadProgress(downloadRequest.downloadProgress);
+							logger.log("Finished download...");
 						});
 					}
 					// eslint-disable-next-line no-fallthrough
@@ -107,7 +109,7 @@ export class VideoDownloader {
 					}
 					// eslint-disable-next-line no-fallthrough
 					case Video.State.Muxed: {
-						logger.done("Muxed");
+						logger.done("Download & Muxing complete!");
 						VideoDownloader.ProgressLogger.CompletedVideos++;
 						promDownloadedTotal.inc();
 					}

@@ -14,6 +14,6 @@ export class ProgressHeadless extends ProgressLogger implements IProgressLogger 
 		this.log(`${message} (${ProgressLogger.CompletedVideos}/${ProgressLogger.TotalVideos})`);
 	}
 	public error(message: string) {
-		this.log(`${ProgressLogger.ERR}: ${message}`);
+		this.log(`An error occoured: ${message}`);
 	}
 }

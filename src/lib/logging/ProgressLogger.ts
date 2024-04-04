@@ -13,8 +13,6 @@ export class ProgressLogger {
 	public static TotalVideos = 0;
 	public static CompletedVideos = 0;
 
-	public static readonly ERR = "\u001b[31m\u001b[1mERR\u001b[0m";
-
 	public downloadedBytes = 0;
 
 	private static _downloadedBytesTotalCounter = new Counter({

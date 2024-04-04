@@ -1,19 +1,15 @@
 import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
+import chalk from "chalk-template";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
-	private static readonly _reset = "\u001b[0m";
-	private static readonly cy = (str: string | number) => `\u001b[36;1m${str}\u001b[0m`;
-	private static readonly gr = (str: string | number) => `\u001b[32;1m${str}\u001b[0m`;
-	private static readonly ye = (str: string | number) => `\u001b[33;1m${str}\u001b[0m`;
-	private static readonly bl = (str: string | number) => `\u001b[34;1m${str}\u001b[0m`;
-
 	private static readonly _Bars: MultiProgressBars = new MultiProgressBars({ initMessage: "", anchor: "bottom" });
 
 	public static TotalBytes = 0;
 	public static DownloadedBytes = 0;
 	public static DownloadSpeed = 0;
+	public static Errors = 0;
 
 	private _startTime: undefined | number = undefined;
 
@@ -43,9 +39,12 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		this.removeBar();
 	}
 	public error(message: string, final?: true) {
-		this.log(`${ProgressLogger.ERR}: ${message}`);
+		this.log(chalk`{red ERR}: ${message}`);
 		this.reset();
-		if (final) this.removeBar();
+		if (final) {
+			this.removeBar();
+			ProgressBars.Errors++;
+		}
 	}
 	private removeBar() {
 		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
@@ -71,22 +70,22 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 		const downloadETA = progress.total / this._downloadSpeed - elapsed;
 
-		const downloaded = `${ProgressBars.cy((progress.transferred / 1000000).toFixed(2))}/${ProgressBars.cy(`${(progress.total / 1000000).toFixed(2)}MB`)}`;
-		const speed = `${ProgressBars.gr((this._downloadSpeed / 125000).toFixed(2) + "mb/s")}`;
-		const eta = `ETA: ${ProgressBars.bl(`${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s`)}`;
+		const downloaded = chalk`{cyan ${(progress.transferred / 1000000).toFixed(2)}}/{cyan ${(progress.total / 1000000).toFixed(2)}MB}`;
+		const speed = chalk`{green ${(this._downloadSpeed / 125000).toFixed(2)} mb/s}`;
+		const eta = chalk`ETA: {blue ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s}`;
 
 		ProgressBars._Bars.updateTask(this.title, {
 			percentage: progress.percent,
-			message: `${ProgressBars._reset}${downloaded} ${speed} ${eta}`,
+			message: `${downloaded} ${speed} ${eta}`,
 		});
 
-		const processed = `Processed:        ${ProgressBars.ye(ProgressBars.CompletedVideos)}/${ProgressBars.ye(ProgressBars.TotalVideos)}`;
-		const downloadedTotal = `Total Downloaded: ${ProgressBars.cy((ProgressBars.DownloadedBytes / 1000000).toFixed(2))}/${ProgressBars.cy(
-			`${(ProgressBars.TotalBytes / 1000000).toFixed(2)}MB`,
-		)}`;
-		const speedTotal = `Download Speed:   ${ProgressBars.gr(`${(ProgressBars.DownloadSpeed / 125000).toFixed(2)}mb/s`)}`;
+		const processed = chalk`Processed: {yellow ${ProgressBars.CompletedVideos}}/{yellow ${ProgressBars.TotalVideos}} Errors: {red ${ProgressBars.Errors}}`;
+		const downloadedTotal = chalk`Total Downloaded: {cyan ${(ProgressBars.DownloadedBytes / 1000000).toFixed(2)}}/{cyan ${(
+			ProgressBars.TotalBytes / 1000000
+		).toFixed(2)}MB}`;
+		const speedTotal = chalk`Download Speed: {green ${(ProgressBars.DownloadSpeed / 125000).toFixed(2)}mb/s}`;
 		ProgressBars._Bars.setFooter({
-			message: `${processed}    ${downloadedTotal}    ${speedTotal}`,
+			message: `${processed} ${downloadedTotal} ${speedTotal}`,
 			pattern: "",
 		});
 	}

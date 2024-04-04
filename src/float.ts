@@ -5,7 +5,7 @@ import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG.js";
 import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane, User } from "./logins.js";
-import { VideoDownloader } from "./Downloader.js";
+import { VideoDownloader } from "./lib/Downloader.js";
 import chalk from "chalk-template";
 
 import type { ContentPost } from "floatplane/content";
@@ -103,8 +103,9 @@ process.on("SIGTERM", process.exit);
 		console.log(`Unable to authenticate with floatplane... ${(<Error>err).message}\nPlease login to floatplane...`);
 		user = await loginFloatplane();
 	}
-
 	await initProm(user!.id);
+
+	console.log(`Initalized! Running version ${DownloaderVersion} instance ${user!.id}`);
 
 	await downloadNewVideos();
 
