@@ -113,7 +113,7 @@ process.on("SIGTERM", process.exit);
 		const waitLoop = async () => {
 			await downloadNewVideos();
 			setTimeout(waitLoop, 5 * 60 * 1000);
-			console.log("[" + new Date().toLocaleTimeString() + "]" + " Checking for new videos in 5 minutes...");
+			console.log(`${args.headless ? `[${new Date().toLocaleString()}]` : ""} Checking for new videos in 5 minutes...`);
 		};
 		waitLoop();
 	}
