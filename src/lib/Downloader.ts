@@ -105,7 +105,11 @@ export class VideoDownloader {
 							await video.postProcessingCommand().catch((err) => logger.log(`postProcessingCommand failed! ${err.message}\n`));
 						}
 
-						if (settings.plex.enabled) await this.updatePlex();
+						if (settings.plex.enabled) {
+							await this.updatePlex().catch((err) => {
+								throw new Error(`Updating plex failed! ${err.message}`);
+							});
+						}
 					}
 					// eslint-disable-next-line no-fallthrough
 					case Video.State.Muxed: {
