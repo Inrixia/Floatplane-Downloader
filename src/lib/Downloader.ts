@@ -118,7 +118,6 @@ export class VideoDownloader {
 						promDownloadedTotal.inc();
 					}
 				}
-				return;
 			} catch (error) {
 				let message = error instanceof Error ? error.message : `Something weird happened, whatever was thrown was not a error! ${error}`;
 				if (message.includes("ffmpeg")) {

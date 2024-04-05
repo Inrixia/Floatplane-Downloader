@@ -21,10 +21,7 @@ export const promptPlexSections = async (): Promise<void> => {
 		settings.plex.sectionsToUpdate,
 		serverSections.flatMap((sections) => sections),
 	);
-	if (settings.plex.sectionsToUpdate.length === 0) {
-		console.log("No sectionsToUpdate in config! Disabling plex integration...\n");
-		settings.plex.enabled = false;
-	}
+	await validatePlexSettings();
 };
 
 export const validatePlexSettings = async (): Promise<void> => {
@@ -34,9 +31,13 @@ export const validatePlexSettings = async (): Promise<void> => {
 			settings.plex.token = await loginPlex();
 		}
 		if (settings.plex.sectionsToUpdate.length === 0) {
-			console.log("No plex sections specified to update!");
-			await promptPlexSections();
+			console.log("No sectionsToUpdate in config! Disabling plex integration...\n");
+			settings.plex.enabled = false;
 		}
+		await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect().catch((err) => {
+			console.error(`Failed to connect to plex, disabling plex refreshing! ${err.message}`);
+			settings.plex.enabled = false;
+		});
 	}
 };
 
