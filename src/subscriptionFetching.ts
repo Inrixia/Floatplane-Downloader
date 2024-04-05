@@ -23,15 +23,22 @@ export async function* fetchSubscriptions() {
 
 		const subChannels = await fApi.creator.channels([userSubscription.creator]);
 		for (const channel of subChannels) {
-			if (settingSubscription.channels.findIndex((chan) => chan.title === channel.title) === -1)
-				settingSubscription.channels.push({
-					title: channel.title,
-					skip: false,
-					isChannel:
-						channel.id === "6413623f5b12cca228a28e78"
-							? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
-							: `(post) => isChannel(post, '${channel.id}')`,
-				});
+			const subChannel = settingSubscription.channels.find((chan) => chan.title === channel.title);
+			const channelDefaults = {
+				title: channel.title,
+				skip: false,
+				isChannel:
+					channel.id === "6413623f5b12cca228a28e78"
+						? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+						: `(post) => isChannel(post, '${channel.id}')`,
+			};
+			if (subChannel === undefined) {
+				settingSubscription.channels.push(channelDefaults);
+			} else if (subChannel.isChannel === undefined) {
+				// @ts-expect-error Identifiers have been replaced by isChannel
+				delete subChannel.identifiers;
+				subChannel.isChannel = channelDefaults.isChannel;
+			}
 		}
 
 		if (settingSubscription.skip === true) continue;
