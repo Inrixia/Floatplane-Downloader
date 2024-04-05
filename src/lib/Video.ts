@@ -280,8 +280,6 @@ export class Video {
 	public async download(quality: string): Promise<ReturnType<typeof fApi.got.stream>> {
 		if ((await this.getState()) === VideoState.Muxed) throw new Error(`Attempting to download "${this.title}" video already downloaded!`);
 
-		let writeStreamOptions, requestOptions;
-
 		// Make sure the folder for the video exists
 		await fs.mkdir(this.folderPath, { recursive: true });
 
@@ -299,11 +297,11 @@ export class Video {
 		// Set the quality to use based on whats given in the settings.json or the highest available
 		const downloadVariant = availableVariants.find((variant) => variant.label.includes(quality)) ?? availableVariants[0];
 
-		const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`, requestOptions);
+		const downloadRequest = fApi.got.stream(`${downloadOrigin.url}${downloadVariant.url}`);
 		// Pipe the download to the file once response starts
-		const writeStream = createWriteStream(this.partialPath, writeStreamOptions);
+		const writeStream = createWriteStream(this.partialPath);
 		if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(<ThrottleOptions>(<unknown>null))).pipe(writeStream);
-		downloadRequest.pipe(writeStream);
+		else downloadRequest.pipe(writeStream);
 
 		// Set the videos expectedSize once we know how big it should be for download validation.
 		downloadRequest.once("downloadProgress", (progress) => this.attrStore().then((attrStore) => (attrStore.partialBytes = progress.total)));
