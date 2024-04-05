@@ -2,9 +2,13 @@ import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
 import chalk from "chalk-template";
+import { args } from "../helpers/index.js";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
-	private static readonly _Bars: MultiProgressBars = new MultiProgressBars({ initMessage: "", anchor: "bottom" });
+	// Ensure that MultiProgressBars is never instantiated if headless
+	private static readonly _Bars: MultiProgressBars = args.headless
+		? <MultiProgressBars>(<unknown>null)
+		: new MultiProgressBars({ initMessage: "", anchor: "bottom" });
 
 	public static TotalBytes = 0;
 	public static DownloadedBytes = 0;

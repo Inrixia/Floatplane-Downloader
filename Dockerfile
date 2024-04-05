@@ -29,7 +29,6 @@ COPY --from=build ${HOME}/package.json package.json
 
 # Environment variables
 ENV headless=true
-ENV runQuickstartPrompts=false
 
 # Define volumes to be mountable
 VOLUME /fp/db

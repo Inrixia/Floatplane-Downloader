@@ -87,9 +87,12 @@ process.on("SIGTERM", process.exit);
 		process.exit();
 	}
 
-	await fetchFFMPEG();
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
-	if (settings.runQuickstartPrompts) await quickStart();
+	await fetchFFMPEG();
+	if (settings.runQuickstartPrompts) {
+		if (args.headless) console.log("headless is set to true! Skipping quickstart prompts.");
+		else await quickStart();
+	}
 	settings.runQuickstartPrompts = false;
 
 	// Get Plex details if not saved
