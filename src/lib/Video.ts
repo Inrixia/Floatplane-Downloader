@@ -284,7 +284,7 @@ export class Video {
 		await fs.mkdir(this.folderPath, { recursive: true });
 
 		const delivery = await this.getDelivery();
-		if (delivery.origins === undefined) throw new Error("Video has no origins to download from!");
+		if (delivery?.origins === undefined) throw new Error("Video has no origins to download from!");
 
 		// Round robin edges with download enabled
 		const downloadOrigin = this.getOrigin(delivery.origins);
