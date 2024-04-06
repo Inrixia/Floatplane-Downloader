@@ -28,9 +28,9 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 type BlogPosts = typeof fApi.creator.blogPostsIterable;
 type isChannel = (post: BlogPost, video?: VideoContent) => boolean;
 export default class Subscription {
-	public channels: SubscriptionSettings["channels"];
-
 	public readonly creatorId: string;
+	public readonly channels: SubscriptionSettings["channels"];
+	public readonly plan: string;
 
 	private static AttachmentsCache = new ItemCache("./db/attachmentCache.json", fApi.content.video, 24 * 60);
 
@@ -50,6 +50,7 @@ export default class Subscription {
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 		this.channels = subscription.channels;
+		this.plan = subscription.plan;
 	}
 
 	public deleteOldVideos = async () => {
@@ -142,6 +143,7 @@ export default class Subscription {
 	public async *fetchNewVideos(): AsyncGenerator<Video> {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
+		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
 		for await (const blogPost of Subscription.PostIterable(this.creatorId, { hasVideo: true })) {
 			for await (const video of this.matchChannel(blogPost)) {
 				if ((await video.getState()) !== Video.State.Muxed) yield video;

@@ -2,7 +2,10 @@ import { defaultSubChannels } from "./lib/defaults.js";
 import Subscription from "./lib/Subscription.js";
 import { settings, fApi } from "./lib/helpers/index.js";
 
+import chalk from "chalk";
+
 export async function* fetchSubscriptions() {
+	console.log("Fetching user subscriptions...");
 	for (const userSubscription of await fApi.user.subscriptions()) {
 		// Add the subscription to settings if it doesnt exist
 		settings.subscriptions[userSubscription.creator] ??= {
@@ -21,6 +24,7 @@ export async function* fetchSubscriptions() {
 			if (channelsToAdd.length > 0) settingSubscription.channels = [...settingSubscription.channels, ...channelsToAdd];
 		}
 
+		console.log(chalk`Fetching {yellow ${userSubscription.plan.title}'s} channels...`);
 		const subChannels = await fApi.creator.channels([userSubscription.creator]);
 		for (const channel of subChannels) {
 			const subChannel = settingSubscription.channels.find((chan) => chan.title === channel.title);

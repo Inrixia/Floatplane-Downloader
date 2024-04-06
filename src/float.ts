@@ -28,6 +28,7 @@ async function fetchSubscriptionVideos(): Promise<Video[]> {
 	while (settings.floatplane.seekAndDestroy.length > 0) {
 		const guid = settings.floatplane.seekAndDestroy.pop();
 		if (guid === undefined) continue;
+		console.log(chalk`Seek and Destroy: {red ${guid}}`);
 		posts.push(fApi.content.post(guid));
 	}
 
@@ -50,12 +51,15 @@ const queueVideo = VideoDownloader.queueVideo.bind(VideoDownloader);
  * Main function that triggeres everything else in the script
  */
 const downloadNewVideos = async () => {
+	let subVideos = await fetchSubscriptionVideos();
 	if (settings.extras.promptVideos) {
-		const promptedVideos = await promptVideos(await fetchSubscriptionVideos());
-		return Promise.all(promptedVideos.map(queueVideo));
+		if (args.headless) {
+			console.log("Cannot prompt for videos in headless mode! Disabling promptVideos...");
+			settings.extras.promptVideos = false;
+		} else {
+			subVideos = await promptVideos(subVideos);
+		}
 	}
-
-	const subVideos = await fetchSubscriptionVideos();
 	return Promise.all(subVideos.map(queueVideo)).then(() => {
 		// Enforce search limits after searching once.
 		settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
@@ -108,7 +112,7 @@ process.on("SIGTERM", process.exit);
 	}
 	await initProm(user!.id);
 
-	console.log(`Initalized! Running version ${DownloaderVersion} instance ${user!.id}`);
+	console.log(chalk`Initalized! Running version {cyan ${DownloaderVersion}} instance {magenta ${user!.id}}`);
 
 	await downloadNewVideos();
 
@@ -116,7 +120,7 @@ process.on("SIGTERM", process.exit);
 		const waitLoop = async () => {
 			await downloadNewVideos();
 			setTimeout(waitLoop, 5 * 60 * 1000);
-			console.log(`${args.headless ? `[${new Date().toLocaleString()}]` : ""} Checking for new videos in 5 minutes...`);
+			console.log(`Checking for new videos in 5 minutes...`);
 		};
 		waitLoop();
 	}
