@@ -9,4 +9,5 @@ export class ProgressHeadless extends ProgressLogger implements IProgressLogger 
 	}
 	public done = this.log;
 	public onDownloadProgress() {}
+	public start() {}
 }

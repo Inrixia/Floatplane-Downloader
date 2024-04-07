@@ -6,13 +6,13 @@ import chalk from "chalk";
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	private static _Bars: MultiProgressBars;
 
-	public static TotalVideos = 0;
-	public static CompletedVideos = 0;
+	public static Total = 0;
+	public static Done = 0;
+	public static Errors = 0;
 
 	public static TotalBytes = 0;
 	public static DownloadedBytes = 0;
 	public static DownloadSpeed = 0;
-	public static Errors = 0;
 
 	private _lastTick = 0;
 	private _downloadSpeed = 0;
@@ -24,10 +24,13 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		this.title = title.slice(0, 32).trim();
 		let i = 1;
 		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${title.trim().slice(0, 32).trim()} [${++i}]`;
+		ProgressBars.Total++;
+	}
+
+	public start() {
 		ProgressBars._Bars.addTask(this.title, { type: "percentage" });
 		ProgressBars._Bars.updateTask(this.title, { percentage: 0 });
 	}
-
 	public log(message: string) {
 		ProgressBars._Bars.updateTask(this.title, { message });
 	}
@@ -45,6 +48,8 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	public done(message: string) {
 		ProgressBars._Bars.done(this.title, { message });
 		this.reset();
+		ProgressBars.Done += 1;
+		this.updateSummaryBar();
 		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
 	}
 
@@ -82,7 +87,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	}
 
 	private updateSummaryBar() {
-		const processed = chalk`Processed: {yellow ${ProgressBars.CompletedVideos}}/{yellow ${ProgressBars.TotalVideos}} Errors: {red ${ProgressBars.Errors}}`;
+		const processed = chalk`Processed: {yellow ${ProgressBars.Done}}/{yellow ${ProgressBars.Total}} Errors: {red ${ProgressBars.Errors}}`;
 		const downloadedTotal = chalk`Total Downloaded: {cyan ${(ProgressBars.DownloadedBytes / 1000000).toFixed(2)}}/{cyan ${(
 			ProgressBars.TotalBytes / 1000000
 		).toFixed(2)}MB}`;

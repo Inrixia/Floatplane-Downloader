@@ -60,9 +60,10 @@ export class Video extends VideoBase {
 
 	public async download() {
 		if ((await this.getState()) === Video.State.Muxed) return;
+		const logger = new Video.ProgressLogger(this.videoTitle);
 		promQueued.inc();
 		await Video.DownloadSemaphore.obtain();
-		const logger = new Video.ProgressLogger(this.videoTitle);
+		logger.start();
 		for (let retries = 1; retries < Video.MaxRetries + 1; retries++) {
 			try {
 				switch (await this.getState()) {
@@ -97,7 +98,7 @@ export class Video extends VideoBase {
 						let downloadInterval: NodeJS.Timeout;
 						downloadRequest.once("downloadProgress", (downloadProgress: Progress) => {
 							logger.log("Download started!");
-							downloadInterval = setInterval(() => onDownloadProgress(downloadRequest.downloadProgress), 125);
+							downloadInterval = setInterval(() => onDownloadProgress(downloadRequest.downloadProgress), 250);
 							onDownloadProgress(downloadProgress);
 						});
 
@@ -129,6 +130,7 @@ export class Video extends VideoBase {
 				}
 				logger.done(chalk`{cyan Download & Muxing complete!}`);
 				promDownloadedTotal.inc();
+				break;
 			} catch (error) {
 				const message = this.parseErrorMessage(error);
 				promErrors.labels({ message: message }).inc();

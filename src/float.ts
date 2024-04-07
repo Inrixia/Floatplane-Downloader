@@ -33,18 +33,21 @@ async function* seekAndDestroy(): AsyncGenerator<ContentPost, void, unknown> {
 const downloadNewVideos = async () => {
 	const userSubs = fetchSubscriptions();
 
+	const inProgress = [];
 	for await (const contentPost of seekAndDestroy()) {
 		for await (const subscription of userSubs) {
 			if (contentPost.creator.id === subscription.creatorId) {
-				for await (const video of subscription.seekAndDestroy(contentPost)) video.download();
+				for await (const video of subscription.seekAndDestroy(contentPost)) inProgress.push(video.download());
 			}
 		}
 	}
 
 	for await (const subscription of userSubs) {
 		await subscription.deleteOldVideos();
-		for await (const video of subscription.fetchNewVideos()) video.download();
+		for await (const video of subscription.fetchNewVideos()) inProgress.push(video.download());
 	}
+
+	await Promise.all(inProgress);
 
 	// Enforce search limits after searching once.
 	settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
