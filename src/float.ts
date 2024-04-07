@@ -5,65 +5,54 @@ import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG.js";
 import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane, User } from "./logins.js";
-import { VideoDownloader } from "./lib/Downloader.js";
-import chalk from "chalk-template";
+import chalk from "chalk";
 
 import type { ContentPost } from "floatplane/content";
-import type { Video } from "./lib/Video.js";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
-
-import { promptVideos } from "./lib/prompts/downloader.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Yes, package.json isnt under src, this is fine
 import pkg from "../package.json" assert { type: "json" };
 import { Self } from "floatplane/user";
 
-async function fetchSubscriptionVideos(): Promise<Video[]> {
-	// Function that pops items out of seek and destroy until the array is empty
-	const posts: Promise<ContentPost>[] = [];
+async function* seekAndDestroy(): AsyncGenerator<ContentPost, void, unknown> {
 	while (settings.floatplane.seekAndDestroy.length > 0) {
 		const guid = settings.floatplane.seekAndDestroy.pop();
 		if (guid === undefined) continue;
 		console.log(chalk`Seek and Destroy: {red ${guid}}`);
-		posts.push(fApi.content.post(guid));
+		yield fApi.content.post(guid);
 	}
-
-	const newVideos: Video[] = [];
-	for await (const subscription of fetchSubscriptions()) {
-		await subscription.deleteOldVideos();
-		for await (const video of subscription.fetchNewVideos()) newVideos.push(video);
-		for await (const video of subscription.seekAndDestroy(await Promise.all(posts))) newVideos.push(video);
-	}
-
-	// If we havent found any new videos, then reset polling size to 5 to avoid excessive api requests.
-	if (newVideos.length === 0) settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
-
-	return newVideos;
 }
-
-const queueVideo = VideoDownloader.queueVideo.bind(VideoDownloader);
 
 /**
  * Main function that triggeres everything else in the script
  */
 const downloadNewVideos = async () => {
-	let subVideos = await fetchSubscriptionVideos();
-	if (settings.extras.promptVideos) {
-		if (args.headless) {
-			console.log("Cannot prompt for videos in headless mode! Disabling promptVideos...");
-			settings.extras.promptVideos = false;
-		} else {
-			subVideos = await promptVideos(subVideos);
+	const userSubs = fetchSubscriptions();
+
+	for await (const contentPost of seekAndDestroy()) {
+		for await (const subscription of userSubs) {
+			if (contentPost.creator.id === subscription.creatorId) {
+				for await (const video of subscription.seekAndDestroy(contentPost)) video.download();
+			}
 		}
 	}
-	return Promise.all(subVideos.map(queueVideo)).then(() => {
-		// Enforce search limits after searching once.
-		settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
-	});
+
+	for await (const subscription of userSubs) {
+		await subscription.deleteOldVideos();
+		for await (const video of subscription.fetchNewVideos()) video.download();
+	}
+
+	// Enforce search limits after searching once.
+	settings.floatplane.videosToSearch = defaultSettings.floatplane.videosToSearch;
+
+	if (settings.floatplane.waitForNewVideos === true) {
+		console.log(`Checking for new videos in 5 minutes...`);
+		setTimeout(downloadNewVideos, 5 * 60 * 1000);
+	}
 };
 
 // Fix for docker
@@ -115,13 +104,4 @@ process.on("SIGTERM", process.exit);
 	console.log(chalk`Initalized! Running version {cyan ${DownloaderVersion}} instance {magenta ${user!.id}}`);
 
 	await downloadNewVideos();
-
-	if (settings.floatplane.waitForNewVideos === true) {
-		const waitLoop = async () => {
-			await downloadNewVideos();
-			setTimeout(waitLoop, 5 * 60 * 1000);
-			console.log(`Checking for new videos in 5 minutes...`);
-		};
-		waitLoop();
-	}
 })();

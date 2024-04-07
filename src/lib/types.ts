@@ -41,7 +41,6 @@ export type Extras = {
 	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
 	saveNfo: boolean;
-	promptVideos: boolean;
 	considerAllNonPartialDownloaded: boolean;
 };
 

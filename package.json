@@ -18,7 +18,6 @@
 		"@ctrl/plex": "^1.5.3",
 		"@inrixia/db": "2.0.2",
 		"@inrixia/helpers": "^2.0.10",
-		"chalk-template": "^1.1.0",
 		"default-import": "^1.1.5",
 		"dotenv": "^16.4.5",
 		"ffbinaries": "^1.1.6",

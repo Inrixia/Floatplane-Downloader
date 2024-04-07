@@ -1,10 +1,13 @@
 import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
-import chalk from "chalk-template";
+import chalk from "chalk";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	private static _Bars: MultiProgressBars;
+
+	public static TotalVideos = 0;
+	public static CompletedVideos = 0;
 
 	public static TotalBytes = 0;
 	public static DownloadedBytes = 0;
@@ -12,15 +15,13 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	public static Errors = 0;
 
 	private _lastTick = 0;
-
 	private _downloadSpeed = 0;
 
-	readonly title: string;
 	constructor(title: string) {
-		super();
+		super(title);
 		if (ProgressBars._Bars === undefined) ProgressBars._Bars = new MultiProgressBars({ initMessage: "", anchor: "bottom" });
 
-		this.title = title.trim().slice(0, 32).trim();
+		this.title = title.slice(0, 32).trim();
 		let i = 1;
 		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${title.trim().slice(0, 32).trim()} [${++i}]`;
 		ProgressBars._Bars.addTask(this.title, { type: "percentage" });
@@ -34,32 +35,23 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		ProgressBars.DownloadSpeed -= this._downloadSpeed;
 		ProgressBars.DownloadSpeed = Math.abs(ProgressBars.DownloadSpeed);
 		this._downloadSpeed = 0;
-		this.downloadedBytes = 0;
 		this.updateSummaryBar();
 	}
-	public done() {
-		ProgressBars._Bars.done(this.title);
-		this.reset();
-		this.removeBar();
-	}
-	public error(message: string, final?: true) {
+	public error(message: string) {
 		this.log(chalk`{red ERR}: ${message}`);
 		this.reset();
-		if (final) {
-			this.removeBar();
-			ProgressBars.Errors++;
-		}
+		ProgressBars.Errors++;
 	}
-	private removeBar() {
+	public done(message: string) {
+		ProgressBars._Bars.done(this.title, { message });
+		this.reset();
 		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
 	}
 
-	public onDownloadProgress(progress: Progress): void {
+	public onDownloadProgress(progress: Progress, bytesSinceLast: number): void {
 		if (progress.total === undefined) return;
 
-		const bytesSinceLastTick = progress.transferred - this.downloadedBytes;
-		ProgressBars.DownloadedBytes += bytesSinceLastTick;
-		super.onDownloadProgress(progress);
+		ProgressBars.DownloadedBytes += bytesSinceLast;
 
 		if (this._lastTick === 0) {
 			ProgressBars.TotalBytes += progress.total;
@@ -69,7 +61,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		const elapsedSinceLastTick = (Date.now() - this._lastTick) / 1000;
 		this._lastTick = Date.now();
 
-		const downloadSpeed = bytesSinceLastTick / elapsedSinceLastTick;
+		const downloadSpeed = bytesSinceLast / elapsedSinceLastTick;
 		if (!isNaN(downloadSpeed)) {
 			ProgressBars.DownloadSpeed += downloadSpeed - this._downloadSpeed;
 			this._downloadSpeed = downloadSpeed;

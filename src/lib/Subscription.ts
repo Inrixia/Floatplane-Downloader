@@ -7,10 +7,11 @@ import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
-import { Video } from "./Video.js";
+import { VideoBase } from "./VideoBase.js";
 
 import { settings } from "./helpers/index.js";
 import { ItemCache } from "./Caches.js";
+import { Video } from "./Video.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
 	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;
@@ -63,7 +64,7 @@ export default class Subscription {
 				let deletedFiles = 0;
 				let deletedVideos = 0;
 
-				for (const video of Video.GetChannelVideos((video) => video.releaseDate < ignoreBeforeTimestamp && video.channelTitle === channel.title)) {
+				for (const video of VideoBase.find((video) => video.releaseDate < ignoreBeforeTimestamp && video.videoTitle === channel.title)) {
 					deletedVideos++;
 					const deletionResults = await Promise.allSettled([
 						rm(`${video.filePath}.mp4`),
@@ -134,7 +135,14 @@ export default class Subscription {
 
 					videoTitle = videoTitle.trim();
 				}
-				yield new Video(post, attachmentId, channel.title, videoTitle, dateOffset * 1000);
+				yield Video.getOrCreate({
+					attachmentId,
+					description: post.text,
+					artworkUrl: post.thumbnail?.path,
+					channelTitle: channel.title,
+					videoTitle,
+					releaseDate: new Date(new Date(blogPost.releaseDate).getTime() + dateOffset * 1000),
+				});
 				break;
 			}
 		}
@@ -146,7 +154,7 @@ export default class Subscription {
 		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
 		for await (const blogPost of Subscription.PostIterable(this.creatorId, { hasVideo: true })) {
 			for await (const video of this.matchChannel(blogPost)) {
-				if ((await video.getState()) !== Video.State.Muxed) yield video;
+				yield video;
 			}
 
 			// Stop searching if we have looked through videosToSearch
@@ -154,29 +162,25 @@ export default class Subscription {
 		}
 	}
 
-	public async *seekAndDestroy(contentPosts: ContentPost[]): AsyncGenerator<Video> {
-		const thisSubsPosts = contentPosts.filter((post) => post.creator.id === this.creatorId);
-		if (thisSubsPosts.length === 0) return;
-		for (const contentPost of thisSubsPosts) {
-			// Convert as best able to a BlogPost
-			const blogPost: BlogPost = <BlogPost>(<unknown>{
-				...contentPost,
-				videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
-				audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
-				pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
-				creator: {
-					...contentPost.creator,
-					owner: {
-						id: contentPost.creator.owner,
-						username: "",
-					},
-					category: {
-						title: contentPost.creator.category,
-					},
-					card: null,
+	public async *seekAndDestroy(contentPost: ContentPost): AsyncGenerator<Video> {
+		// Convert as best able to a BlogPost
+		const blogPost: BlogPost = <BlogPost>(<unknown>{
+			...contentPost,
+			videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
+			audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
+			pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
+			creator: {
+				...contentPost.creator,
+				owner: {
+					id: contentPost.creator.owner,
+					username: "",
 				},
-			});
-			for await (const video of this.matchChannel(blogPost)) yield video;
-		}
+				category: {
+					title: contentPost.creator.category,
+				},
+				card: null,
+			},
+		});
+		for await (const video of this.matchChannel(blogPost)) yield video;
 	}
 }
