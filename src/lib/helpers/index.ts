@@ -77,14 +77,13 @@ export const args = { ...argv, ...env };
 // eslint-disable-next-line no-control-regex
 const headlessStdoutRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
 // Override stdout if headless to not include formatting tags
-const originalStdoutWrite = process.stdout.write.bind(process.stdout);
-type StdoutArgs = Parameters<typeof process.stdout.write>;
+if (args.headless === true) {
+	const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+	type StdoutArgs = Parameters<typeof process.stdout.write>;
 
-process.stdout.write = ((...params: StdoutArgs) => {
-	// eslint-disable-next-line no-control-regex
-	if (typeof params[0] === "string") {
-		params[0] = `[${new Date().toLocaleString()}] ${params[0]}`;
-		if (args.headless) params[0] = params[0].replace(headlessStdoutRegex, "");
-	}
-	return originalStdoutWrite(...params);
-}) as typeof process.stdout.write;
+	process.stdout.write = ((...params: StdoutArgs) => {
+		// eslint-disable-next-line no-control-regex
+		if (typeof params[0] === "string") params[0] = `[${new Date().toLocaleString()}] ${params[0].replace(headlessStdoutRegex, "")}`;
+		return originalStdoutWrite(...params);
+	}) as typeof process.stdout.write;
+}

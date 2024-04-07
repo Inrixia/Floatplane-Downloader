@@ -2,9 +2,11 @@ import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
 import chalk from "chalk";
+import { args } from "../helpers/index.js";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
-	private static _Bars: MultiProgressBars;
+	// Trigger MPB immediately so console is contained, but only in headless
+	private static _Bars: MultiProgressBars = args.headless ? <MultiProgressBars>(<unknown>null) : new MultiProgressBars({ initMessage: "", anchor: "top" });
 
 	public static Total = 0;
 	public static Done = 0;
@@ -19,7 +21,6 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 	constructor(title: string) {
 		super(title);
-		if (ProgressBars._Bars === undefined) ProgressBars._Bars = new MultiProgressBars({ initMessage: "", anchor: "bottom" });
 
 		this.title = title.slice(0, 32).trim();
 		let i = 1;

@@ -66,6 +66,10 @@ process.on("SIGTERM", process.exit);
 		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${DownloaderVersion}`);
 	}
 
+	if (!args.headless) {
+		console.log(chalk`\n{red ///}{grey ===} {cyan Console} {grey ===}{red \\\\\\}`);
+	}
+
 	const latest = await fApi
 		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json")
 		.json<{ version: string }>()
