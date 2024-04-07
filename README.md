@@ -2,7 +2,7 @@
 
 ### **[Live Downloader Metrics Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
-![Active Downloaders](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)) ![Queued](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued&color=rgb(255%2C%20152%2C%2048)) ![Speed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)) ![Bytes](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2F354wwnhf&query=data.result%5B0%5D.value%5B1%5D&suffix=%20TB&label=Bytes&color=rgb(184%2C%20119%2C%20217)) ![Videos](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2F4wn6vyhs&query=data.result%5B0%5D.value%5B1%5D&label=Videos)
+![Active Downloaders](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)) ![Queued](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued&color=rgb(255%2C%20152%2C%2048)) ![Speed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)) ![Bytes](https://img.shields.io/badge/dynamic/json?url=https%3A//tinyurl.com/bddawdt9&query=data.result%5B0%5D.value%5B1%5D&suffix=%20TB&label=Bytes&color=rgb(184%2C%20119%2C%20217)) ![Videos](https://img.shields.io/badge/dynamic/json?url=https%3A//tinyurl.com/bdfmxjnw&query=data.result%5B0%5D.value%5B1%5D&label=Videos)
 
 ![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
 **This project is unofficial and not in any way affiliated with LMG**<br>
@@ -32,7 +32,7 @@ Get the image on: **[hub.docker.com/r/inrix/floatplane-downloader](https://hub.d
 Looking for **Unraid**?<br>
 Go install it using the unraid template! [**unraid template**](https://unraid.net/community/apps?q=floatplane#r)!
 
-1. Download the latest stable binary for your OS from **[Releases](https://github.com/Inrixia/Floatplane-PlexDownloader/releases)**<br>
+1. Download the latest binary for your OS from **[Releases](https://github.com/Inrixia/Floatplane-PlexDownloader/releases)**<br>
 
 2. Run the binary and follow the setup prompts.<br>
 
