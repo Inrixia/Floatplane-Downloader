@@ -10,9 +10,7 @@ export class ProgressHeadless extends ProgressLogger implements IProgressLogger 
 	public log(message: string) {
 		console.log(`${this.title} - ${message}`);
 	}
-	public done(message: string) {
-		this.log(`${message} (${ProgressLogger.CompletedVideos}/${ProgressLogger.TotalVideos})`);
-	}
+	public done = this.log;
 	public error(message: string) {
 		this.log(`An error occoured: ${message}`);
 	}
