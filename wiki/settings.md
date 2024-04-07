@@ -90,10 +90,8 @@ The following options are available to be used:
 Suffix appended to artwork filename.  
 Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.png`
 
-Windows example:
-
 ```json
-"artworkSuffix": "echo %videoTitle% > example.txt"
+"artworkSuffix": ""
 ```
 
 <br>
@@ -113,7 +111,7 @@ You can refer to the `Path Formatting Options` section in this wiki for what can
 Strings surounded by % will be replaced with their respective values.
 
 ```json
-"postProcessingCommand": ""
+"postProcessingCommand": "echo %videoTitle% > example.txt"
 ```
 
 <br>
@@ -153,17 +151,6 @@ Saves video metadata to nfo files alongside each video.
 ```json
 "extras": {
     "safeNfo": true
-}
-```
-
-<br>
-
-**extras.promptVideos**:  
-Prompts the user to confirm videos to download after fetching.
-
-```json
-"extras": {
-    "promptVideos": true
 }
 ```
 
@@ -220,53 +207,59 @@ Plex token generated from your login details for updating remote servers.
 ## Subscriptions:
 
 All the Floatplane creators you are subscribed to.  
-![image](https://user-images.githubusercontent.com/6373693/115116013-86a4a480-9feb-11eb-828a-fe4fa8ba5cf9.png)  
+![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/9535456d-158a-4ead-b355-8d3155a8d979)
 At the creator level you can see the `creatorId` and `plan`. You can also choose to `skip` a creator and not download videos from them.  
+You can add custom channels to a creator if you want.
 <br>
 
-You can add as many channels to a creator as you like, each **channel** has its own episode count and is considered its own "series".  
+First come first served, the first channel a video matches to is what it goes into, channels are checked top to bottom in the config. Videos cannot be sorted into multiple channels.
 <br>
 
-A **channel** is made up of a `title`, `skip`, an array of `identifiers` and `consoleColor`.  
+A **channel** is made up of a `title`, `skip`, `isChannel` and optionally `daysToKeepVideos`.  
 `title` is the nice name used for the channel.  
 `skip` can be set to true to skip downloading videos matched on the given channel.  
-`identifiers` specify the conditions for a video to be added to a channel.  
-`daysToKeepVideos` is the optional number of days to keep videos for this channe. 2 would mean only videos released within the last two days are downloaded and any older will be automatically deleted if previously downloaded.
+`isChannel` function that returns true or false if the video should be sorted into this channel (more on this further down).  
+`daysToKeepVideos` is the optional number of days to keep videos for this channel. **2** would mean only videos released within the **last two days** are downloaded and any older will be **automatically deleted** if previously downloaded.
 
 <br>
 
-An Identifier contains two entries `check` and `type`.  
-The `check` is the string to look for.  
-The `type` is where in the video returned from the floatplane api to search for the check string.
-This can be `description`, `title` etc any property that exists on the video. See [FloatplaneApiDocs/getBlogPost](https://jman012.github.io/FloatplaneAPIDocs/Redoc/redoc-static.html#operation/getBlogPost) for more info...  
-The identifiers `releasedAfter` and `releasedBefore` can also be used to match videos that were released before or after a specified date. You can also use `runtimeLessThan` and `runtimeGreaterThan` to only match videos whos runtime is greated or lower than the specified value in seconds. This can be used with a generic skip channel to skip videos with a runtime greater or less than the desired amount.  
+**isChannel** is a function that accepts a **[post](https://jman012.github.io/FloatplaneAPIDocs/Redoc/redoc-static.html#tag/ContentV3/operation/getBlogPost)** which is the post the video belongs to and **[video](https://jman012.github.io/FloatplaneAPIDocs/Redoc/redoc-static.html#tag/ContentV3/operation/getVideoContent)** which is one or more videos belonging to that post.
+
+If it returns **true** the video is sorted into the channel, **false** and its not.
+This gives the flexibility to create completely custom channels based on any properties of a post or video.
 <br>
 
 For example:
 
 ```json
-"Floatplane Exclusive": {
-    "title": "Floatplane Exclusive",
-    "skip": false,
-    "identifiers": [
-        {
-            "check": "FP Exclusive: ",
-            "type": "title"
-        }
-    ],
-    "daysToKeepVideos": 5
+{
+	"title": "Creators with Technoligy in their Description",
+	"skip": false,
+	"isChannel": "(post, video) => post.creator?.description?.toLowercase()?.includes('technology')",
+	"daysToKeepVideos": 5
 }
 ```
 
 <br>
 
-This is a channel named "Floatplane Exclusive".  
-Videos that have "FP Exclusive: " in their title will be sorted into this channel.  
-Videos released more than 5 days ago will be automatically deleted.  
+## Metrics:
+
+**metrics.prometheusExporterPort**:  
+Default is `null` if set to a number prometheus metrics will be made availible at that port.
+
+```json
+"metrics": {
+    "prometheusExporterPort": 8080,
+}
+```
+
 <br>
 
-A few more notes regarding channels:
+**metrics.contributeMetrics**:  
+If true metrics will be included in the aggregate dashboard.
 
-- First come first served, the first channel a video matches to is what it goes into, channels are checked top to bottom in the config. Videos cannot be sorted into multiple channels.
-- You can have multiple identifiers per channel to allow for more accurate matching.
-- The `check` string is removed from the video's title if the `type`is equal to "title".
+```json
+"metrics": {
+    "contributeMetrics": true
+}
+```

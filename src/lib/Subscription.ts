@@ -1,16 +1,17 @@
-import { fApi } from "./helpers.js";
+import { fApi } from "./helpers/index.js";
 
 import chalk from "chalk";
 import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
-import type { ContentPost } from "floatplane/content";
+import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
-import { Video } from "./Video.js";
+import { VideoBase } from "./VideoBase.js";
 
-import { settings } from "./helpers.js";
+import { settings } from "./helpers/index.js";
 import { ItemCache } from "./Caches.js";
+import { Video } from "./Video.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
 	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;
@@ -26,10 +27,11 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 };
 
 type BlogPosts = typeof fApi.creator.blogPostsIterable;
+type isChannel = (post: BlogPost, video?: VideoContent) => boolean;
 export default class Subscription {
-	public channels: SubscriptionSettings["channels"];
-
 	public readonly creatorId: string;
+	public readonly channels: SubscriptionSettings["channels"];
+	public readonly plan: string;
 
 	private static AttachmentsCache = new ItemCache("./db/attachmentCache.json", fApi.content.video, 24 * 60);
 
@@ -49,6 +51,7 @@ export default class Subscription {
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
 		this.channels = subscription.channels;
+		this.plan = subscription.plan;
 	}
 
 	public deleteOldVideos = async () => {
@@ -61,7 +64,7 @@ export default class Subscription {
 				let deletedFiles = 0;
 				let deletedVideos = 0;
 
-				for (const video of Video.GetChannelVideos((video) => video.releaseDate < ignoreBeforeTimestamp && video.channelTitle === channel.title)) {
+				for (const video of VideoBase.find((video) => video.releaseDate < ignoreBeforeTimestamp && video.videoTitle === channel.title)) {
 					deletedVideos++;
 					const deletionResults = await Promise.allSettled([
 						rm(`${video.filePath}.mp4`),
@@ -80,85 +83,67 @@ export default class Subscription {
 	};
 
 	private static getIgnoreBeforeTimestamp = (channel: ChannelOptions) => Date.now() - (channel.daysToKeepVideos ?? 0) * 24 * 60 * 60 * 1000;
+	private static isChannelCache: Record<string, isChannel> = {};
+	private static isChannelHelper = `const isChannel = (post, channelId) => (typeof post.channel !== 'string' ? post.channel.id : post.channel) === channelId`;
 
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
-		for (const attachment of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
+		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
+			let videoTitle = post.title;
+			let video: VideoContent | undefined = undefined;
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				const { title: attachmentTitle } = await Subscription.AttachmentsCache.get(attachment);
-				post.title = removeRepeatedSentences(post.title, attachmentTitle);
+				video = await Subscription.AttachmentsCache.get(attachmentId);
+				videoTitle = removeRepeatedSentences(videoTitle, video.title);
 			}
 
-			channelLoop: for (const channel of this.channels) {
-				if (!channel.identifiers) continue;
-				for (const identifier of channel.identifiers) {
-					if (typeof identifier.type !== "string")
-						throw new Error(
-							`Value for channel identifier type ${post[identifier.type]} on channel ${channel.title} is of type ${typeof post[identifier.type]} not string!`,
-						);
+			for (const channel of this.channels) {
+				if (channel.isChannel === undefined) continue;
+				const isChannel =
+					Subscription.isChannelCache[channel.isChannel] ??
+					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
 
-					let nextChannel = false;
-					switch (identifier.type) {
-						case "channelId":
-							nextChannel = (typeof post.channel !== "string" ? post.channel.id : post.channel) !== identifier.check;
-							break;
-						case "runtimeLessThan":
-							nextChannel = post.metadata.videoDuration >= +identifier.check;
-							break;
-						case "runtimeGreaterThan":
-							nextChannel = post.metadata.videoDuration <= +identifier.check;
-							break;
-						case "releasedBefore":
-							nextChannel = post.releaseDate >= identifier.check;
-							break;
-						case "releasedAfter":
-							nextChannel = post.releaseDate <= identifier.check;
-							break;
-						case "description":
-							nextChannel = post.text?.toString().toLowerCase().includes(identifier.check.toLowerCase());
-							break;
-						default:
-							nextChannel = !post[identifier.type]?.toString().toLowerCase().includes(identifier.check.toLowerCase()) || false;
+				if (!isChannel(blogPost, video)) continue;
+				if (channel.skip) break;
+				if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
+
+				// Remove the identifier from the video title if to give a nicer title
+				if (settings.extras.stripSubchannelPrefix === true) {
+					const replacers = [
+						new RegExp(channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
+						/MA: /i,
+						/FP Exclusive: /i,
+						/talklinked/i,
+						/TL: /i,
+						/TL Short: /i,
+						/TQ: /i,
+						/TJM: /i,
+						/SC: /i,
+						/CSF: /i,
+						/Livestream VOD – /i,
+						/ : /i,
+					];
+					for (const regIdCheck of replacers) {
+						videoTitle = videoTitle.replace(regIdCheck, "");
 					}
 
-					if (nextChannel) continue;
-					if (channel.skip) return;
+					videoTitle = videoTitle.replaceAll("  ", " ");
+					if (videoTitle.startsWith(": ")) videoTitle = videoTitle.replace(": ", "");
 
-					if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
-
-					// Remove the identifier from the video title if to give a nicer title
-					if (settings.extras.stripSubchannelPrefix === true && (identifier.type === "title" || identifier.type === "channelId")) {
-						const replacers = [
-							new RegExp(identifier.check.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
-							new RegExp(channel.title.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"), "i"),
-							/MA: /i,
-							/FP Exclusive: /i,
-							/talklinked/i,
-							/TL: /i,
-							/TL Short: /i,
-							/TQ: /i,
-							/TJM: /i,
-							/SC: /i,
-							/CSF: /i,
-							/Livestream VOD – /i,
-							/ : /i,
-						];
-						for (const regIdCheck of replacers) {
-							post.title = post.title.replace(regIdCheck, "");
-						}
-
-						post.title = post.title.replaceAll("  ", " ");
-						if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
-
-						post.title = post.title.trim();
-					}
-					yield new Video(post, attachment, channel.title, dateOffset * 1000);
-					break channelLoop;
+					videoTitle = videoTitle.trim();
 				}
+				yield Video.getOrCreate({
+					attachmentId,
+					description: post.text,
+					artworkUrl: post.thumbnail?.path,
+					channelTitle: channel.title,
+					videoTitle,
+					releaseDate: new Date(new Date(blogPost.releaseDate).getTime() + dateOffset * 1000),
+				});
+				break;
 			}
 		}
 	}
@@ -166,9 +151,10 @@ export default class Subscription {
 	public async *fetchNewVideos(): AsyncGenerator<Video> {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
+		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
 		for await (const blogPost of Subscription.PostIterable(this.creatorId, { hasVideo: true })) {
 			for await (const video of this.matchChannel(blogPost)) {
-				if ((await video.getState()) !== Video.State.Muxed) yield video;
+				yield video;
 			}
 
 			// Stop searching if we have looked through videosToSearch
@@ -176,29 +162,25 @@ export default class Subscription {
 		}
 	}
 
-	public async *seekAndDestroy(contentPosts: ContentPost[]): AsyncGenerator<Video> {
-		const thisSubsPosts = contentPosts.filter((post) => post.creator.id === this.creatorId);
-		if (thisSubsPosts.length === 0) return;
-		for (const contentPost of thisSubsPosts) {
-			// Convert as best able to a BlogPost
-			const blogPost: BlogPost = <BlogPost>(<unknown>{
-				...contentPost,
-				videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
-				audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
-				pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
-				creator: {
-					...contentPost.creator,
-					owner: {
-						id: contentPost.creator.owner,
-						username: "",
-					},
-					category: {
-						title: contentPost.creator.category,
-					},
-					card: null,
+	public async *seekAndDestroy(contentPost: ContentPost): AsyncGenerator<Video> {
+		// Convert as best able to a BlogPost
+		const blogPost: BlogPost = <BlogPost>(<unknown>{
+			...contentPost,
+			videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
+			audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
+			pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
+			creator: {
+				...contentPost.creator,
+				owner: {
+					id: contentPost.creator.owner,
+					username: "",
 				},
-			});
-			for await (const video of this.matchChannel(blogPost)) yield video;
-		}
+				category: {
+					title: contentPost.creator.category,
+				},
+				card: null,
+			},
+		});
+		for await (const video of this.matchChannel(blogPost)) yield video;
 	}
 }

@@ -1,18 +1,23 @@
 import { loopError } from "@inrixia/helpers/object";
 import { floatplane, plex } from "./lib/prompts/index.js";
-import { fApi, args } from "./lib/helpers.js";
+import { fApi, args } from "./lib/helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
 
-export const loginFloatplane = async (): Promise<void> => {
+import type { LoginSuccess } from "floatplane/auth";
+export type User = LoginSuccess["user"];
+
+export const loginFloatplane = async (): Promise<User> => {
 	let loginResponse;
-	if (args.headless === true) {
-		if (args.username === undefined || args.password === undefined)
+	const { headless, username, password, token } = args;
+	if (headless === true) {
+		if (username === undefined || password === undefined) {
 			throw new Error('Need floatplane username/password to login. Please pass them as --username="" --password="" or enviroment variables!');
-		loginResponse = await fApi.auth.login(args.username, args.password);
+		}
+		loginResponse = await fApi.auth.login(username, password);
 
 		if (loginResponse.needs2FA) {
-			if (args.token === undefined) throw new Error('Need floatplane 2Factor token to login. Please pass it as --token="" or an enviroment variable!');
-			loginResponse = await fApi.auth.factor(args.token);
+			if (token === undefined) throw new Error('Need floatplane 2Factor token to login. Please pass it as --token="" or an enviroment variable!');
+			loginResponse = await fApi.auth.factor(token);
 		}
 	} else {
 		loginResponse = await loopError(
@@ -29,6 +34,7 @@ export const loginFloatplane = async (): Promise<void> => {
 		}
 	}
 	if (loginResponse.user !== undefined) console.log(`\nSigned in as \u001b[36m${loginResponse.user.username}\u001b[0m!\n`);
+	return loginResponse.user;
 };
 
 export const loginPlex = async (): Promise<string> => {

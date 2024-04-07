@@ -1,8 +1,11 @@
 import { defaultSubChannels } from "./lib/defaults.js";
 import Subscription from "./lib/Subscription.js";
-import { settings, fApi } from "./lib/helpers.js";
+import { settings, fApi } from "./lib/helpers/index.js";
+
+import chalk from "chalk";
 
 export async function* fetchSubscriptions() {
+	console.log("Fetching user subscriptions...");
 	for (const userSubscription of await fApi.user.subscriptions()) {
 		// Add the subscription to settings if it doesnt exist
 		settings.subscriptions[userSubscription.creator] ??= {
@@ -21,14 +24,25 @@ export async function* fetchSubscriptions() {
 			if (channelsToAdd.length > 0) settingSubscription.channels = [...settingSubscription.channels, ...channelsToAdd];
 		}
 
+		console.log(chalk`Fetching {yellow ${userSubscription.plan.title}'s} channels...`);
 		const subChannels = await fApi.creator.channels([userSubscription.creator]);
 		for (const channel of subChannels) {
-			if (settingSubscription.channels.findIndex((chan) => chan.title === channel.title) === -1)
-				settingSubscription.channels.push({
-					title: channel.title,
-					skip: false,
-					identifiers: [{ type: "channelId", check: channel.id }],
-				});
+			const subChannel = settingSubscription.channels.find((chan) => chan.title === channel.title);
+			const channelDefaults = {
+				title: channel.title,
+				skip: false,
+				isChannel:
+					channel.id === "6413623f5b12cca228a28e78"
+						? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+						: `(post) => isChannel(post, '${channel.id}')`,
+			};
+			if (subChannel === undefined) {
+				settingSubscription.channels.push(channelDefaults);
+			} else if (subChannel.isChannel === undefined) {
+				// @ts-expect-error Identifiers have been replaced by isChannel
+				delete subChannel.identifiers;
+				subChannel.isChannel = channelDefaults.isChannel;
+			}
 		}
 
 		if (settingSubscription.skip === true) continue;
