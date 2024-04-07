@@ -27,7 +27,7 @@ jobs:
       repo_token: "${{ secrets.GITHUB_TOKEN }}"
       automatic_release_tag: "dev"
       prerelease: true
-      title: "Latest dev build"
+      title: "Latest"
       files: |
        build/*
 
