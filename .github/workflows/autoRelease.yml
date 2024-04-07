@@ -1,39 +1,39 @@
 ---
-name: 'Release'
+name: "Release"
 
 on:
  push:
   branches:
-   - 'master'
+   - "master"
 
 jobs:
  GitHub:
-  name: 'Release - GitHub'
-  runs-on: 'ubuntu-latest'
+  name: "Release - GitHub"
+  runs-on: "ubuntu-latest"
 
   steps:
-   - uses: actions/checkout@v2
-   - name: 'Install dependencies'
+   - uses: actions/checkout@v4
+   - name: "Install dependencies"
      run: |
       npm install
 
-   - name: 'Build'
+   - name: "Build"
      run: |
       npm run build
 
    - name: Draft release on GitHub
-     uses: 'marvinpinto/action-automatic-releases@latest'
+     uses: "marvinpinto/action-automatic-releases@latest"
      with:
-      repo_token: '${{ secrets.GITHUB_TOKEN }}'
-      automatic_release_tag: 'latest'
+      repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      automatic_release_tag: "latest"
       draft: true
-      title: 'Latest Release'
+      title: "Latest Release"
       files: |
        build/*
 
  DockerHub:
-  name: 'Release - DockerHub'
-  runs-on: 'ubuntu-latest'
+  name: "Release - DockerHub"
+  runs-on: "ubuntu-latest"
 
   steps:
    - name: Set up QEMU
