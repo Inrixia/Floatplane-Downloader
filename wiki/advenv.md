@@ -16,7 +16,7 @@ To do this you must take the key for the setting in the `settings.json` and writ
     	-e floatplane_videoResolution="1080" \
     	-e plex_token="ThisRemovesTheNeedForPassingUsername/Password" \
     	--restart unless-stopped \
-    	inrix/floatplane-downloader
+    	inrix/floatplane-downloader:dev
 ```
 
 or in a .env file:

@@ -2,9 +2,8 @@
 
 ### Tags:
 
-- `:latest`
-  - Latest release version of the downloader
-- `:dev` - Image in sync with `dev` branch on github, bleeding edge changes that **will likely break everything**.
+- `:dev` - Image in sync with `dev` branch on github, **stable with latest features & fixes**
+- `:latest` - Latest release version of the downloader, usually stale
   <br>
 
 ## Quickstart:
@@ -12,13 +11,14 @@
 There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
 
 Docker CLI:
+
 ```dockerfile
     $ docker run -it \
     	-v [path]:/fp/db \
     	-v [path]:/fp/videos \
     	-e runQuickstartPrompts=true \
     	--restart unless-stopped \
-        inrix/floatplane-downloader
+        inrix/floatplane-downloader:dev
 ```
 
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
@@ -32,7 +32,7 @@ Docker CLI:
     	-v [path]:/fp/videos \
     	-e headless="true" \
         --restart unless-stopped \
-        inrix/floatplane-downloader
+        inrix/floatplane-downloader:dev
 ```
 
 <br>
@@ -41,9 +41,12 @@ Docker CLI:
 
 Setting environment variables allows you to pass in your login details, removing the need to use the quickstart prompts to login/setup the downloader.
 
+**Important!!** Once you have signed in once you do not need ot leave your credentials in your config! I reccomend removing them.
+
 **For login:**
 
 Docker CLI:
+
 ```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
@@ -53,15 +56,15 @@ Docker CLI:
     	-e password="YourPasswordHere" \
     	-e token="Your2FactorCodeHere" \
     	--restart unless-stopped \
-    	inrix/floatplane-downloader
+    	inrix/floatplane-downloader:dev
 ```
 
 Docker-Compose:
+
 ```yaml
-version: "3.8"
 services:
   floatplane-downloader:
-    image: inrix/floatplane-downloader
+    image: inrix/floatplane-downloader:dev
     container_name: floatplane-downloader
     environment:
       - headless=true
@@ -77,6 +80,7 @@ services:
 **For login + plex:**
 
 Docker CLI:
+
 ```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
@@ -87,15 +91,15 @@ Docker CLI:
     	-e plexUsername="YourPlexUsernameHere" \
     	-e plexPassword="YourPlexPasswordHere2FactorCodeHereIfYouHaveOne" \
     	--restart unless-stopped \
-    	inrix/floatplane-downloader
+    	inrix/floatplane-downloader:dev
 ```
 
 Docker-Compose:
+
 ```yaml
-version: "3.8"
 services:
   floatplane-downloader:
-    image: inrix/floatplane-downloader
+    image: inrix/floatplane-downloader:dev
     container_name: floatplane-downloader
     environment:
       - headless=true
