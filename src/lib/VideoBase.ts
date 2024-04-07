@@ -140,7 +140,7 @@ export class VideoBase extends Attachment {
 		} = await fApi.cdn.delivery("download", this.attachmentId);
 
 		// Release the semaphore after DeliveryTimeout
-		setTimeout(VideoBase.DeliverySemaphore.release, VideoBase.DeliveryTimeout);
+		setTimeout(() => VideoBase.DeliverySemaphore.release(), VideoBase.DeliveryTimeout);
 
 		return delivery;
 	}
