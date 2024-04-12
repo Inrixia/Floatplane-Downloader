@@ -24,7 +24,7 @@ const promQueued = new Gauge({
 const promErrors = new Counter({
 	name: "errors",
 	help: "Video errors",
-	labelNames: ["message"],
+	labelNames: ["message", "attachmentId"],
 });
 const promDownloadedTotal = new Counter({
 	name: "downloaded_total",
@@ -133,7 +133,7 @@ export class Video extends VideoBase {
 				break;
 			} catch (error) {
 				const message = this.parseErrorMessage(error);
-				promErrors.labels({ message: message }).inc();
+				promErrors.labels({ message, attachmentId: this.attachmentId }).inc();
 
 				if (retries < Video.MaxRetries) {
 					logger.error(`${message} - Retrying in ${retries}s [${retries}/${Video.MaxRetries}]`);
