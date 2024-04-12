@@ -68,15 +68,6 @@ export class Video extends VideoBase {
 			try {
 				switch (await this.getState()) {
 					case VideoBase.State.Missing: {
-						if (settings.extras.saveNfo) {
-							logger.log("Saving .nfo");
-							await this.saveNfo();
-						}
-						if (settings.extras.downloadArtwork) {
-							logger.log("Saving artwork");
-							await this.downloadArtwork();
-						}
-
 						logger.log("Waiting on delivery cdn...");
 						const downloadRequest = await this.getVideoStream(settings.floatplane.videoResolution);
 
@@ -108,8 +99,17 @@ export class Video extends VideoBase {
 						}).finally(() => {
 							clearInterval(downloadInterval);
 							onDownloadProgress(downloadRequest.downloadProgress);
-							logger.log("Download complete!");
 						});
+
+						logger.log("Download complete!");
+						if (settings.extras.saveNfo) {
+							logger.log("Saving .nfo");
+							await this.saveNfo();
+						}
+						if (settings.extras.downloadArtwork) {
+							logger.log("Saving artwork");
+							await this.downloadArtwork();
+						}
 					}
 					// eslint-disable-next-line no-fallthrough
 					case VideoBase.State.Partial: {
