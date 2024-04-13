@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.4.1"
+      "version": "10.4.2"
     },
     {
       "type": "datasource",
@@ -107,7 +107,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -176,7 +176,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -246,7 +246,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -301,6 +301,7 @@
         "y": 0
       },
       "id": 19,
+      "interval": "1s",
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -317,7 +318,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -331,6 +332,7 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
+          "interval": "1s",
           "legendFormat": "__auto",
           "range": false,
           "refId": "A",
@@ -402,6 +404,7 @@
         "y": 0
       },
       "id": 7,
+      "interval": "1s",
       "options": {
         "legend": {
           "calcs": [],
@@ -429,7 +432,7 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "interval": "",
+          "interval": "1s",
           "legendFormat": "v{{version}}",
           "range": true,
           "refId": "A",
@@ -488,7 +491,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -498,7 +501,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum(rate(downloaded_bytes_total[10s])) * 8",
+          "expr": "sum(irate(downloaded_bytes_total[10s])) * 8",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
@@ -549,7 +552,7 @@
             "spanNulls": 30000,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -580,7 +583,22 @@
                 "value": {
                   "legend": false,
                   "tooltip": false,
-                  "viz": true
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f2495c80",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -600,17 +618,17 @@
           "calcs": [
             "mean",
             "max",
-            "lastNotNull"
+            "last"
           ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "sortBy": "Max",
+          "sortBy": "Last",
           "sortDesc": true
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "targets": [
@@ -621,12 +639,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(downloaded_bytes_total[10s]) * 8 > 0",
+          "expr": "irate(downloaded_bytes_total[10s]) * 8 > 0",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
           "interval": "1s",
-          "legendFormat": "{{instance}}",
+          "legendFormat": "{{instanceHash}} ",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -638,7 +656,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(downloaded_bytes_total[10s]) * 8)",
+          "expr": "sum(irate(downloaded_bytes_total[10s])) * 8",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -689,13 +707,14 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
             }
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -741,12 +760,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(process_cpu_user_seconds_total{job=\"fpd\"}[10s])",
+          "expr": "irate(process_cpu_user_seconds_total{job=\"fpd\"}[10s])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
           "interval": "1s",
-          "legendFormat": "{{instance}} ",
+          "legendFormat": "{{instanceHash}} ",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -818,7 +837,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 24,
+        "w": 16,
         "x": 0,
         "y": 20
       },
@@ -854,7 +873,7 @@
           "includeNullMetadata": true,
           "instant": false,
           "interval": "1s",
-          "legendFormat": "{{instance}}",
+          "legendFormat": "{{instanceHash}} ",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -862,6 +881,82 @@
       ],
       "title": "Memory",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 20
+      },
+      "id": 20,
+      "interval": "1s",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum(avg_over_time(process_resident_memory_bytes{job=\"fpd\"}[1m]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "1s",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Memory",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -947,7 +1042,7 @@
           "sortDesc": true
         },
         "tooltip": {
-          "mode": "none",
+          "mode": "single",
           "sort": "none"
         }
       },
@@ -958,9 +1053,9 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "(avg by(pathname, status) (increase(request_duration_ms_sum[10m])) > 0) / (avg by(pathname, status) (increase(request_duration_ms_count[10m])) > 0)",
+          "expr": "avg by(hostname, pathname, status, le) (histogram_quantile(0.5, rate(request_duration_ms_bucket{hostname!=\"pbs.floatplane.com\"}[5m])) > 0)",
           "format": "time_series",
           "fullMetaSearch": false,
           "hide": false,
@@ -1002,7 +1097,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
             },
@@ -1022,6 +1117,7 @@
             }
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1046,6 +1142,7 @@
         "y": 25
       },
       "id": 12,
+      "interval": "1s",
       "options": {
         "legend": {
           "calcs": [
@@ -1060,7 +1157,7 @@
           "sortDesc": true
         },
         "tooltip": {
-          "mode": "none",
+          "mode": "single",
           "sort": "none"
         }
       },
@@ -1073,13 +1170,13 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(pathname, status) (rate(request_duration_ms_count[10m])) * 60 > 0",
+          "expr": "sum by(pathname, status) (rate(request_duration_ms_count[1m])) * 60 > 0",
           "format": "time_series",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": false,
           "instant": false,
-          "interval": "30s",
+          "interval": "1s",
           "legendFormat": "{{pathname}} ({{status}})",
           "range": true,
           "refId": "A",
@@ -1115,7 +1212,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -1146,7 +1243,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "err/m"
         },
         "overrides": []
       },
@@ -1157,6 +1254,7 @@
         "y": 36
       },
       "id": 11,
+      "interval": "1s",
       "options": {
         "legend": {
           "calcs": [],
@@ -1176,14 +1274,14 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "code",
-          "expr": "sum by(message) (increase(errors[$__rate_interval])) > 0",
+          "editorMode": "builder",
+          "expr": "sum by(message) (rate(errors[1m])) > 0",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "interval": "3m",
-          "legendFormat": "__auto",
+          "interval": "1s",
+          "legendFormat": "{{message}} {{attachmentId}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1268,7 +1366,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "desc"
         }
       },
@@ -1287,7 +1385,7 @@
           "includeNullMetadata": true,
           "interval": "5s",
           "intervalFactor": 1,
-          "legendFormat": "{{instance}}",
+          "legendFormat": "{{instanceHash}} ",
           "metric": "",
           "range": true,
           "refId": "A",
@@ -1326,6 +1424,6 @@
   "timezone": "browser",
   "title": "Floatplane Downloader",
   "uid": "edhe5hq3k20owc",
-  "version": 148,
+  "version": 193,
   "weekStart": ""
 }
