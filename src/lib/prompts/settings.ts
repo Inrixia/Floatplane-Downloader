@@ -1,6 +1,6 @@
 import prompts from "prompts";
 import type { Extras, Resolution } from "../types.js";
-import { VideoBase } from "../VideoBase.js";
+import { Video } from "../Video.js";
 
 /**
  * Prompts user for the video resolution they want to download in.
@@ -25,7 +25,7 @@ export const videoResolution = async (initial: Resolution, resolutions: Array<Re
  * @param {Array<string>} options File formatting options available
  * @returns {Promise<string>} File formatting to use
  */
-export const fileFormatting = async (initial: string, options: typeof VideoBase.FilePathOptions): Promise<string> =>
+export const fileFormatting = async (initial: string, options: typeof Video.FilePathOptions): Promise<string> =>
 	(
 		await prompts({
 			type: "text",

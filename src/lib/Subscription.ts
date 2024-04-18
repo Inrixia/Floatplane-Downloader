@@ -7,8 +7,6 @@ import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
-import { VideoBase } from "./VideoBase.js";
-
 import { settings } from "./helpers/index.js";
 import { ItemCache } from "./Caches.js";
 import { Video } from "./Video.js";
@@ -64,7 +62,7 @@ export default class Subscription {
 				let deletedFiles = 0;
 				let deletedVideos = 0;
 
-				for (const video of VideoBase.find((video) => video.releaseDate < ignoreBeforeTimestamp && video.videoTitle === channel.title)) {
+				for (const video of Video.find((video) => video.releaseDate < ignoreBeforeTimestamp && video.videoTitle === channel.title)) {
 					deletedVideos++;
 					const deletionResults = await Promise.allSettled([
 						rm(`${video.filePath}.mp4`),
