@@ -339,7 +339,7 @@ export class Video extends Attachment {
 			description: description,
 			synopsis: description,
 		};
-		const metadataFilePath = `${this.muxedPath}.metadata.txt`;
+		const metadataFilePath = `${this.muxedPath}.ffmeta`;
 		const metadataContent = Object.entries(metadata)
 			.map(([key, value]) => `${key}=${value.replaceAll(/\n/g, "\\\n")}`)
 			.join("\n");

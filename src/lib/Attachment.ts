@@ -53,10 +53,7 @@ export class Attachment implements AttachmentAttributes {
 		this.releaseDate = releaseDate;
 		this.videoTitle = videoTitle;
 
-		this.filePath = this.formatFilePath(settings.filePathFormatting)
-			.split("/")
-			.map((pathPart) => (pathPart.startsWith(".") ? pathPart : sanitize(pathPart)))
-			.join("/");
+		this.filePath = this.formatFilePath(settings.filePathFormatting);
 
 		// Ensure filePath is not exceeding maximum length
 		if (this.filePath.length > 250) this.filePath = this.filePath.substring(0, 250);
@@ -94,14 +91,14 @@ export class Attachment implements AttachmentAttributes {
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;
 	protected formatFilePath(string: string): string {
 		const formatLookup: Record<ValueOfA<typeof Attachment.FilePathOptions>, string> = {
-			"%channelTitle%": this.channelTitle,
+			"%channelTitle%": sanitize(this.channelTitle),
 			"%year%": this.releaseDate.getFullYear().toString(),
 			"%month%": nPad(this.releaseDate.getMonth() + 1),
 			"%day%": nPad(this.releaseDate.getDate()),
 			"%hour%": nPad(this.releaseDate.getHours()),
 			"%minute%": nPad(this.releaseDate.getMinutes()),
 			"%second%": nPad(this.releaseDate.getSeconds()),
-			"%videoTitle%": this.videoTitle.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " "),
+			"%videoTitle%": sanitize(this.videoTitle.replace(/ - /g, " ").replace(/\//g, " ").replace(/\\/g, " ")),
 		};
 
 		for (const [match, value] of Object.entries(formatLookup)) {
