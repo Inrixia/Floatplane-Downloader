@@ -92,14 +92,13 @@ export default class Subscription {
 		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
-			let videoTitle = post.title;
 			let video: VideoContent | undefined = undefined;
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
 				video = await Subscription.AttachmentsCache.get(attachmentId);
 				// Skip videos with no levels
 				if (video.levels.length === 0) continue;
-				videoTitle = removeRepeatedSentences(videoTitle, video.title);
+				post.title = removeRepeatedSentences(post.title, video.title);
 			}
 
 			for (const channel of this.channels) {
@@ -108,7 +107,7 @@ export default class Subscription {
 					Subscription.isChannelCache[channel.isChannel] ??
 					(Subscription.isChannelCache[channel.isChannel] = new Function(`${Subscription.isChannelHelper};return ${channel.isChannel};`)() as isChannel);
 
-				if (!isChannel(blogPost, video)) continue;
+				if (!isChannel(post, video)) continue;
 				if (channel.skip) break;
 				if (channel.daysToKeepVideos !== undefined && new Date(post.releaseDate).getTime() < Subscription.getIgnoreBeforeTimestamp(channel)) return;
 
@@ -129,21 +128,21 @@ export default class Subscription {
 						/ : /i,
 					];
 					for (const regIdCheck of replacers) {
-						videoTitle = videoTitle.replace(regIdCheck, "");
+						post.title = post.title.replace(regIdCheck, "");
 					}
 
-					videoTitle = videoTitle.replaceAll("  ", " ");
-					if (videoTitle.startsWith(": ")) videoTitle = videoTitle.replace(": ", "");
+					post.title = post.title.replaceAll("  ", " ");
+					if (post.title.startsWith(": ")) post.title = post.title.replace(": ", "");
 
-					videoTitle = videoTitle.trim();
+					post.title = post.title.trim();
 				}
 				yield Video.getOrCreate({
 					attachmentId,
 					description: post.text,
 					artworkUrl: post.thumbnail?.path,
 					channelTitle: channel.title,
-					videoTitle,
-					releaseDate: new Date(new Date(blogPost.releaseDate).getTime() + dateOffset * 1000),
+					videoTitle: post.title,
+					releaseDate: new Date(new Date(post.releaseDate).getTime() + dateOffset * 1000),
 				});
 				break;
 			}
