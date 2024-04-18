@@ -42,16 +42,15 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		this.updateSummaryBar();
 	}
 	public error(message: string) {
+		ProgressBars.Errors++;
 		this.log(chalk`{red ERR}: ${message}`);
 		this.reset();
-		ProgressBars.Errors++;
 	}
 	public done(message: string) {
+		ProgressBars.Done += 1;
 		ProgressBars._Bars.done(this.title, { message });
 		this.reset();
-		ProgressBars.Done += 1;
-		this.updateSummaryBar();
-		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 10000 + Math.floor(Math.random() * 6000));
+		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 5000);
 	}
 
 	public onDownloadProgress(progress: Progress, bytesSinceLast: number): void {
