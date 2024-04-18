@@ -130,6 +130,10 @@ export default class Subscription {
 						videoTitle = videoTitle.replace(regIdCheck, "");
 					}
 
+					if (settings.extras.removeVideoDescription === true) {
+						post.text = "";
+					}
+
 					videoTitle = videoTitle.replaceAll("  ", " ");
 					if (videoTitle.startsWith(": ")) videoTitle = videoTitle.replace(": ", "");
 

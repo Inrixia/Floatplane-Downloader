@@ -57,6 +57,7 @@ export const defaultSettings: Settings = {
 		downloadArtwork: true,
 		saveNfo: true,
 		considerAllNonPartialDownloaded: false,
+		removeVideoDescription: false,
 	},
 	artworkSuffix: "",
 	postProcessingCommand: "",

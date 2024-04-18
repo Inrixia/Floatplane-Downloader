@@ -42,6 +42,7 @@ export type Extras = {
 	downloadArtwork: boolean;
 	saveNfo: boolean;
 	considerAllNonPartialDownloaded: boolean;
+	removeVideoDescription: boolean;
 };
 
 export type Resolution = ValueOfA<Resolutions>;

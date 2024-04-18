@@ -134,7 +134,16 @@ vs
 
 <br>
 
-**extras.downloadArtwork**:  
+**extras.removeVideoDescription**:
+Removes the Video Description from the video metadata when the Video is downloaded.
+
+```json
+"extras": {
+    "removeVideoDescription": false
+}
+```
+
+**extras.downloadArtwork**:
 Saves video thubnails alongside each video. These are required for nice thumbnails in Plex.
 
 ```json
