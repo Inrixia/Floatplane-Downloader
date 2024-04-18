@@ -37,12 +37,12 @@ export type Args = {
 
 export type PartialArgs = Partial<Args & Settings>;
 
-export type Extras = {
+export interface Extras extends Record<string, boolean> {
 	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
 	saveNfo: boolean;
 	considerAllNonPartialDownloaded: boolean;
-};
+}
 
 export type Resolution = ValueOfA<Resolutions>;
 

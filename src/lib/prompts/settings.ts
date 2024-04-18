@@ -46,7 +46,7 @@ export const extras = async (initial: Extras): Promise<Array<string> | undefined
 			type: "multiselect",
 			name: "extras",
 			message: "Enable/Disable Extra Options:",
-			choices: (Object.keys(initial) as [keyof Extras]).map((option) => ({ title: option, value: option, selected: initial[option] })),
+			choices: Object.keys(initial).map((option) => ({ title: option, value: option, selected: initial[option] })),
 			hint: "- Space to select. Return to submit",
 		})
 	).extras;
