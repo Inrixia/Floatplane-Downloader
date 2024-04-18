@@ -97,6 +97,8 @@ export default class Subscription {
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
 				video = await Subscription.AttachmentsCache.get(attachmentId);
+				// Skip videos with no levels
+				if (video.levels.length === 0) continue;
 				videoTitle = removeRepeatedSentences(videoTitle, video.title);
 			}
 

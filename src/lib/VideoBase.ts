@@ -135,14 +135,12 @@ export class VideoBase extends Attachment {
 		await VideoBase.DeliverySemaphore.obtain();
 
 		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
-		const {
-			groups: [delivery],
-		} = await fApi.cdn.delivery("download", this.attachmentId);
+		const deliveryInfo = await fApi.cdn.delivery("download", this.attachmentId);
 
 		// Release the semaphore after DeliveryTimeout
 		setTimeout(() => VideoBase.DeliverySemaphore.release(), VideoBase.DeliveryTimeout);
 
-		return delivery;
+		return deliveryInfo?.groups?.[0];
 	}
 
 	protected async getVideoStream(quality: string): Promise<ReturnType<typeof fApi.got.stream>> {
