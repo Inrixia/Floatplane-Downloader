@@ -8,7 +8,6 @@ import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
 import { settings } from "./helpers/index.js";
-import { ItemCache } from "./Caches.js";
 import { Video } from "./Video.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
@@ -24,25 +23,11 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 	return `${postTitle.trim()} - ${uniqueAttachmentTitleSentences.join("").trim()}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
 
-type BlogPosts = typeof fApi.creator.blogPostsIterable;
 type isChannel = (post: BlogPost, video?: VideoContent) => boolean;
 export default class Subscription {
 	public readonly creatorId: string;
 	public readonly channels: SubscriptionSettings["channels"];
 	public readonly plan: string;
-
-	private static PostCache = new ItemCache("./db/postCache.json", fApi.creator.blogPosts, 60);
-	private static async *PostIterable(creatorGUID: Parameters<BlogPosts>["0"], options: Parameters<BlogPosts>["1"]): ReturnType<BlogPosts> {
-		let fetchAfter = 0;
-		// First request should always not hit cache incase looking for new videos
-		let blogPosts = await Subscription.PostCache.get(creatorGUID, { ...options, fetchAfter }, true);
-		while (blogPosts.length > 0) {
-			yield* blogPosts;
-			fetchAfter += 20;
-			// After that use the cached data
-			blogPosts = await Subscription.PostCache.get(creatorGUID, { ...options, fetchAfter });
-		}
-	}
 
 	constructor(subscription: SubscriptionSettings) {
 		this.creatorId = subscription.creatorId;
@@ -149,7 +134,7 @@ export default class Subscription {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
 		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
-		for await (const blogPost of Subscription.PostIterable(this.creatorId, { hasVideo: true })) {
+		for await (const blogPost of await fApi.creator.blogPosts(this.creatorId)) {
 			for await (const video of this.matchChannel(blogPost)) {
 				yield video;
 			}

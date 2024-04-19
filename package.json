@@ -1,6 +1,6 @@
 {
 	"name": "floatplane-plex-downloader",
-	"version": "5.13.1",
+	"version": "5.13.2",
 	"private": true,
 	"type": "module",
 	"scripts": {
