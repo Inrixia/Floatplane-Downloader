@@ -31,8 +31,6 @@ export default class Subscription {
 	public readonly channels: SubscriptionSettings["channels"];
 	public readonly plan: string;
 
-	private static AttachmentsCache = new ItemCache("./db/attachmentCache.json", fApi.content.video, 24 * 60);
-
 	private static PostCache = new ItemCache("./db/postCache.json", fApi.creator.blogPosts, 60);
 	private static async *PostIterable(creatorGUID: Parameters<BlogPosts>["0"], options: Parameters<BlogPosts>["1"]): ReturnType<BlogPosts> {
 		let fetchAfter = 0;
@@ -93,7 +91,7 @@ export default class Subscription {
 			let video: VideoContent | undefined = undefined;
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				video = await Subscription.AttachmentsCache.get(attachmentId);
+				video = await fApi.content.video(attachmentId);
 				// Skip videos with no levels
 				if (video.levels.length === 0) continue;
 				post.title = removeRepeatedSentences(post.title, video.title);
