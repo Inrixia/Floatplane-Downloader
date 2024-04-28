@@ -5,9 +5,8 @@ This assumes you have a **[Plex](https://www.plex.tv/)** sever.
 ## Create a Library:
 
 Create a plex library (**TV Series**) for Floatplane and set these settings for it:<br>
-**Make sure you set the Agent to Personal Media Shows**
-![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/91ed3e06-c539-4665-bc6c-7be33a09c67b)
-
+**Make sure you follow these instructions exactly.**
+![image](https://github.com/nathanplayzz/Floatplane-Downloader/assets/76055141/c8973af1-1cdc-4ee6-a16b-a3b25965b9d9)
 
 ### Posters:
 
