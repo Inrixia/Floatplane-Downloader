@@ -56,7 +56,7 @@ For more info on setting up plex & available settings check out the Wikis:
 
 ## Images:
 ### **[Grafana Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e) ([Template](https://github.com/Inrixia/Floatplane-Downloader/blob/dev/wiki/grafana.json))**
-[![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/39e5ffcc-f0ae-46a9-af02-850f671eb845)](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)
+![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/825038d9-ecd4-437a-bd54-74476415c430)
 ## Downloader
 ![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
 ## Plex
