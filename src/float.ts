@@ -13,9 +13,8 @@ import { fetchSubscriptions } from "./subscriptionFetching.js";
 import semver from "semver";
 const { gt, diff } = semver;
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore Yes, package.json isnt under src, this is fine
-import pkg from "../package.json" assert { type: "json" };
+import PackageJson from "@npmcli/package-json";
+
 import { Self } from "floatplane/user";
 
 async function* seekAndDestroy(): AsyncGenerator<ContentPost, void, unknown> {
@@ -62,6 +61,9 @@ const downloadNewVideos = async () => {
 process.on("SIGTERM", process.exit);
 
 (async () => {
+	const pkg = (await PackageJson.load(".")).content;
+	console.log(`pkg.version: ${pkg.version}`);
+
 	if (args.sanityCheck && DownloaderVersion !== pkg.version) {
 		throw new Error(`Version mismatch! package.json says ${pkg.version} but float.ts says ${DownloaderVersion}`);
 	}
