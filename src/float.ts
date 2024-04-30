@@ -59,7 +59,7 @@ const downloadNewVideos = async () => {
 };
 
 // Fix for docker
-process.on("SIGTERM", process.exit);
+process.on("SIGTERM", () => process.exit(1));
 
 (async () => {
 	if (args.sanityCheck && DownloaderVersion !== pkg.version) {
@@ -84,7 +84,7 @@ process.on("SIGTERM", process.exit);
 
 	if (args.sanityCheck) {
 		console.log("Sanity check passed!");
-		process.exit();
+		process.exit(0);
 	}
 
 	// Earlybird functions, these are run before script start and not run again if script repeating is enabled.
