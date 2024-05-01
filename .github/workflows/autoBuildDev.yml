@@ -48,7 +48,7 @@ jobs:
 
  DockerHub:
   name: "dev Build - DockerHub"
-  runs-on: "linux"
+  runs-on: "ubuntu-latest"
 
   steps:
    - name: Set up Docker Buildx
