@@ -17,7 +17,7 @@ jobs:
    - name: Setup Node.js
      uses: actions/setup-node@v4
      with:
-      node-version: 21
+      node-version: 21.x
    - name: Install dependencies
      run: npm install
    - name: Build
@@ -25,7 +25,8 @@ jobs:
    - name: Upload Artifact
      uses: actions/upload-artifact@v4
      with:
-      path: ./build/*
+      name: build-${{ matrix.runs-on }}
+      path: ./build/
 
  Release:
   needs: Build
@@ -34,8 +35,7 @@ jobs:
    - name: Download All Artifacts
      uses: actions/download-artifact@v4
      with:
-      path: my-artifact
-      pattern: my-artifact-*
+      path: ./build/
       merge-multiple: true
    - name: Publish dev build on GitHub
      uses: "marvinpinto/action-automatic-releases@latest"
