@@ -19,7 +19,7 @@ jobs:
      with:
       node-version: 21.x
    - name: Install dependencies
-     run: npm install
+     run: npm ci
    - name: Build
      run: npm run build-${{ matrix.runs-on }}
    - name: Upload Artifact
