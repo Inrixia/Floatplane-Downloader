@@ -16,26 +16,27 @@ jobs:
   steps:
    - uses: actions/checkout@v4
    - name: "Install dependencies"
-     run: |
-      npm install
-
+     run: npm install
    - name: "Compile & Sanity Test"
-     run: |
-      npm run testESM
+     run: npm run test-esm
 
  Binary:
-  name: "Build & Sanity Check Linux Binary"
-  runs-on: "ubuntu-latest"
+  strategy:
+   matrix:
+    runs-on: [linux, windows]
+  name: "Build & Sanity Check ${{ matrix.runs-on }} Binary"
+  runs-on: ${{ matrix.runs-on }}
 
   steps:
    - uses: actions/checkout@v2
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+      node-version: latest
    - name: "Install dependencies"
-     run: |
-      npm install
-
+     run: npm install
    - name: "Build & Sanity Test"
-     run: |
-      npm run testBinaryLinux
+     run: npm run test-${{ matrix.runs-on }}
 
  eslint:
   name: eslint

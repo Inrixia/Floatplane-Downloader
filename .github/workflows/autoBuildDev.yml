@@ -7,7 +7,7 @@ on:
    - "dev"
 
 jobs:
- build:
+ Build:
   strategy:
    matrix:
     runs-on: [linux, windows]
@@ -27,8 +27,8 @@ jobs:
      with:
       path: ./build/*
 
- download:
-  needs: upload
+ Release:
+  needs: Build
   runs-on: ubuntu-latest
   steps:
    - name: Download All Artifacts
