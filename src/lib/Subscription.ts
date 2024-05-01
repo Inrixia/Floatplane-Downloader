@@ -134,7 +134,7 @@ export default class Subscription {
 		if (settings.floatplane.videosToSearch === 0) return;
 		let videosSearched = 0;
 		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
-		for await (const blogPost of await fApi.creator.blogPosts(this.creatorId)) {
+		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId)) {
 			for await (const video of this.matchChannel(blogPost)) {
 				yield video;
 			}
