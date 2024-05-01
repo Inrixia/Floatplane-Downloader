@@ -4,20 +4,28 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"start": "tsc && node ./dist/float.js",
-		"startHeadless": "tsc && node ./dist/float.js --headless",
-		"build": "esbuild ./src/float.ts --bundle --external:pg-hstore --external:mock-aws-s3 --external:aws-sdk --external:nock --platform=node --outfile=dist/float.cjs && pkg ./dist/float.cjs --out-path=./build -t latest-linux,latest-mac,latest-win --compress GZip",
+		"tsc": "tsc --incremental",
+		"start": "npm run tsc && node ./dist/float.js",
+		"startHeadless": "npm run tsc && node ./dist/float.js --headless",
+		"bundle": "npm run tsc && esbuild ./src/float.ts --bundle --platform=node --outfile=./dist/float.cjs",
 		"checkLint": "eslint ./src",
 		"lint": "eslint ./src --fix",
 		"sanity": "npm run checkLint && npm run testESM && npm run testBinaryWin",
 		"testESM": "tsc && node ./dist/float.js --sanityCheck",
 		"testBinaryLinux": "npm run build && ./build/float-linux --sanityCheck",
-		"testBinaryWin": "npm run build && cd ./build && float-win.exe --sanityCheck"
+		"testBinaryWin": "npm run build && cd ./build/float-win.exe --sanityCheck",
+		"makeBlob": "node --experimental-sea-config ./sea-config.json",
+		"makeBin": "node make.js",
+		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite",
+		"injectLinux": "npx postject ./build/float-linux NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite",
+		"build-windows": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectWin",
+		"build-linux": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectLinux"
 	},
 	"dependencies": {
-		"@ctrl/plex": "^1.5.3",
+		"@ctrl/plex": "^3.0.0",
 		"@inrixia/db": "2.0.2",
 		"@inrixia/helpers": "^2.0.10",
+		"@npmcli/package-json": "^5.1.0",
 		"default-import": "^1.1.5",
 		"dotenv": "^16.4.5",
 		"ffbinaries": "^1.1.6",
@@ -27,14 +35,14 @@
 		"mime-types": "^2.1.35",
 		"multi-progress-bars": "^5.0.3",
 		"process.argv": "^0.6.1",
-		"prom-client": "^15.1.1",
+		"prom-client": "^15.1.2",
 		"prompts": "^2.4.2",
 		"sanitize-filename": "^1.6.3",
 		"semver": "^7.6.0",
 		"stream-throttle": "^0.1.3",
-		"tough-cookie": "^4.1.3",
+		"tough-cookie": "^4.1.4",
 		"tough-cookie-file-store": "^2.0.3",
-		"ws": "^8.16.0"
+		"ws": "^8.17.0"
 	},
 	"devDependencies": {
 		"@types/html-to-text": "^9.0.4",
@@ -45,12 +53,13 @@
 		"@types/stream-throttle": "^0.1.4",
 		"@types/tough-cookie-file-store": "^2.0.4",
 		"@types/ws": "^8.5.10",
-		"@typescript-eslint/eslint-plugin": "^7.4.0",
+		"@typescript-eslint/eslint-plugin": "^7.8.0",
 		"esbuild": "^0.20.2",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-prettier": "^5.1.3",
+		"got": "^14.2.1",
 		"pkg": "^5.8.1",
-		"typescript": "^5.4.3"
+		"typescript": "^5.4.5"
 	}
 }

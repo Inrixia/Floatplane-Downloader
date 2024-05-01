@@ -21,6 +21,7 @@ videos/
 
 # Typescript ignores
 dist/
+tsconfig.tsbuildinfo
 
 # Build ignores
 build/

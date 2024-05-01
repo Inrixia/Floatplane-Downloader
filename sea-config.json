@@ -1,0 +1,9 @@
+{
+	"main": "dist/float.cjs",
+	"output": "dist/float.blob",
+	"disableExperimentalSEAWarning": true,
+	"useCodeCache": true,
+	"assets": {
+		"./version": "./dist/version"
+	}
+}

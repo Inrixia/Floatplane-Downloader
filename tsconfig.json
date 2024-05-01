@@ -5,9 +5,9 @@
 		// "incremental": true,                   /* Enable incremental compilation */
 		"target": "ESNEXT" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
 		"module": "NodeNext" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
-		"declaration": true /* Generates corresponding '.d.ts' file. */,
-		"declarationMap": true /* Generates a sourcemap for each corresponding '.d.ts' file. */,
-		"sourceMap": true /* Generates corresponding '.map' file. */,
+		"declaration": false /* Generates corresponding '.d.ts' file. */,
+		"declarationMap": false /* Generates a sourcemap for each corresponding '.d.ts' file. */,
+		"sourceMap": false /* Generates corresponding '.map' file. */,
 		// "outFile": "./",                       /* Concatenate and emit output to single file. */
 		"outDir": "./dist" /* Redirect output structure to the directory. */,
 		"rootDir": "./src" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
@@ -16,6 +16,7 @@
 		"strict": true /* Enable all strict type-checking options. */,
 		/* Advanced Options */
 		"skipLibCheck": true /* Skip type checking of declaration files. */,
-		"forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+		"forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
+		"resolveJsonModule": true
 	}
 }
