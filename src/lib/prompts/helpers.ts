@@ -16,7 +16,7 @@ export const requiredPrompts = (
 		if (depth > 0 && depth < maxDepth) process.stdout.write(cancelPrompt);
 		if (depth >= maxDepth) {
 			console.log(`\nRequired prompt cancelled ${maxDepth} times! Exiting...`);
-			process.exit();
+			process.exit(1);
 		}
 		prompts(prompt, { onCancel: () => res(requiredPrompts(prompt, maxDepth, cancelPrompt, (depth += 1))) }).then(res);
 	});
