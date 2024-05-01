@@ -59,7 +59,7 @@ const downloadNewVideos = async () => {
 };
 
 // Fix for docker
-process.on("SIGTERM", () => process.exit(1));
+process.on("SIGTERM", () => process.exit(143));
 
 (async () => {
 	if (args.sanityCheck && DownloaderVersion !== pkg.version) {
