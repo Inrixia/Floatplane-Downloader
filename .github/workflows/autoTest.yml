@@ -23,7 +23,7 @@ jobs:
  Binary:
   strategy:
    matrix:
-    runs-on: [linux, windows]
+    runs-on: [ubuntu-latest, windows-latest]
   name: "Build & Sanity Check ${{ matrix.runs-on }} Binary"
   runs-on: ${{ matrix.runs-on }}
 

@@ -12,14 +12,14 @@
 		"lint": "eslint ./src --fix",
 		"sanity": "npm run checkLint && npm run test-esm && npm run test-windows",
 		"test-esm": "tsc && node ./dist/float.js --sanityCheck",
-		"test-linux": "npm run build-linux && ./build/float-linux --sanityCheck",
-		"test-windows": "npm run build-windows && cd ./build/float-win.exe --sanityCheck",
+		"test-ubuntu-latest": "npm run build-linux && ./build/float-linux --sanityCheck",
+		"test-windows-latest": "npm run build-windows && cd ./build/float-win.exe --sanityCheck",
 		"makeBlob": "node --experimental-sea-config ./sea-config.json",
 		"makeBin": "node make.js",
 		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite",
 		"injectLinux": "npx postject ./build/float-linux NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite",
-		"build-windows": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectWin",
-		"build-linux": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectLinux"
+		"build-windows-latest": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectWin",
+		"build-ubuntu-latest": "npm run makeBin && npm run bundle && npm run makeBlob && npm run injectLinux"
 	},
 	"dependencies": {
 		"@ctrl/plex": "^3.0.0",
