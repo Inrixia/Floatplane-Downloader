@@ -29,12 +29,12 @@ jobs:
 
   steps:
    - uses: actions/checkout@v2
+   - name: "Install dependencies"
+     run: npm install
    - name: Setup Node.js
      uses: actions/setup-node@v4
      with:
       node-version: latest
-   - name: "Install dependencies"
-     run: npm install
    - name: "Build & Sanity Test"
      run: npm run test-${{ matrix.runs-on }}
 
