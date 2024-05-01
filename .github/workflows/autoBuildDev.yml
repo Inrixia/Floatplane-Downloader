@@ -14,12 +14,12 @@ jobs:
   runs-on: ${{ matrix.runs-on }}
   steps:
    - uses: actions/checkout@v4
-   - name: "Install dependencies"
-     run: npm install
    - name: Setup Node.js
      uses: actions/setup-node@v4
      with:
-      node-version: latest
+      node-version: 21
+   - name: Install dependencies
+     run: npm install
    - name: Build
      run: npm run build-${{ matrix.runs-on }}
    - name: Upload Artifact
