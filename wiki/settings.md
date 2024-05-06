@@ -233,7 +233,7 @@ For example:
 
 ```json
 {
-	"title": "Creators with Technoligy in their Description",
+	"title": "Creators with Technology in their Description",
 	"skip": false,
 	"isChannel": "(post, video) => post.creator?.description?.toLowercase()?.includes('technology')",
 	"daysToKeepVideos": 5
