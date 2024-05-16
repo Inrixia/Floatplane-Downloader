@@ -12,7 +12,7 @@
 		"lint": "eslint ./src --fix",
 		"sanity": "npm run checkLint && npm run test-esm && npm run test-windows",
 		"test-esm": "tsc && node ./dist/float.js --sanityCheck",
-		"test-ubuntu-latest": "npm run build-ubuntu-latest && cd build && float-linux --sanityCheck",
+		"test-ubuntu-latest": "npm run build-ubuntu-latest && ./build/float-linux --sanityCheck",
 		"test-windows-latest": "npm run build-windows-latest && cd build && float-win.exe --sanityCheck",
 		"makeBlob": "node --experimental-sea-config ./sea-config.json",
 		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
