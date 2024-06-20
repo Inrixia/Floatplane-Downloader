@@ -108,7 +108,7 @@ export class Video extends Attachment {
 						const writeStream = createWriteStream(this.partialPath);
 
 						// Throttle if enabled
-						if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(Video.ThrottleOptions).pipe(writeStream));
+						if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(<any>undefined).pipe(writeStream));
 						else downloadRequest.pipe(writeStream);
 
 						let downloadedBytes = 0;
