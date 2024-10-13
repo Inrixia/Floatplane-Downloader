@@ -2,7 +2,7 @@
 
 ### **[Live Downloader Metrics Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
-![Active Downloaders](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)) ![Queued](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued&color=rgb(255%2C%20152%2C%2048)) ![Speed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)) ![Bytes](https://img.shields.io/badge/dynamic/json?url=https%3A//tinyurl.com/bddawdt9&query=data.result%5B0%5D.value%5B1%5D&suffix=%20TB&label=Bytes&color=rgb(184%2C%20119%2C%20217)) ![Videos](https://img.shields.io/badge/dynamic/json?url=https%3A//tinyurl.com/bdfmxjnw&query=data.result%5B0%5D.value%5B1%5D&label=Videos)
+![Active Downloaders](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)>) ![Queued Videos](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued&color=rgb(255%2C%20152%2C%2048)>) ![Speed](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)>)
 
 ![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
 **This project is unofficial and not in any way affiliated with LMG**<br>
@@ -49,16 +49,22 @@ For more info on setting up plex & available settings check out the Wikis:
 - [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
 - [Docker Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)
 - [Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)
-<br>
+  <br>
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
 <br>
 
 ## Images:
+
 ### **[Grafana Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e) ([Template](https://github.com/Inrixia/Floatplane-Downloader/blob/dev/wiki/grafana.json))**
+
 ![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/825038d9-ecd4-437a-bd54-74476415c430)
+
 ## Downloader
+
 ![image](https://user-images.githubusercontent.com/6373693/115110440-8d252300-9fcf-11eb-92a0-a813fcfcc632.png)
+
 ## Plex
+
 ![image](https://user-images.githubusercontent.com/6373693/115112389-69ff7100-9fd9-11eb-92e2-b83c3241627b.png)
 ![image](https://user-images.githubusercontent.com/6373693/115112394-6e2b8e80-9fd9-11eb-9c3d-ecaa3f87eb16.png)
