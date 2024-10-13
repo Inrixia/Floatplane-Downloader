@@ -14,18 +14,20 @@ new Gauge({
 	.labels({ version: DownloaderVersion })
 	.set(1);
 
+let socket: WebSocket | undefined;
 export const initProm = (instance: string) => {
 	if (settings.metrics.contributeMetrics) {
 		const connect = () => {
 			const onError = () => {
-				socket.close();
+				socket?.terminate();
 				setTimeout(connect, 1000);
 			};
-			const socket = new WebSocket("ws://targets.monitor.spookelton.net");
-			socket.on("open", () => socket.send(instance));
+			socket?.terminate();
+			socket = new WebSocket("ws://targets.monitor.spookelton.net");
+			socket.on("open", () => socket?.send(instance));
 			socket.on("ping", async () => {
 				try {
-					socket.send(await register.metrics());
+					socket?.send(await register.metrics());
 				} catch {
 					onError();
 				}

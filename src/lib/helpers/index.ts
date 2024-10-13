@@ -35,7 +35,7 @@ const httpRequestDurationmMs = new Histogram({
 	name: "request_duration_ms",
 	help: "Duration of HTTP requests in ms",
 	labelNames: ["method", "hostname", "pathname", "status"],
-	buckets: [1, 10, 50, 100, 250, 500],
+	buckets: [5, 10, 15, 30, 50, 100, 250, 500, 750, 1000, 1500, 2000, 3000],
 });
 type WithStartTime<T> = T & { _startTime: number };
 fApi.extend({
