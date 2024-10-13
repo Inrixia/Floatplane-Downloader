@@ -48,7 +48,7 @@ jobs:
 
  # Release to GitHub (runs after tests)
  Release:
-  name: Release dev build on GitHub
+  name: Draft latest release on GitHub
   needs: Sanity
   runs-on: ubuntu-latest
 
