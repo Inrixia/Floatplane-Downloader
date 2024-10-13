@@ -4,10 +4,10 @@ FROM node:current-alpine AS build
 WORKDIR ${HOME}
 
 # Copy package configs into working Directory
-COPY ./package.json ./package-lock.json ./tsconfig.json ${HOME}/
+COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json ${HOME}/
 
 # Install required packages
-RUN npm ci --omit-dev
+RUN pnpm i --prod
 
 # Copy src files into Working Directory
 COPY ./src ${HOME}/src
