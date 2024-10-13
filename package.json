@@ -13,7 +13,7 @@
 		"test-ubuntu-latest": "./build/float-linux --sanityCheck",
 		"test-windows-latest": "cd build && float-win.exe --sanityCheck",
 		"makeBlob": "node --experimental-sea-config ./sea-config.json",
-		"bundle": "pnpm run tsc && esbuild ./src/float.ts --bundle --platform=node --outfile=./dist/float.cjs",
+		"bundle": "pnpm run tsc && npx esbuild ./src/float.ts --bundle --platform=node --outfile=./dist/float.cjs",
 		"build-windows-latest": "node make.js ./build/float-win.exe && pnpm run bundle && pnpm run makeBlob && pnpm run injectWin",
 		"build-ubuntu-latest": "node make.js ./build/float-linux && pnpm run bundle && pnpm run makeBlob && pnpm run injectLinux",
 		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",

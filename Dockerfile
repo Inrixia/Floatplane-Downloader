@@ -1,22 +1,22 @@
 FROM node:current-alpine AS build
 
 # Make pnpm available
-RUN corepack enable
+RUN npm i -g pnpm
 
 # working directory for the build
-WORKDIR ${HOME}
+WORKDIR /build
 
 # Copy package configs into working Directory
-COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json ${HOME}/
+COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json /build/
 
 # Install required packages
-RUN pnpm i --prod
+RUN pnpm i
 
 # Copy src files into Working Directory
-COPY ./src ${HOME}/src
+COPY ./src /build/src
 
 # Compile the project
-RUN npx tsc
+RUN pnpm run bundle
 
 # Copy built artifacts and dependencies into a minimal release image
 FROM node:current-alpine AS release
@@ -26,9 +26,8 @@ LABEL Description="Project for automatically organizing and downloading Floatpla
 # Create Directory for the Container
 WORKDIR /fp
 
-COPY --from=build ${HOME}/node_modules node_modules
-COPY --from=build ${HOME}/dist dist
-COPY --from=build ${HOME}/package.json package.json
+COPY --from=build /build/dist/float.cjs float.cjs
+COPY --from=build /build/package.json package.json
 
 # Environment variables
 ENV headless=true
@@ -38,4 +37,4 @@ VOLUME /fp/db
 VOLUME /fp/videos
 
 # Runs on container start
-CMD node ./dist/float.js
+CMD ["node", "./float.cjs"]
