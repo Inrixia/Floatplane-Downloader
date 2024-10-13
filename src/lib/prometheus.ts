@@ -17,14 +17,21 @@ new Gauge({
 export const initProm = (instance: string) => {
 	if (settings.metrics.contributeMetrics) {
 		const connect = () => {
-			const socket = new WebSocket("ws://targets.monitor.spookelton.net");
-			socket.on("open", () => socket.send(instance));
-			socket.on("ping", async () => socket.send(await register.metrics()));
-			socket.on("error", () => socket.close());
-			socket.on("close", () => {
+			const onError = () => {
 				socket.close();
 				setTimeout(connect, 1000);
+			};
+			const socket = new WebSocket("ws://targets.monitor.spookelton.net");
+			socket.on("open", () => socket.send(instance));
+			socket.on("ping", async () => {
+				try {
+					socket.send(await register.metrics());
+				} catch {
+					onError();
+				}
 			});
+			socket.on("error", onError);
+			socket.on("close", onError);
 		};
 		connect();
 	}
