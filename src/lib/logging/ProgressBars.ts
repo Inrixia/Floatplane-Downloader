@@ -1,7 +1,7 @@
 import { MultiProgressBars } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
-import chalk from "chalk";
+import chalk from "chalk-template";
 import { args } from "../helpers/index.js";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {

@@ -11,17 +11,24 @@ jobs:
   strategy:
    matrix:
     runs-on: [ubuntu-latest, windows-latest]
+
   runs-on: ${{ matrix.runs-on }}
   steps:
    - uses: actions/checkout@v4
-   - name: Setup Node.js
+   - name: Install pnpm 📥
+     uses: pnpm/action-setup@v4
+
+   - name: Install Node.js 📥
      uses: actions/setup-node@v4
      with:
-      node-version: latest
-   - name: Install dependencies
-     run: npm ci
+      cache: "pnpm"
+
+   - name: Install dependencies 📥
+     run: pnpm install
+
    - name: Build
-     run: npm run build-${{ matrix.runs-on }}
+     run: pnpm run build-${{ matrix.runs-on }}
+
    - name: Upload Artifact
      uses: actions/upload-artifact@v4
      with:
@@ -37,6 +44,7 @@ jobs:
      with:
       path: ./build/
       merge-multiple: true
+
    - name: Publish dev build on GitHub
      uses: "marvinpinto/action-automatic-releases@latest"
      with:

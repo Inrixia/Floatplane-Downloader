@@ -4,9 +4,9 @@ import { Counter, Gauge } from "prom-client";
 import { htmlToText } from "html-to-text";
 import { extension } from "mime-types";
 import type { Progress } from "got";
-import builder from "xmlbuilder";
+import builder from "xmlbuilder2";
 import { promisify } from "util";
-import chalk from "chalk";
+import chalk from "chalk-template";
 
 import { createWriteStream } from "fs";
 import fs from "fs/promises";
@@ -108,6 +108,7 @@ export class Video extends Attachment {
 						const writeStream = createWriteStream(this.partialPath);
 
 						// Throttle if enabled
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(<any>undefined).pipe(writeStream));
 						else downloadRequest.pipe(writeStream);
 
@@ -226,27 +227,27 @@ export class Video extends Attachment {
 		const nfo = builder
 			.create("episodedetails")
 			.ele("title")
-			.text(this.videoTitle)
+			.txt(this.videoTitle)
 			.up()
 			.ele("showtitle")
-			.text(this.channelTitle)
+			.txt(this.channelTitle)
 			.up()
 			.ele("description")
-			.text(htmlToText(this.description))
+			.txt(htmlToText(this.description))
 			.up()
 			.ele("plot") // Kodi/Plex NFO format uses `plot` as the episode description
-			.text(htmlToText(this.description))
+			.txt(htmlToText(this.description))
 			.up()
 			.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
-			.text(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
+			.txt(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
 			.up()
 			.ele("season")
-			.text(season)
+			.txt(season)
 			.up()
 			.ele("episode")
-			.text(episode)
+			.txt(episode)
 			.up()
-			.end({ pretty: true });
+			.end({ prettyPrint: true });
 		await fs.writeFile(this.nfoPath, nfo, "utf8");
 		await fs.utimes(this.nfoPath, new Date(), this.releaseDate);
 	}
@@ -270,7 +271,7 @@ export class Video extends Attachment {
 		const artworkPathWithExtension = `${this.artworkPath}${fileExtension}`;
 
 		// Save the thumbnail with the correct file extension
-		await fs.writeFile(artworkPathWithExtension, response.body);
+		await fs.writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
 		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
 	}
 

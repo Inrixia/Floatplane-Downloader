@@ -18,7 +18,7 @@ export class ItemCache<T extends JSONSafeValue> {
 
 		try {
 			this.cache = JSON.parse(readFileSync(this.cachePath).toString());
-		} catch (err) {
+		} catch {
 			this.cache = {};
 		}
 	}
@@ -26,7 +26,7 @@ export class ItemCache<T extends JSONSafeValue> {
 	private async writeOut() {
 		try {
 			await writeFile(this.cachePath, JSON.stringify(this.cache));
-		} catch (err) {
+		} catch {
 			return;
 		}
 	}

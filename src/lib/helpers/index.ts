@@ -15,7 +15,6 @@ import "dotenv/config";
 import json5 from "json5";
 const { parse } = json5;
 
-// @ts-expect-error TS cant see node:sea
 import { isSea, getAsset } from "node:sea";
 export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON.parse(readFileSync("./package.json", "utf-8")).version;
 
@@ -86,7 +85,6 @@ if (args.headless === true) {
 	type StdoutArgs = Parameters<typeof process.stdout.write>;
 
 	process.stdout.write = ((...params: StdoutArgs) => {
-		// eslint-disable-next-line no-control-regex
 		if (typeof params[0] === "string") params[0] = `[${new Date().toLocaleString()}] ${params[0].replace(headlessStdoutRegex, "")}`;
 		return originalStdoutWrite(...params);
 	}) as typeof process.stdout.write;

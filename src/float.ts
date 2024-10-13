@@ -5,7 +5,7 @@ import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG.js";
 import { defaultSettings } from "./lib/defaults.js";
 
 import { loginFloatplane, User } from "./logins.js";
-import chalk from "chalk";
+import chalk from "chalk-template";
 
 import type { ContentPost } from "floatplane/content";
 import { fetchSubscriptions } from "./subscriptionFetching.js";

@@ -2,7 +2,7 @@ import { defaultSubChannels } from "./lib/defaults.js";
 import Subscription from "./lib/Subscription.js";
 import { settings, fApi } from "./lib/helpers/index.js";
 
-import chalk from "chalk";
+import chalk from "chalk-template";
 
 export async function* fetchSubscriptions() {
 	console.log("Fetching user subscriptions...");

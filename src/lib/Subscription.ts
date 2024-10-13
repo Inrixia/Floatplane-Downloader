@@ -1,6 +1,6 @@
 import { fApi } from "./helpers/index.js";
 
-import chalk from "chalk";
+import chalk from "chalk-template";
 import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
