@@ -1,20 +1,38 @@
----
-name: "dev Build"
+name: "[dev] Validate & Build"
 
 on:
  push:
   branches:
    - "dev"
+ pull_request:
+  types: ["opened", "edited", "reopened", "synchronize", "ready_for_review", "review_requested"]
 
 jobs:
- Build:
+ # eslint Check
+ eslint:
+  name: eslint
+  runs-on: ubuntu-latest
+  steps:
+   - uses: actions/checkout@v4
+
+   - uses: reviewdog/action-eslint@v1
+     with:
+      reporter: github-check
+      eslint_flags: src/
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ # Binary Build & Test (depends on eslint)
+ Sanity:
+  name: Build & Sanity Check
+  needs: eslint
   strategy:
    matrix:
     runs-on: [ubuntu-latest, windows-latest]
-
   runs-on: ${{ matrix.runs-on }}
+
   steps:
    - uses: actions/checkout@v4
+
    - name: Install pnpm 📥
      uses: pnpm/action-setup@v4
      with:
@@ -23,24 +41,33 @@ jobs:
    - name: Install Node.js 📥
      uses: actions/setup-node@v4
      with:
-      cache: "pnpm"
+      cache: pnpm
       node-version: latest
 
    - name: Install dependencies 📥
      run: pnpm install
 
-   - name: Build
+   - name: Test ESM
+     run: pnpm run test-esm
+
+   - name: Build Binaries
      run: pnpm run build-${{ matrix.runs-on }}
 
-   - name: Upload Artifact
+   - name: Test Build Binaries
+     run: pnpm run test-${{ matrix.runs-on }}
+
+   - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
       name: build-${{ matrix.runs-on }}
       path: ./build/
 
+ # Release to GitHub (runs after tests)
  Release:
-  needs: Build
+  name: Release dev build on GitHub
+  needs: Sanity
   runs-on: ubuntu-latest
+
   steps:
    - name: Download All Artifacts
      uses: actions/download-artifact@v4
@@ -49,19 +76,26 @@ jobs:
       merge-multiple: true
 
    - name: Publish dev build on GitHub
-     uses: "marvinpinto/action-automatic-releases@latest"
+     uses: marvinpinto/action-automatic-releases@latest
      with:
-      repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      automatic_release_tag: "dev"
+      repo_token: ${{ secrets.GITHUB_TOKEN }}
+      automatic_release_tag: dev
       prerelease: true
-      title: "Latest"
+      title: Latest
       files: build/*
 
+ # Release to DockerHub (runs after tests)
  DockerHub:
-  name: "dev Build - DockerHub"
-  runs-on: "ubuntu-latest"
+  name: Publish dev build to DockerHub
+  needs: Sanity
+  runs-on: ubuntu-latest
 
   steps:
+   - name: Install pnpm 📥
+     uses: pnpm/action-setup@v4
+     with:
+      version: latest
+
    - name: Set up Docker Buildx
      uses: docker/setup-buildx-action@v3
 
