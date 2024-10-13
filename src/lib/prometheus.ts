@@ -15,12 +15,14 @@ new Gauge({
 	.set(1);
 
 let socket: WebSocket | undefined;
+let reconnectTimeout: NodeJS.Timeout;
 export const initProm = (instance: string) => {
 	if (settings.metrics.contributeMetrics) {
 		const connect = () => {
 			const onError = () => {
 				socket?.terminate();
-				setTimeout(connect, 1000);
+				clearTimeout(reconnectTimeout);
+				reconnectTimeout = setTimeout(connect, 1000);
 			};
 			socket?.terminate();
 			socket = new WebSocket("ws://targets.monitor.spookelton.net");
