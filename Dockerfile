@@ -1,5 +1,8 @@
 FROM node:current-alpine AS build
 
+# Make pnpm available
+RUN corepack enable
+
 # working directory for the build
 WORKDIR ${HOME}
 
