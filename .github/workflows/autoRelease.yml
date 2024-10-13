@@ -1,5 +1,5 @@
 ---
-name: "Release"
+name: "[master] Validate, Build & Release"
 
 on:
  push:
@@ -7,13 +7,16 @@ on:
    - "master"
 
 jobs:
- Build:
+ Sanity:
+  name: Build & Sanity Check
   strategy:
    matrix:
     runs-on: [ubuntu-latest, windows-latest]
   runs-on: ${{ matrix.runs-on }}
+
   steps:
    - uses: actions/checkout@v4
+
    - name: Install pnpm 📥
      uses: pnpm/action-setup@v4
      with:
@@ -22,24 +25,33 @@ jobs:
    - name: Install Node.js 📥
      uses: actions/setup-node@v4
      with:
-      cache: "pnpm"
+      cache: pnpm
       node-version: latest
 
    - name: Install dependencies 📥
      run: pnpm install
 
-   - name: Build
+   - name: Test ESM
+     run: pnpm run test-esm
+
+   - name: Build Binaries
      run: pnpm run build-${{ matrix.runs-on }}
 
-   - name: Upload Artifact
+   - name: Test Build Binaries
+     run: pnpm run test-${{ matrix.runs-on }}
+
+   - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
       name: build-${{ matrix.runs-on }}
       path: ./build/
 
+ # Release to GitHub (runs after tests)
  Release:
-  needs: Build
+  name: Release dev build on GitHub
+  needs: Sanity
   runs-on: ubuntu-latest
+
   steps:
    - name: Download All Artifacts
      uses: actions/download-artifact@v4
@@ -47,27 +59,24 @@ jobs:
       path: ./build/
       merge-multiple: true
 
-   - name: Draft release on GitHub
-     uses: "marvinpinto/action-automatic-releases@latest"
+   - name: Publish latest draft release on GitHub
+     uses: marvinpinto/action-automatic-releases@latest
      with:
-      repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      automatic_release_tag: "latest"
+      repo_token: ${{ secrets.GITHUB_TOKEN }}
+      automatic_release_tag: latest
       draft: true
-      title: "Latest Release"
+      title: Latest Release
       files: build/*
 
+ # Release to DockerHub (runs after tests)
  DockerHub:
-  name: "Release - DockerHub"
-  runs-on: "ubuntu-latest"
+  name: Publish latest build to DockerHub
+  needs: Sanity
+  runs-on: ubuntu-latest
 
   steps:
    - name: Set up QEMU
      uses: docker/setup-qemu-action@v3
-
-   - name: Install pnpm 📥
-     uses: pnpm/action-setup@v4
-     with:
-      version: latest
 
    - name: Set up Docker Buildx
      uses: docker/setup-buildx-action@v3
@@ -78,7 +87,7 @@ jobs:
       username: ${{ secrets.DOCKER_USERNAME }}
       password: ${{ secrets.DOCKER_PASSWORD }}
 
-   - name: Build & Publish release on DockerHub
+   - name: Build & Publish latest on DockerHub
      uses: docker/build-push-action@v5
      with:
       push: true

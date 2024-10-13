@@ -75,7 +75,7 @@ jobs:
       path: ./build/
       merge-multiple: true
 
-   - name: Publish dev build on GitHub
+   - name: Publish dev release on GitHub
      uses: marvinpinto/action-automatic-releases@latest
      with:
       repo_token: ${{ secrets.GITHUB_TOKEN }}
