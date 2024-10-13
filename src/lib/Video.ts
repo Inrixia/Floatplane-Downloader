@@ -108,9 +108,11 @@ export class Video extends Attachment {
 						const writeStream = createWriteStream(this.partialPath);
 
 						// Throttle if enabled
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						if (Video.ThrottleGroup) downloadRequest.pipe(Video.ThrottleGroup.throttle(<any>undefined).pipe(writeStream));
-						else downloadRequest.pipe(writeStream);
+						if (Video.ThrottleGroup) {
+							// @ts-expect-error Type is wrong, this needs to be called with no arguments
+							const throttle = Video.ThrottleGroup.throttle();
+							downloadRequest.pipe(throttle).pipe(writeStream);
+						} else downloadRequest.pipe(writeStream);
 
 						let downloadedBytes = 0;
 						const onDownloadProgress = (progress: Progress) => {
