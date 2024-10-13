@@ -1,4 +1,4 @@
-﻿[![dev Build](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoBuildDev.yml/badge.svg?branch=dev)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoBuildDev.yml)<br>
+﻿[![dev Build](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml/badge.svg?branch=dev)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml)<br>
 
 ### **[Live Downloader Metrics Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
