@@ -27,7 +27,7 @@ jobs:
   needs: eslint
   strategy:
    matrix:
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: [ubuntu-latest, windows-latest, macos-latest, macos-13]
   runs-on: ${{ matrix.runs-on }}
 
   steps:
@@ -54,18 +54,22 @@ jobs:
      run: pnpm run build
 
    - name: Rename Float for Windows
-     if: runner.os == 'Windows'
+     if: matrix.runs-on == 'windows-latest'
      run: mv ./build/float ./build/float.exe
 
    - name: Test Build Binaries
      run: pnpm run test
 
-   - name: Rename Float for macOS
-     if: runner.os == 'macOS'
+   - name: Rename Float for macOS-m1
+     if: matrix.runs-on == 'macos-latest'
+     run: mv ./build/float ./build/float-macOS-m1
+
+   - name: Rename Float for macOS-13
+     if: matrix.runs-on == 'macos-13'
      run: mv ./build/float ./build/float-macOS
 
    - name: Rename Float for Linux
-     if: runner.os == 'Linux'
+     if: matrix.runs-on == 'linux-latest'
      run: mv ./build/float ./build/float-linux
 
    - name: Upload Build Artifact
