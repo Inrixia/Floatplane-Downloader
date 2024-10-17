@@ -53,13 +53,17 @@ jobs:
    - name: Build Binaries
      run: pnpm run build
 
+   - name: Rename Float for Windows
+     if: runner.os == 'Windows'
+     run: mv ./build/float ./build/float.exe
+
    - name: Test Build Binaries
      run: pnpm run test
 
    - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
-      name: build-${{ matrix.runs-on }}${{ matrix.runs-on == 'windows-latest' && '.exe' || '' }}
+      name: build-${{ matrix.runs-on }}
       path: ./build/float
 
  # Release to GitHub (runs after tests)
