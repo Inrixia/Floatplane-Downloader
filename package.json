@@ -10,7 +10,7 @@
     "checkLint": "eslint ./src",
     "sanity": "pnpm run checkLint && pnpm run test-esm && pnpm run build-windows-latest && pnpm run test-windows-latest",
     "test-esm": "pnpm run tsc && node ./dist/float.js --sanityCheck",
-    "test": "cd build && float --sanityCheck",
+    "test": "./build/float --sanityCheck",
     "makeBlob": "node --experimental-sea-config ./sea-config.json",
     "bundle": "pnpm run tsc && npx esbuild ./src/float.ts --bundle --minify --tree-shaking=true --platform=node --outfile=./dist/float.cjs",
     "inject": "npx postject ./build/float NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA",
