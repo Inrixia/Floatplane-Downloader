@@ -27,7 +27,7 @@ jobs:
   needs: eslint
   strategy:
    matrix:
-    runs-on: [ubuntu-latest, windows-latest]
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
   runs-on: ${{ matrix.runs-on }}
 
   steps:
@@ -51,16 +51,16 @@ jobs:
      run: pnpm run test-esm
 
    - name: Build Binaries
-     run: pnpm run build-${{ matrix.runs-on }}
+     run: pnpm run build
 
    - name: Test Build Binaries
-     run: pnpm run test-${{ matrix.runs-on }}
+     run: pnpm run test
 
    - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
-      name: build-${{ matrix.runs-on }}
-      path: ./build/
+      name: build-${{ matrix.runs-on }}${{ matrix.runs-on == 'windows-latest' && '.exe' || '' }}
+      path: ./build/float
 
  # Release to GitHub (runs after tests)
  Release:
