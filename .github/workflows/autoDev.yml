@@ -60,11 +60,19 @@ jobs:
    - name: Test Build Binaries
      run: pnpm run test
 
+   - name: Rename Float for macOS
+     if: runner.os == 'macOS'
+     run: mv ./build/float ./build/float-macOS
+
+   - name: Rename Float for Linux
+     if: runner.os == 'Linux'
+     run: mv ./build/float ./build/float-linux
+
    - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
       name: build-${{ matrix.runs-on }}
-      path: ./build/float
+      path: ./build/
 
  # Release to GitHub (runs after tests)
  Release:
