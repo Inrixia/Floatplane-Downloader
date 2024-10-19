@@ -23,12 +23,24 @@ jobs:
 
  # Binary Build & Test (depends on eslint)
  Sanity:
-  name: Build & Sanity Check
+  name: Build & Sanity Check - ${{ matrix.platform.os-name }}
   needs: eslint
   strategy:
    matrix:
-    runs-on: [ubuntu-latest, windows-latest, macos-latest, macos-13]
-  runs-on: ${{ matrix.runs-on }}
+    platform:
+     - os-name: Linux-x86_64
+       runs-on: ubuntu-latest
+
+     - os-name: Windows-x86_64
+       runs-on: windows-latest
+
+     - os-name: macOS-x86_64
+       runs-on: macOS-13
+
+     - os-name: macOS-aarch64
+       runs-on: macOS-latest
+
+  runs-on: ${{ matrix.platform.runs-on }}
 
   steps:
    - uses: actions/checkout@v4
@@ -54,28 +66,20 @@ jobs:
      run: pnpm run build
 
    - name: Rename Float for Windows
-     if: matrix.runs-on == 'windows-latest'
+     if: matrix.platform.runs-on == 'windows-latest'
      run: mv ./build/float ./build/float.exe
 
    - name: Test Build Binaries
      run: pnpm run test
 
-   - name: Rename Float for macOS-m1
-     if: matrix.runs-on == 'macos-latest'
-     run: mv ./build/float ./build/float-macOS-m1
-
-   - name: Rename Float for macOS-13
-     if: matrix.runs-on == 'macos-13'
-     run: mv ./build/float ./build/float-macOS
-
-   - name: Rename Float for Linux
-     if: matrix.runs-on == 'linux-latest'
-     run: mv ./build/float ./build/float-linux
+   - name: Rename binary
+     run: mv ./build/float ./build/float-${{ matrix.platform.os-name }}
+     if: matrix.platform.runs-on != 'windows-latest'
 
    - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
-      name: build-${{ matrix.runs-on }}
+      name: build-${{ matrix.platform.runs-on }}
       path: ./build/
 
  # Release to GitHub (runs after tests)
