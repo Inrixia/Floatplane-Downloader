@@ -28,10 +28,10 @@ jobs:
   strategy:
    matrix:
     platform:
-     - os-name: Linux-x86_64
+     - os-name: linux-x86_64
        runs-on: ubuntu-latest
 
-     - os-name: Windows-x86_64
+     - os-name: windows-x86_64
        runs-on: windows-latest
 
      - os-name: macOS-x86_64
@@ -66,21 +66,28 @@ jobs:
      run: pnpm run build
 
    - name: Rename Float for Windows
-     if: matrix.platform.runs-on == 'windows-latest'
      run: mv ./build/float ./build/float.exe
+     if: matrix.platform.runs-on == 'windows-latest'
 
    - name: Test Build Binaries
      run: pnpm run test
 
-   - name: Rename binary
-     run: mv ./build/float ./build/float-${{ matrix.platform.os-name }}
+   - name: Make artifacts output dir
+     run: mkdir ./artifacts
+
+   - name: Archive binary
+     run: strip ./build/float && tar -czf ./artifacts/${{ matrix.platform.os-name }}.tar.gz -C ./build float
      if: matrix.platform.runs-on != 'windows-latest'
+
+   - name: Archive binary (windows)
+     run: powershell -Command "Compress-Archive -Path './build/float.exe' -DestinationPath './artifacts/${{ matrix.platform.os-name }}.zip'"
+     if: matrix.platform.runs-on == 'windows-latest'
 
    - name: Upload Build Artifact
      uses: actions/upload-artifact@v4
      with:
-      name: build-${{ matrix.platform.runs-on }}
-      path: ./build/
+      name: ${{ matrix.platform.runs-on }}
+      path: ./artifacts/
 
  # Release to GitHub (runs after tests)
  Release:
