@@ -140,11 +140,23 @@ export class Video extends Attachment {
 						logger.log("Download complete!");
 						if (settings.extras.saveNfo) {
 							logger.log("Saving .nfo");
-							await this.saveNfo();
+							try {
+								await this.saveNfo();
+							} catch (error) {
+								// non-critical error
+								const message = this.parseErrorMessage(error);
+								logger.error(`Failed to save .nfo file! ${message} - Skipping`);
+							}
 						}
 						if (settings.extras.downloadArtwork) {
 							logger.log("Saving artwork");
-							await this.downloadArtwork();
+							try {
+								await this.downloadArtwork();
+							} catch (error) {
+								// non-critical error
+								const message = this.parseErrorMessage(error);
+								logger.error(`Failed to save artwork! ${message} - Skipping`);
+							}
 						}
 					}
 					// eslint-disable-next-line no-fallthrough
@@ -227,7 +239,8 @@ export class Video extends Attachment {
 			episode = match[2];
 		}
 		const nfo = builder
-			.create("episodedetails")
+			.create()
+			.ele("episodedetails")
 			.ele("title")
 			.txt(this.videoTitle)
 			.up()
