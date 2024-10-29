@@ -363,7 +363,7 @@ export class Video extends Attachment {
 
 		await new Promise((resolve, reject) =>
 			execFile(
-				"./db/ffmpeg",
+				args.ffmpegPath,
 				[
 					"-i",
 					this.partialPath,

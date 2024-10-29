@@ -1,16 +1,18 @@
 import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
+import { args } from "./index.js";
 import fs from "fs";
+import { dirname, basename } from "path";
 
 export const fetchFFMPEG = (): Promise<void> =>
 	new Promise((resolve, reject) => {
-		const platform = detectPlatform();
-		const path = "./db/";
-		if (fs.existsSync(`${path}${getBinaryFilename("ffmpeg", platform)}`) === false) {
+		let platform = detectPlatform();
+		let path = args.ffmpegPath;
+		if (fs.existsSync(path) === false) {
 			process.stdout.write("> Ffmpeg binary missing! Downloading... ");
 			downloadBinaries(
-				"ffmpeg",
+				basename(path),
 				{
-					destination: path,
+					destination: dirname(path),
 					platform,
 				},
 				(err) => {
