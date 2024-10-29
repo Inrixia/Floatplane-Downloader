@@ -58,15 +58,19 @@ fApi.extend({
 	},
 });
 
-export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
-recursiveUpdate(settings, defaultSettings);
-
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
-rebuildTypes(argv, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
-
 const env = getEnv();
-rebuildTypes(env, { ...defaultSettings, ...defaultArgs });
+
+export const args = defaultArgs;
+recursiveUpdate(args, env,  { setUndefined: false, setDefined: true });
+recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
+
+export const settings = defaultSettings;
+recursiveUpdate(settings,
+                db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true }),
+                { setUndefined: true, setDefined: true });
+
+recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 
 if (env.__FPDSettings !== undefined) {
 	if (typeof env.__FPDSettings !== "string") throw new Error("The __FPDSettings environment variable cannot be parsed!");
@@ -74,8 +78,9 @@ if (env.__FPDSettings !== undefined) {
 }
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
+console.log(settings);
 
-export const args = { ...argv, ...env };
+
 
 // eslint-disable-next-line no-control-regex
 const headlessStdoutRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
