@@ -7,22 +7,13 @@ import { defaultSettings } from "./lib/defaults.js";
 import { loginFloatplane, User } from "./logins.js";
 import chalk from "chalk-template";
 
-import type { ContentPost } from "floatplane/content";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
 
 import { Self } from "floatplane/user";
-
-async function* seekAndDestroy(): AsyncGenerator<ContentPost, void, unknown> {
-	while (settings.floatplane.seekAndDestroy.length > 0) {
-		const guid = settings.floatplane.seekAndDestroy.pop();
-		if (guid === undefined) continue;
-		console.log(chalk`Seek and Destroy: {red ${guid}}`);
-		yield fApi.content.post(guid);
-	}
-}
+import { seekAndDestroy } from "./seekAndDestroy.js";
 
 /**
  * Main function that triggeres everything else in the script
