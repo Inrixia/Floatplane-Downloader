@@ -4,6 +4,11 @@ on:
  push:
   branches:
    - "master"
+  paths-ignore:
+   - "**/*.md"
+   - ".vscode/**"
+   - "artwork/**"
+   - "wiki/**"
 
 jobs:
  Build:
