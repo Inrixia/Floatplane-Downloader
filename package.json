@@ -8,7 +8,7 @@
     "start": "pnpm run tsc && node ./dist/float.js",
     "startHeadless": "pnpm run tsc && node ./dist/float.js --headless",
     "checkLint": "eslint ./src",
-    "sanity": "pnpm run checkLint && pnpm run test-esm && pnpm run build-windows-latest && pnpm run test-windows-latest",
+    "sanity": "pnpm run checkLint && pnpm run test-esm && pnpm run build && pnpm run test",
     "test-esm": "pnpm run tsc && node ./dist/float.js --sanityCheck",
     "test": "./build/float --sanityCheck",
     "makeBlob": "node --experimental-sea-config ./sea-config.json",

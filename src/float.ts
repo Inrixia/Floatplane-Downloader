@@ -22,7 +22,7 @@ const downloadNewVideos = async () => {
 	const inProgress = [];
 
 	// Fetch content posts from seek and destroy guids
-	let contentPosts: Promise<ContentPost>[] = [];
+	const contentPosts: Promise<ContentPost>[] = [];
 	while (settings.floatplane.seekAndDestroy.length > 0) {
 		const guid = settings.floatplane.seekAndDestroy.pop();
 		if (guid === undefined) continue;

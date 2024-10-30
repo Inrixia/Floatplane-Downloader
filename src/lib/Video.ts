@@ -23,6 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
+import { withContext } from "./logging/ProgressLogger.js";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -67,7 +68,7 @@ export class Video extends Attachment {
 
 	public static State = VideoState;
 
-	private static readonly MaxRetries = 5;
+	private static readonly MaxRetries = 1;
 	private static readonly DownloadThreads = 8;
 
 	private static readonly DownloadSemaphore = new Semaphore(this.DownloadThreads);
@@ -76,6 +77,7 @@ export class Video extends Attachment {
 	private static readonly ThrottleGroup = settings.maxDownloadSpeed > -1 ? new ThrottleGroup(Video.ThrottleOptions) : undefined;
 
 	private static readonly ProgressLogger: typeof ProgressHeadless | typeof ProgressBars = args.headless ? ProgressHeadless : ProgressBars;
+	private readonly logger = new Video.ProgressLogger(this.videoTitle);
 
 	// Static cache of instances
 	public static readonly Videos: Record<string, Video> = {};
@@ -92,118 +94,98 @@ export class Video extends Attachment {
 	}
 
 	public async download() {
-		if ((await this.getState()) === Video.State.Muxed) return;
-		const logger = new Video.ProgressLogger(this.videoTitle);
-		promQueued.inc();
 		await Video.DownloadSemaphore.obtain();
-		logger.start();
-		for (let retries = 1; retries < Video.MaxRetries + 1; retries++) {
-			try {
-				switch (await this.getState()) {
-					case Video.State.Missing: {
-						logger.log("Waiting on delivery cdn...");
-						const downloadRequest = await this.getVideoStream(settings.floatplane.videoResolution);
-
-						// Pipe the download to the file once response starts
-						const writeStream = createWriteStream(this.partialPath);
-
-						// Throttle if enabled
-						if (Video.ThrottleGroup) {
-							// @ts-expect-error Type is wrong, this needs to be called with no arguments
-							const throttle = Video.ThrottleGroup.throttle();
-							downloadRequest.pipe(throttle).pipe(writeStream);
-						} else downloadRequest.pipe(writeStream);
-
-						let downloadedBytes = 0;
-						const onDownloadProgress = (progress: Progress) => {
-							const bytesSinceLast = progress.transferred - downloadedBytes;
-							downloadedBytes = progress.transferred;
-							promDownloadedBytes.inc(bytesSinceLast);
-							logger.onDownloadProgress(downloadRequest.downloadProgress, bytesSinceLast);
-						};
-
-						let downloadInterval: NodeJS.Timeout;
-						downloadRequest.once("downloadProgress", (downloadProgress: Progress) => {
-							logger.log("Download started!");
-							downloadInterval = setInterval(() => onDownloadProgress(downloadRequest.downloadProgress), 250);
-							onDownloadProgress(downloadProgress);
-						});
-
-						await new Promise((res, rej) => {
-							downloadRequest.once("end", res);
-							downloadRequest.once("error", rej);
-						}).finally(() => {
-							clearInterval(downloadInterval);
-							onDownloadProgress(downloadRequest.downloadProgress);
-						});
-
-						logger.log("Download complete!");
-						if (settings.extras.saveNfo) {
-							logger.log("Saving .nfo");
-							try {
-								await this.saveNfo();
-							} catch (error) {
-								// non-critical error
-								const message = this.parseErrorMessage(error);
-								logger.error(`Failed to save .nfo file! ${message} - Skipping`);
-							}
+		try {
+			if (settings.extras.saveNfo) {
+				this.logger.log("Saving .nfo");
+				await this.saveNfo().catch(withContext(`Saving .nfo file!`)).catch(this.onError);
+			}
+			if (settings.extras.downloadArtwork) {
+				this.logger.log("Saving artwork");
+				await this.downloadArtwork().catch(withContext(`Saving artwork!`)).catch(this.onError);
+			}
+			if ((await this.getState()) === Video.State.Muxed) return;
+			promQueued.inc();
+			for (let retries = 0; retries < Video.MaxRetries; retries++) {
+				try {
+					switch (await this.getState()) {
+						case Video.State.Missing: {
+							await this.onMissing().catch(withContext(`Downloading missing video!`));
 						}
-						if (settings.extras.downloadArtwork) {
-							logger.log("Saving artwork");
-							try {
-								await this.downloadArtwork();
-							} catch (error) {
-								// non-critical error
-								const message = this.parseErrorMessage(error);
-								logger.error(`Failed to save artwork! ${message} - Skipping`);
+						// eslint-disable-next-line no-fallthrough
+						case Video.State.Partial: {
+							this.logger.log("Muxing ffmpeg metadata...");
+							await this.muxffmpegMetadata().catch(withContext(`Muxing ffmpeg metadata`));
+
+							if (settings.postProcessingCommand !== "") {
+								this.logger.log(`Running settings.postProcessingCommand...`);
+								await this.postProcessingCommand().catch(withContext(`postProcessingCommand`));
+							}
+
+							if (settings.plex.enabled) {
+								await updatePlex().catch(withContext(`Updating plex`));
 							}
 						}
 					}
-					// eslint-disable-next-line no-fallthrough
-					case Video.State.Partial: {
-						logger.log("Muxing ffmpeg metadata...");
-						await this.muxffmpegMetadata();
-
-						if (settings.postProcessingCommand !== "") {
-							logger.log(`Running post download command "${settings.postProcessingCommand}"...`);
-							await this.postProcessingCommand().catch((err) => logger.log(`postProcessingCommand failed! ${err.message}\n`));
-						}
-
-						if (settings.plex.enabled) {
-							await updatePlex().catch((err) => {
-								throw new Error(`Updating plex failed! ${err.message}`);
-							});
-						}
-					}
-				}
-				logger.done(chalk`{cyan Download & Muxing complete!}`);
-				promDownloadedTotal.inc();
-				break;
-			} catch (error) {
-				const message = this.parseErrorMessage(error);
-				promErrors.labels({ message, attachmentId: this.attachmentId }).inc();
-
-				if (retries < Video.MaxRetries) {
-					logger.error(`${message} - Retrying in ${retries}s [${retries}/${Video.MaxRetries}]`);
-					await sleep(1000 * retries);
-				} else {
-					logger.error(`${message} - Failed`);
+					this.logger.done(chalk`{cyan Download & Muxing complete!}`);
+					promDownloadedTotal.inc();
+					break;
+				} catch (err: any) {
+					this.onError(err);
+					if (retries < Video.MaxRetries) await sleep(5000);
 				}
 			}
+		} finally {
+			await Video.DownloadSemaphore.release();
 		}
-		await Video.DownloadSemaphore.release();
 		promQueued.dec();
 	}
 
-	private parseErrorMessage(error: unknown): string {
-		let message = error instanceof Error ? error.message : `Something weird happened, whatever was thrown was not a error! ${error}`;
-		if (message.includes("ffmpeg")) {
-			const lastIndex = message.lastIndexOf(Video.Extensions.Partial);
-			if (lastIndex !== -1) {
-				message = `ffmpeg${message.substring(lastIndex + 9).replace(/\n|\r/g, "")}`;
-			}
-		}
-		return message;
+	private onError(err: any, throwAfterLog = false) {
+		const errStatement = this.logger.error(err);
+		console.error(`[${this.videoTitle}]`, errStatement);
+		promErrors.labels({ message: err?.message ?? err?.toString(), attachmentId: this.attachmentId }).inc();
+		if (throwAfterLog) throw err;
+	}
+
+	private async onMissing() {
+		this.logger.log("Waiting on delivery cdn...");
+		const downloadRequest = await this.getVideoStream(settings.floatplane.videoResolution);
+
+		// Pipe the download to the file once response starts
+		const writeStream = createWriteStream(this.partialPath);
+
+		// Throttle if enabled
+		if (Video.ThrottleGroup) {
+			// @ts-expect-error Type is wrong, this needs to be called with no arguments
+			const throttle = Video.ThrottleGroup.throttle();
+			downloadRequest.pipe(throttle).pipe(writeStream);
+		} else downloadRequest.pipe(writeStream);
+
+		let downloadedBytes = 0;
+		const onDownloadProgress = (progress: Progress) => {
+			const bytesSinceLast = progress.transferred - downloadedBytes;
+			downloadedBytes = progress.transferred;
+			promDownloadedBytes.inc(bytesSinceLast);
+			this.logger.onDownloadProgress(downloadRequest.downloadProgress, bytesSinceLast);
+		};
+
+		let downloadInterval: NodeJS.Timeout;
+		downloadRequest.once("downloadProgress", (downloadProgress: Progress) => {
+			this.logger.log("Download started!");
+			downloadInterval = setInterval(() => onDownloadProgress(downloadRequest.downloadProgress), 250);
+			onDownloadProgress(downloadProgress);
+		});
+
+		await new Promise((res, rej) => {
+			downloadRequest.once("end", res);
+			downloadRequest.once("error", rej);
+		}).finally(() => {
+			clearInterval(downloadInterval);
+			onDownloadProgress(downloadRequest.downloadProgress);
+		});
+
+		this.logger.log("Download complete!");
 	}
 
 	private static async pathBytes(path: string) {
