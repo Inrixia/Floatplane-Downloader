@@ -23,7 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
-import { withContext } from "./logging/ProgressLogger.js";
+import { nll, withContext } from "./logging/ProgressLogger.js";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -326,7 +326,7 @@ export class Video extends Attachment {
 			artworkEmbed = ["-i", `${this.artworkPath}${artworkExtension}`, "-map", "2", "-disposition:0", "attached_pic"];
 		}
 
-		await fs.unlink(this.muxedPath).catch(() => null);
+		await fs.unlink(this.muxedPath).catch(nll);
 
 		const description = htmlToText(this.description);
 		const metadata = {
@@ -337,45 +337,48 @@ export class Video extends Attachment {
 			description: description,
 			synopsis: description,
 		};
-		const metadataFilePath = `${this.muxedPath}.ffmeta`;
+		const metadataFilePath = `${this.folderPath}/${Math.random()}.ffmeta`;
 		const metadataContent = Object.entries(metadata)
 			.map(([key, value]) => `${key}=${value.replaceAll(/\n/g, "\\\n")}`)
 			.join("\n");
-		await fs.writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
+		try {
+			await fs.writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
+			await new Promise((resolve, reject) =>
+				execFile(
+					"./db/ffmpeg",
+					[
+						"-i",
+						this.partialPath,
+						"-i",
+						metadataFilePath, // Include the metadata file as an input
+						...artworkEmbed,
+						"-map",
+						"0",
+						"-map_metadata",
+						"1",
+						"-c",
+						"copy",
+						this.muxedPath,
+					],
+					(error, stdout, stderr) => {
+						if (error !== null) {
+							error.message ??= "";
+							error.message += stderr;
+							reject(error);
+						} else resolve(stdout);
+					},
+				),
+			);
+			// Remove the partial file when done
+			await fs.unlink(this.partialPath);
+			// Set the files update time to when the video was released
+			await fs.utimes(this.muxedPath, new Date(), this.releaseDate);
 
-		await new Promise((resolve, reject) =>
-			execFile(
-				"./db/ffmpeg",
-				[
-					"-i",
-					this.partialPath,
-					"-i",
-					metadataFilePath, // Include the metadata file as an input
-					...artworkEmbed,
-					"-map",
-					"0",
-					"-map_metadata",
-					"1",
-					"-c",
-					"copy",
-					this.muxedPath,
-				],
-				(error, stdout, stderr) => {
-					if (error !== null) {
-						error.message ??= "";
-						error.message += stderr;
-						reject(error);
-					} else resolve(stdout);
-				},
-			),
-		);
-		await fs.unlink(metadataFilePath).catch(() => null);
-
-		await fs.unlink(this.partialPath);
-		// Set the files update time to when the video was released
-		await fs.utimes(this.muxedPath, new Date(), this.releaseDate);
-
-		(await this.attachmentInfo()).muxedBytes = await Video.pathBytes(this.muxedPath);
+			(await this.attachmentInfo()).muxedBytes = await Video.pathBytes(this.muxedPath);
+		} finally {
+			// Ensure the metadata file is removed
+			await fs.unlink(metadataFilePath).catch(nll);
+		}
 	}
 
 	public async postProcessingCommand(): Promise<void> {

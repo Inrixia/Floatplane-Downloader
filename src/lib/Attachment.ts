@@ -7,6 +7,7 @@ import sanitize from "sanitize-filename";
 import { dirname, basename, extname } from "path";
 
 import { rename, readdir } from "fs/promises";
+import { nll } from "./logging/ProgressLogger.js";
 
 type AttachmentInfo = {
 	partialBytes?: number;
@@ -72,10 +73,10 @@ export class Attachment implements AttachmentAttributes {
 		});
 		// If the attachment existed on another path then move it.
 		if (attachmentInfo.filePath !== this.filePath) {
-			rename(this.artworkPath.replace(this.filePath, attachmentInfo.filePath), this.artworkPath).catch(() => null);
-			rename(this.partialPath.replace(this.filePath, attachmentInfo.filePath), this.partialPath).catch(() => null);
-			rename(this.muxedPath.replace(this.filePath, attachmentInfo.filePath), this.muxedPath).catch(() => null);
-			rename(this.nfoPath.replace(this.filePath, attachmentInfo.filePath), this.nfoPath).catch(() => null);
+			rename(this.artworkPath.replace(this.filePath, attachmentInfo.filePath), this.artworkPath).catch(nll);
+			rename(this.partialPath.replace(this.filePath, attachmentInfo.filePath), this.partialPath).catch(nll);
+			rename(this.muxedPath.replace(this.filePath, attachmentInfo.filePath), this.muxedPath).catch(nll);
+			rename(this.nfoPath.replace(this.filePath, attachmentInfo.filePath), this.nfoPath).catch(nll);
 			attachmentInfo.filePath = this.filePath;
 		}
 		if (attachmentInfo.videoTitle !== this.videoTitle) attachmentInfo.videoTitle = this.videoTitle;

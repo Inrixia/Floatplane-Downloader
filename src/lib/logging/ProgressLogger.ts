@@ -22,3 +22,5 @@ export const withContext = (context: string) => (err: any) => {
 	if (err instanceof Error) throw new Error(`${context} - ${err.message}`);
 	throw err;
 };
+
+export const nll = () => {};
