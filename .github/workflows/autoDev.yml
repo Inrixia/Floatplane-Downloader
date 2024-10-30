@@ -88,12 +88,14 @@ jobs:
      with:
       name: ${{ matrix.platform.runs-on }}
       path: ./artifacts/
+     if: github.event_name == 'push'
 
  # Release to GitHub (runs after tests)
  Release:
   name: Release dev build on GitHub
   needs: Sanity
   runs-on: ubuntu-latest
+  if: github.event_name == 'push'
 
   steps:
    - name: Download All Artifacts
@@ -116,6 +118,7 @@ jobs:
   name: Publish dev build to DockerHub
   needs: Sanity
   runs-on: ubuntu-latest
+  if: github.event_name == 'push'
 
   steps:
    - name: Set up Docker Buildx
