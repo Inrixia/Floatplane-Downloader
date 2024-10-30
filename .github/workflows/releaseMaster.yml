@@ -1,5 +1,4 @@
----
-name: "[master] Validate, Build & Release"
+name: "[master] Release"
 
 on:
  push:
@@ -7,49 +6,13 @@ on:
    - "master"
 
 jobs:
- Sanity:
-  name: Build & Sanity Check
-  strategy:
-   matrix:
-    runs-on: [ubuntu-latest, windows-latest]
-  runs-on: ${{ matrix.runs-on }}
-
-  steps:
-   - uses: actions/checkout@v4
-
-   - name: Install pnpm 📥
-     uses: pnpm/action-setup@v4
-     with:
-      version: latest
-
-   - name: Install Node.js 📥
-     uses: actions/setup-node@v4
-     with:
-      cache: pnpm
-      node-version: latest
-
-   - name: Install dependencies 📥
-     run: pnpm install
-
-   - name: Test ESM
-     run: pnpm run test-esm
-
-   - name: Build Binaries
-     run: pnpm run build-${{ matrix.runs-on }}
-
-   - name: Test Build Binaries
-     run: pnpm run test-${{ matrix.runs-on }}
-
-   - name: Upload Build Artifact
-     uses: actions/upload-artifact@v4
-     with:
-      name: build-${{ matrix.runs-on }}
-      path: ./build/
+ Build:
+  uses: ./.github/workflows/buildDev.yml
 
  # Release to GitHub (runs after tests)
  Release:
   name: Draft latest release on GitHub
-  needs: Sanity
+  needs: Build
   runs-on: ubuntu-latest
 
   steps:
@@ -71,7 +34,7 @@ jobs:
  # Release to DockerHub (runs after tests)
  DockerHub:
   name: Publish latest build to DockerHub
-  needs: Sanity
+  needs: Build
   runs-on: ubuntu-latest
 
   steps:

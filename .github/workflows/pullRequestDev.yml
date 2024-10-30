@@ -1,0 +1,19 @@
+name: "[dev] Check Pull Request"
+
+on:
+ pull_request:
+  types: ["opened", "edited", "reopened", "synchronize", "ready_for_review", "review_requested"]
+
+jobs:
+ Lint:
+  runs-on: ubuntu-latest
+  steps:
+   - uses: actions/checkout@v4
+   - uses: reviewdog/action-eslint@v1
+     with:
+      reporter: github-pr-review
+      eslint_flags: src/
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ Build:
+  uses: ./.github/workflows/buildDev.yml
