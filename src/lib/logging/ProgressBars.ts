@@ -23,17 +23,22 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		super(title);
 
 		this.title = title.slice(0, 32).trim();
-		let i = 1;
-		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${title.trim().slice(0, 32).trim()} [${++i}]`;
 		ProgressBars.Total++;
+	}
+	private updateTask(...args: Parameters<typeof ProgressBars._Bars.updateTask>) {
+		if (ProgressBars._Bars.getIndex(this.title) === undefined) {
+			ProgressBars._Bars.addTask(this.title, { type: "percentage" });
+		}
+		ProgressBars._Bars.updateTask(...args);
 	}
 
 	public start() {
-		ProgressBars._Bars.addTask(this.title, { type: "percentage" });
-		ProgressBars._Bars.updateTask(this.title, { percentage: 0 });
+		let i = 1;
+		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${this.title} [${++i}]`;
+		this.updateTask(this.title, { percentage: 0 });
 	}
 	public log(message: string) {
-		ProgressBars._Bars.updateTask(this.title, { message });
+		this.updateTask(this.title, { message });
 	}
 	private reset() {
 		ProgressBars.DownloadSpeed -= this._downloadSpeed;
@@ -78,7 +83,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		const speed = chalk`{green ${(this._downloadSpeed / 125000).toFixed(2)} mb/s}`;
 		const eta = chalk`ETA: {blue ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s}`;
 
-		ProgressBars._Bars.updateTask(this.title, {
+		this.updateTask(this.title, {
 			percentage: progress.percent,
 			message: `${downloaded} ${speed} ${eta}`,
 		});
