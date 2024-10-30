@@ -3,7 +3,7 @@
 ### Tags:
 
 - `:dev` - Image in sync with `dev` branch on github, **stable with latest features & fixes**
-- `:latest` - Latest release version of the downloader, usually stale
+- `:latest` - Last release version of the downloader, usually stale & updated infrequently
   <br>
 
 ## Quickstart:
@@ -35,7 +35,11 @@ Docker CLI:
         inrix/floatplane-downloader:dev
 ```
 
-<br>
+## Settings
+
+You can customize any settings by modifying the `settings.json` file that will be generated in the path you mounted the `/fp/db` folder to. For information on all settings please see **[Settings Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
+
+You can also use enviroment variables to set any setting via **[Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)**
 
 ## Environment Variables:
 
@@ -77,7 +81,7 @@ services:
     restart: unless-stopped
 ```
 
-**For login + plex:**
+### Including Plex
 
 Docker CLI:
 
@@ -112,6 +116,3 @@ services:
       - [path]:/fp/videos
     restart: unless-stopped
 ```
-
-You can also use enviroment variables to set any config values which will be persisted.<br>
-For more info on advanced environment variables, please see **[Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)**
