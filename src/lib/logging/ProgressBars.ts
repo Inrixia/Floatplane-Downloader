@@ -43,7 +43,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		this._downloadSpeed = 0;
 		this.updateSummaryBar();
 	}
-	public error(err: any) {
+	public error(err: unknown) {
 		ProgressBars.Errors++;
 		const errMsg = this.sanitizeError(err);
 		const errStatement = chalk`{red ERR}: ${errMsg}`;

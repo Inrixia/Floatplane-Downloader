@@ -130,7 +130,7 @@ export class Video extends Attachment {
 					this.logger.done(chalk`{cyan Download & Muxing complete!}`);
 					promDownloadedTotal.inc();
 					break;
-				} catch (err: any) {
+				} catch (err) {
 					this.onError(err);
 					if (retries < Video.MaxRetries) await sleep(5000);
 				}
@@ -141,10 +141,10 @@ export class Video extends Attachment {
 		promQueued.dec();
 	}
 
-	private onError(err: any, throwAfterLog = false) {
+	private onError(err: unknown, throwAfterLog = false) {
 		const errStatement = this.logger.error(err);
 		console.error(`[${this.videoTitle}]`, errStatement);
-		promErrors.labels({ message: err?.message ?? err?.toString(), attachmentId: this.attachmentId }).inc();
+		promErrors.labels({ message: err instanceof Error ? err.message : err?.toString(), attachmentId: this.attachmentId }).inc();
 		if (throwAfterLog) throw err;
 	}
 
