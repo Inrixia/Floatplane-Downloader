@@ -7,7 +7,7 @@ on:
 
 jobs:
  Build:
-  uses: ./.github/workflows/buildDev.yml
+  uses: ./.github/workflows/build.yml
 
  Release:
   name: Release dev build on GitHub
@@ -30,7 +30,6 @@ jobs:
       title: Latest
       files: build/*
 
- # Release to DockerHub (runs after tests)
  DockerHub:
   name: Publish dev build to DockerHub
   needs: Build

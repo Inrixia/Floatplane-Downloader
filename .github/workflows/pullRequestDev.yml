@@ -16,4 +16,4 @@ jobs:
       github_token: ${{ secrets.GITHUB_TOKEN }}
 
  Build:
-  uses: ./.github/workflows/buildDev.yml
+  uses: ./.github/workflows/build.yml
