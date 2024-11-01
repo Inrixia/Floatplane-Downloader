@@ -91,11 +91,15 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
+		// Ensure onError is bound to this instance
+		this.onError = this.onError.bind(this);
 	}
 
 	public async download() {
 		await Video.DownloadSemaphore.obtain();
 		try {
+			// Make sure the folder for the video exists
+			await fs.mkdir(this.folderPath, { recursive: true }).catch((err) => this.onError(err, true));
 			if (settings.extras.saveNfo) {
 				this.logger.log("Saving .nfo");
 				await this.saveNfo().catch(withContext(`Saving .nfo file!`)).catch(this.onError);
@@ -210,9 +214,6 @@ export class Video extends Attachment {
 	public async saveNfo() {
 		if (await fileExists(this.nfoPath)) return;
 
-		// Make sure the folder for the video exists
-		await fs.mkdir(this.folderPath, { recursive: true });
-
 		let season = "";
 		let episode = "";
 		const match = /S(\d+)E(\d+)/i.exec(this.nfoPath);
@@ -254,9 +255,6 @@ export class Video extends Attachment {
 		// If the file already exists
 		if (await this.artworkFileExtension()) return;
 
-		// Make sure the folder for the video exists
-		await fs.mkdir(this.folderPath, { recursive: true });
-
 		// Fetch the thumbnail and get its content type
 		const response = await fApi.got(this.artworkUrl, { responseType: "buffer" });
 		const contentType = response.headers["content-type"];
@@ -291,9 +289,6 @@ export class Video extends Attachment {
 
 	protected async getVideoStream(quality: string): Promise<ReturnType<typeof fApi.got.stream>> {
 		if ((await this.getState()) === VideoState.Muxed) throw new Error(`Attempting to download "${this.videoTitle}" video already downloaded!`);
-
-		// Make sure the folder for the video exists
-		await fs.mkdir(this.folderPath, { recursive: true });
 
 		const delivery = await this.getDelivery();
 		if (delivery?.origins === undefined) throw new Error("Video has no origins to download from!");
