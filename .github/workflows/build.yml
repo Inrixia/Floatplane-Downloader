@@ -56,7 +56,7 @@ jobs:
      run: mkdir ./artifacts
 
    - name: Archive binary
-     run: strip ./build/float && tar -czf ./artifacts/${{ matrix.platform.os-name }}.tar.gz -C ./build float
+     run: tar -czf ./artifacts/${{ matrix.platform.os-name }}.tar.gz -C ./build float
      if: matrix.platform.runs-on != 'windows-latest'
 
    - name: Archive binary (windows)
