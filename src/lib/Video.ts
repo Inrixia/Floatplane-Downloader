@@ -96,25 +96,26 @@ export class Video extends Attachment {
 	}
 
 	public async download() {
+		promQueued.inc();
 		await Video.DownloadSemaphore.obtain();
 		try {
 			// Make sure the folder for the video exists
 			await fs.mkdir(this.folderPath, { recursive: true }).catch((err) => this.onError(err, true));
 			if (settings.extras.saveNfo) {
-				this.logger.log("Saving .nfo");
-				await this.saveNfo().catch(withContext(`Saving .nfo file!`)).catch(this.onError);
+				await this.saveNfo().catch(withContext(`Saving .nfo file`)).catch(this.onError);
 			}
 			if (settings.extras.downloadArtwork) {
-				this.logger.log("Saving artwork");
-				await this.downloadArtwork().catch(withContext(`Saving artwork!`)).catch(this.onError);
+				await this.downloadArtwork().catch(withContext(`Saving artwork`)).catch(this.onError);
 			}
-			if ((await this.getState()) === Video.State.Muxed) return;
-			promQueued.inc();
+			if ((await this.getState()) === Video.State.Muxed) {
+				this.logger.done(chalk`{green Exists! Skipping}`);
+				return;
+			}
 			for (let retries = 0; retries < Video.MaxRetries; retries++) {
 				try {
 					switch (await this.getState()) {
 						case Video.State.Missing: {
-							await this.onMissing().catch(withContext(`Downloading missing video!`));
+							await this.onMissing().catch(withContext(`Downloading missing video`));
 						}
 						// eslint-disable-next-line no-fallthrough
 						case Video.State.Partial: {
@@ -131,7 +132,7 @@ export class Video extends Attachment {
 							}
 						}
 					}
-					this.logger.done(chalk`{cyan Download & Muxing complete!}`);
+					this.logger.done(chalk`{cyan Downloaded!}`);
 					promDownloadedTotal.inc();
 					break;
 				} catch (err) {
@@ -141,8 +142,8 @@ export class Video extends Attachment {
 			}
 		} finally {
 			await Video.DownloadSemaphore.release();
+			promQueued.dec();
 		}
-		promQueued.dec();
 	}
 
 	private onError(err: unknown, throwAfterLog = false) {
@@ -213,6 +214,7 @@ export class Video extends Attachment {
 
 	public async saveNfo() {
 		if (await fileExists(this.nfoPath)) return;
+		this.logger.log("Saving .nfo");
 
 		let season = "";
 		let episode = "";
@@ -248,12 +250,14 @@ export class Video extends Attachment {
 			.end({ prettyPrint: true });
 		await fs.writeFile(this.nfoPath, nfo, "utf8");
 		await fs.utimes(this.nfoPath, new Date(), this.releaseDate);
+		this.logger.log("Saved .nfo");
 	}
 
 	public async downloadArtwork() {
 		if (!this.artworkUrl) return;
 		// If the file already exists
 		if (await this.artworkFileExtension()) return;
+		this.logger.log("Saving artwork");
 
 		// Fetch the thumbnail and get its content type
 		const response = await fApi.got(this.artworkUrl, { responseType: "buffer" });
@@ -268,6 +272,7 @@ export class Video extends Attachment {
 		// Save the thumbnail with the correct file extension
 		await fs.writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
 		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
+		this.logger.log("Saved artwork");
 	}
 
 	// The number of available slots for making delivery requests,
