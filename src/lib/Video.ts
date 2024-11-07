@@ -24,6 +24,8 @@ import { updatePlex } from "./helpers/updatePlex.js";
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
 
+import { ffmpegPath } from "./helpers/fetchFFMPEG.js";
+
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
 
@@ -363,7 +365,7 @@ export class Video extends Attachment {
 
 		await new Promise((resolve, reject) =>
 			execFile(
-				args.ffmpegPath,
+				ffmpegPath,
 				[
 					"-i",
 					this.partialPath,

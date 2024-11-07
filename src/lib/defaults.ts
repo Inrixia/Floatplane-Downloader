@@ -1,5 +1,4 @@
 import { Resolutions, Channels, Settings, Args } from "./types.js";
-import { getBinaryFilename, detectPlatform } from "ffbinaries";
 
 export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: Record<string, Channels> = {
@@ -35,26 +34,9 @@ export const defaultArgs: Args = {
 	plexUsername: "",
 	plexPassword: "",
 	sanityCheck: false,
-	workPath: "./db",
+	dbPath: "./db",
 	ffmpegPath: "",
-	settingsPath: "",
-	cookiesPath: "",
-	attachmentsPath: "",
 };
-export function fixArgs(args: Args) {
-	if (args.ffmpegPath === "") {
-		args.ffmpegPath = `${args.workPath}/${getBinaryFilename("ffmpeg", detectPlatform() )}`;
-	}
-	if (args.settingsPath === "") {
-		args.settingsPath = `${args.workPath}/settings.json`;
-	}
-	if (args.cookiesPath === "") {
-		args.cookiesPath = `${args.workPath}/cookies.json`;
-	}
-	if (args.attachmentsPath === "") {
-		args.attachmentsPath = `${args.workPath}/attachments.json`;
-	}
-}
 
 export const defaultSettings: Settings = {
 	__SettingsWiki: "https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md",

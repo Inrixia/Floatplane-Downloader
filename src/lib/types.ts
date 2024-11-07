@@ -33,11 +33,8 @@ export type Args = {
 	plexUsername: string;
 	plexPassword: string;
 	sanityCheck: boolean;
-	workPath: string;
-	settingsPath: string;
+	dbPath: string;
 	ffmpegPath: string;
-	cookiesPath: string;
-	attachmentsPath: string;
 };
 
 export type PartialArgs = Partial<Args & Settings>;

@@ -1,5 +1,5 @@
-import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
-import { defaultArgs, defaultSettings, fixArgs } from "../defaults.js";
+import { getEnv, recursiveUpdate } from "@inrixia/helpers/object";
+import { defaultArgs, defaultSettings } from "../defaults.js";
 import { Histogram } from "prom-client";
 import db from "@inrixia/db";
 
@@ -7,8 +7,6 @@ import { defaultImport } from "default-import";
 
 import _ARGV from "process.argv";
 const ARGV = defaultImport(_ARGV);
-
-import { readFileSync } from "fs";
 
 import "dotenv/config";
 
@@ -29,12 +27,11 @@ const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 const env = getEnv();
 
 export const args = defaultArgs;
-recursiveUpdate(args, env,	{ setUndefined: false, setDefined: true });
+recursiveUpdate(args, env, { setUndefined: false, setDefined: true });
 recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
-fixArgs(args);
 
 export const settings = defaultSettings;
-let newSettings = db<Settings>(args.settingsPath, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
+const newSettings = db<Settings>(`${args.dbPath}/settings.json`, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, newSettings, { setUndefined: true, setDefined: true });
 
 recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
@@ -46,7 +43,7 @@ if (env.__FPDSettings !== undefined) {
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
-export const cookieJar = new CookieJar(new FileCookieStore(args.cookiesPath));
+export const cookieJar = new CookieJar(new FileCookieStore(`${args.dbPath}/cookies.json`));
 export const fApi = new Floatplane(
 	cookieJar,
 	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
@@ -80,10 +77,6 @@ fApi.extend({
 	},
 });
 
-
-
-
-
 // eslint-disable-next-line no-control-regex
 const headlessStdoutRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
 // Override stdout if headless to not include formatting tags
@@ -96,5 +89,3 @@ if (args.headless === true) {
 		return originalStdoutWrite(...params);
 	}) as typeof process.stdout.write;
 }
-
-

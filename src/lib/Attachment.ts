@@ -31,7 +31,7 @@ enum Extensions {
 }
 
 export class Attachment implements AttachmentAttributes {
-	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(args.attachmentsPath);
+	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(`${args.dbPath}/attachments.json`);
 	public static readonly Extensions = Extensions;
 
 	public readonly attachmentId: string;
