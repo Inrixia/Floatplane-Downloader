@@ -3,7 +3,7 @@
 	"output": "dist/float.blob",
 	"disableExperimentalSEAWarning": true,
 	"useCodeCache": true,
-	"assets": {
-		"./version": "./dist/version"
-	}
+    "assets": {
+        "./package.json": "./package.json"
+    }
 }

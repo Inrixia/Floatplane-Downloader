@@ -16,8 +16,8 @@
 		"bundle": "pnpm run tsc && npx esbuild ./src/float.ts --bundle --platform=node --outfile=./dist/float.cjs",
 		"build-windows-latest": "node make.js ./build/float-win.exe && pnpm run bundle && pnpm run makeBlob && pnpm run injectWin",
 		"build-ubuntu-latest": "node make.js ./build/float-linux && pnpm run bundle && pnpm run makeBlob && pnpm run injectLinux",
-		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
-		"injectLinux": "npx postject ./build/float-linux NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
+		"injectWin": "npx postject ./build/float-win.exe NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse $(cat ./postject-sentinel.txt)",
+		"injectLinux": "npx postject ./build/float-linux NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse $(cat ./postject-sentinel.txt)"
 	},
 	"dependencies": {
 		"@ctrl/plex": "^3.4.0",
@@ -35,6 +35,7 @@
 		"json5": "^2.2.3",
 		"mime-types": "^3.0.0",
 		"multi-progress-bars": "^5.0.3",
+		"postject": "1.0.0-alpha.6",
 		"process.argv": "^0.6.1",
 		"prom-client": "^15.1.3",
 		"prompts": "^2.4.2",
