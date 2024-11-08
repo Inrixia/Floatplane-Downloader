@@ -8,13 +8,15 @@ import { defaultImport } from "default-import";
 import _ARGV from "process.argv";
 const ARGV = defaultImport(_ARGV);
 
+import { readFileSync } from "fs";
+
 import "dotenv/config";
 
 import json5 from "json5";
 const { parse } = json5;
 
-import pjson from "../../../package.json" with { type: "json" };
-export const DownloaderVersion = pjson.version;
+import { isSea, getAsset } from "node:sea";
+export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON.parse(readFileSync("./package.json", "utf-8")).version;
 
 import type { PartialArgs, Settings } from "../types.js";
 
