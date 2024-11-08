@@ -35,6 +35,7 @@ export type Args = {
 	sanityCheck: boolean;
 	dbPath: string;
 	ffmpegPath: string;
+	settingsPath: string;
 };
 
 export type PartialArgs = Partial<Args & Settings>;

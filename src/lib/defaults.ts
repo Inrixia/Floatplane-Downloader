@@ -36,6 +36,7 @@ export const defaultArgs: Args = {
 	sanityCheck: false,
 	dbPath: "./db",
 	ffmpegPath: "",
+	settingsPath: "",
 };
 
 export const defaultSettings: Settings = {

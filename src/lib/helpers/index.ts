@@ -33,8 +33,10 @@ recursiveUpdate(args, env, { setUndefined: false, setDefined: true });
 recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
 rebuildTypes(args, defaultArgs);
 
+const settingsPath = args.settingsPath ?? `${args.dbPath}/settings.json`;
+
 export const settings = { ...defaultSettings };
-const newSettings = db<Settings>(`${args.dbPath}/settings.json`, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
+const newSettings = db<Settings>(settingsPath, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, newSettings, { setUndefined: true, setDefined: true });
 recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
 rebuildTypes(settings, defaultSettings);
