@@ -1,4 +1,4 @@
-import { getEnv, recursiveUpdate } from "@inrixia/helpers/object";
+import { getEnv, recursiveUpdate, rebuildTypes } from "@inrixia/helpers/object";
 import { defaultArgs, defaultSettings } from "../defaults.js";
 import { Histogram } from "prom-client";
 import db from "@inrixia/db";
@@ -28,15 +28,16 @@ import { Floatplane } from "floatplane";
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 const env = getEnv();
 
-export const args = defaultArgs;
+export const args = { ...defaultArgs };
 recursiveUpdate(args, env, { setUndefined: false, setDefined: true });
 recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
+rebuildTypes(args, defaultArgs);
 
-export const settings = defaultSettings;
+export const settings = { ...defaultSettings };
 const newSettings = db<Settings>(`${args.dbPath}/settings.json`, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, newSettings, { setUndefined: true, setDefined: true });
-
 recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
+rebuildTypes(settings, defaultSettings);
 
 if (env.__FPDSettings !== undefined) {
 	if (typeof env.__FPDSettings !== "string") throw new Error("The __FPDSettings environment variable cannot be parsed!");
