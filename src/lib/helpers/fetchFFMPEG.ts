@@ -3,7 +3,7 @@ import { args } from "./index.js";
 import fs from "fs";
 import { dirname } from "path";
 
-export const ffmpegPath = args.ffmpegPath ?? `${args.dbPath}/${getBinaryFilename("ffmpeg", detectPlatform())}`;
+export const ffmpegPath = args.ffmpegPath || `${args.dbPath}/${getBinaryFilename("ffmpeg", detectPlatform())}`;
 
 export const fetchFFMPEG = (): Promise<void> =>
 	new Promise((resolve, reject) => {
