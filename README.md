@@ -2,7 +2,7 @@
 
 ### **[Live Downloader Metrics Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
-![Active Downloaders](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)>) ![Queued Videos](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued&color=rgb(255%2C%20152%2C%2048)>) ![Speed](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)>)
+![Active Downloaders](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)>) ![Queued Videos](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued%20Videos&color=rgb(255%2C%20152%2C%2048)>) ![Speed](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)>)
 
 ![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
 **This project is unofficial and not in any way affiliated with LMG**<br>
@@ -37,19 +37,19 @@ Go install it using the unraid template! [**unraid template**](https://unraid.ne
 2. Run the binary and follow the setup prompts.<br>
 
 3. **Profit?!**:<br>
-   At this point you should be completely set-up and ready to go!<br>
-   To start the downloader in the future all you need to do is run the binary.
-   <br>
 
-For more info on setting up plex & available settings check out the Wikis:
+At this point you should be completely set-up and ready to go!  
+To start the downloader in the future all you need to do is run the binary.
+
+For further customization please read the **[Settings Wiki](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)**
+
+If you want to setup plex please follow the guide in the Wikis:
 
 # Wikis:
 
 - [Setting up Plex](https://github.com/Inrixia/Floatplane-PlexDownloader/blob/master/wiki/plex.md)
-- [Settings Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/settings.md)
 - [Docker Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/docker.md)
 - [Advanced Env Info](https://github.com/Inrixia/Floatplane-Downloader/blob/master/wiki/advenv.md)
-  <br>
 
 **Note**: This is licenced under the GNU Affero General Public License v3.0. I am happy for you to use/modify/contribute to the source code as long as you provide a link back to here.
 <br>

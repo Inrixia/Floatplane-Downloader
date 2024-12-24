@@ -28,6 +28,14 @@ export default [
 
 		rules: {
 			"prettier/prettier": 2,
+			"prefer-arrow-callback": ["error"],
+			"func-style": ["error", "expression"],
+		},
+	},
+	{
+		files: ["src/subscriptionFetching.ts", "src/seekAndDestroy.ts"],
+		rules: {
+			"func-style": "off",
 		},
 	},
 ];

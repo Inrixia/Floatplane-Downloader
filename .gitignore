@@ -6,9 +6,6 @@ desktop.ini
 .DS_Store
 ._*
 
-# VSCode Directory
-.vscode/
-
 # Dependency directories
 node_modules/
 

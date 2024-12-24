@@ -1,4 +1,4 @@
-import { MultiProgressBars } from "multi-progress-bars";
+import { MultiProgressBars, type UpdateOptions } from "multi-progress-bars";
 import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
 import type { Progress } from "got";
 import chalk from "chalk-template";
@@ -24,16 +24,18 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 
 		this.title = title.slice(0, 32).trim();
 		let i = 1;
-		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${title.trim().slice(0, 32).trim()} [${++i}]`;
+		while (ProgressBars._Bars.getIndex(this.title) !== undefined) this.title = `${this.title} [${++i}]`;
 		ProgressBars.Total++;
 	}
-
-	public start() {
-		ProgressBars._Bars.addTask(this.title, { type: "percentage" });
-		ProgressBars._Bars.updateTask(this.title, { percentage: 0 });
+	private updateTask(updateOptions?: UpdateOptions) {
+		if (ProgressBars._Bars.getIndex(this.title) === undefined) {
+			ProgressBars._Bars.addTask(this.title, { type: "percentage" });
+		}
+		ProgressBars._Bars.updateTask(this.title, updateOptions);
 	}
+
 	public log(message: string) {
-		ProgressBars._Bars.updateTask(this.title, { message });
+		this.updateTask({ message });
 	}
 	private reset() {
 		ProgressBars.DownloadSpeed -= this._downloadSpeed;
@@ -41,13 +43,16 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		this._downloadSpeed = 0;
 		this.updateSummaryBar();
 	}
-	public error(message: string) {
+	public error(err: unknown) {
 		ProgressBars.Errors++;
-		this.log(chalk`{red ERR}: ${message}`);
-		this.reset();
+		const errMsg = this.sanitizeError(err);
+		const errStatement = chalk`{red ERR}: ${errMsg}`;
+		this.log(errStatement);
+		return errStatement;
 	}
 	public done(message: string) {
 		ProgressBars.Done += 1;
+		this.updateTask(); // Ensure the bar exists
 		ProgressBars._Bars.done(this.title, { message });
 		this.reset();
 		setTimeout(() => ProgressBars._Bars.removeTask(this.title), 5000);
@@ -78,7 +83,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 		const speed = chalk`{green ${(this._downloadSpeed / 125000).toFixed(2)} mb/s}`;
 		const eta = chalk`ETA: {blue ${Math.floor(downloadETA / 60)}m ${Math.floor(downloadETA) % 60}s}`;
 
-		ProgressBars._Bars.updateTask(this.title, {
+		this.updateTask({
 			percentage: progress.percent,
 			message: `${downloaded} ${speed} ${eta}`,
 		});

@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.4.2"
+      "version": "11.2.0"
     },
     {
       "type": "datasource",
@@ -54,7 +54,7 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 2,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
@@ -96,6 +96,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -107,7 +108,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -160,11 +161,13 @@
         "y": 0
       },
       "id": 14,
+      "interval": "5m",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -176,7 +179,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -185,7 +188,8 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(increase(downloaded_total[5y]))",
+          "exemplar": false,
+          "expr": "sum(increase(downloaded_total[3d]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -230,11 +234,13 @@
         "y": 0
       },
       "id": 15,
+      "interval": "5m",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -246,7 +252,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -255,7 +261,8 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(increase(downloaded_bytes_total[5y]))",
+          "exemplar": false,
+          "expr": "sum(increase(downloaded_bytes_total[3d]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -307,6 +314,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -318,7 +326,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -359,6 +367,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -413,6 +422,7 @@
           "showLegend": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "multi",
           "sort": "desc"
         }
@@ -425,7 +435,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "code",
+          "editorMode": "builder",
           "exemplar": false,
           "expr": "count by(version) (avg_over_time(instance[1m]))",
           "format": "time_series",
@@ -480,6 +490,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -491,7 +502,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -499,9 +510,10 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "sum(irate(downloaded_bytes_total[10s])) * 8",
+          "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
@@ -533,6 +545,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -602,6 +615,21 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "5edcdeef66f28166e4adc090 "
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -616,18 +644,19 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
             "max",
+            "mean",
             "last"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true,
-          "sortBy": "Last",
+          "sortBy": "Max",
           "sortDesc": true
         },
         "tooltip": {
-          "mode": "multi",
+          "maxHeight": 600,
+          "mode": "single",
           "sort": "desc"
         }
       },
@@ -638,25 +667,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "irate(downloaded_bytes_total[10s]) * 8 > 0",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "interval": "1s",
-          "legendFormat": "{{instanceHash}} ",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum(irate(downloaded_bytes_total[10s])) * 8",
+          "editorMode": "code",
+          "expr": "sum(irate(downloaded_bytes_total[10s]) * 8) ",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -666,6 +678,20 @@
           "range": true,
           "refId": "B",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "irate(downloaded_bytes_total[10s]) * 8 > 0",
+          "hide": false,
+          "instant": false,
+          "interval": "1s",
+          "legendFormat": "{{id}}",
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "Download Speed",
@@ -688,6 +714,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -713,6 +740,7 @@
               "mode": "off"
             }
           },
+          "fieldMinMax": false,
           "mappings": [],
           "noValue": "0",
           "thresholds": {
@@ -739,7 +767,7 @@
         "y": 15
       },
       "id": 3,
-      "interval": "1s",
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [],
@@ -748,6 +776,7 @@
           "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "desc"
         }
@@ -764,8 +793,8 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "interval": "1s",
-          "legendFormat": "{{instanceHash}} ",
+          "interval": "",
+          "legendFormat": "{{id}} ",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -792,6 +821,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -836,13 +866,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 16,
         "x": 0,
         "y": 20
       },
       "id": 2,
-      "interval": "1s",
       "options": {
         "legend": {
           "calcs": [
@@ -856,6 +885,7 @@
           "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "desc"
         }
@@ -872,8 +902,8 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "interval": "1s",
-          "legendFormat": "{{instanceHash}} ",
+          "interval": "",
+          "legendFormat": "{{id}} ",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -912,18 +942,18 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 8,
         "x": 16,
         "y": 20
       },
       "id": 20,
-      "interval": "1s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -935,7 +965,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": {
@@ -948,7 +978,7 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "interval": "1s",
+          "interval": "",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A",
@@ -975,6 +1005,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1025,7 +1056,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 25
+        "y": 26
       },
       "id": 10,
       "options": {
@@ -1042,6 +1073,7 @@
           "sortDesc": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1061,7 +1093,7 @@
           "hide": false,
           "includeNullMetadata": false,
           "instant": false,
-          "interval": "1s",
+          "interval": "",
           "legendFormat": "{{pathname}} ({{status}})",
           "range": true,
           "refId": "B",
@@ -1088,6 +1120,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1139,10 +1172,9 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 26
       },
       "id": 12,
-      "interval": "1s",
       "options": {
         "legend": {
           "calcs": [
@@ -1157,6 +1189,7 @@
           "sortDesc": true
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1170,13 +1203,13 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(pathname, status) (rate(request_duration_ms_count[1m])) * 60 > 0",
+          "expr": "sum by(pathname, status) (rate(request_duration_ms_count{instance!=\"5fe3ecf21326b34d82d013c0\"}[5m])) * 60 > 0",
           "format": "time_series",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": false,
           "instant": false,
-          "interval": "1s",
+          "interval": "",
           "legendFormat": "{{pathname}} ({{status}})",
           "range": true,
           "refId": "A",
@@ -1203,6 +1236,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1234,8 +1268,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1251,7 +1284,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 37
       },
       "id": 11,
       "interval": "1s",
@@ -1259,10 +1292,12 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "right",
+          "showLegend": true,
+          "width": 400
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1307,6 +1342,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1338,8 +1374,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1355,7 +1390,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 37
       },
       "id": 17,
       "options": {
@@ -1366,6 +1401,7 @@
           "showLegend": false
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "desc"
         }
@@ -1383,9 +1419,9 @@
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "interval": "5s",
+          "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{instanceHash}} ",
+          "legendFormat": "{{id}} ",
           "metric": "",
           "range": true,
           "refId": "A",
@@ -1397,14 +1433,14 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "5s",
+  "refresh": "auto",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -1424,6 +1460,6 @@
   "timezone": "browser",
   "title": "Floatplane Downloader",
   "uid": "edhe5hq3k20owc",
-  "version": 193,
+  "version": 233,
   "weekStart": ""
 }

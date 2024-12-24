@@ -1,0 +1,59 @@
+name: "[dev] Release"
+
+on:
+ push:
+  branches:
+   - "dev"
+  paths-ignore:
+   - "**/*.md"
+   - ".vscode/**"
+   - "artwork/**"
+   - "wiki/**"
+
+jobs:
+ Build:
+  uses: ./.github/workflows/build.yml
+
+ Release:
+  name: Release dev build on GitHub
+  needs: Build
+  runs-on: ubuntu-latest
+
+  steps:
+   - name: Download All Artifacts
+     uses: actions/download-artifact@v4
+     with:
+      path: ./build/
+      merge-multiple: true
+
+   - name: Publish dev release on GitHub
+     uses: marvinpinto/action-automatic-releases@latest
+     with:
+      repo_token: ${{ secrets.GITHUB_TOKEN }}
+      automatic_release_tag: dev
+      prerelease: true
+      title: Latest
+      files: build/*
+
+ DockerHub:
+  name: Publish dev build to DockerHub
+  needs: Build
+  runs-on: ubuntu-latest
+
+  steps:
+   - name: Set up Docker Buildx
+     uses: docker/setup-buildx-action@v3
+
+   - name: Login to DockerHub
+     uses: docker/login-action@v3
+     with:
+      username: ${{ secrets.DOCKER_USERNAME }}
+      password: ${{ secrets.DOCKER_PASSWORD }}
+
+   - name: Build & Publish dev on DockerHub
+     uses: docker/build-push-action@v5
+     with:
+      push: true
+      tags: inrix/floatplane-downloader:dev
+      cache-from: type=gha
+      cache-to: type=gha,mode=max

@@ -137,7 +137,10 @@ importers:
         version: 5.2.1(eslint-config-prettier@9.1.0(eslint@9.14.0))(eslint@9.14.0)(prettier@3.3.3)
       got:
         specifier: ^14.4.3
-        version: 14.4.4
+        version: 14.4.3
+      postject:
+        specifier: 1.0.0-alpha.6
+        version: 1.0.0-alpha.6
       typescript:
         specifier: ^5.7.0-beta
         version: 5.7.0-dev.20241105

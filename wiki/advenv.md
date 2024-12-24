@@ -36,24 +36,10 @@ extras_stripSubchannelPrefix=true
 extras_downloadArtwork=true
 extras_saveNfo=true
 __FPDSettings="{
-	subscriptions: {
-		\"59f94c0bdd241b70349eb72b\": {
-			channels: {
-				\"Floatplane Exclusive\": {
-					title: \"Floatplane Exclusive\",
-					skip: false,
-					identifiers: [
-						{
-							check: \"FP Exclusive: \",
-							type: \"title\"
-						}
-					],
-					consoleColor: \"\u001b[38;5;200m\",
-					daysToKeepVideos: 123
-				},
-			},
-		},
-	},
+	floatplane: {
+		videosToSearch: 25,
+		videoResolution: 360,
+	}
 }"
 ```
 
