@@ -1,4 +1,4 @@
-import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers/object";
+import { getEnv, recursiveUpdate, rebuildTypes } from "@inrixia/helpers/object";
 import { defaultArgs, defaultSettings } from "../defaults.js";
 import { Histogram } from "prom-client";
 import db from "@inrixia/db";
@@ -22,9 +22,33 @@ import type { PartialArgs, Settings } from "../types.js";
 
 import { FileCookieStore } from "tough-cookie-file-store";
 import { CookieJar } from "tough-cookie";
-export const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"));
 
 import { Floatplane } from "floatplane";
+
+const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
+const env = getEnv();
+
+export const args = { ...defaultArgs };
+recursiveUpdate(args, env, { setUndefined: false, setDefined: true });
+recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
+rebuildTypes(args, defaultArgs);
+
+const settingsPath = args.settingsPath || `${args.dbPath}/settings.json`;
+
+export const settings = { ...defaultSettings };
+const newSettings = db<Settings>(settingsPath, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
+recursiveUpdate(settings, newSettings, { setUndefined: true, setDefined: true });
+recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
+rebuildTypes(settings, defaultSettings);
+
+if (env.__FPDSettings !== undefined) {
+	if (typeof env.__FPDSettings !== "string") throw new Error("The __FPDSettings environment variable cannot be parsed!");
+	recursiveUpdate(settings, parse(env.__FPDSettings.replaceAll('\\"', '"')), { setUndefined: false, setDefined: true });
+}
+
+recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
+
+export const cookieJar = new CookieJar(new FileCookieStore(`${args.dbPath}/cookies.json`));
 export const fApi = new Floatplane(
 	cookieJar,
 	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
@@ -57,25 +81,6 @@ fApi.extend({
 		],
 	},
 });
-
-export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
-recursiveUpdate(settings, defaultSettings);
-
-const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
-rebuildTypes(argv, { ...defaultSettings, ...defaultArgs });
-recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
-
-const env = getEnv();
-rebuildTypes(env, { ...defaultSettings, ...defaultArgs });
-
-if (env.__FPDSettings !== undefined) {
-	if (typeof env.__FPDSettings !== "string") throw new Error("The __FPDSettings environment variable cannot be parsed!");
-	recursiveUpdate(settings, parse(env.__FPDSettings.replaceAll('\\"', '"')), { setUndefined: false, setDefined: true });
-}
-
-recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
-
-export const args = { ...argv, ...env };
 
 // eslint-disable-next-line no-control-regex
 const headlessStdoutRegex = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;

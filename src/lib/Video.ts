@@ -25,6 +25,8 @@ import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
 import { nll, withContext } from "./logging/ProgressLogger.js";
 
+import { ffmpegPath } from "./helpers/fetchFFMPEG.js";
+
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
 

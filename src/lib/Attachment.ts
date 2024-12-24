@@ -1,7 +1,7 @@
 import db from "@inrixia/db";
 import { nPad } from "@inrixia/helpers/math";
 import { ValueOfA } from "@inrixia/helpers/ts";
-import { settings } from "./helpers/index.js";
+import { settings, args } from "./helpers/index.js";
 import sanitize from "sanitize-filename";
 
 import { dirname, basename, extname } from "path";
@@ -32,7 +32,7 @@ enum Extensions {
 }
 
 export class Attachment implements AttachmentAttributes {
-	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(`./db/attachments.json`);
+	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(`${args.dbPath}/attachments.json`);
 	public static readonly Extensions = Extensions;
 
 	public readonly attachmentId: string;
