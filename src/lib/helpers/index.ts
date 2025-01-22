@@ -28,18 +28,18 @@ import { Floatplane } from "floatplane";
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 const env = getEnv();
 
-export const args = { ...defaultArgs };
-recursiveUpdate(args, env, { setUndefined: false, setDefined: true });
-recursiveUpdate(args, argv, { setUndefined: false, setDefined: true });
+export const args = { ...defaultArgs, ...argv, ...env };
 rebuildTypes(args, defaultArgs);
 
 const settingsPath = args.settingsPath || `${args.dbPath}/settings.json`;
 
-export const settings = { ...defaultSettings };
-const newSettings = db<Settings>(settingsPath, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
-recursiveUpdate(settings, newSettings, { setUndefined: true, setDefined: true });
+export const settings = db<Settings>(settingsPath, { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
+recursiveUpdate(settings, defaultSettings);
+
+rebuildTypes(argv, { ...defaultSettings, ...defaultArgs });
 recursiveUpdate(settings, argv, { setUndefined: false, setDefined: true });
-rebuildTypes(settings, defaultSettings);
+
+rebuildTypes(env, { ...defaultSettings, ...defaultArgs });
 
 if (env.__FPDSettings !== undefined) {
 	if (typeof env.__FPDSettings !== "string") throw new Error("The __FPDSettings environment variable cannot be parsed!");
