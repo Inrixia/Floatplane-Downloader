@@ -6,7 +6,7 @@ import sanitize from "sanitize-filename";
 
 import { dirname, basename, extname } from "path";
 
-import { rename, readdir } from "fs/promises";
+import { rename, readdir, unlink } from "fs/promises";
 import { nll } from "./logging/ProgressLogger.js";
 
 type AttachmentInfo = {
@@ -15,6 +15,7 @@ type AttachmentInfo = {
 	filePath: string;
 	releaseDate: number;
 	videoTitle: string;
+	channelTitle: string;
 };
 
 type AttachmentAttributes = {
@@ -70,6 +71,7 @@ export class Attachment implements AttachmentAttributes {
 			releaseDate: this.releaseDate.getTime(),
 			filePath: this.filePath,
 			videoTitle: this.videoTitle,
+			channelTitle: this.channelTitle,
 		});
 		// If the attachment existed on another path then move it.
 		if (attachmentInfo.filePath !== this.filePath) {
@@ -82,11 +84,21 @@ export class Attachment implements AttachmentAttributes {
 		if (attachmentInfo.videoTitle !== this.videoTitle) attachmentInfo.videoTitle = this.videoTitle;
 	}
 
-	public static find(filter: (video: AttachmentInfo) => boolean) {
-		return Object.values(this.AttachmentsDB).filter(filter);
+	public static find(filter: (attachment: AttachmentInfo) => boolean) {
+		return Object.entries(this.AttachmentsDB)
+			.map(([attachmentId, attachmentInfo]) => ({
+				attachmentId,
+				...attachmentInfo,
+			}))
+			.filter(filter);
 	}
+
 	public attachmentInfo(): AttachmentInfo {
 		return Attachment.AttachmentsDB[this.attachmentId];
+	}
+	public async delete() {
+		await Promise.allSettled([unlink(this.partialPath), unlink(this.muxedPath), unlink(this.nfoPath), unlink(this.artworkPath)]);
+		delete Attachment.AttachmentsDB[this.attachmentId];
 	}
 
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;

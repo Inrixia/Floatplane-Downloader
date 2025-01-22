@@ -9,7 +9,7 @@ import { promisify } from "util";
 import chalk from "chalk-template";
 
 import { createWriteStream } from "fs";
-import fs from "fs/promises";
+import { mkdir, stat, writeFile, utimes, unlink } from "fs/promises";
 
 import { Attachment } from "./Attachment.js";
 
@@ -102,7 +102,7 @@ export class Video extends Attachment {
 		await Video.DownloadSemaphore.obtain();
 		try {
 			// Make sure the folder for the video exists
-			await fs.mkdir(this.folderPath, { recursive: true }).catch((err) => this.onError(err, true));
+			await mkdir(this.folderPath, { recursive: true }).catch((err) => this.onError(err, true));
 			if (settings.extras.saveNfo) {
 				await this.saveNfo().catch(withContext(`Saving .nfo file`)).catch(this.onError);
 			}
@@ -196,7 +196,7 @@ export class Video extends Attachment {
 	}
 
 	private static async pathBytes(path: string) {
-		const { size } = await fs.stat(path).catch(() => ({ size: -1 }));
+		const { size } = await stat(path).catch(() => ({ size: -1 }));
 		return size;
 	}
 
@@ -250,8 +250,8 @@ export class Video extends Attachment {
 			.txt(episode)
 			.up()
 			.end({ prettyPrint: true });
-		await fs.writeFile(this.nfoPath, nfo, "utf8");
-		await fs.utimes(this.nfoPath, new Date(), this.releaseDate);
+		await writeFile(this.nfoPath, nfo, "utf8");
+		await utimes(this.nfoPath, new Date(), this.releaseDate);
 		this.logger.log("Saved .nfo");
 	}
 
@@ -272,8 +272,8 @@ export class Video extends Attachment {
 		const artworkPathWithExtension = `${this.artworkPath}${fileExtension}`;
 
 		// Save the thumbnail with the correct file extension
-		await fs.writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
-		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
+		await writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
+		await utimes(artworkPathWithExtension, new Date(), this.releaseDate);
 		this.logger.log("Saved artwork");
 	}
 
@@ -328,7 +328,7 @@ export class Video extends Attachment {
 			artworkEmbed = ["-i", `${this.artworkPath}${artworkExtension}`, "-map", "2", "-disposition:0", "attached_pic"];
 		}
 
-		await fs.unlink(this.muxedPath).catch(nll);
+		await unlink(this.muxedPath).catch(nll);
 
 		const description = htmlToText(this.description);
 		const metadata = {
@@ -344,7 +344,7 @@ export class Video extends Attachment {
 			.map(([key, value]) => `${key}=${value.replaceAll(/\n/g, "\\\n")}`)
 			.join("\n");
 		try {
-			await fs.writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
+			await writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
 			await new Promise((resolve, reject) =>
 				execFile(
 					ffmpegPath,
@@ -372,14 +372,14 @@ export class Video extends Attachment {
 				),
 			);
 			// Remove the partial file when done
-			await fs.unlink(this.partialPath);
+			await unlink(this.partialPath);
 			// Set the files update time to when the video was released
-			await fs.utimes(this.muxedPath, new Date(), this.releaseDate);
+			await utimes(this.muxedPath, new Date(), this.releaseDate);
 
 			(await this.attachmentInfo()).muxedBytes = await Video.pathBytes(this.muxedPath);
 		} finally {
 			// Ensure the metadata file is removed
-			await fs.unlink(metadataFilePath).catch(nll);
+			await unlink(metadataFilePath).catch(nll);
 		}
 	}
 

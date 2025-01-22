@@ -1,7 +1,6 @@
 import { fApi } from "./helpers/index.js";
 
 import chalk from "chalk-template";
-import { rm } from "fs/promises";
 
 import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost, VideoContent } from "floatplane/content";
@@ -9,6 +8,7 @@ import type { BlogPost } from "floatplane/creator";
 
 import { settings } from "./helpers/index.js";
 import { Video } from "./Video.js";
+import { Attachment } from "./Attachment.js";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
 	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;
@@ -39,26 +39,18 @@ export default class Subscription {
 		for (const channel of this.channels) {
 			if (channel.daysToKeepVideos !== undefined) {
 				const ignoreBeforeTimestamp = Subscription.getIgnoreBeforeTimestamp(channel);
-				process.stdout.write(
-					chalk`Checking for videos older than {cyanBright ${channel.daysToKeepVideos}} days in channel {yellow ${channel.title}} for {redBright deletion}...`,
-				);
-				let deletedFiles = 0;
 				let deletedVideos = 0;
 
-				for (const video of Video.find((video) => video.releaseDate < ignoreBeforeTimestamp && video.videoTitle === channel.title)) {
+				for (const video of Video.find((video) => {
+					return video.releaseDate < ignoreBeforeTimestamp && video.channelTitle === channel.title;
+				})) {
 					deletedVideos++;
-					const deletionResults = await Promise.allSettled([
-						rm(`${video.filePath}.mp4`),
-						rm(`${video.filePath}.partial`),
-						rm(`${video.filePath}.nfo`),
-						rm(`${video.filePath}.png`),
-					]);
-					for (const result of deletionResults) {
-						if (result.status === "fulfilled") deletedFiles++;
-					}
+					await new Attachment({
+						...video,
+						releaseDate: new Date(video.releaseDate),
+					}).delete();
 				}
-				if (deletedFiles === 0) console.log(" No files found for deletion.");
-				else console.log(chalk` Deleted {redBright ${deletedVideos}} videos, {redBright ${deletedFiles}} files.`);
+				console.log(chalk`[{yellow ${channel.title}}] deleted {redBright ${deletedVideos}} videos older than {cyanBright ${channel.daysToKeepVideos}} days`);
 			}
 		}
 	};
