@@ -347,7 +347,7 @@ export class Video extends Attachment {
 			await fs.writeFile(metadataFilePath, `;FFMETADATA\n${metadataContent}`);
 			await new Promise((resolve, reject) =>
 				execFile(
-					"./db/ffmpeg",
+					ffmpegPath,
 					[
 						"-i",
 						this.partialPath,
