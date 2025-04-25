@@ -1,6 +1,7 @@
 import prompts from "prompts";
 import type { Extras, Resolution } from "../types.js";
 import { Video } from "../Video.js";
+import { settings, fApi } from "../helpers/index.js";
 
 /**
  * Prompts user for the video resolution they want to download in.
@@ -79,3 +80,63 @@ export const daysToKeepVideos = async (initial: number): Promise<number> =>
 			min: 1,
 		})
 	).daysToKeepVideos || initial;
+/**
+ * Prompts user for enabling/disabling channels
+ */
+export const downloadChannel = async (): Promise<void> => {
+	const userSubscription = await fApi.user.subscriptions();
+	const channels = await fApi.creator.channels(userSubscription.map((channel) => channel.creator));
+
+	const subscriptions = userSubscription.map((subscription) => ({
+		title: subscription.plan.title,
+		value: subscription.creator,
+		channels: channels
+			.filter((chan) => chan.creator === subscription.creator)
+			.map((e) => ({
+				id: e.id,
+				title: e.title,
+				skip: false,
+				isChannel:
+					e.id === "6413623f5b12cca228a28e78"
+						? `(post, video) => isChannel(post, '${e.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+						: `(post) => isChannel(post, '${e.id}')`,
+			})),
+	}));
+
+	let res: string | undefined = undefined;
+
+	while (res !== "confirm") {
+		res = (
+			await prompts({
+				type: "select",
+				name: "subscriptionSelect",
+				message: "Select a subscription",
+				choices: [...subscriptions, { title: "Confirm", value: "confirm" }],
+			})
+		).subscriptionSelect;
+
+		if (res) {
+			const selected = subscriptions.find((subscription) => subscription.value === res);
+			if (selected) {
+				const result = await prompts({
+					type: "multiselect",
+					name: "downloadChannel",
+					message: "Enable/Disable channels:",
+					choices: selected.channels.map((e) => ({ title: e.title, value: e.id, selected: !e.skip })),
+					hint: "- Space to select. Return to submit",
+				});
+
+				selected.channels = selected.channels.map((e) => ({ ...e, skip: !result.downloadChannel.includes(e.id) }));
+			}
+		}
+	}
+
+	for (const subscription of subscriptions) {
+		settings.subscriptions[subscription.value] ??= {
+			creatorId: subscription.value,
+			plan: subscription.title,
+			skip: false,
+			channels: subscription.channels.map((channel) => ({ title: channel.title, skip: channel.skip, isChannel: channel.isChannel })),
+		};
+	}
+};
