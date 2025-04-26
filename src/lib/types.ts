@@ -69,3 +69,5 @@ export type Settings = {
 		contributeMetrics: boolean;
 	};
 };
+
+export const PROMPT_CONFIRM = "confirm";
