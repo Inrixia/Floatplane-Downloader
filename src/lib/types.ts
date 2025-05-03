@@ -46,6 +46,14 @@ export interface Extras extends Record<string, boolean> {
 
 export type Resolution = ValueOfA<Resolutions>;
 
+export type Notification = {
+	telegram?: {
+		token: string;
+		chatId: string;
+		enabled: boolean;
+	};
+};
+
 export type Settings = {
 	__SettingsWiki: string;
 	runQuickstartPrompts: boolean;
@@ -68,4 +76,5 @@ export type Settings = {
 		prometheusExporterPort: number | null;
 		contributeMetrics: boolean;
 	};
+	notifications: Notification;
 };

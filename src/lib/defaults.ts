@@ -65,4 +65,11 @@ export const defaultSettings: Settings = {
 		prometheusExporterPort: null,
 		contributeMetrics: true,
 	},
+	notifications: {
+		telegram: {
+			enabled: false,
+			token: "",
+			chatId: "",
+		},
+	},
 };

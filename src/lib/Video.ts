@@ -23,6 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
+import { notifyDownloaded, notifyError } from "./notifications/notify.js";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -178,6 +179,7 @@ export class Video extends Attachment {
 				}
 				logger.done(chalk`{cyan Download & Muxing complete!}`);
 				promDownloadedTotal.inc();
+				notifyDownloaded(this);
 				break;
 			} catch (error) {
 				const message = this.parseErrorMessage(error);
@@ -188,6 +190,7 @@ export class Video extends Attachment {
 					await sleep(1000 * retries);
 				} else {
 					logger.error(`${message} - Failed`);
+					notifyError(this);
 				}
 			}
 		}
