@@ -1,19 +1,23 @@
 import { settings } from "../helpers/index.js";
 import { Video } from "../Video.js";
-import telegramNotify from "./telegram.js";
+import discordSendMessage from "./discord.js";
+import telegramSendMessage from "./telegram.js";
 
-export const notifyDownloaded = (video: Video) => {
-	const { videoTitle, channelTitle } = video;
-	const message = `Downloaded ${videoTitle} from ${channelTitle}`;
+const notifyAll = (message: string) => {
 	if (settings.notifications.telegram && settings.notifications.telegram.enabled) {
-		telegramNotify(message);
+		telegramSendMessage(message);
+	}
+	if (settings.notifications.discord && settings.notifications.discord.enabled) {
+		discordSendMessage(message);
 	}
 };
 
+export const notifyDownloaded = (video: Video) => {
+	const message = `Downloaded ${video.videoTitle} from ${video.channelTitle}`;
+	notifyAll(message);
+};
+
 export const notifyError = (video: Video) => {
-	const { videoTitle, channelTitle } = video;
-	const message = `Error downloading ${videoTitle} from ${channelTitle}`;
-	if (settings.notifications.telegram && settings.notifications.telegram.enabled) {
-		telegramNotify(message);
-	}
+	const message = `Error downloading ${video.videoTitle} from ${video.channelTitle}`;
+	notifyAll(message);
 };

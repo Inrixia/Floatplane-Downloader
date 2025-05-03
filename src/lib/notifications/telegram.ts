@@ -1,8 +1,9 @@
 import { settings } from "../helpers/index.js";
 
-export default async function telegramNotify(message: string) {
+export default async function telegramSendMessage(message: string) {
 	const telegram = settings.notifications.telegram;
-	if (!telegram || !telegram.enabled) return;
+	if (!telegram || !telegram.enabled || !telegram.token || !telegram.chatId || !message) return;
+
 	try {
 		fetch(`https://api.telegram.org/bot${telegram.token}/sendMessage`, {
 			method: "POST",

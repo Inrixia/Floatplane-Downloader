@@ -52,6 +52,10 @@ export type Notification = {
 		chatId: string;
 		enabled: boolean;
 	};
+	discord?: {
+		enabled: boolean;
+		webhookUrl: string;
+	};
 };
 
 export type Settings = {

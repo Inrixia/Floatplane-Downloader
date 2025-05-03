@@ -71,5 +71,9 @@ export const defaultSettings: Settings = {
 			token: "",
 			chatId: "",
 		},
+		discord: {
+			enabled: false,
+			webhookUrl: "",
+		},
 	},
 };
