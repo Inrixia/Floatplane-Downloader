@@ -64,7 +64,7 @@ const byteToMbits = 131072;
 
 export class Video extends Attachment {
 	private readonly description: string;
-	private readonly artworkUrl?: string;
+	public readonly artworkUrl?: string;
 
 	public static State = VideoState;
 
@@ -190,7 +190,7 @@ export class Video extends Attachment {
 					await sleep(1000 * retries);
 				} else {
 					logger.error(`${message} - Failed`);
-					notifyError(this);
+					notifyError(message, this);
 				}
 			}
 		}
