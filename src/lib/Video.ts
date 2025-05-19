@@ -24,6 +24,8 @@ import { updatePlex } from "./helpers/updatePlex.js";
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
 
+import type { TextTrack } from "./types.js";
+
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
 
@@ -64,6 +66,7 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	private readonly description: string;
 	private readonly artworkUrl?: string;
+	private readonly textTracks?: TextTrack[];
 
 	public static State = VideoState;
 
@@ -79,16 +82,19 @@ export class Video extends Attachment {
 
 	// Static cache of instances
 	public static readonly Videos: Record<string, Video> = {};
-	public static getOrCreate(videoInfo: VideoInfo): Video {
+	// TODO: Remove & textTracks after added to floatplane/content
+	public static getOrCreate(videoInfo: VideoInfo & { textTracks?: TextTrack[] }): Video {
 		if (this.Videos[videoInfo.attachmentId] !== undefined) return this.Videos[videoInfo.attachmentId];
 		return (this.Videos[videoInfo.attachmentId] = new this(videoInfo));
 	}
 
-	private constructor(videoInfo: VideoInfo) {
+	// TODO: Remove & textTracks after added to floatplane/content
+	private constructor(videoInfo: VideoInfo & { textTracks?: TextTrack[] }) {
 		super(videoInfo);
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
+		this.textTracks = videoInfo.textTracks ?? [];
 	}
 
 	public async download() {
@@ -157,6 +163,13 @@ export class Video extends Attachment {
 								const message = this.parseErrorMessage(error);
 								logger.error(`Failed to save artwork! ${message} - Skipping`);
 							}
+						}
+
+						// Downloading subtitles
+						try {
+							await this.downloadTextTracks();
+						} catch (error) {
+							logger.error(`Failed to save text tracks! ${error} - Skipping`);
 						}
 					}
 					// eslint-disable-next-line no-fallthrough
@@ -288,6 +301,18 @@ export class Video extends Attachment {
 		// Save the thumbnail with the correct file extension
 		await fs.writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
 		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
+	}
+
+	private async downloadTextTracks() {
+		if (!this.textTracks || this.textTracks.length === 0) return;
+
+		// Make sure the folder for the video exists
+		await fs.mkdir(this.folderPath, { recursive: true });
+
+		for (const track of this.textTracks) {
+			const vttContent = await (await fetch(track.src)).text();
+			await fs.writeFile(`${this.filePath}${track.language ? `.${track.language}` : ""}.vtt`, vttContent, "utf8");
+		}
 	}
 
 	// The number of available slots for making delivery requests,

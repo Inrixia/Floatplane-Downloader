@@ -69,3 +69,13 @@ export type Settings = {
 		contributeMetrics: boolean;
 	};
 };
+
+// @TODO: Move to floatplane/content
+export type TextTrack = {
+	id: string;
+	src: string;
+	kind: string;
+	language: string;
+	generated: boolean;
+	processing: boolean;
+};
