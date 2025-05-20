@@ -3,7 +3,7 @@ import { fApi } from "./helpers/index.js";
 import chalk from "chalk-template";
 import { rm } from "fs/promises";
 
-import type { ChannelOptions, SubscriptionSettings, TextTrack } from "./types.js";
+import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
 
@@ -68,19 +68,17 @@ export default class Subscription {
 	private static isChannelHelper = `const isChannel = (post, channelId) => (typeof post.channel !== 'string' ? post.channel.id : post.channel) === channelId`;
 
 	private async fetchTextTracks(attachmentId: string) {
-		const video = (await fApi.content.video(attachmentId)) as VideoContent & { textTracks?: TextTrack[] };
+		const video = await fApi.content.video(attachmentId);
 		return video.textTracks?.filter((track) => track.kind === "captions") ?? [];
 	}
 
-	// TODO: Remove & textTracks after added to floatplane/content
-	private async *matchChannel(blogPost: BlogPost & { textTracks?: TextTrack[] }): AsyncGenerator<Video> {
+	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
 		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
-			// TODO: Remove & textTracks after added to floatplane/content
-			let video: (VideoContent & { textTracks?: TextTrack[] }) | undefined = undefined;
+			let video: VideoContent | undefined = undefined;
 
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
@@ -88,7 +86,7 @@ export default class Subscription {
 				// Skip videos with no levels
 				if (video.levels.length === 0) continue;
 				post.title = removeRepeatedSentences(post.title, video.title);
-				post.textTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
+				video.textTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
 			}
 
 			for (const channel of this.channels) {
@@ -133,7 +131,7 @@ export default class Subscription {
 					channelTitle: channel.title,
 					videoTitle: post.title,
 					releaseDate: new Date(new Date(post.releaseDate).getTime() + dateOffset * 1000),
-					textTracks: post.textTracks ?? (await this.fetchTextTracks(attachmentId)),
+					textTracks: video?.textTracks ?? (await this.fetchTextTracks(attachmentId)),
 				});
 				break;
 			}

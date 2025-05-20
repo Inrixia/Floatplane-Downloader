@@ -23,8 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
-
-import type { TextTrack } from "./types.js";
+import { VideoContent } from "floatplane/content";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -59,6 +58,7 @@ export type VideoInfo = {
 	channelTitle: string;
 	videoTitle: string;
 	releaseDate: Date;
+	textTracks: VideoContent["textTracks"];
 };
 
 const byteToMbits = 131072;
@@ -66,7 +66,7 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	private readonly description: string;
 	private readonly artworkUrl?: string;
-	private readonly textTracks?: TextTrack[];
+	private readonly textTracks?: VideoContent["textTracks"];
 
 	public static State = VideoState;
 
@@ -82,14 +82,12 @@ export class Video extends Attachment {
 
 	// Static cache of instances
 	public static readonly Videos: Record<string, Video> = {};
-	// TODO: Remove & textTracks after added to floatplane/content
-	public static getOrCreate(videoInfo: VideoInfo & { textTracks?: TextTrack[] }): Video {
+	public static getOrCreate(videoInfo: VideoInfo): Video {
 		if (this.Videos[videoInfo.attachmentId] !== undefined) return this.Videos[videoInfo.attachmentId];
 		return (this.Videos[videoInfo.attachmentId] = new this(videoInfo));
 	}
 
-	// TODO: Remove & textTracks after added to floatplane/content
-	private constructor(videoInfo: VideoInfo & { textTracks?: TextTrack[] }) {
+	private constructor(videoInfo: VideoInfo) {
 		super(videoInfo);
 
 		this.description = videoInfo.description;
