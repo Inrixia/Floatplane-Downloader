@@ -39,18 +39,12 @@ jobs:
    - name: Install dependencies 📥
      run: pnpm install
 
-   - name: Test Bundle
-     run: pnpm run test-bundle
-
-   - name: Build Binaries
-     run: pnpm run build
+   - name: Build & Test
+     run: pnpm run test
 
    - name: Rename Float for Windows
      run: mv ./build/float ./build/float.exe
      if: matrix.platform.runs-on == 'windows-latest'
-
-   - name: Test Build Binaries
-     run: pnpm run test
 
    - name: Make artifacts output dir
      run: mkdir ./artifacts

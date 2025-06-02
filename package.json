@@ -7,13 +7,11 @@
     "tsc": "tsc --incremental",
     "start": "pnpm run bundle && node ./dist/float.cjs",
     "startHeadless": "pnpm run bundle && node ./dist/float.cjs --headless",
-    "sanity": "pnpm run test-bundle && pnpm run test",
-    "test-bundle": "pnpm run bundle && node ./dist/float.cjs --sanityCheck",
-    "test": "pnpm run build && ./build/float --sanityCheck",
+    "test": "pnpm run build && ./build/float --sanityCheck && node ./dist/float.cjs --sanityCheck",
     "makeBlob": "node --experimental-sea-config ./sea-config.json",
     "bundle": "rimraf ./dist && npx esbuild ./src/float.ts --bundle --minify --tree-shaking=true --platform=node --outfile=./dist/float.cjs",
     "inject": "npx postject ./build/float NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA",
-    "build": "node make.js ./build/float && pnpm run bundle && pnpm run makeBlob && pnpm run inject"
+    "build": "node make.js ./build/float && pnpm run bundle && pnpm run makeBlob && pnpm run inject && rimraf ./build/version"
   },
   "dependencies": {
     "@ctrl/plex": "^3.6.0",
