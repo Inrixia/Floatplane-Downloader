@@ -23,6 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
+import { notifyDownloaded, notifyError } from "./notifications/notify.js";
 import { nll, withContext } from "./logging/ProgressLogger.js";
 
 import { ffmpegPath } from "./helpers/fetchFFMPEG.js";
@@ -66,7 +67,7 @@ const byteToMbits = 131072;
 
 export class Video extends Attachment {
 	private readonly description: string;
-	private readonly artworkUrl?: string;
+	public readonly artworkUrl?: string;
 
 	public static State = VideoState;
 
@@ -136,9 +137,11 @@ export class Video extends Attachment {
 					}
 					this.logger.done(chalk`{cyan Downloaded!}`);
 					promDownloadedTotal.inc();
+          notifyDownloaded(this);
 					break;
 				} catch (err) {
 					this.onError(err);
+          notifyError(message, this);
 					if (retries < Video.MaxRetries) await sleep(5000);
 				}
 			}
