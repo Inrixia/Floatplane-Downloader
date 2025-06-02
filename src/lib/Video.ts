@@ -68,8 +68,9 @@ export type VideoInfo = {
 const byteToMbits = 131072;
 
 export class Video extends Attachment {
-	private readonly description: string;
+	public readonly description: string;
 	public readonly artworkUrl?: string;
+	public readonly textTracks?: VideoContent["textTracks"];
 
 	public static State = VideoState;
 
@@ -96,6 +97,7 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
+		this.textTracks = videoInfo.textTracks;
 		// Ensure onError is bound to this instance
 		this.onError = this.onError.bind(this);
 	}
@@ -287,6 +289,21 @@ export class Video extends Attachment {
 		await writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
 		await utimes(artworkPathWithExtension, new Date(), this.releaseDate);
 		this.logger.log("Saved artwork");
+	}
+
+	private async downloadCaptions() {
+		if (this.textTracks === undefined) return;
+		const captions = this.textTracks.filter((track) => track.kind === "captions");
+		if (captions.length === 0) return;
+		this.logger.log("Saving captions");
+
+		for (const caption of captions) {
+			const captionPath = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
+			if (await fileExists(captionPath)) continue;
+			const captionContent = await fetch(caption.src).then((res) => res.text());
+			await writeFile(captionPath, captionContent, "utf8");
+		}
+		this.logger.log("Saved captions");
 	}
 
 	// The number of available slots for making delivery requests,
