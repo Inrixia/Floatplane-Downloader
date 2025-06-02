@@ -13,7 +13,7 @@ import { mkdir, stat, unlink, utimes, writeFile } from "fs/promises";
 
 import { Attachment } from "./Attachment";
 
-import { nPad } from "@inrixia/helpers";
+import { nPad, Semaphore } from "@inrixia/helpers";
 
 import { args, fApi, settings } from "./helpers/index";
 import { Selector } from "./helpers/Selector";
@@ -21,9 +21,13 @@ import { updatePlex } from "./helpers/updatePlex";
 
 import { ProgressBars } from "./logging/ProgressBars";
 import { ProgressHeadless } from "./logging/ProgressConsole";
-import { nll, withContext } from "./logging/ProgressLogger";
+import { nll, ProgressLogger, withContext } from "./logging/ProgressLogger";
 
+import type { VideoContent } from "floatplane/content";
 import { ffmpegPath } from "./helpers/fetchFFMPEG";
+import { fileExists } from "./helpers/fileExists";
+import { discordEmbed, discordMessage } from "./notifications/discord";
+import { telegramMsg } from "./notifications/telegram";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -58,13 +62,14 @@ export type VideoInfo = {
 	channelTitle: string;
 	videoTitle: string;
 	releaseDate: Date;
+	textTracks?: VideoContent["textTracks"];
 };
 
 const byteToMbits = 131072;
 
 export class Video extends Attachment {
 	private readonly description: string;
-	private readonly artworkUrl?: string;
+	public readonly artworkUrl?: string;
 
 	public static State = VideoState;
 
@@ -97,7 +102,7 @@ export class Video extends Attachment {
 
 	public async download() {
 		promQueued.inc();
-		await Video.DownloadSemaphore.obtain();
+		const release = await Video.DownloadSemaphore.obtain();
 		try {
 			// Make sure the folder for the video exists
 			await mkdir(this.folderPath, { recursive: true }).catch((err) => this.onError(err, true));
@@ -132,6 +137,8 @@ export class Video extends Attachment {
 							}
 						}
 					}
+					telegramMsg(`Downloaded ${this.videoTitle} from ${this.channelTitle}`);
+					discordEmbed("New video downloaded", this);
 					this.logger.done(chalk`{cyan Downloaded!}`);
 					promDownloadedTotal.inc();
 					break;
@@ -141,7 +148,7 @@ export class Video extends Attachment {
 				}
 			}
 		} finally {
-			await Video.DownloadSemaphore.release();
+			release();
 			promQueued.dec();
 		}
 	}
@@ -149,7 +156,14 @@ export class Video extends Attachment {
 	private onError(err: unknown, throwAfterLog = false) {
 		const errStatement = this.logger.error(err);
 		console.error(`[${this.videoTitle}]`, errStatement);
-		promErrors.labels({ message: err instanceof Error ? err.message : err?.toString(), attachmentId: this.attachmentId }).inc();
+
+		const errStr = ProgressLogger.sanitizeError(err);
+		promErrors.labels({ message: errStr, attachmentId: this.attachmentId }).inc();
+
+		const message = `Error downloading ${this.videoTitle} from ${this.channelTitle}: ${errStr}`;
+		telegramMsg(message);
+		discordMessage(message);
+
 		if (throwAfterLog) throw err;
 	}
 
@@ -281,13 +295,13 @@ export class Video extends Attachment {
 	private static DeliverySemaphore = new Semaphore(2);
 	private async getDelivery() {
 		// Ensure that we only call the delivery endpoint twice a minute at most
-		await Video.DeliverySemaphore.obtain();
+		const release = await Video.DeliverySemaphore.obtain();
 
 		// Send download request video, assume the first video attached is the actual video as most will not have more than one video
 		const deliveryInfo = await fApi.cdn.delivery("download", this.attachmentId);
 
 		// Release the semaphore after DeliveryTimeout
-		setTimeout(() => Video.DeliverySemaphore.release(), Video.DeliveryTimeout);
+		setTimeout(release, Video.DeliveryTimeout);
 
 		return deliveryInfo?.groups?.[0];
 	}

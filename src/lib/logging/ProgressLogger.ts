@@ -13,7 +13,7 @@ export class ProgressLogger {
 	constructor(title: string) {
 		this.title = title.trim();
 	}
-	protected sanitizeError(err: unknown): string {
+	public static sanitizeError(err: unknown): string {
 		return err instanceof Error ? err.message : `Something weird happened, whatever was thrown was not a error! ${err}`;
 	}
 }

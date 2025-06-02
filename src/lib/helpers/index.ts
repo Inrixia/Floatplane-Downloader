@@ -20,8 +20,10 @@ export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON
 
 import type { PartialArgs, Settings } from "../types";
 
-import { CookieJar, type Store } from "tough-cookie";
-import { FileCookieStore } from "tough-cookie-file-store";
+import { CookieJar, Store } from "tough-cookie";
+// @ts-expect-error no types >:(
+import FileCookieStoreImport from "tough-cookie-file-store";
+const FileCookieStore = FileCookieStoreImport as typeof Store;
 
 import { Floatplane } from "floatplane";
 
@@ -48,7 +50,9 @@ if (env.__FPDSettings !== undefined) {
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
-export const cookieJar = new CookieJar(<Store>(<unknown>new FileCookieStore(`${args.dbPath}/cookies.json`)));
+// @ts-expect-error No types
+const fileCookieStore = new FileCookieStore(`${args.dbPath}/cookies.json`);
+export const cookieJar = new CookieJar(fileCookieStore);
 export const fApi = new Floatplane(
 	cookieJar,
 	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`

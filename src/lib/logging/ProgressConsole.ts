@@ -5,7 +5,7 @@ export class ProgressHeadless extends ProgressLogger implements IProgressLogger 
 		console.log(`${this.title} - ${message}`);
 	}
 	public error(err: unknown) {
-		this.log(`An error occoured: ${this.sanitizeError(err)}`);
+		this.log(`An error occoured: ${ProgressLogger.sanitizeError(err)}`);
 	}
 	public done = this.log;
 	public onDownloadProgress() {}

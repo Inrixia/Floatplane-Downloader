@@ -1,12 +1,12 @@
 import { settings } from "../helpers/index";
 import { Video } from "../Video";
 
-export const discordSendEmbed = async (title: string, video: Video) => {
+export const discordEmbed = async (title: string, video: Video) => {
 	const discord = settings.notifications.discord;
 	if (!discord || !discord.enabled || !discord.webhookUrl || !video) return;
 
 	try {
-		fetch(discord.webhookUrl, {
+		await fetch(discord.webhookUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -37,17 +37,17 @@ export const discordSendEmbed = async (title: string, video: Video) => {
 				],
 			}),
 		});
-	} catch {
-		console.error("Failed to send discord notification");
+	} catch (err) {
+		console.error("Failed to send discord notification", err);
 	}
 };
 
-export const discordSendMessage = async (message: string) => {
+export const discordMessage = async (message: string) => {
 	const discord = settings.notifications.discord;
 	if (!discord || !discord.enabled || !discord.webhookUrl || !message) return;
 
 	try {
-		fetch(discord.webhookUrl, {
+		await fetch(discord.webhookUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -56,7 +56,7 @@ export const discordSendMessage = async (message: string) => {
 				content: message,
 			}),
 		});
-	} catch {
-		console.error("Failed to send discord notification");
+	} catch (err) {
+		console.error("Failed to send discord notification", err);
 	}
 };

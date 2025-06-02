@@ -45,7 +45,7 @@ export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	}
 	public error(err: unknown) {
 		ProgressBars.Errors++;
-		const errMsg = this.sanitizeError(err);
+		const errMsg = ProgressLogger.sanitizeError(err);
 		const errStatement = chalk`{red ERR}: ${errMsg}`;
 		this.log(errStatement);
 		return errStatement;

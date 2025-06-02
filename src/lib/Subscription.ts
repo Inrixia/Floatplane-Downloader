@@ -70,15 +70,13 @@ export default class Subscription {
 		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
-			let video: VideoContent | undefined = undefined;
+			const video: VideoContent = await fApi.content.video(attachmentId);
+			// Skip videos with no levels
+			if (video.levels.length === 0) continue;
 
 			if (blogPost.videoAttachments.length > 1) {
 				dateOffset++;
-				video = await fApi.content.video(attachmentId);
-				// Skip videos with no levels
-				if (video.levels.length === 0) continue;
 				post.title = removeRepeatedSentences(post.title, video.title);
-				video.textTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
 			}
 
 			for (const channel of this.channels) {
@@ -123,7 +121,7 @@ export default class Subscription {
 					channelTitle: channel.title,
 					videoTitle: post.title,
 					releaseDate: new Date(new Date(post.releaseDate).getTime() + dateOffset * 1000),
-					textTracks: video?.textTracks ?? (await this.fetchTextTracks(attachmentId)),
+					textTracks: video.textTracks,
 				});
 				break;
 			}

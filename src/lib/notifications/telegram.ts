@@ -1,11 +1,11 @@
 import { settings } from "../helpers/index";
 
-export default async function telegramSendMessage(message: string) {
+export const telegramMsg = async (message?: string) => {
 	const telegram = settings.notifications.telegram;
 	if (!telegram || !telegram.enabled || !telegram.token || !telegram.chatId || !message) return;
 
 	try {
-		fetch(`https://api.telegram.org/bot${telegram.token}/sendMessage`, {
+		await fetch(`https://api.telegram.org/bot${telegram.token}/sendMessage`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -15,7 +15,7 @@ export default async function telegramSendMessage(message: string) {
 				text: message,
 			}),
 		});
-	} catch {
-		console.error("Failed to send telegram notification");
+	} catch (err) {
+		console.error("Failed to send telegram notification", err);
 	}
-}
+};

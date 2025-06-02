@@ -36,8 +36,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6
       floatplane:
-        specifier: ^4.6.3
-        version: 4.6.3
+        specifier: ^4.6.5
+        version: 4.6.5
       floatplane-plex-downloader:
         specifier: 'file:'
         version: 'file:'
@@ -111,9 +111,6 @@ importers:
       '@types/stream-throttle':
         specifier: ^0.1.4
         version: 0.1.4
-      '@types/tough-cookie-file-store':
-        specifier: ^2.0.4
-        version: 2.0.4
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -471,9 +468,6 @@ packages:
 
   '@types/stream-throttle@0.1.4':
     resolution: {integrity: sha512-VxXIHGjVuK8tYsVm60rIQMmF/0xguCeen5OmK5S4Y6K64A+z+y4/GI6anRnVzaUZaJB9Ah9IfbDcO0o1gZCc/w==}
-
-  '@types/tough-cookie-file-store@2.0.4':
-    resolution: {integrity: sha512-XhiwIJ+/G32nsFENG/GqMXgXp9kEFEMFJagPwIwiDSJ+74nwUKx8VCAOCniPaxg/gZanh4KRh09Y9Cb0Bd0EzA==}
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
@@ -921,8 +915,8 @@ packages:
   'floatplane-plex-downloader@file:':
     resolution: {directory: '', type: directory}
 
-  floatplane@4.6.3:
-    resolution: {integrity: sha512-XNaS/bl7Mt6d/LDkMnOOmRy0h42wzUS6FCtfE0SXnqTUYk/Nd7UMZEMZKWdXOEOtSg6pRAJ1jHf0F6uKR9Pwtw==}
+  floatplane@4.6.5:
+    resolution: {integrity: sha512-+sJtykQnhJGfT5jdAF8lVpU3/YKPtiZ4h4H5k3k0k0okkVq/mxTy5JpTYdP1Qa6wwdy3NggXfiGhsQSkxFdrWg==}
 
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
@@ -1913,10 +1907,6 @@ snapshots:
     dependencies:
       '@types/node': 22.15.29
 
-  '@types/tough-cookie-file-store@2.0.4':
-    dependencies:
-      '@types/tough-cookie': 4.0.5
-
   '@types/tough-cookie@4.0.5': {}
 
   '@types/ws@8.18.1':
@@ -2416,7 +2406,7 @@ snapshots:
       default-import: 2.0.8
       dotenv: 16.5.0
       ffbinaries: 1.1.6
-      floatplane: 4.6.3
+      floatplane: 4.6.5
       html-to-text: 9.0.5
       json5: 2.2.3
       mime-types: 3.0.1
@@ -2436,7 +2426,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  floatplane@4.6.3:
+  floatplane@4.6.5:
     dependencies:
       cross-env: 7.0.3
       got: 14.4.7
