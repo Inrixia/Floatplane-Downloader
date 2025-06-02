@@ -1,7 +1,7 @@
-import { downloadBinaries, detectPlatform, getBinaryFilename } from "ffbinaries";
-import { args } from "./index.js";
+import { detectPlatform, downloadBinaries, getBinaryFilename } from "ffbinaries";
 import fs from "fs";
 import { dirname } from "path";
+import { args } from "./index";
 
 export const ffmpegPath = args.ffmpegPath || `${args.dbPath}/${getBinaryFilename("ffmpeg", detectPlatform())}`;
 
@@ -22,7 +22,7 @@ export const fetchFFMPEG = (): Promise<void> =>
 						process.stdout.write("\u001b[36mDone!\u001b[0m\n\n");
 						resolve();
 					}
-				},
+				}
 			);
 		} else resolve();
 	});

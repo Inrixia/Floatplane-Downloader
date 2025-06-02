@@ -1,12 +1,12 @@
-import { loginFloatplane, loginPlex } from "./logins.js";
-import { defaultResolutions } from "./lib/defaults.js";
-import { args, settings, fApi } from "./lib/helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
-import * as prompts from "./lib/prompts/index.js";
+import { defaultResolutions } from "./lib/defaults";
+import { args, fApi, settings } from "./lib/helpers/index";
+import * as prompts from "./lib/prompts/index";
+import { loginFloatplane, loginPlex } from "./logins";
 
-import { PROMPT_CONFIRM, Settings, type Extras } from "./lib/types.js";
-import { Video } from "./lib/Video.js";
-import { multiSelectChannelPrompt, selectSubscriptionPrompt } from "./lib/prompts/settings.js";
+import { multiSelectChannelPrompt, selectSubscriptionPrompt } from "./lib/prompts/settings";
+import { PROMPT_CONFIRM, Settings, type Extras } from "./lib/types";
+import { Video } from "./lib/Video";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
@@ -16,11 +16,11 @@ export const promptPlexSections = async (): Promise<void> => {
 			const connectedServer = await server.connect();
 			const library = await connectedServer.library();
 			return (await library.sections()).filter((section) => section.type === "show");
-		}),
+		})
 	);
 	settings.plex.sectionsToUpdate = await prompts.plex.sections(
 		settings.plex.sectionsToUpdate,
-		serverSections.flatMap((sections) => sections),
+		serverSections.flatMap((sections) => sections)
 	);
 	await validatePlexSettings();
 };

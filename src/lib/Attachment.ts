@@ -1,13 +1,12 @@
 import db from "@inrixia/db";
-import { nPad } from "@inrixia/helpers/math";
-import { ValueOfA } from "@inrixia/helpers/ts";
-import { settings, args } from "./helpers/index.js";
+import { nPad, ValueOfA } from "@inrixia/helpers";
 import sanitize from "sanitize-filename";
+import { args, settings } from "./helpers/index";
 
-import { dirname, basename, extname } from "path";
+import { basename, dirname, extname } from "path";
 
-import { rename, readdir, unlink } from "fs/promises";
-import { nll } from "./logging/ProgressLogger.js";
+import { readdir, rename, unlink } from "fs/promises";
+import { nll } from "./logging/ProgressLogger";
 
 type AttachmentInfo = {
 	partialBytes?: number;
@@ -126,7 +125,7 @@ export class Attachment implements AttachmentAttributes {
 
 		const filesInDir = await readdir(fileDir);
 		const matchingFile = filesInDir.find(
-			(file) => file.startsWith(fileName) && !file.endsWith(Extensions.NFO) && !file.endsWith(Extensions.Partial) && !file.endsWith(Extensions.Muxed),
+			(file) => file.startsWith(fileName) && !file.endsWith(Extensions.NFO) && !file.endsWith(Extensions.Partial) && !file.endsWith(Extensions.Muxed)
 		);
 		if (matchingFile) return extname(matchingFile);
 		return undefined;

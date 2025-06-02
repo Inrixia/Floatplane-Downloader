@@ -36,8 +36,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6
       floatplane:
-        specifier: ^4.6.0
-        version: 4.6.0
+        specifier: ^4.6.3
+        version: 4.6.3
       floatplane-plex-downloader:
         specifier: 'file:'
         version: 'file:'
@@ -99,6 +99,9 @@ importers:
       '@types/multi-progress':
         specifier: ^2.0.6
         version: 2.0.6
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.29
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
@@ -362,9 +365,6 @@ packages:
 
   '@inrixia/db@2.0.2':
     resolution: {integrity: sha512-7AcZRa7ZGeH6L2Z6XR9uWQHsxYGaI69s+/7HClxrm/X7Dk1683gyTQexN/5/wvyIHgVedhK3fS/VUIR+X6hnPg==}
-
-  '@inrixia/helpers@2.0.11':
-    resolution: {integrity: sha512-ode9gx62MsN9ho95GCUkl8M/ocmBlF7OWkL0Eq+2fhpAywlDet9LTOEyN072Rkq77nnV+IqHZKVgKZOvoA8xLg==}
 
   '@inrixia/helpers@3.20.0':
     resolution: {integrity: sha512-RkWZ8ZIdB3cpQvTcLsY3A8ux+4Q8PNZU0uDKJT2xVMAP0FvCsLNSJemRz9vlDalWBDkBhI9v0O/br3cF9vPnWw==}
@@ -921,8 +921,8 @@ packages:
   'floatplane-plex-downloader@file:':
     resolution: {directory: '', type: directory}
 
-  floatplane@4.6.0:
-    resolution: {integrity: sha512-NmxsyVH9CabVukzOpphlgxn8Y6gron9RWPBJHrDBnqgIH7gO8wXwftESr1ANkKz7UW+d5T5A4qoCwQA8Xn8ymA==}
+  floatplane@4.6.3:
+    resolution: {integrity: sha512-XNaS/bl7Mt6d/LDkMnOOmRy0h42wzUS6FCtfE0SXnqTUYk/Nd7UMZEMZKWdXOEOtSg6pRAJ1jHf0F6uKR9Pwtw==}
 
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
@@ -1242,9 +1242,6 @@ packages:
   oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
 
-  obop@0.2.3:
-    resolution: {integrity: sha512-xmaHk+pwv4T6QKoq553KeJlkZUV6WBVGU/dO7rppA7YFIvGf+xB1OQAkw8mcORtxtSHpiK5JiTQ+d7Bme/Y7Wg==}
-
   obop@1.0.0:
     resolution: {integrity: sha512-+GI+QtA22ZOvBN5InRML3lVX2465kNxRPXcTUWqDN7stS+ELS5SYL9XQktA9VTAEIxQR1owtk5RqI3AjUypzUw==}
 
@@ -1339,9 +1336,6 @@ packages:
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
-  process.argv@0.6.1:
-    resolution: {integrity: sha512-WQOWF/VB0pTJu7c3ko0y5w6HWDQf6Wm3ppvKDI7ET4OSYBDOvcliBRM1HFIHHkJPNa/1bYTzmUinjF8492oaBg==}
-
   process.argv@1.0.0:
     resolution: {integrity: sha512-oo864FquD/6KQFO6bSFoCIKtuta2XkgHERgW2nnsiC9KDJ+HCBKjLXke+rxv1HBUrVgoeFxglxzpa/b22XvVVQ==}
 
@@ -1368,9 +1362,6 @@ packages:
     resolution: {integrity: sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==}
     engines: {node: '>=0.6'}
 
-  querystringify@2.2.0:
-    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
-
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -1385,9 +1376,6 @@ packages:
     resolution: {integrity: sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==}
     engines: {node: '>= 6'}
     deprecated: request has been deprecated, see https://github.com/request/request/issues/3142
-
-  requires-port@1.0.0:
-    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
 
   resolve-alpn@1.2.1:
     resolution: {integrity: sha512-0a1F4l73/ZFZOakJnQ3FvkJ2+gSTQWz/r2KE5OdDY0TxPm5h4GkqkWWfM47T7HsbnOtcJVEF4epCVy6u7Q3K+g==}
@@ -1523,10 +1511,6 @@ packages:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
 
-  tough-cookie-file-store@2.0.3:
-    resolution: {integrity: sha512-sMpZVcmFf6EYFHFFl+SYH4W1/OnXBYMGDsv2IlbQ2caHyFElW/UR/gpj/KYU1JwmP4dE9xqwv2+vWcmlXHojSw==}
-    engines: {node: '>=6'}
-
   tough-cookie-file-store@3.0.1:
     resolution: {integrity: sha512-xRLHFG0zY83tVeMZIG9J38BgQF3N+r/DjDkrnDka5V84NF6whj9E6cI4Lq5jndakec7pZ3jZ03m+RbGnbcyekg==}
     engines: {node: '>=16'}
@@ -1534,10 +1518,6 @@ packages:
   tough-cookie@2.5.0:
     resolution: {integrity: sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==}
     engines: {node: '>=0.8'}
-
-  tough-cookie@4.1.4:
-    resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
-    engines: {node: '>=6'}
 
   tough-cookie@5.1.2:
     resolution: {integrity: sha512-FVDYdxtnj0G6Qm/DhNPSb8Ju59ULcup3tuJxkFb5K8Bv2pUXILbf0xZWU8PX8Ov19OXljbUyveOFwRMwkXzO+A==}
@@ -1584,15 +1564,8 @@ packages:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
     engines: {node: '>= 4.0.0'}
 
-  universalify@0.2.0:
-    resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
-    engines: {node: '>= 4.0.0'}
-
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
-
-  url-parse@1.5.10:
-    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
   utf8-byte-length@1.0.5:
     resolution: {integrity: sha512-Xn0w3MtiQ6zoz2vFyUVruaCL53O/DwUvkEeOvj+uulMm0BkUGYWmBYVyElqZaSLhY6ZD0ulfU3aBra2aVT4xfA==}
@@ -1818,8 +1791,6 @@ snapshots:
   '@humanwhocodes/retry@0.4.3': {}
 
   '@inrixia/db@2.0.2': {}
-
-  '@inrixia/helpers@2.0.11': {}
 
   '@inrixia/helpers@3.20.0':
     dependencies:
@@ -2438,26 +2409,26 @@ snapshots:
     dependencies:
       '@ctrl/plex': 3.6.0
       '@inrixia/db': 2.0.2
-      '@inrixia/helpers': 2.0.11
+      '@inrixia/helpers': 3.20.0
       '@npmcli/package-json': 6.2.0
       '@types/tough-cookie': 4.0.5
       chalk-template: 1.1.0
       default-import: 2.0.8
       dotenv: 16.5.0
       ffbinaries: 1.1.6
-      floatplane: 4.6.0
+      floatplane: 4.6.3
       html-to-text: 9.0.5
       json5: 2.2.3
       mime-types: 3.0.1
       multi-progress-bars: 5.0.3
-      process.argv: 0.6.1
+      process.argv: 1.0.0
       prom-client: 15.1.3
       prompts: 2.4.2
       sanitize-filename: 1.6.3
       semver: 7.7.2
       stream-throttle: 0.1.3
-      tough-cookie: 4.1.4
-      tough-cookie-file-store: 2.0.3
+      tough-cookie: 5.1.2
+      tough-cookie-file-store: 3.0.1
       ws: 8.18.2
       xmlbuilder2: 3.1.1
     transitivePeerDependencies:
@@ -2465,7 +2436,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  floatplane@4.6.0:
+  floatplane@4.6.3:
     dependencies:
       cross-env: 7.0.3
       got: 14.4.7
@@ -2764,8 +2735,6 @@ snapshots:
 
   oauth-sign@0.9.0: {}
 
-  obop@0.2.3: {}
-
   obop@1.0.0: {}
 
   ofetch@1.4.1:
@@ -2849,10 +2818,6 @@ snapshots:
 
   process-nextick-args@2.0.1: {}
 
-  process.argv@0.6.1:
-    dependencies:
-      obop: 0.2.3
-
   process.argv@1.0.0:
     dependencies:
       obop: 1.0.0
@@ -2879,8 +2844,6 @@ snapshots:
   punycode@2.3.1: {}
 
   qs@6.5.3: {}
-
-  querystringify@2.2.0: {}
 
   queue-microtask@1.2.3: {}
 
@@ -2918,8 +2881,6 @@ snapshots:
       tough-cookie: 2.5.0
       tunnel-agent: 0.6.0
       uuid: 3.4.0
-
-  requires-port@1.0.0: {}
 
   resolve-alpn@1.2.1: {}
 
@@ -3050,10 +3011,6 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
-  tough-cookie-file-store@2.0.3:
-    dependencies:
-      tough-cookie: 4.1.4
-
   tough-cookie-file-store@3.0.1:
     dependencies:
       tough-cookie: 5.1.2
@@ -3062,13 +3019,6 @@ snapshots:
     dependencies:
       psl: 1.15.0
       punycode: 2.3.1
-
-  tough-cookie@4.1.4:
-    dependencies:
-      psl: 1.15.0
-      punycode: 2.3.1
-      universalify: 0.2.0
-      url-parse: 1.5.10
 
   tough-cookie@5.1.2:
     dependencies:
@@ -3104,16 +3054,9 @@ snapshots:
 
   universalify@0.1.2: {}
 
-  universalify@0.2.0: {}
-
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  url-parse@1.5.10:
-    dependencies:
-      querystringify: 2.2.0
-      requires-port: 1.0.0
 
   utf8-byte-length@1.0.5: {}
 

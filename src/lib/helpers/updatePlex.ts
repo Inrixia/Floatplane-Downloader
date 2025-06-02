@@ -1,5 +1,5 @@
-import { settings } from "./index.js";
 import { MyPlexAccount } from "@ctrl/plex";
+import { settings } from "./index";
 
 let plexApi: MyPlexAccount;
 export const updatePlex = async () => {

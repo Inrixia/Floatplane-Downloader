@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import { requiredPrompts } from "./helpers.js";
+import { requiredPrompts } from "./helpers";
 
 /**
  * Prompts user if they want to automatically refresh plex libraries.
@@ -19,7 +19,7 @@ export const usePlex = async (initial: boolean): Promise<boolean> =>
 	).usePlex;
 
 import type { Section } from "@ctrl/plex";
-import { PlexSections } from "../types.js";
+import { PlexSections } from "../types";
 /**
  * Prompts user to select plex sections to refresh
  * @param selectedSections Sections already selected

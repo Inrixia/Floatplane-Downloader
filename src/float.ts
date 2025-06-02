@@ -1,19 +1,19 @@
-import { initProm } from "./lib/prometheus.js";
-import { quickStart, validatePlexSettings } from "./quickStart.js";
-import { settings, fApi, args, DownloaderVersion } from "./lib/helpers/index.js";
-import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG.js";
-import { defaultSettings } from "./lib/defaults.js";
+import { defaultSettings } from "./lib/defaults";
+import { fetchFFMPEG } from "./lib/helpers/fetchFFMPEG";
+import { args, DownloaderVersion, fApi, settings } from "./lib/helpers/index";
+import { initProm } from "./lib/prometheus";
+import { quickStart, validatePlexSettings } from "./quickStart";
 
-import { loginFloatplane, User } from "./logins.js";
 import chalk from "chalk-template";
+import { loginFloatplane, User } from "./logins";
 
-import { fetchSubscriptions } from "./subscriptionFetching.js";
+import { fetchSubscriptions } from "./subscriptionFetching";
 
 import semver from "semver";
 const { gt, diff } = semver;
 
-import { Self } from "floatplane/user";
 import type { ContentPost } from "floatplane/content";
+import { Self } from "floatplane/user";
 
 /**
  * Main function that triggeres everything else in the script
@@ -72,7 +72,7 @@ process.on("SIGTERM", () => process.exit(143));
 		console.log(
 			chalk`There is a ${diff(latest.version, DownloaderVersion)} update available! ${DownloaderVersion} > ${
 				latest.version
-			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`,
+			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`
 		);
 
 	if (args.sanityCheck) {

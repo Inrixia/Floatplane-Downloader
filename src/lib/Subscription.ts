@@ -1,14 +1,14 @@
-import { fApi } from "./helpers/index.js";
+import { fApi } from "./helpers/index";
 
 import chalk from "chalk-template";
 
-import type { ChannelOptions, SubscriptionSettings } from "./types.js";
 import type { ContentPost, VideoContent } from "floatplane/content";
 import type { BlogPost } from "floatplane/creator";
+import type { ChannelOptions, SubscriptionSettings } from "./types";
 
-import { settings } from "./helpers/index.js";
-import { Video } from "./Video.js";
-import { Attachment } from "./Attachment.js";
+import { Attachment } from "./Attachment";
+import { settings } from "./helpers/index";
+import { Video } from "./Video";
 
 const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => {
 	const separators = /(?:\s+|^)((?:[^.,;:!?-]+[\s]*[.,;:!?-]+)+)(?:\s+|$)/g;

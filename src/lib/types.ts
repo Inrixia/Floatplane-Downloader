@@ -1,6 +1,6 @@
 export type Resolutions = ["360", "720", "1080", "2160"];
 
-import type { ValueOfA } from "@inrixia/helpers/ts";
+import type { ValueOfA } from "@inrixia/helpers";
 
 export type ChannelOptions = {
 	title: string;

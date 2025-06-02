@@ -1,4 +1,4 @@
-import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
+import { ProgressLogger, type IProgressLogger } from "./ProgressLogger";
 
 export class ProgressHeadless extends ProgressLogger implements IProgressLogger {
 	public log(message: string) {

@@ -1,5 +1,5 @@
-import { requiredPrompts } from "./helpers.js";
 import prompts from "prompts";
+import { requiredPrompts } from "./helpers";
 
 /**
  * Prompts user for floatplane username

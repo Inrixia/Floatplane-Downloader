@@ -1,7 +1,7 @@
-import { getEnv, recursiveUpdate, rebuildTypes } from "@inrixia/helpers/object";
-import { defaultArgs, defaultSettings } from "../defaults.js";
-import { Histogram } from "prom-client";
 import db from "@inrixia/db";
+import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers";
+import { Histogram } from "prom-client";
+import { defaultArgs, defaultSettings } from "../defaults";
 
 import { defaultImport } from "default-import";
 
@@ -15,13 +15,13 @@ import "dotenv/config";
 import json5 from "json5";
 const { parse } = json5;
 
-import { isSea, getAsset } from "node:sea";
+import { getAsset, isSea } from "node:sea";
 export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON.parse(readFileSync("./package.json", "utf-8")).version;
 
-import type { PartialArgs, Settings } from "../types.js";
+import type { PartialArgs, Settings } from "../types";
 
+import { CookieJar, type Store } from "tough-cookie";
 import { FileCookieStore } from "tough-cookie-file-store";
-import { CookieJar } from "tough-cookie";
 
 import { Floatplane } from "floatplane";
 
@@ -48,10 +48,10 @@ if (env.__FPDSettings !== undefined) {
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
-export const cookieJar = new CookieJar(new FileCookieStore(`${args.dbPath}/cookies.json`));
+export const cookieJar = new CookieJar(<Store>(<unknown>new FileCookieStore(`${args.dbPath}/cookies.json`)));
 export const fApi = new Floatplane(
 	cookieJar,
-	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
+	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`
 );
 
 // Add floatplane api request metrics

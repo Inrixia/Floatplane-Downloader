@@ -1,5 +1,5 @@
-import { settings } from "../helpers/index.js";
-import { Video } from "../Video.js";
+import { settings } from "../helpers/index";
+import { Video } from "../Video";
 
 export const discordSendEmbed = async (title: string, video: Video) => {
 	const discord = settings.notifications.discord;

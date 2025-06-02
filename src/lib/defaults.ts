@@ -1,4 +1,4 @@
-import { Resolutions, Channels, Settings, Args } from "./types.js";
+import { Args, Channels, Resolutions, Settings } from "./types";
 
 export const defaultResolutions: Resolutions = ["360", "720", "1080", "2160"];
 export const defaultSubChannels: Record<string, Channels> = {

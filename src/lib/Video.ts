@@ -1,33 +1,29 @@
-import { ThrottleGroup, type ThrottleOptions } from "stream-throttle";
+import chalk from "chalk-template";
 import { exec as execCallback, execFile } from "child_process";
-import { Counter, Gauge } from "prom-client";
+import type { Progress } from "got";
 import { htmlToText } from "html-to-text";
 import { extension } from "mime-types";
-import type { Progress } from "got";
-import builder from "xmlbuilder2";
+import { Counter, Gauge } from "prom-client";
+import { ThrottleGroup, type ThrottleOptions } from "stream-throttle";
 import { promisify } from "util";
-import chalk from "chalk-template";
+import builder from "xmlbuilder2";
 
 import { createWriteStream } from "fs";
-import { mkdir, stat, writeFile, utimes, unlink } from "fs/promises";
+import { mkdir, stat, unlink, utimes, writeFile } from "fs/promises";
 
-import { Attachment } from "./Attachment.js";
+import { Attachment } from "./Attachment";
 
-import { nPad } from "@inrixia/helpers/math";
+import { nPad } from "@inrixia/helpers";
 
-import { settings, fApi, args } from "./helpers/index.js";
-import { Semaphore } from "./helpers/Semaphore.js";
-import { fileExists } from "./helpers/fileExists.js";
-import { Selector } from "./helpers/Selector.js";
-import { updatePlex } from "./helpers/updatePlex.js";
+import { args, fApi, settings } from "./helpers/index";
+import { Selector } from "./helpers/Selector";
+import { updatePlex } from "./helpers/updatePlex";
 
-import { ProgressHeadless } from "./logging/ProgressConsole.js";
-import { ProgressBars } from "./logging/ProgressBars.js";
-import { VideoContent } from "floatplane/content";
-import { notifyDownloaded, notifyError } from "./notifications/notify.js";
-import { nll, withContext } from "./logging/ProgressLogger.js";
+import { ProgressBars } from "./logging/ProgressBars";
+import { ProgressHeadless } from "./logging/ProgressConsole";
+import { nll, withContext } from "./logging/ProgressLogger";
 
-import { ffmpegPath } from "./helpers/fetchFFMPEG.js";
+import { ffmpegPath } from "./helpers/fetchFFMPEG";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -62,7 +58,6 @@ export type VideoInfo = {
 	channelTitle: string;
 	videoTitle: string;
 	releaseDate: Date;
-	textTracks: VideoContent["textTracks"];
 };
 
 const byteToMbits = 131072;
@@ -70,7 +65,6 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	private readonly description: string;
 	private readonly artworkUrl?: string;
-	private readonly textTracks?: VideoContent["textTracks"];
 
 	public static State = VideoState;
 
@@ -97,7 +91,6 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
-		this.textTracks = videoInfo.textTracks ?? [];
 		// Ensure onError is bound to this instance
 		this.onError = this.onError.bind(this);
 	}
@@ -138,31 +131,12 @@ export class Video extends Attachment {
 								await updatePlex().catch(withContext(`Updating plex`));
 							}
 						}
-						if (settings.extras.downloadArtwork) {
-							logger.log("Saving artwork");
-							try {
-								await this.downloadArtwork();
-							} catch (error) {
-								// non-critical error
-								const message = this.parseErrorMessage(error);
-								logger.error(`Failed to save artwork! ${message} - Skipping`);
-							}
-						}
-
-						// Downloading subtitles
-						try {
-							await this.downloadTextTracks();
-						} catch (error) {
-							logger.error(`Failed to save text tracks! ${error} - Skipping`);
-						}
 					}
 					this.logger.done(chalk`{cyan Downloaded!}`);
 					promDownloadedTotal.inc();
-          notifyDownloaded(this);
 					break;
 				} catch (err) {
 					this.onError(err);
-          notifyError(message, this);
 					if (retries < Video.MaxRetries) await sleep(5000);
 				}
 			}
@@ -301,18 +275,6 @@ export class Video extends Attachment {
 		this.logger.log("Saved artwork");
 	}
 
-	private async downloadTextTracks() {
-		if (!this.textTracks || this.textTracks.length === 0) return;
-
-		// Make sure the folder for the video exists
-		await fs.mkdir(this.folderPath, { recursive: true });
-
-		for (const track of this.textTracks) {
-			const vttContent = await (await fetch(track.src)).text();
-			await fs.writeFile(`${this.filePath}${track.language ? `.${track.language}` : ""}.vtt`, vttContent, "utf8");
-		}
-	}
-
 	// The number of available slots for making delivery requests,
 	// limiting the rate of requests to avoid exceeding the API rate limit.
 	private static DeliveryTimeout = 65000;
@@ -404,8 +366,8 @@ export class Video extends Attachment {
 							error.message += stderr;
 							reject(error);
 						} else resolve(stdout);
-					},
-				),
+					}
+				)
 			);
 			// Remove the partial file when done
 			await unlink(this.partialPath);

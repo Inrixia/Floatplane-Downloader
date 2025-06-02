@@ -1,6 +1,6 @@
 import prompts from "prompts";
-import { Channels, PROMPT_CONFIRM, Settings, type Extras, type Resolution } from "../types.js";
-import { Video } from "../Video.js";
+import { Channels, PROMPT_CONFIRM, Settings, type Extras, type Resolution } from "../types";
+import { Video } from "../Video";
 
 /**
  * Prompts user for the video resolution they want to download in.

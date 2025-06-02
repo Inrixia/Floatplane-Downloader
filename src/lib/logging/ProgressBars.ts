@@ -1,8 +1,8 @@
-import { MultiProgressBars, type UpdateOptions } from "multi-progress-bars";
-import { ProgressLogger, type IProgressLogger } from "./ProgressLogger.js";
-import type { Progress } from "got";
 import chalk from "chalk-template";
-import { args } from "../helpers/index.js";
+import type { Progress } from "got";
+import { MultiProgressBars, type UpdateOptions } from "multi-progress-bars";
+import { args } from "../helpers/index";
+import { ProgressLogger, type IProgressLogger } from "./ProgressLogger";
 
 export class ProgressBars extends ProgressLogger implements IProgressLogger {
 	// Trigger MPB immediately so console is contained, but only in headless

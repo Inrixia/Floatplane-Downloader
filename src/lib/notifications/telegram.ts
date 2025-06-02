@@ -1,4 +1,4 @@
-import { settings } from "../helpers/index.js";
+import { settings } from "../helpers/index";
 
 export default async function telegramSendMessage(message: string) {
 	const telegram = settings.notifications.telegram;
