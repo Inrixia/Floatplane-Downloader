@@ -7,42 +7,43 @@ import { defaultSettings } from "./lib/defaults.js";
 import { loginFloatplane, User } from "./logins.js";
 import chalk from "chalk-template";
 
-import type { ContentPost } from "floatplane/content";
 import { fetchSubscriptions } from "./subscriptionFetching.js";
 
 import semver from "semver";
 const { gt, diff } = semver;
 
 import { Self } from "floatplane/user";
-
-async function* seekAndDestroy(): AsyncGenerator<ContentPost, void, unknown> {
-	while (settings.floatplane.seekAndDestroy.length > 0) {
-		const guid = settings.floatplane.seekAndDestroy.pop();
-		if (guid === undefined) continue;
-		console.log(chalk`Seek and Destroy: {red ${guid}}`);
-		yield fApi.content.post(guid);
-	}
-}
+import type { ContentPost } from "floatplane/content";
 
 /**
  * Main function that triggeres everything else in the script
  */
 const downloadNewVideos = async () => {
-	const userSubs = fetchSubscriptions();
 	const inProgress = [];
-	for await (const contentPost of seekAndDestroy()) {
-		for await (const subscription of userSubs) {
-			if (contentPost.creator.id === subscription.creatorId) {
-				for await (const video of subscription.seekAndDestroy(contentPost)) inProgress.push(video.download());
-			}
-		}
+
+	// Fetch content posts from seek and destroy guids
+	const contentPosts: Promise<ContentPost>[] = [];
+	while (settings.floatplane.seekAndDestroy.length > 0) {
+		const guid = settings.floatplane.seekAndDestroy.pop();
+		if (guid === undefined) continue;
+		console.log(chalk`Seek and Destroy: {red ${guid}}`);
+		contentPosts.push(fApi.content.post(guid));
 	}
 
-	for await (const subscription of userSubs) {
+	for await (const subscription of fetchSubscriptions()) {
+		// Seek and destroy posts if the content post belongs to this subscription
+		for await (const contentPost of contentPosts) {
+			if (contentPost.creator.id === subscription.creatorId) {
+				for await (const video of subscription.seekAndDestroy(contentPost)) {
+					inProgress.push(video.download());
+				}
+			}
+		}
 		await subscription.deleteOldVideos();
 		for await (const video of subscription.fetchNewVideos()) inProgress.push(video.download());
 	}
 
+	console.log(chalk`Queued {green ${inProgress.length}} videos...`);
 	await Promise.all(inProgress);
 
 	// Enforce search limits after searching once.

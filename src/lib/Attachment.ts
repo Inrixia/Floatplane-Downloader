@@ -1,12 +1,13 @@
 import db from "@inrixia/db";
 import { nPad } from "@inrixia/helpers/math";
 import { ValueOfA } from "@inrixia/helpers/ts";
-import { settings } from "./helpers/index.js";
+import { settings, args } from "./helpers/index.js";
 import sanitize from "sanitize-filename";
 
 import { dirname, basename, extname } from "path";
 
-import { rename, readdir } from "fs/promises";
+import { rename, readdir, unlink } from "fs/promises";
+import { nll } from "./logging/ProgressLogger.js";
 
 type AttachmentInfo = {
 	partialBytes?: number;
@@ -14,6 +15,7 @@ type AttachmentInfo = {
 	filePath: string;
 	releaseDate: number;
 	videoTitle: string;
+	channelTitle: string;
 };
 
 type AttachmentAttributes = {
@@ -31,7 +33,7 @@ enum Extensions {
 }
 
 export class Attachment implements AttachmentAttributes {
-	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(`./db/attachments.json`);
+	private static readonly AttachmentsDB: Record<string, AttachmentInfo> = db<Record<string, AttachmentInfo>>(`${args.dbPath}/attachments.json`);
 	public static readonly Extensions = Extensions;
 
 	public readonly attachmentId: string;
@@ -69,23 +71,34 @@ export class Attachment implements AttachmentAttributes {
 			releaseDate: this.releaseDate.getTime(),
 			filePath: this.filePath,
 			videoTitle: this.videoTitle,
+			channelTitle: this.channelTitle,
 		});
 		// If the attachment existed on another path then move it.
 		if (attachmentInfo.filePath !== this.filePath) {
-			rename(this.artworkPath.replace(this.filePath, attachmentInfo.filePath), this.artworkPath).catch(() => null);
-			rename(this.partialPath.replace(this.filePath, attachmentInfo.filePath), this.partialPath).catch(() => null);
-			rename(this.muxedPath.replace(this.filePath, attachmentInfo.filePath), this.muxedPath).catch(() => null);
-			rename(this.nfoPath.replace(this.filePath, attachmentInfo.filePath), this.nfoPath).catch(() => null);
+			rename(this.artworkPath.replace(this.filePath, attachmentInfo.filePath), this.artworkPath).catch(nll);
+			rename(this.partialPath.replace(this.filePath, attachmentInfo.filePath), this.partialPath).catch(nll);
+			rename(this.muxedPath.replace(this.filePath, attachmentInfo.filePath), this.muxedPath).catch(nll);
+			rename(this.nfoPath.replace(this.filePath, attachmentInfo.filePath), this.nfoPath).catch(nll);
 			attachmentInfo.filePath = this.filePath;
 		}
 		if (attachmentInfo.videoTitle !== this.videoTitle) attachmentInfo.videoTitle = this.videoTitle;
 	}
 
-	public static find(filter: (video: AttachmentInfo) => boolean) {
-		return Object.values(this.AttachmentsDB).filter(filter);
+	public static find(filter: (attachment: AttachmentInfo) => boolean) {
+		return Object.entries(this.AttachmentsDB)
+			.map(([attachmentId, attachmentInfo]) => ({
+				attachmentId,
+				...attachmentInfo,
+			}))
+			.filter(filter);
 	}
+
 	public attachmentInfo(): AttachmentInfo {
 		return Attachment.AttachmentsDB[this.attachmentId];
+	}
+	public async delete() {
+		await Promise.allSettled([unlink(this.partialPath), unlink(this.muxedPath), unlink(this.nfoPath), unlink(this.artworkPath)]);
+		delete Attachment.AttachmentsDB[this.attachmentId];
 	}
 
 	public static FilePathOptions = ["%channelTitle%", "%year%", "%month%", "%day%", "%hour%", "%minute%", "%second%", "%videoTitle%"] as const;

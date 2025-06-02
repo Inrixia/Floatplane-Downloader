@@ -34,6 +34,9 @@ export const defaultArgs: Args = {
 	plexUsername: "",
 	plexPassword: "",
 	sanityCheck: false,
+	dbPath: "./db",
+	ffmpegPath: "",
+	settingsPath: "",
 };
 
 export const defaultSettings: Settings = {
