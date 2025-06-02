@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import type { Extras, Resolution } from "../types.js";
+import { Channels, PROMPT_CONFIRM, Settings, type Extras, type Resolution } from "../types.js";
 import { Video } from "../Video.js";
 
 /**
@@ -79,3 +79,26 @@ export const daysToKeepVideos = async (initial: number): Promise<number> =>
 			min: 1,
 		})
 	).daysToKeepVideos || initial;
+
+export const multiSelectChannelPrompt = async (initial: Channels): Promise<string[]> => {
+	return (
+		await prompts({
+			type: "multiselect",
+			name: "downloadChannels",
+			message: "Enable/Disable channels:",
+			choices: initial.map((initial) => ({ title: initial.title, value: initial.title, selected: !initial.skip })),
+			hint: "- Space to select. Return to submit",
+		})
+	).downloadChannels;
+};
+
+export const selectSubscriptionPrompt = async (initial: Settings["subscriptions"]): Promise<string> => {
+	return (
+		await prompts({
+			type: "select",
+			name: "subscription",
+			message: "Select a subscription",
+			choices: [...Object.keys(initial).map((option) => ({ title: initial[option].plan, value: option })), { title: "Confirm", value: PROMPT_CONFIRM }],
+		})
+	).subscription;
+};
