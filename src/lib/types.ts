@@ -85,3 +85,5 @@ export type Settings = {
 	};
 	notifications: Notification;
 };
+
+export const PROMPT_CONFIRM = "confirm";

@@ -4,8 +4,9 @@ import { args, settings, fApi } from "./lib/helpers/index.js";
 import { MyPlexAccount } from "@ctrl/plex";
 import * as prompts from "./lib/prompts/index.js";
 
-import type { Extras } from "./lib/types.js";
+import { PROMPT_CONFIRM, Settings, type Extras } from "./lib/types.js";
 import { Video } from "./lib/Video.js";
+import { multiSelectChannelPrompt, selectSubscriptionPrompt } from "./lib/prompts/settings.js";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
@@ -41,6 +42,52 @@ export const validatePlexSettings = async (): Promise<void> => {
 	}
 };
 
+export const promptSubscriptionSection = async (): Promise<void> => {
+	const userSubscription = await fApi.user.subscriptions();
+	const channels = await fApi.creator.channels(userSubscription.map((channel) => channel.creator));
+
+	const subscriptions = userSubscription.reduce<Settings["subscriptions"]>((acc, subscription) => {
+		acc[subscription.creator] = {
+			creatorId: subscription.creator,
+			plan: subscription.plan.title,
+			skip: false,
+			channels: channels
+				.filter((channel) => channel.creator === subscription.creator)
+				.map((channel) => ({
+					title: channel.title,
+					skip: false,
+					isChannel:
+						channel.id === "6413623f5b12cca228a28e78"
+							? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+							: `(post) => isChannel(post, '${channel.id}')`,
+				})),
+		};
+		return acc;
+	}, {});
+
+	let selectedSubscriptionId: string | undefined = undefined;
+
+	while (selectedSubscriptionId !== PROMPT_CONFIRM) {
+		selectedSubscriptionId = await selectSubscriptionPrompt(subscriptions);
+
+		const subscription = subscriptions[selectedSubscriptionId];
+
+		if (subscription) {
+			const selectedChannels = await multiSelectChannelPrompt(subscription.channels);
+			subscription.channels = subscription.channels.map((channel) => ({ ...channel, skip: !selectedChannels.includes(channel.title) }));
+		}
+	}
+
+	for (const subscription of Object.values(subscriptions)) {
+		settings.subscriptions[subscription.creatorId] ??= {
+			creatorId: subscription.creatorId,
+			plan: subscription.plan,
+			skip: false,
+			channels: subscription.channels.map((channel) => ({ title: channel.title, skip: channel.skip, isChannel: channel.isChannel })),
+		};
+	}
+};
+
 export const quickStart = async (): Promise<void> => {
 	console.log("Welcome to Floatplane Downloader! Thanks for checking it out <3.");
 	console.log("According to your settings.json this is your first launch! So lets go through the basic setup...\n");
@@ -61,6 +108,9 @@ export const quickStart = async (): Promise<void> => {
 	if (extras !== undefined) {
 		for (const extra in settings.extras) settings.extras[extra as keyof Extras] = extras.indexOf(extra) > -1 ? true : false;
 	}
+
+	console.log("\n== \u001b[38;5;208mSubscriptions\u001b[0m ==\n");
+	await promptSubscriptionSection();
 
 	console.log("\n== \u001b[38;5;208mPlex\u001b[0m ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);
