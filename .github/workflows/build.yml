@@ -39,8 +39,8 @@ jobs:
    - name: Install dependencies 📥
      run: pnpm install
 
-   - name: Test ESM
-     run: pnpm run test-esm
+   - name: Test Bundle
+     run: pnpm run test-bundle
 
    - name: Build Binaries
      run: pnpm run build
