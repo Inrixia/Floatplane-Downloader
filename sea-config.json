@@ -4,6 +4,6 @@
 	"disableExperimentalSEAWarning": true,
 	"useCodeCache": true,
 	"assets": {
-		"./version": "./dist/version"
+		"./dist/version": "./build/version"
 	}
 }
