@@ -4,7 +4,7 @@ import { platform } from "os";
 
 const run = (cmd) => execSync(cmd, { stdio: "inherit" });
 
-const binPath = platform() === "win32" ? ".\\build\\float.exe" : ".\\build\\float";
+const binPath = platform() === "win32" ? ".\\build\\float.exe" : "./build/float";
 
 // Clean build directory
 rmSync("./build", { recursive: true, force: true });
