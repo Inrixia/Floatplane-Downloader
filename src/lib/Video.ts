@@ -23,6 +23,7 @@ import { updatePlex } from "./helpers/updatePlex.js";
 
 import { ProgressHeadless } from "./logging/ProgressConsole.js";
 import { ProgressBars } from "./logging/ProgressBars.js";
+import { VideoContent } from "floatplane/content";
 
 const exec = promisify(execCallback);
 const sleep = promisify(setTimeout);
@@ -57,6 +58,7 @@ export type VideoInfo = {
 	channelTitle: string;
 	videoTitle: string;
 	releaseDate: Date;
+	textTracks: VideoContent["textTracks"];
 };
 
 const byteToMbits = 131072;
@@ -64,6 +66,7 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	private readonly description: string;
 	private readonly artworkUrl?: string;
+	private readonly textTracks?: VideoContent["textTracks"];
 
 	public static State = VideoState;
 
@@ -89,6 +92,7 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
+		this.textTracks = videoInfo.textTracks ?? [];
 	}
 
 	public async download() {
@@ -157,6 +161,13 @@ export class Video extends Attachment {
 								const message = this.parseErrorMessage(error);
 								logger.error(`Failed to save artwork! ${message} - Skipping`);
 							}
+						}
+
+						// Downloading subtitles
+						try {
+							await this.downloadTextTracks();
+						} catch (error) {
+							logger.error(`Failed to save text tracks! ${error} - Skipping`);
 						}
 					}
 					// eslint-disable-next-line no-fallthrough
@@ -288,6 +299,18 @@ export class Video extends Attachment {
 		// Save the thumbnail with the correct file extension
 		await fs.writeFile(artworkPathWithExtension, Uint8Array.from(response.body));
 		await fs.utimes(artworkPathWithExtension, new Date(), this.releaseDate);
+	}
+
+	private async downloadTextTracks() {
+		if (!this.textTracks || this.textTracks.length === 0) return;
+
+		// Make sure the folder for the video exists
+		await fs.mkdir(this.folderPath, { recursive: true });
+
+		for (const track of this.textTracks) {
+			const vttContent = await (await fetch(track.src)).text();
+			await fs.writeFile(`${this.filePath}${track.language ? `.${track.language}` : ""}.vtt`, vttContent, "utf8");
+		}
 	}
 
 	// The number of available slots for making delivery requests,
