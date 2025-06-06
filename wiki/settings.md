@@ -145,12 +145,12 @@ Saves video thubnails alongside each video. These are required for nice thumbnai
 
 <br>
 
-**extras.safeNfo**:  
+**extras.saveNfo**:  
 Saves video metadata to nfo files alongside each video.
 
 ```json
 "extras": {
-    "safeNfo": true
+    "saveNfo": true
 }
 ```
 
