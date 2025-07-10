@@ -7,7 +7,7 @@ RUN npm i -g pnpm
 WORKDIR /build
 
 # Copy package configs into working Directory
-COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json /build/
+COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json ./make.js ./sea-config.json /build/
 
 # Install required packages
 RUN pnpm i
@@ -16,7 +16,7 @@ RUN pnpm i
 COPY ./src /build/src
 
 # Compile the project
-RUN pnpm run bundle
+RUN pnpm run make
 
 # Copy built artifacts and dependencies into a minimal release image
 FROM node:current-alpine AS release
