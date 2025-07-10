@@ -138,7 +138,7 @@ export default class Subscription {
 			}
 
 			// Stop searching if we have looked through videosToSearch
-			if (videosSearched++ >= settings.floatplane.videosToSearch) break;
+			if (++videosSearched >= settings.floatplane.videosToSearch) break;
 		}
 	}
 
