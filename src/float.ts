@@ -45,7 +45,7 @@ const downloadNewVideos = async () => {
 		}
 		await subscription.deleteOldVideos();
 		for await (const video of subscription.fetchNewVideos()) inProgress.push(video.download());
-		await findTextTracks(subscription);
+		if (settings.extras.downloadCaptions) await findTextTracks(subscription);
 	}
 
 	console.log(chalk`Queued {green ${inProgress.length}} videos...`);
