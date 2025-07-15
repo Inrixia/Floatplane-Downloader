@@ -20,8 +20,6 @@ import { Self } from "floatplane/user";
  */
 const downloadNewVideos = async () => {
 	const inProgress = [];
-	let videos = 0;
-	let textTracks = 0;
 
 	// Fetch content posts from seek and destroy guids
 	const contentPosts: Promise<ContentPost>[] = [];
@@ -38,22 +36,14 @@ const downloadNewVideos = async () => {
 			if (contentPost.creator.id === subscription.creatorId) {
 				for await (const video of subscription.seekAndDestroy(contentPost)) {
 					inProgress.push(video.download());
-					videos++;
 				}
 			}
 		}
 		await subscription.deleteOldVideos();
-		for await (const video of subscription.fetchNewVideos()) {
-			inProgress.push(video.download());
-			if (settings.extras.downloadCaptions) {
-				inProgress.push(video.updateTextTracks());
-				textTracks++;
-			}
-		}
+		for await (const video of subscription.fetchNewVideos()) inProgress.push(video.download());
 	}
 
-	if (textTracks === 0) console.log(chalk`Queued {green ${inProgress.length}} videos...`);
-	else console.log(chalk`Queued {green ${inProgress.length}} videos and {green ${textTracks}} text tracks...`);
+	console.log(chalk`Queued {green ${inProgress.length}} videos...`);
 	await Promise.all(inProgress);
 
 	// Enforce search limits after searching once.
