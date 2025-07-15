@@ -50,6 +50,19 @@ Controls if the downloader should wait for new videos to download after finishin
 
 <br>
 
+
+**floatplane.trackVideoIDs**:  
+Controls if the downloader should redownload a video if the video file can't be found. Setting this to `true` will not redownload even if the video file has been moved, renamed or deleted.  
+If you move or rename a video file with this enabled it will not automatically be deleted after `daysToKeepVideos`.
+
+```json
+"floatplane": {
+    "trackVideoIDs": true
+}
+```
+
+<br>
+
 **floatplane.seekAndDestroy**:  
 You can put video id's here and the downloader will find, sort and download them normally.
 
