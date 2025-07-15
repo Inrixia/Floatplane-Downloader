@@ -115,9 +115,12 @@ const findTextTracks = async (subscription: Subscription) => {
 	console.log(chalk`Checking for missing text tracks in {yellow ${subscription.plan}}...`);
 	let tracksAdded = 0;
 
-	for (const videoData of Attachment.find((attachment: any) => {
+	// Find videos for this subscription and sort by release date (newest first)
+	const videoDataList = Attachment.find((attachment: any) => {
 		return subscription.channels.some((channel: ChannelOptions) => channel.title === attachment.channelTitle);
-	})) {
+	}).sort((a, b) => b.releaseDate - a.releaseDate).slice(0, settings.floatplane.videosToSearch);
+
+	for (const videoData of videoDataList) {
 		const video = Video.Videos[videoData.attachmentId];
 		
 		if (!video || (video.textTracks && video.textTracks.length > 0)) continue;
