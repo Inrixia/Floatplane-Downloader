@@ -62,7 +62,6 @@ export type VideoInfo = {
 	channelTitle: string;
 	videoTitle: string;
 	releaseDate: Date;
-	textTracks?: VideoContent["textTracks"];
 };
 
 const byteToMbits = 131072;
@@ -70,7 +69,6 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	public readonly artworkUrl?: string;
 	private readonly description: string;
-	private textTracks?: VideoContent["textTracks"];
 
 	private static State = VideoState;
 
@@ -97,7 +95,6 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
-		this.textTracks = videoInfo.textTracks;
 		// Ensure onError is bound to this instance
 		this.onError = this.onError.bind(this);
 	}
@@ -115,7 +112,7 @@ export class Video extends Attachment {
 				await this.downloadArtwork().catch(withContext(`Saving artwork`)).catch(this.onError);
 			}
 			if (settings.extras.downloadCaptions) {
-				await this.updateTextTracks().catch(withContext(`Downloading captions`)).catch(this.onError);
+				await this.downloadCaptions().catch(withContext(`Downloading captions`)).catch(this.onError);
 			}
 			if ((await this.getState()) === Video.State.Muxed) {
 				this.logger.done(chalk`{green Exists! Skipping}`);
@@ -295,35 +292,21 @@ export class Video extends Attachment {
 	}
 
 	private async downloadCaptions() {
-		if (this.textTracks === undefined) return;
-	   	if (this.textTracks.length === 0) return;
-
-		for (const caption of this.textTracks) {
-			this.logger.log(`Saving ${caption.language} captions`);
-			const captionPath = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
-			if (await fileExists(captionPath)) continue;
-			const captionContent = await (await fetch(caption.src)).text();
-			await writeFile(captionPath, captionContent, "utf8");
-			this.logger.log(`Saved ${caption.language} captions`);
-		}
-	}
-
-	public async updateTextTracks() {
-		if (this.textTracks && this.textTracks.length > 0) return;
-
 		try {
 			const video = await fApi.content.video(this.attachmentId);
-			const newTextTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
-
-			if (newTextTracks.length > 0) {
-				this.textTracks = newTextTracks;
-
-				await this.downloadCaptions().catch((error) => {
-					console.error(`Failed to download captions for ${this.attachmentId}:`, error);
-				});
+			const textTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
+			if (textTracks.length === 0) return;
+			
+			for (const caption of textTracks) {
+				const captionPath = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
+				if (await fileExists(captionPath)) continue;
+				this.logger.log(`Saving ${caption.language} captions`);
+				const captionContent = await (await fetch(caption.src)).text();
+				await writeFile(captionPath, captionContent, "utf8");
+				this.logger.log(`Saved ${caption.language} captions`);
 			}
 		} catch (error) {
-			console.error(`Failed to fetch text tracks for ${this.attachmentId}:`, error);
+			this.onError(`Failed to download captions: ${error}`);
 		}
 	}
 

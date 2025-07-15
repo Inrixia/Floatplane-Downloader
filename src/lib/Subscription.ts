@@ -116,7 +116,6 @@ export default class Subscription {
 					channelTitle: channel.title,
 					videoTitle: post.title,
 					releaseDate: new Date(new Date(post.releaseDate).getTime() + dateOffset * 1000),
-					textTracks: video.textTracks,
 				});
 				break;
 			}
