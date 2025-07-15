@@ -118,8 +118,8 @@ export class Video extends Attachment {
 			if (settings.extras.downloadArtwork) {
 				await this.downloadArtwork().catch(withContext(`Saving artwork`)).catch(this.onError);
 			}
-			if (settings.extras.downloadCaptions && this.textTracks && this.textTracks.length > 0) {
-				await this.downloadCaptions().catch(withContext(`Downloading captions`)).catch(this.onError);
+			if (settings.extras.downloadCaptions) {
+				await this.updateTextTracks().catch(withContext(`Downloading captions`)).catch(this.onError);
 			}
 			if ((await this.getState()) === Video.State.Muxed) {
 				this.logger.done(chalk`{green Exists! Skipping}`);
@@ -299,7 +299,6 @@ export class Video extends Attachment {
 	}
 
 	private async downloadCaptions() {
-		if (!settings.extras.downloadCaptions) return;
 		if (this.textTracks === undefined) return;
 		const captions = this.textTracks.filter((track) => track.kind === "captions");
 	   	if (captions.length === 0) return;
