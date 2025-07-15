@@ -168,6 +168,18 @@ This may result in files without muxed metadata and should only be used for reco
 
 <br>
 
+**extras.downloadCaptions**:  
+Controls whether video captions/subtitles are downloaded when available.  
+Caption files are saved as `.vtt` files in the same directory as the video.
+
+```json
+"extras": {
+    "downloadCaptions": true
+}
+```
+
+<br>
+
 ## Plex
 
 Use **quickstartPrompts** to easily set plex settings.

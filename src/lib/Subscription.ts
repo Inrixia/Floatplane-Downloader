@@ -59,11 +59,6 @@ export default class Subscription {
 	private static isChannelCache: Record<string, isChannel> = {};
 	private static isChannelHelper = `const isChannel = (post, channelId) => (typeof post.channel !== 'string' ? post.channel.id : post.channel) === channelId`;
 
-	private async fetchTextTracks(attachmentId: string) {
-		const video = await fApi.content.video(attachmentId);
-		return video.textTracks?.filter((track) => track.kind === "captions") ?? [];
-	}
-
 	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
@@ -121,7 +116,6 @@ export default class Subscription {
 					channelTitle: channel.title,
 					videoTitle: post.title,
 					releaseDate: new Date(new Date(post.releaseDate).getTime() + dateOffset * 1000),
-					textTracks: video.textTracks,
 				});
 				break;
 			}
