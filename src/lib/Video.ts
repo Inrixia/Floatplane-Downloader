@@ -296,24 +296,16 @@ export class Video extends Attachment {
 
 	private async downloadCaptions() {
 		if (this.textTracks === undefined) return;
-		const captions = this.textTracks.filter((track) => track.kind === "captions");
-	   	if (captions.length === 0) return;
+	   	if (this.textTracks.length === 0) return;
 
-		const toDownload: Array<{ src: string; path: string }> = [];
-		for (const caption of captions) {
+		for (const caption of this.textTracks) {
+			this.logger.log(`Saving ${caption.language} captions`);
 			const captionPath = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
-			if (!(await fileExists(captionPath))) {
-				toDownload.push({ src: caption.src, path: captionPath });
-			}
+			if (await fileExists(captionPath)) continue;
+			const captionContent = await (await fetch(caption.src)).text();
+			await writeFile(captionPath, captionContent, "utf8");
+			this.logger.log(`Saved ${caption.language} captions`);
 		}
-		if (toDownload.length === 0) return;
-
-		this.logger.log("Saving captions");
-		for (const { src, path } of toDownload) {
-			const captionContent = await (await fetch(src)).text();
-			await writeFile(path, captionContent, "utf8");
-		}
-		this.logger.log("Saved captions");
 	}
 
 	public async updateTextTracks() {
