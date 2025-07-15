@@ -70,7 +70,7 @@ const byteToMbits = 131072;
 export class Video extends Attachment {
 	public readonly description: string;
 	public readonly artworkUrl?: string;
-	public readonly textTracks?: VideoContent["textTracks"];
+	private _textTracks?: VideoContent["textTracks"];
 
 	public static State = VideoState;
 
@@ -97,9 +97,13 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
-		this.textTracks = videoInfo.textTracks;
+		this._textTracks = videoInfo.textTracks;
 		// Ensure onError is bound to this instance
 		this.onError = this.onError.bind(this);
+	}
+
+	public get textTracks(): VideoContent["textTracks"] | undefined {
+		return this._textTracks;
 	}
 
 	public async download() {
@@ -311,7 +315,7 @@ export class Video extends Attachment {
 
 		this.logger.log("Saving captions");
 		for (const { src, path } of toDownload) {
-			const captionContent = await fetch(src).then((res) => res.text());
+			const captionContent = await (await fetch(src)).text();
 			await writeFile(path, captionContent, "utf8");
 		}
 		this.logger.log("Saved captions");
@@ -325,12 +329,7 @@ export class Video extends Attachment {
 			const newTextTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
 
 			if (newTextTracks.length > 0) {
-				Object.defineProperty(this, "textTracks", {
-					value: newTextTracks,
-					writable: false,
-					enumerable: true,
-					configurable: false,
-				});
+				this._textTracks = newTextTracks;
 
 				if (settings.extras.downloadCaptions) {
 					await this.downloadCaptions().catch((error) => {
