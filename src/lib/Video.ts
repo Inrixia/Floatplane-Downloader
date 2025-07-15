@@ -68,11 +68,11 @@ export type VideoInfo = {
 const byteToMbits = 131072;
 
 export class Video extends Attachment {
-	public readonly description: string;
 	public readonly artworkUrl?: string;
-	private _textTracks?: VideoContent["textTracks"];
+	private readonly description: string;
+	private textTracks?: VideoContent["textTracks"];
 
-	public static State = VideoState;
+	private static State = VideoState;
 
 	private static readonly MaxRetries = 1;
 	private static readonly DownloadThreads = 8;
@@ -86,7 +86,7 @@ export class Video extends Attachment {
 	private readonly logger = new Video.ProgressLogger(this.videoTitle);
 
 	// Static cache of instances
-	public static readonly Videos: Record<string, Video> = {};
+	private static readonly Videos: Record<string, Video> = {};
 	public static getOrCreate(videoInfo: VideoInfo): Video {
 		if (this.Videos[videoInfo.attachmentId] !== undefined) return this.Videos[videoInfo.attachmentId];
 		return (this.Videos[videoInfo.attachmentId] = new this(videoInfo));
@@ -97,13 +97,9 @@ export class Video extends Attachment {
 
 		this.description = videoInfo.description;
 		this.artworkUrl = videoInfo.artworkUrl;
-		this._textTracks = videoInfo.textTracks;
+		this.textTracks = videoInfo.textTracks;
 		// Ensure onError is bound to this instance
 		this.onError = this.onError.bind(this);
-	}
-
-	public get textTracks(): VideoContent["textTracks"] | undefined {
-		return this._textTracks;
 	}
 
 	public async download() {
@@ -328,7 +324,7 @@ export class Video extends Attachment {
 			const newTextTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
 
 			if (newTextTracks.length > 0) {
-				this._textTracks = newTextTracks;
+				this.textTracks = newTextTracks;
 
 				await this.downloadCaptions().catch((error) => {
 					console.error(`Failed to download captions for ${this.attachmentId}:`, error);
