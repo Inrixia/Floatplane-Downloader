@@ -8,6 +8,10 @@ import chalk from "chalk-template";
 import { loginFloatplane, User } from "./logins";
 
 import { fetchSubscriptions } from "./subscriptionFetching";
+import { Attachment } from "./lib/Attachment";
+import { Video } from "./lib/Video";
+import Subscription from "./lib/Subscription";
+import type { ChannelOptions } from "./lib/types";
 
 import semver from "semver";
 const { gt, diff } = semver;
@@ -41,6 +45,7 @@ const downloadNewVideos = async () => {
 		}
 		await subscription.deleteOldVideos();
 		for await (const video of subscription.fetchNewVideos()) inProgress.push(video.download());
+		await findTextTracks(subscription);
 	}
 
 	console.log(chalk`Queued {green ${inProgress.length}} videos...`);
@@ -105,3 +110,31 @@ process.on("SIGTERM", () => process.exit(143));
 
 	await downloadNewVideos();
 })();
+
+const findTextTracks = async (subscription: Subscription) => {
+	console.log(chalk`Checking for missing text tracks in {yellow ${subscription.plan}}...`);
+	let tracksAdded = 0;
+
+	for (const videoData of Attachment.find((attachment: any) => {
+		return subscription.channels.some((channel: ChannelOptions) => channel.title === attachment.channelTitle);
+	})) {
+		const video = Video.Videos[videoData.attachmentId];
+		
+		if (!video || (video.textTracks && video.textTracks.length > 0)) continue;
+
+		try {
+			const textTracksCount = await video.updateTextTracks();
+			
+			if (textTracksCount && textTracksCount > 0) {
+				tracksAdded++;
+				console.log(chalk`Found {green ${textTracksCount}} text track(s) for {cyan ${video.videoTitle}}`);
+			}
+		} catch (error) {
+			console.error(chalk`Failed to update text tracks for {red ${videoData.attachmentId}}: ${error}`);
+		}
+	}
+
+	if (tracksAdded > 0) {
+		console.log(chalk`Added text tracks to {green ${tracksAdded}} videos in {yellow ${subscription.plan}}`);
+	}
+};

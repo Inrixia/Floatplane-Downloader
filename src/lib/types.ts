@@ -45,6 +45,7 @@ export interface Extras extends Record<string, boolean> {
 	downloadArtwork: boolean;
 	saveNfo: boolean;
 	considerAllNonPartialDownloaded: boolean;
+	downloadCaptions: boolean;
 }
 
 export type Resolution = ValueOfA<Resolutions>;

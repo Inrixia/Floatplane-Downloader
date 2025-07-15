@@ -114,6 +114,9 @@ export class Video extends Attachment {
 			if (settings.extras.downloadArtwork) {
 				await this.downloadArtwork().catch(withContext(`Saving artwork`)).catch(this.onError);
 			}
+			if (settings.extras.downloadCaptions && this.textTracks && this.textTracks.length > 0) {
+				await this.downloadCaptions().catch(withContext(`Downloading captions`)).catch(this.onError);
+			}
 			if ((await this.getState()) === Video.State.Muxed) {
 				this.logger.done(chalk`{green Exists! Skipping}`);
 				return;
@@ -292,6 +295,7 @@ export class Video extends Attachment {
 	}
 
 	private async downloadCaptions() {
+		if (!settings.extras.downloadCaptions) return;
 		if (this.textTracks === undefined) return;
 		const captions = this.textTracks.filter((track) => track.kind === "captions");
 		if (captions.length === 0) return;
@@ -304,6 +308,36 @@ export class Video extends Attachment {
 			await writeFile(captionPath, captionContent, "utf8");
 		}
 		this.logger.log("Saved captions");
+	}
+
+	public async updateTextTracks() {
+		if (this.textTracks && this.textTracks.length > 0) return 0;
+
+		try {
+			const video = await fApi.content.video(this.attachmentId);
+			const newTextTracks = video.textTracks?.filter((track) => track.kind === "captions") ?? [];
+
+			if (newTextTracks.length > 0) {
+				Object.defineProperty(this, "textTracks", {
+					value: newTextTracks,
+					writable: false,
+					enumerable: true,
+					configurable: false,
+				});
+
+				if (settings.extras.downloadCaptions) {
+					await this.downloadCaptions().catch((error) => {
+						console.error(`Failed to download captions for ${this.attachmentId}:`, error);
+					});
+				}
+
+				return newTextTracks.length;
+			}
+		} catch (error) {
+			console.error(`Failed to fetch text tracks for ${this.attachmentId}:`, error);
+		}
+
+		return 0;
 	}
 
 	// The number of available slots for making delivery requests,

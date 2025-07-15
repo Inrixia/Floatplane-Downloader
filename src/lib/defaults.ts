@@ -60,6 +60,7 @@ export const defaultSettings: Settings = {
 		downloadArtwork: true,
 		saveNfo: true,
 		considerAllNonPartialDownloaded: false,
+		downloadCaptions: true,
 	},
 	artworkSuffix: "",
 	postProcessingCommand: "",
