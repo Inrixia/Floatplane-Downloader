@@ -68,6 +68,7 @@ export type Settings = {
 		videoResolution: Resolution;
 		videosToSearch: number;
 		waitForNewVideos: boolean;
+		trackVideoIDs: boolean;
 		seekAndDestroy: string[];
 	};
 	maxDownloadSpeed: number;

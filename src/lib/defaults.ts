@@ -46,6 +46,7 @@ export const defaultSettings: Settings = {
 		videosToSearch: 5,
 		videoResolution: "1080",
 		waitForNewVideos: true,
+		trackVideoIDs: false,
 		seekAndDestroy: [],
 	},
 	maxDownloadSpeed: -1,

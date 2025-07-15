@@ -139,6 +139,8 @@ export class Video extends Attachment {
 							}
 						}
 					}
+					const attrStore = await this.attachmentInfo();
+					attrStore.muxed = true;
 					telegramMsg(`Downloaded ${this.videoTitle} from ${this.channelTitle}`);
 					discordEmbed("New video downloaded", this);
 					this.logger.done(chalk`{cyan Downloaded!}`);
@@ -217,9 +219,12 @@ export class Video extends Attachment {
 	public async getState() {
 		const attrStore = await this.attachmentInfo();
 
+		if (settings.floatplane.trackVideoIDs && attrStore.muxed) return VideoState.Muxed;
+
 		const muxedBytes = await Video.pathBytes(this.muxedPath);
 		// If considerAllNonPartialDownloaded is true, return true if the file exists. Otherwise check if the file is the correct size
 		if (settings.extras.considerAllNonPartialDownloaded && muxedBytes !== -1) attrStore.muxedBytes = muxedBytes;
+		if (settings.floatplane.trackVideoIDs && attrStore.muxedBytes === muxedBytes) attrStore.muxed = true;
 		if (attrStore.muxedBytes === muxedBytes) return VideoState.Muxed;
 
 		const partialBytes = await Video.pathBytes(this.partialPath);

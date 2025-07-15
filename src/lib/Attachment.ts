@@ -11,6 +11,7 @@ import { nll } from "./logging/ProgressLogger";
 type AttachmentInfo = {
 	partialBytes?: number;
 	muxedBytes?: number;
+	muxed?: boolean;
 	filePath: string;
 	releaseDate: number;
 	videoTitle: string;
