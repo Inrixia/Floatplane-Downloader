@@ -322,7 +322,7 @@ export class Video extends Attachment {
 	}
 
 	public async updateTextTracks() {
-		if (this.textTracks && this.textTracks.length > 0) return 0;
+		if (this.textTracks && this.textTracks.length > 0) return;
 
 		try {
 			const video = await fApi.content.video(this.attachmentId);
@@ -331,19 +331,13 @@ export class Video extends Attachment {
 			if (newTextTracks.length > 0) {
 				this._textTracks = newTextTracks;
 
-				if (settings.extras.downloadCaptions) {
-					await this.downloadCaptions().catch((error) => {
-						console.error(`Failed to download captions for ${this.attachmentId}:`, error);
-					});
-				}
-
-				return newTextTracks.length;
+				await this.downloadCaptions().catch((error) => {
+					console.error(`Failed to download captions for ${this.attachmentId}:`, error);
+				});
 			}
 		} catch (error) {
 			console.error(`Failed to fetch text tracks for ${this.attachmentId}:`, error);
 		}
-
-		return 0;
 	}
 
 	// The number of available slots for making delivery requests,
