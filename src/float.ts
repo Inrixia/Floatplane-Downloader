@@ -62,17 +62,19 @@ process.on("SIGTERM", () => process.exit(143));
 		console.log(chalk`\n{red ///}{grey ===} {cyan Console} {grey ===}{red \\\\\\}`);
 	}
 
-	const latest = await fApi
-		.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json")
-		.json<{ version: string }>()
-		.catch(() => ({ version: DownloaderVersion }));
+	if (args.updateCheck) {
+		const latest = await fApi
+			.got("https://raw.githubusercontent.com/Inrixia/Floatplane-Downloader/master/package.json")
+			.json<{ version: string }>()
+			.catch(() => ({ version: DownloaderVersion }));
 
-	if (gt(latest.version, DownloaderVersion))
-		console.log(
-			chalk`There is a ${diff(latest.version, DownloaderVersion)} update available! ${DownloaderVersion} > ${
-				latest.version
-			}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`,
-		);
+		if (gt(latest.version, DownloaderVersion))
+			console.log(
+				chalk`There is a ${diff(latest.version, DownloaderVersion)} update available! ${DownloaderVersion} > ${
+					latest.version
+				}.\nHead to {cyanBright https://github.com/Inrixia/Floatplane-Downloader/releases} to update!\n`,
+			);
+	}
 
 	if (args.sanityCheck) {
 		console.log("Sanity check passed!");

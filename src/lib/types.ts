@@ -30,6 +30,7 @@ export type Args = {
 	password: string;
 	token: string;
 	headless: boolean;
+	updateCheck: boolean;
 	plexUsername: string;
 	plexPassword: string;
 	sanityCheck: boolean;
