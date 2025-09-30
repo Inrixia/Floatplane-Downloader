@@ -58,6 +58,7 @@ export const defaultSettings: Settings = {
 	extras: {
 		stripSubchannelPrefix: true,
 		downloadArtwork: true,
+		downloadCaptions: true,
 		saveNfo: true,
 		considerAllNonPartialDownloaded: false,
 	},

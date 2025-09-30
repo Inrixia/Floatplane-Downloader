@@ -43,6 +43,7 @@ export type PartialArgs = Partial<Args & Settings>;
 export interface Extras extends Record<string, boolean> {
 	stripSubchannelPrefix: boolean;
 	downloadArtwork: boolean;
+	downloadCaptions: boolean;
 	saveNfo: boolean;
 	considerAllNonPartialDownloaded: boolean;
 }

@@ -112,7 +112,10 @@ export class Video extends Attachment {
 				await this.saveNfo().catch(withContext(`Saving .nfo file`)).catch(this.onError);
 			}
 			if (settings.extras.downloadArtwork) {
-				await this.downloadArtwork().catch(withContext(`Saving artwork`)).catch(this.onError);
+				await this.downloadArtwork().catch(withContext(`Downloading artwork`)).catch(this.onError);
+			}
+			if (settings.extras.downloadCaptions) {
+				await this.downloadCaptions().catch(withContext(`Downloading captions`)).catch(this.onError);
 			}
 			if ((await this.getState()) === Video.State.Muxed) {
 				this.logger.done(chalk`{green Exists! Skipping}`);
@@ -291,17 +294,21 @@ export class Video extends Attachment {
 		this.logger.log("Saved artwork");
 	}
 
-	private async downloadCaptions() {
+	private *captionsFiles() {
 		if (this.textTracks === undefined) return;
 		const captions = this.textTracks.filter((track) => track.kind === "captions");
 		if (captions.length === 0) return;
-		this.logger.log("Saving captions");
-
 		for (const caption of captions) {
-			const captionPath = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
-			if (await fileExists(captionPath)) continue;
-			const captionContent = await fetch(caption.src).then((res) => res.text());
-			await writeFile(captionPath, captionContent, "utf8");
+			const path = `${this.filePath}${caption.language ? `.${caption.language}` : ""}.vtt`;
+			yield { ...caption, path };
+		}
+	}
+	private async downloadCaptions() {
+		this.logger.log("Saving captions");
+		for (const { path, src } of this.captionsFiles()) {
+			if (await fileExists(path)) continue;
+			const captionContent = await fetch(src).then((res) => res.text());
+			await writeFile(path, captionContent, "utf8");
 		}
 		this.logger.log("Saved captions");
 	}

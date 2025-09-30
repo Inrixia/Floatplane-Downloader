@@ -145,6 +145,15 @@ Saves video thubnails alongside each video. These are required for nice thumbnai
 
 <br>
 
+**extras.downloadCaptions**:  
+Saves video captions alongside each video.
+
+```json
+"extras": {
+    "downloadCaptions": true
+}
+```
+
 **extras.safeNfo**:  
 Saves video metadata to nfo files alongside each video.
 
