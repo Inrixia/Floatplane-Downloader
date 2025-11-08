@@ -1,60 +1,60 @@
 name: "Validate & Build"
 
 on:
- workflow_call:
+  workflow_call:
 
 jobs:
- Sanity:
-  name: Build & Sanity Check - ${{ matrix.platform.os-name }}
-  runs-on: ${{ matrix.platform.runs-on }}
-  strategy:
-   matrix:
-    platform:
-     - os-name: linux-x86_64
-       runs-on: ubuntu-latest
+  Sanity:
+    name: Build & Sanity Check - ${{ matrix.platform.os-name }}
+    runs-on: ${{ matrix.platform.runs-on }}
+    strategy:
+      matrix:
+        platform:
+          - os-name: linux-x86_64
+            runs-on: ubuntu-latest
 
-     - os-name: windows-x86_64
-       runs-on: windows-latest
+          - os-name: windows-x86_64
+            runs-on: windows-latest
 
-     - os-name: macOS-x86_64
-       runs-on: macOS-13
+          - os-name: macOS-x86_64
+            runs-on: macOS-15
 
-     - os-name: macOS-aarch64
-       runs-on: macOS-latest
+          - os-name: macOS-aarch64
+            runs-on: macOS-latest
 
-  steps:
-   - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-   - name: Install pnpm 📥
-     uses: pnpm/action-setup@v4
-     with:
-      version: latest
+      - name: Install pnpm 📥
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
 
-   - name: Install Node.js 📥
-     uses: actions/setup-node@v4
-     with:
-      cache: pnpm
-      node-version: latest
+      - name: Install Node.js 📥
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: latest
 
-   - name: Install dependencies 📥
-     run: pnpm install
+      - name: Install dependencies 📥
+        run: pnpm install
 
-   - name: Build & Test
-     run: pnpm run make
+      - name: Build & Test
+        run: pnpm run make
 
-   - name: Make artifacts output dir
-     run: mkdir ./artifacts
+      - name: Make artifacts output dir
+        run: mkdir ./artifacts
 
-   - name: Archive binary
-     run: tar -czf ./artifacts/${{ matrix.platform.os-name }}.tar.gz -C ./build float
-     if: matrix.platform.runs-on != 'windows-latest'
+      - name: Archive binary
+        run: tar -czf ./artifacts/${{ matrix.platform.os-name }}.tar.gz -C ./build float
+        if: matrix.platform.runs-on != 'windows-latest'
 
-   - name: Archive binary (windows)
-     run: powershell -Command "Compress-Archive -Path './build/float.exe' -DestinationPath './artifacts/${{ matrix.platform.os-name }}.zip'"
-     if: matrix.platform.runs-on == 'windows-latest'
+      - name: Archive binary (windows)
+        run: powershell -Command "Compress-Archive -Path './build/float.exe' -DestinationPath './artifacts/${{ matrix.platform.os-name }}.zip'"
+        if: matrix.platform.runs-on == 'windows-latest'
 
-   - name: Upload Build Artifact
-     uses: actions/upload-artifact@v4
-     with:
-      name: ${{ matrix.platform.runs-on }}
-      path: ./artifacts/
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.runs-on }}
+          path: ./artifacts/
