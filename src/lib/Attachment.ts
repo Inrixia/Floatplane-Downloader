@@ -29,6 +29,7 @@ enum Extensions {
 	Partial = ".partial",
 	NFO = ".nfo",
 	Thumbnail = ".png",
+	Caption = ".vtt",
 }
 
 export class Attachment implements AttachmentAttributes {
@@ -125,7 +126,12 @@ export class Attachment implements AttachmentAttributes {
 
 		const filesInDir = await readdir(fileDir);
 		const matchingFile = filesInDir.find(
-			(file) => file.startsWith(fileName) && !file.endsWith(Extensions.NFO) && !file.endsWith(Extensions.Partial) && !file.endsWith(Extensions.Muxed)
+			(file) =>
+				file.startsWith(fileName) &&
+				!file.endsWith(Extensions.NFO) &&
+				!file.endsWith(Extensions.Partial) &&
+				!file.endsWith(Extensions.Muxed) &&
+				!file.endsWith(Extensions.Caption)
 		);
 		if (matchingFile) return extname(matchingFile);
 		return undefined;
