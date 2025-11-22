@@ -57,7 +57,7 @@ export type Settings = {
 		waitForNewVideos: boolean;
 		seekAndDestroy: string[];
 		api: {
-			tokenSet: TokenEndpointResponse | undefined;
+			tokenSet: (TokenEndpointResponse & { expires_at?: Date | string }) | null;
 			client: {
 				server: string;
 				clientId: string;

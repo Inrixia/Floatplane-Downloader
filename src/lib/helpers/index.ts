@@ -56,6 +56,12 @@ import { Floatplane } from "floatplane";
 export const fApi = new Floatplane(
 	{
 		tokenSet: settings.floatplane.api.tokenSet,
+		tokenSetHook: (tokenSet) => {
+			// Makes it compatible with JSON storage (db package)
+			tokenSet.expires_at = tokenSet.expires_at instanceof Date ? tokenSet.expires_at.toISOString() : tokenSet.expires_at;
+
+			settings.floatplane.api.tokenSet = tokenSet;
+		},
 		clientSettings: {
 			server: settings.floatplane.api.client.server,
 			clientId: settings.floatplane.api.client.clientId,

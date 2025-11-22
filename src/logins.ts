@@ -8,12 +8,20 @@ export type User = LoginSuccess["user"];
 
 export const loginFloatplane = async (): Promise<User> => {
 	if ((await fApi.isAuthenticated()) !== true) {
+		let loopCounter = 0;
 		await loopError(
 			async () => {
-				const loginResponse = await fApi.login();
+				const loginResponse = await fApi.deviceLogin();
 				return loginResponse;
 			},
-			async (err) => console.error(`\nLooks like those login details didnt work, Please try again... ${err}`),
+			async (err) => {
+				loopCounter++;
+				console.error(`\nLooks like those login details didnt work, Please try again... ${err}`);
+				if (loopCounter >= 5) {
+					console.error("Failed to login to floatplane after 5 attempts!");
+					throw err;
+				}
+			},
 		);
 	}
 

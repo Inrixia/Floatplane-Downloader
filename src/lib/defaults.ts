@@ -46,7 +46,7 @@ export const defaultSettings: Settings = {
 		waitForNewVideos: true,
 		seekAndDestroy: [],
 		api: {
-			tokenSet: undefined,
+			tokenSet: null,
 			client: {
 				server: "https://auth.floatplane.com/realms/floatplane",
 				clientId: "floatplane-downloader",
