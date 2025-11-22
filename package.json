@@ -29,7 +29,7 @@
 		"default-import": "^2.0.1",
 		"dotenv": "^16.4.5",
 		"ffbinaries": "^1.1.6",
-		"floatplane": "^4.5.2",
+		"floatplane": "https://github.com/Inrixia/floatplaneAPI.ts.git#main",
 		"floatplane-plex-downloader": "file:",
 		"html-to-text": "^9.0.5",
 		"json5": "^2.2.3",

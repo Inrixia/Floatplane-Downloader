@@ -1,6 +1,7 @@
 export type Resolutions = ["360", "720", "1080", "2160"];
 
 import type { ValueOfA } from "@inrixia/helpers/ts";
+import { TokenEndpointResponse } from "openid-client";
 
 export type ChannelOptions = {
 	title: string;
@@ -55,6 +56,14 @@ export type Settings = {
 		videosToSearch: number;
 		waitForNewVideos: boolean;
 		seekAndDestroy: string[];
+		api: {
+			tokenSet: TokenEndpointResponse | undefined;
+			client: {
+				server: string;
+				clientId: string;
+			};
+			baseUrl: string;
+		};
 	};
 	maxDownloadSpeed: number;
 	filePathFormatting: string;

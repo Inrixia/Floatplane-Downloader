@@ -97,7 +97,7 @@ export const quickStart = async (): Promise<void> => {
 	if ((await fApi.isAuthenticated()) !== true) {
 		console.log("Please login to floatplane...");
 		await loginFloatplane();
-	} else console.log("Already logged in!");
+	} else console.log("Logged in!");
 
 	console.log("\n== \u001b[38;5;208mGeneral\u001b[0m ==\n");
 	settings.floatplane.videosToSearch = await prompts.floatplane.videosToSearch(settings.floatplane.videosToSearch);

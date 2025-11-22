@@ -45,6 +45,14 @@ export const defaultSettings: Settings = {
 		videoResolution: "1080",
 		waitForNewVideos: true,
 		seekAndDestroy: [],
+		api: {
+			tokenSet: undefined,
+			client: {
+				server: "https://auth.floatplane.com/realms/floatplane",
+				clientId: "floatplane-downloader",
+			},
+			baseUrl: "https://www.floatplane.com",
+		},
 	},
 	maxDownloadSpeed: -1,
 	plex: {

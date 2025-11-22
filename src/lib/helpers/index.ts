@@ -20,44 +20,6 @@ export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON
 
 import type { PartialArgs, Settings } from "../types.js";
 
-import { FileCookieStore } from "tough-cookie-file-store";
-import { CookieJar } from "tough-cookie";
-export const cookieJar = new CookieJar(new FileCookieStore("./db/cookies.json"));
-
-import { Floatplane } from "floatplane";
-export const fApi = new Floatplane(
-	cookieJar,
-	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
-);
-
-// Add floatplane api request metrics
-const httpRequestDurationmMs = new Histogram({
-	name: "request_duration_ms",
-	help: "Duration of HTTP requests in ms",
-	labelNames: ["method", "hostname", "pathname", "status"],
-	buckets: [5, 10, 15, 30, 50, 100, 250, 500, 750, 1000, 1500, 2000, 3000],
-});
-type WithStartTime<T> = T & { _startTime: number };
-fApi.extend({
-	hooks: {
-		beforeRequest: [
-			(options) => {
-				(<WithStartTime<typeof options>>options)._startTime = Date.now();
-			},
-		],
-		afterResponse: [
-			(res) => {
-				const url = res.requestUrl;
-				const options = <WithStartTime<typeof res.request.options>>res.request.options;
-				const thumbsIndex = url.pathname.indexOf("thumbnails");
-				const pathname = thumbsIndex !== -1 ? url.pathname.substring(0, thumbsIndex + 10) : url.pathname;
-				httpRequestDurationmMs.observe({ method: options.method, hostname: url.hostname, pathname, status: res.statusCode }, Date.now() - options._startTime);
-				return res;
-			},
-		],
-	},
-});
-
 export const settings = db<Settings>("./db/settings.json", { template: defaultSettings, pretty: true, forceCreate: true, updateOnExternalChanges: true });
 recursiveUpdate(settings, defaultSettings);
 
@@ -89,3 +51,44 @@ if (args.headless === true) {
 		return originalStdoutWrite(...params);
 	}) as typeof process.stdout.write;
 }
+
+import { Floatplane } from "floatplane";
+export const fApi = new Floatplane(
+	{
+		tokenSet: settings.floatplane.api.tokenSet,
+		clientSettings: {
+			server: settings.floatplane.api.client.server,
+			clientId: settings.floatplane.api.client.clientId,
+		},
+	},
+	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
+	settings.floatplane.api.baseUrl,
+);
+
+// Add floatplane api request metrics
+const httpRequestDurationmMs = new Histogram({
+	name: "request_duration_ms",
+	help: "Duration of HTTP requests in ms",
+	labelNames: ["method", "hostname", "pathname", "status"],
+	buckets: [5, 10, 15, 30, 50, 100, 250, 500, 750, 1000, 1500, 2000, 3000],
+});
+type WithStartTime<T> = T & { _startTime: number };
+fApi.extend({
+	hooks: {
+		beforeRequest: [
+			(options) => {
+				(<WithStartTime<typeof options>>options)._startTime = Date.now();
+			},
+		],
+		afterResponse: [
+			(res) => {
+				const url = res.requestUrl;
+				const options = <WithStartTime<typeof res.request.options>>res.request.options;
+				const thumbsIndex = url.pathname.indexOf("thumbnails");
+				const pathname = thumbsIndex !== -1 ? url.pathname.substring(0, thumbsIndex + 10) : url.pathname;
+				httpRequestDurationmMs.observe({ method: options.method, hostname: url.hostname, pathname, status: res.statusCode }, Date.now() - options._startTime);
+				return res;
+			},
+		],
+	},
+});
