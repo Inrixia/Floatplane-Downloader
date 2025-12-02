@@ -20,12 +20,8 @@ export const DownloaderVersion = isSea() ? getAsset("./version", "utf-8") : JSON
 
 import type { PartialArgs, Settings } from "../types";
 
-import { CookieJar, Store } from "tough-cookie";
-// @ts-expect-error no types >:(
-import FileCookieStoreImport from "tough-cookie-file-store";
-const FileCookieStore = FileCookieStoreImport as typeof Store;
-
-import { Floatplane } from "floatplane";
+import { Floatplane, type AuthToken } from "floatplane";
+import { onDeviceCode } from "./onDeviceCode";
 
 const argv = ARGV(process.argv.slice(2))<PartialArgs>({});
 const env = getEnv();
@@ -50,13 +46,16 @@ if (env.__FPDSettings !== undefined) {
 
 recursiveUpdate(settings, env, { setUndefined: false, setDefined: true });
 
-// @ts-expect-error No types
-const fileCookieStore = new FileCookieStore(`${args.dbPath}/cookies.json`);
-export const cookieJar = new CookieJar(fileCookieStore);
-export const fApi = new Floatplane(
-	cookieJar,
-	`Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`
-);
+export const authTokenStore = db<{ authToken?: AuthToken }>(`${args.dbPath}/auth.json`, { template: {}, pretty: true });
+export const fApi = new Floatplane({
+	authConfig: {
+		clientId: "floatplane-downloader",
+		authToken: authTokenStore.authToken,
+		onAuthToken: (authToken) => (authTokenStore.authToken = authToken),
+		onDeviceCode,
+	},
+	userAgent: `Floatplane-Downloader/${DownloaderVersion} (Inrix, +https://github.com/Inrixia/Floatplane-Downloader), CFNetwork`,
+});
 
 // Add floatplane api request metrics
 const httpRequestDurationmMs = new Histogram({
