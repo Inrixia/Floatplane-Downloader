@@ -1,3 +1,4 @@
+import type { CreatorChannel } from "floatplane/creator";
 import { defaultSubChannels } from "./lib/defaults";
 import { fApi, settings } from "./lib/helpers/index";
 import Subscription from "./lib/Subscription";
@@ -5,6 +6,7 @@ import Subscription from "./lib/Subscription";
 import chalk from "chalk-template";
 
 export async function* fetchSubscriptions() {
+	const seenChannels = new Set<string>();
 	console.log("Fetching user subscriptions...");
 	for (const userSubscription of await fApi.user.subscriptions()) {
 		// Add the subscription to settings if it doesnt exist
@@ -27,15 +29,10 @@ export async function* fetchSubscriptions() {
 		console.log(chalk`Fetching {yellow ${userSubscription.plan.title}'s} channels...`);
 		const subChannels = await fApi.creator.channels([userSubscription.creator]);
 		for (const channel of subChannels) {
+			if (seenChannels.has(channel.id)) return;
+			seenChannels.add(channel.id);
 			const subChannel = settingSubscription.channels.find((chan) => chan.title === channel.title);
-			const channelDefaults = {
-				title: channel.title,
-				skip: false,
-				isChannel:
-					channel.id === "6413623f5b12cca228a28e78"
-						? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
-						: `(post) => isChannel(post, '${channel.id}')`,
-			};
+			const channelDefaults = subChannelDefaults(channel);
 			if (subChannel === undefined) {
 				settingSubscription.channels.push(channelDefaults);
 			} else if (subChannel.isChannel === undefined) {
@@ -50,3 +47,12 @@ export async function* fetchSubscriptions() {
 		yield new Subscription(settings.subscriptions[userSubscription.creator]);
 	}
 }
+
+export const subChannelDefaults = (channel: CreatorChannel) => ({
+	title: channel.title,
+	skip: false,
+	isChannel:
+		channel.id === "6413623f5b12cca228a28e78"
+			? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
+			: `(post) => isChannel(post, '${channel.id}')`,
+});

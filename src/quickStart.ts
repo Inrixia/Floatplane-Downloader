@@ -4,9 +4,9 @@ import { args, fApi, settings } from "./lib/helpers/index";
 import * as prompts from "./lib/prompts/index";
 import { loginFloatplane, loginPlex } from "./logins";
 
-import { multiSelectChannelPrompt, selectSubscriptionPrompt } from "./lib/prompts/settings";
-import { PROMPT_CONFIRM, Settings, type Extras } from "./lib/types";
+import { type Channels, type Extras } from "./lib/types";
 import { Video } from "./lib/Video";
+import { fetchSubscriptions } from "./subscriptionFetching";
 
 export const promptPlexSections = async (): Promise<void> => {
 	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
@@ -42,49 +42,14 @@ export const validatePlexSettings = async (): Promise<void> => {
 	}
 };
 
-export const promptSubscriptionSection = async (): Promise<void> => {
-	const userSubscription = await fApi.user.subscriptions();
-	const channels = await fApi.creator.channels(userSubscription.map((channel) => channel.creator));
-
-	const subscriptions = userSubscription.reduce<Settings["subscriptions"]>((acc, subscription) => {
-		acc[subscription.creator] = {
-			creatorId: subscription.creator,
-			plan: subscription.plan.title,
-			skip: false,
-			channels: channels
-				.filter((channel) => channel.creator === subscription.creator)
-				.map((channel) => ({
-					title: channel.title,
-					skip: false,
-					isChannel:
-						channel.id === "6413623f5b12cca228a28e78"
-							? `(post, video) => isChannel(post, '${channel.id}') && !video?.title?.toLowerCase().startsWith('caption')`
-							: `(post) => isChannel(post, '${channel.id}')`,
-				})),
-		};
-		return acc;
-	}, {});
-
-	let selectedSubscriptionId: string | undefined = undefined;
-
-	while (selectedSubscriptionId !== PROMPT_CONFIRM) {
-		selectedSubscriptionId = await selectSubscriptionPrompt(subscriptions);
-
-		const subscription = subscriptions[selectedSubscriptionId];
-
-		if (subscription) {
-			const selectedChannels = await multiSelectChannelPrompt(subscription.channels);
-			subscription.channels = subscription.channels.map((channel) => ({ ...channel, skip: !selectedChannels.includes(channel.title) }));
-		}
+export const promptChannelSelection = async (): Promise<void> => {
+	const channels: Channels = [];
+	for await (const subscription of fetchSubscriptions()) {
+		channels.push(...subscription.channels);
 	}
-
-	for (const subscription of Object.values(subscriptions)) {
-		settings.subscriptions[subscription.creatorId] ??= {
-			creatorId: subscription.creatorId,
-			plan: subscription.plan,
-			skip: false,
-			channels: subscription.channels.map((channel) => ({ title: channel.title, skip: channel.skip, isChannel: channel.isChannel })),
-		};
+	const desiredChannels = await prompts.floatplane.channels(channels);
+	for (const channel of channels) {
+		if (!desiredChannels.includes(channel.title)) channel.skip = true;
 	}
 };
 
@@ -110,7 +75,7 @@ export const quickStart = async (): Promise<void> => {
 	}
 
 	console.log("\n== \u001b[38;5;208mSubscriptions\u001b[0m ==\n");
-	await promptSubscriptionSection();
+	await promptChannelSelection();
 
 	console.log("\n== \u001b[38;5;208mPlex\u001b[0m ==\n");
 	settings.plex.enabled = await prompts.plex.usePlex(settings.plex.enabled);

@@ -1,4 +1,5 @@
 import prompts from "prompts";
+import { type Channels } from "../types";
 
 /**
  * Prompts user to set videos to search through for downloads.
@@ -15,3 +16,15 @@ export const videosToSearch = async (initial: number): Promise<number> =>
 			min: 0,
 		})
 	).videosToSearch || initial;
+
+export const channels = async (initial: Channels): Promise<string[]> => {
+	return (
+		await prompts({
+			type: "multiselect",
+			name: "downloadChannels",
+			message: "Enable/Disable channels:",
+			choices: initial.map((initial) => ({ title: initial.title, value: initial.title, selected: !initial.skip })),
+			hint: "- Space to select. Return to submit",
+		})
+	).downloadChannels;
+};

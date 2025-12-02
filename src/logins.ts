@@ -3,8 +3,8 @@ import { loopError } from "@inrixia/helpers";
 import { args, fApi } from "./lib/helpers/index";
 import { plex } from "./lib/prompts/index";
 
-import type { LoginSuccess } from "floatplane/auth";
-export type User = LoginSuccess["user"];
+import type { Self } from "floatplane/user";
+export type User = Self;
 
 export const loginFloatplane = async (): Promise<User> => {
 	const loginResponse = await fApi.deviceLogin();
