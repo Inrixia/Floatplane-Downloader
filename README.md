@@ -1,4 +1,4 @@
-﻿[![dev Build](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml/badge.svg?branch=dev)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml)<br>
+﻿[![[dev] Release](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/releaseDev.yml/badge.svg)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/releaseDev.yml) [![[master] Release](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/releaseMaster.yml/badge.svg?branch=master)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/releaseMaster.yml)<br>
 
 ### **[Live Downloader Metrics Dashboard](https://monitor.hug.rip/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
