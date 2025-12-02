@@ -26,9 +26,6 @@ export type SubscriptionSettings = {
 };
 
 export type Args = {
-	username: string;
-	password: string;
-	token: string;
 	headless: boolean;
 	updateCheck: boolean;
 	plexUsername: string;

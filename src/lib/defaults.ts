@@ -27,9 +27,6 @@ export const defaultSubChannels: Record<string, Channels> = {
 };
 
 export const defaultArgs: Args = {
-	username: "",
-	password: "",
-	token: "",
 	headless: false,
 	updateCheck: true,
 	plexUsername: "",
