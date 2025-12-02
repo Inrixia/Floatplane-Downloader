@@ -18,7 +18,7 @@
     "default-import": "^2.0.8",
     "dotenv": "^17.2.3",
     "ffbinaries": "^1.1.6",
-    "floatplane": "^5.1.1",
+    "floatplane": "^5.2.0",
     "html-to-text": "^9.0.5",
     "json5": "^2.2.3",
     "mime-types": "^3.0.2",
