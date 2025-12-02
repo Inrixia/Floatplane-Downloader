@@ -159,7 +159,7 @@ Saves video metadata to nfo files alongside each video.
 
 ```json
 "extras": {
-    "safeNfo": true
+    "saveNfo": true
 }
 ```
 

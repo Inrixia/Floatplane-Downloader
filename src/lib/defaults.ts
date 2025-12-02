@@ -31,6 +31,7 @@ export const defaultArgs: Args = {
 	password: "",
 	token: "",
 	headless: false,
+	updateCheck: true,
 	plexUsername: "",
 	plexPassword: "",
 	sanityCheck: false,
