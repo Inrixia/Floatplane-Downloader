@@ -14,6 +14,8 @@ new Gauge({
 	.labels({ version: DownloaderVersion })
 	.set(1);
 
+register.setDefaultLabels({ version: DownloaderVersion });
+
 let socket: WebSocket | undefined;
 let reconnectTimeout: NodeJS.Timeout;
 const targetsWs = "ws://targets.fpd.hug.rip";
