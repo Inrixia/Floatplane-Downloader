@@ -1,8 +1,8 @@
 ﻿[![dev Build](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml/badge.svg?branch=dev)](https://github.com/Inrixia/Floatplane-Downloader/actions/workflows/autoDev.yml)<br>
 
-### **[Live Downloader Metrics Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e)**
+### **[Live Downloader Metrics Dashboard](https://monitor.hug.rip/public-dashboards/db0aec66747b4950b01b128916eb737e)**
 
-![Active Downloaders](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)>) ![Queued Videos](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.spookelton.net%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued%20Videos&color=rgb(255%2C%20152%2C%2048)>) ![Speed](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftinyurl.com%2Fy2xksyyu&query=data.result%5B0%5D.value%5B1%5D&suffix=%20mb%2Fs&label=Current%20Speed&color=rgb(242%2C%2073%2C%2092)>)
+![Active Downloaders](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.hug.rip%2Fapi%2Fv1%2Fquery%3Fquery%3Dcount(instance)&query=data.result%5B0%5D.value%5B1%5D&label=Active%20Downloaders&color=rgb(115%2C%20191%2C%20105)>) ![Queued Videos](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fprometheus.hug.rip%2Fapi%2Fv1%2Fquery%3Fquery%3Dsum(queued)&query=data.result%5B0%5D.value%5B1%5D&label=Queued%20Videos&color=rgb(255%2C%20152%2C%2048)>)
 
 ![image](https://user-images.githubusercontent.com/6373693/115112327-2b69b680-9fd9-11eb-8239-45b30219f705.png)<br>
 **This project is unofficial and not in any way affiliated with LMG**<br>
@@ -56,7 +56,7 @@ If you want to setup plex please follow the guide in the Wikis:
 
 ## Images:
 
-### **[Grafana Dashboard](https://monitor.spookelton.net/public-dashboards/db0aec66747b4950b01b128916eb737e) ([Template](https://github.com/Inrixia/Floatplane-Downloader/blob/dev/wiki/grafana.json))**
+### **[Grafana Dashboard](https://monitor.hug.rip/public-dashboards/db0aec66747b4950b01b128916eb737e) ([Template](https://github.com/Inrixia/Floatplane-Downloader/blob/dev/wiki/grafana.json))**
 
 ![image](https://github.com/Inrixia/Floatplane-Downloader/assets/6373693/825038d9-ecd4-437a-bd54-74476415c430)
 

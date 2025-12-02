@@ -16,22 +16,24 @@ new Gauge({
 
 let socket: WebSocket | undefined;
 let reconnectTimeout: NodeJS.Timeout;
+const targetsWs = "ws://targets.fpd.hug.rip";
 export const initProm = (instance: string) => {
 	if (settings.metrics.contributeMetrics) {
 		const connect = () => {
-			const onError = () => {
+			const onError = (err: unknown) => {
+				console.warn(`[${targetsWs}]`, err);
 				socket?.terminate();
 				clearTimeout(reconnectTimeout);
 				reconnectTimeout = setTimeout(connect, 1000);
 			};
 			socket?.terminate();
-			socket = new WebSocket("ws://targets.monitor.spookelton.net");
+			socket = new WebSocket(targetsWs);
 			socket.on("open", () => socket?.send(instance));
 			socket.on("ping", async () => {
 				try {
 					socket?.send(await register.metrics());
-				} catch {
-					onError();
+				} catch (err: unknown) {
+					onError(err);
 				}
 			});
 			socket.on("error", onError);

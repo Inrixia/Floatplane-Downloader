@@ -36,8 +36,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6
       floatplane:
-        specifier: ^5.1.0
-        version: 5.1.0
+        specifier: ^5.1.1
+        version: 5.1.1
       html-to-text:
         specifier: ^9.0.5
         version: 9.0.5
@@ -900,8 +900,8 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
-  floatplane@5.1.0:
-    resolution: {integrity: sha512-jsZ5AhARcXsUremcD8kvBRfH6WKbS07qeoXaqDTgvEeYOz2pkja0WsDB30kGSt9AcYWgK3F5SuEfbXrOyWistQ==}
+  floatplane@5.1.1:
+    resolution: {integrity: sha512-tZkPT+ugj/wxwtS9IL7wby4MQzE4XB5TZUdLLFyebNVFeKBSv7bGKxoMXwqFBENIB2LXFTjeIQ7ueX0cqvY1xg==}
 
   forever-agent@0.6.1:
     resolution: {integrity: sha512-j0KLYPhm6zeac4lz3oJ3o65qvgQCcPubiyotZrXqEaG4hNagNYO8qdlUrX5vwqv9ohqeT/Z3j6+yW067yWWdUw==}
@@ -2354,7 +2354,7 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  floatplane@5.1.0:
+  floatplane@5.1.1:
     dependencies:
       cross-env: 10.1.0
       got: 14.6.5

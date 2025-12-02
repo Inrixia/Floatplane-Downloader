@@ -1,6 +1,6 @@
 {
   "name": "floatplane-plex-downloader",
-  "version": "5.17.0",
+  "version": "5.17.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,12 +14,11 @@
     "@inrixia/db": "2.0.2",
     "@inrixia/helpers": "^3.20.3",
     "@npmcli/package-json": "^7.0.4",
-    "@types/tough-cookie": "^4.0.5",
     "chalk-template": "^1.1.2",
     "default-import": "^2.0.8",
     "dotenv": "^17.2.3",
     "ffbinaries": "^1.1.6",
-    "floatplane": "^5.1.0",
+    "floatplane": "^5.1.1",
     "html-to-text": "^9.0.5",
     "json5": "^2.2.3",
     "mime-types": "^3.0.2",
@@ -31,8 +30,6 @@
     "sanitize-filename": "^1.6.3",
     "semver": "^7.7.3",
     "stream-throttle": "^0.1.3",
-    "tough-cookie": "6.0.0",
-    "tough-cookie-file-store": "^3.2.1",
     "ws": "^8.18.3",
     "xmlbuilder2": "^4.0.3"
   },
