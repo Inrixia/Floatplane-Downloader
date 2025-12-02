@@ -6,7 +6,7 @@
   <br>
 
 ## Quickstart:
-There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Enviroment Variables**
+There is a interactive series of console prompts to help you setup the downloader and login. If you dont want to or cannot work with a interactive terminal please skip down to **Headless**
 
 Docker CLI:
 ```dockerfile
@@ -19,9 +19,10 @@ Docker CLI:
 ```
 
 - **[path]** should be replaced with a directory on your machine to hold persistent data.
-- Setting the Quickstart environment variable to true will create an interactive terminal to walk you through setting up the downloader.
+- `runQuickstartPrompts=true` will ensure inital setup prompts are given to walk you through setting up the downloader.
 
-**After going through the Quickstart, run without quickstart prompts:**
+## Headless
+If authenticating without `runQuickstartPrompts` you will need to watch the **console output** for the login url!
 ```dockerfile
     $ docker run \
     	-v [path]:/fp/db \
