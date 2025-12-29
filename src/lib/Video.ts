@@ -242,8 +242,6 @@ export class Video extends Attachment {
 			season = match[1];
 			episode = match[2];
 		}
-    // Determine the unique episode number based on releaseDate
-    const releaseDate = this.releaseDate;
 		const nfo = builder
 			.create()
 			.ele("episodedetails")
@@ -260,10 +258,7 @@ export class Video extends Attachment {
 			.txt(htmlToText(this.description))
 			.up()
 			.ele("aired") // format: yyyy-mm-dd required for Kodi/Plex
-			.txt(`${releaseDate.getUTCFullYear()}-${nPad(releaseDate.getUTCMonth() + 1)}-${nPad(releaseDate.getUTCDate())}`)
-			.up()
-			.ele("originallyavailable") // plesk NFO uses Original vailable for actual air dates, if it uses NFO
-			.txt(`${releaseDate.getUTCFullYear()}-${nPad(releaseDate.getUTCMonth() + 1)}-${nPad(releaseDate.getUTCDate())}`)
+			.txt(this.releaseDate.getFullYear().toString() + "-" + nPad(this.releaseDate.getMonth() + 1) + "-" + nPad(this.releaseDate.getDate()))
 			.up()
 			.ele("season")
 			.txt(season)
@@ -372,26 +367,14 @@ export class Video extends Attachment {
 		await unlink(this.muxedPath).catch(nll);
 
 		const description = htmlToText(this.description);
-		const releaseDate = this.releaseDate;
-    const year = releaseDate.getUTCFullYear();
-    const yearStart = new Date(Date.UTC(year, 0, 1));
-    const episode = Math.floor((releaseDate.getTime() - yearStart.getTime()) / 1000);
-    const airedDate = new Date(releaseDate);
-		const creationTime = airedDate.toISOString().replace(/\.\d{3}Z$/, "Z");
-		const airedDateStr = `${airedDate.getUTCFullYear()}-${nPad(airedDate.getUTCMonth() + 1)}-${nPad(airedDate.getUTCDate())}`; // format: yyyy-mm-dd required for Kodi/Plex
 		const metadata = {
-        title: this.videoTitle,
-				AUTHOR: this.channelTitle,
-				YEAR: year.toString(),
-				date: airedDateStr,
-				description: description,
-				synopsis: description,
-        show: this.channelTitle,
-        season_number: year.toString(),
-        episode_id: episode.toString(),
-        creation_time: creationTime,
-    };
-		const metadataArgs = Object.entries(metadata).flatMap(([key, value]) => ["-metadata", `${key}=${value}`]);
+			title: this.videoTitle,
+			AUTHOR: this.channelTitle,
+			YEAR: this.releaseDate.getFullYear().toString(),
+			date: `${this.releaseDate.getFullYear().toString()}${nPad(this.releaseDate.getMonth() + 1)}${nPad(this.releaseDate.getDate())}`,
+			description: description,
+			synopsis: description,
+		};
 		const metadataFilePath = `${this.folderPath}/${Math.random()}.ffmeta`;
 		const metadataContent = Object.entries(metadata)
 			.map(([key, value]) => `${key}=${value.replaceAll(/\n/g, "\\\n")}`)
@@ -411,7 +394,6 @@ export class Video extends Attachment {
 						"0",
 						"-map_metadata",
 						"1",
-						...metadataArgs,
 						"-c",
 						"copy",
 						this.muxedPath,
@@ -428,7 +410,7 @@ export class Video extends Attachment {
 			// Remove the partial file when done
 			await unlink(this.partialPath);
 			// Set the files update time to when the video was released
-			await utimes(this.muxedPath, new Date(), releaseDate);
+			await utimes(this.muxedPath, new Date(), this.releaseDate);
 
 			(await this.attachmentInfo()).muxedBytes = await Video.pathBytes(this.muxedPath);
 		} finally {
