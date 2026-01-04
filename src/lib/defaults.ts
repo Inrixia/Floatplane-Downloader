@@ -46,6 +46,7 @@ export const defaultSettings: Settings = {
 		waitForNewVideos: true,
 		seekAndDestroy: [],
 	},
+	downloadWaitTime: 0,
 	maxDownloadSpeed: -1,
 	plex: {
 		sectionsToUpdate: [],

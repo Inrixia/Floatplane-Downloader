@@ -96,6 +96,17 @@ Added for Kodi support as Kodi looks for artwork in the format `VideoName-thumb.
 
 <br>
 
+**downloadWaitTime**:  
+Wait time (in seconds) between downloads. Default is 0 (disabled).  
+When set to a value greater than 0, downloads will be performed sequentially with the specified wait time between each download.  
+This helps prevent overloading the Floatplane servers with concurrent requests and reduces the risk of being rate-limited.
+
+```json
+"downloadWaitTime": 0
+```
+
+<br>
+
 **maxDownloadSpeed**:  
 The maximum speed to download at in mbps.
 

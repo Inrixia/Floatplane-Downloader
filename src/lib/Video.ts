@@ -77,7 +77,7 @@ export class Video extends Attachment {
 	private static readonly MaxRetries = 1;
 	private static readonly DownloadThreads = 8;
 
-	private static readonly DownloadSemaphore = new Semaphore(this.DownloadThreads);
+	private static readonly DownloadSemaphore = new Semaphore(settings.downloadWaitTime > 0 ? 1 : this.DownloadThreads);
 
 	private static readonly ThrottleOptions: ThrottleOptions = { rate: settings.maxDownloadSpeed * byteToMbits };
 	private static readonly ThrottleGroup = settings.maxDownloadSpeed > -1 ? new ThrottleGroup(Video.ThrottleOptions) : undefined;
@@ -155,6 +155,10 @@ export class Video extends Attachment {
 		} finally {
 			release();
 			promQueued.dec();
+			// Wait between downloads if downloadWaitTime is set
+			if (settings.downloadWaitTime > 0) {
+				await sleep(settings.downloadWaitTime * 1000);
+			}
 		}
 	}
 
