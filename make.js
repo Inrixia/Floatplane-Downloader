@@ -2,12 +2,6 @@ import { execSync } from "child_process";
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { platform } from "os";
 
-//Check if using MacOS
-const isMac = process.platform === "darwin";
-
-// Used to have items writable during build on MacOS
-import fs from "fs";
-
 const run = (cmd) => execSync(cmd, { stdio: "inherit" });
 
 const binPath = platform() === "win32" ? ".\\build\\float.exe" : "./build/float";
@@ -28,19 +22,7 @@ copyFileSync(process.execPath, binPath);
 writeFileSync("./build/version", JSON.parse(readFileSync("./package.json")).version);
 
 // Create the blob
-if (isMac) {
-  execSync("node --experimental-sea-config sea-config.json", {
-    stdio: "inherit",
-  });
-  // Set permissions for float which otherwise breaks the build or run
-  fs.chmodSync("./build/float", 0o755);
-
-  console.log("macOS SEA build complete (no postject)");
-  process.exit(0);
-}
-else{
-  run("node --experimental-sea-config ./sea-config.json");
-}
+run("node --experimental-sea-config ./sea-config.json");
 
 // Inject the blob
 run(`npx postject ${binPath} NODE_SEA_BLOB ./dist/float.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA`);
