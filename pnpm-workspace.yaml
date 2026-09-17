@@ -1,4 +1,4 @@
 allowBuilds:
-  esbuild: true
+ esbuild: true
 minimumReleaseAgeExclude:
-  - floatplane@5.2.5 || 5.2.6 || 5.2.7
+ - floatplane

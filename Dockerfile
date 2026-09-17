@@ -7,7 +7,7 @@ RUN npm i -g pnpm
 WORKDIR /build
 
 # Copy package configs into working Directory
-COPY ./package.json ./pnpm-lock.yaml ./tsconfig.json ./make.js ./sea-config.json /build/
+COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.json ./make.js ./sea-config.json /build/
 
 # Install required packages
 RUN pnpm i
