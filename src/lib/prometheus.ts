@@ -1,5 +1,5 @@
+import { collectDefaultMetrics, Gauge, register } from "@prometheus-io/client";
 import { createServer } from "http";
-import { collectDefaultMetrics, Gauge, register } from "prom-client";
 import WebSocket from "ws";
 
 import { DownloaderVersion, settings } from "./helpers/index";

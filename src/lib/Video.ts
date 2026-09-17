@@ -1,9 +1,9 @@
+import { Counter, Gauge } from "@prometheus-io/client";
 import chalk from "chalk-template";
 import { exec as execCallback, execFile } from "child_process";
 import type { Progress } from "got";
 import { htmlToText } from "html-to-text";
 import { extension } from "mime-types";
-import { Counter, Gauge } from "prom-client";
 import { ThrottleGroup, type ThrottleOptions } from "stream-throttle";
 import { promisify } from "util";
 import builder from "xmlbuilder2";
@@ -404,8 +404,8 @@ export class Video extends Attachment {
 							error.message += stderr;
 							reject(error);
 						} else resolve(stdout);
-					}
-				)
+					},
+				),
 			);
 			// Remove the partial file when done
 			await unlink(this.partialPath);

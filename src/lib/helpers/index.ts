@@ -1,6 +1,6 @@
 import db from "@inrixia/db";
 import { getEnv, rebuildTypes, recursiveUpdate } from "@inrixia/helpers";
-import { Histogram } from "prom-client";
+import { Histogram } from "@prometheus-io/client";
 import { defaultArgs, defaultSettings } from "../defaults";
 
 import { defaultImport } from "default-import";
