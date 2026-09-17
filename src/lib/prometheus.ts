@@ -23,10 +23,9 @@ export const initProm = (instance: string) => {
 	if (settings.metrics.contributeMetrics) {
 		const connect = () => {
 			const onError = (err: unknown) => {
-				console.warn(`[${targetsWs} - You can ignore this]`, err);
 				socket?.terminate();
 				clearTimeout(reconnectTimeout);
-				reconnectTimeout = setTimeout(connect, 1000);
+				reconnectTimeout = setTimeout(connect, 300000); // Retry every 5min
 			};
 			socket?.terminate();
 			socket = new WebSocket(targetsWs);
