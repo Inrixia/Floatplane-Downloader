@@ -9,18 +9,18 @@ import { Video } from "./lib/Video";
 import { fetchSubscriptions } from "./subscriptionFetching";
 
 export const promptPlexSections = async (): Promise<void> => {
-	const plexApi = await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect();
+	const plexApi = await new MyPlexAccount({ token: settings.plex.token }).connect();
 	const servers = (await plexApi.resources()).filter((resource) => resource.provides.split(",").indexOf("server") !== -1);
 	const serverSections = await Promise.all(
 		servers.map(async (server) => {
 			const connectedServer = await server.connect();
 			const library = await connectedServer.library();
 			return (await library.sections()).filter((section) => section.type === "show");
-		})
+		}),
 	);
 	settings.plex.sectionsToUpdate = await prompts.plex.sections(
 		settings.plex.sectionsToUpdate,
-		serverSections.flatMap((sections) => sections)
+		serverSections.flatMap((sections) => sections),
 	);
 	await validatePlexSettings();
 };
@@ -35,7 +35,7 @@ export const validatePlexSettings = async (): Promise<void> => {
 			console.log("No sectionsToUpdate in config! Disabling plex integration...\n");
 			settings.plex.enabled = false;
 		}
-		await new MyPlexAccount(undefined, undefined, undefined, settings.plex.token).connect().catch((err) => {
+		await new MyPlexAccount({ token: settings.plex.token }).connect().catch((err) => {
 			console.error(`Failed to connect to plex, disabling plex refreshing! ${err.message}`);
 			settings.plex.enabled = false;
 		});
