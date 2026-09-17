@@ -23,18 +23,14 @@ jobs:
             runs-on: macOS-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Install pnpm 📥
-        uses: pnpm/action-setup@v4
+      - name: Setup pnpm & node 📥
+        uses: pnpm/setup@v1
         with:
           version: latest
-
-      - name: Install Node.js 📥
-        uses: actions/setup-node@v4
-        with:
-          cache: pnpm
-          node-version: latest
+          runtime: latest
+          cache: true
 
       - name: Install dependencies 📥
         run: pnpm install
@@ -54,7 +50,7 @@ jobs:
         if: matrix.platform.runs-on == 'windows-latest'
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform.runs-on }}
           path: ./artifacts/
