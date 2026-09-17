@@ -26,10 +26,10 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup pnpm & node 📥
-        uses: pnpm/setup@v1
+        uses: pnpm/setup@v2
         with:
           version: latest
-          runtime: latest
+          runtime: node@latest
           cache: true
 
       - name: Install dependencies 📥
