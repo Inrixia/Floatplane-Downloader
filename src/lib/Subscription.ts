@@ -3,7 +3,6 @@ import { fApi } from "./helpers/index";
 import chalk from "chalk-template";
 
 import type { ContentPost, VideoContent } from "floatplane/content";
-import type { BlogPost } from "floatplane/creator";
 import type { ChannelOptions, SubscriptionSettings } from "./types";
 
 import { Attachment } from "./Attachment";
@@ -23,7 +22,7 @@ const removeRepeatedSentences = (postTitle: string, attachmentTitle: string) => 
 	return `${postTitle.trim()} - ${uniqueAttachmentTitleSentences.join("").trim()}`.trim().replace(/[\s]*[.,;:!?-]+[\s]*$/, "");
 };
 
-type isChannel = (post: BlogPost, video?: VideoContent) => boolean;
+type isChannel = (post: ContentPost, video?: VideoContent) => boolean;
 export default class Subscription {
 	public readonly creatorId: string;
 	public readonly channels: SubscriptionSettings["channels"];
@@ -59,13 +58,13 @@ export default class Subscription {
 	private static isChannelCache: Record<string, isChannel> = {};
 	private static isChannelHelper = `const isChannel = (post, channelId) => (typeof post.channel !== 'string' ? post.channel.id : post.channel) === channelId`;
 
-	private async *matchChannel(blogPost: BlogPost): AsyncGenerator<Video> {
+	private async *matchChannel(blogPost: ContentPost): AsyncGenerator<Video> {
 		if (blogPost.videoAttachments === undefined) return;
 		let dateOffset = 0;
-		for (const attachmentId of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a) - blogPost.attachmentOrder.indexOf(b))) {
+		for (const videoAttachment of blogPost.videoAttachments.sort((a, b) => blogPost.attachmentOrder.indexOf(a.id) - blogPost.attachmentOrder.indexOf(b.id))) {
 			// Make sure we have a unique object for each attachment
 			const post = { ...blogPost };
-			const video: VideoContent = await fApi.content.video(attachmentId);
+			const video: VideoContent = await fApi.content.video(videoAttachment.id);
 			// Skip videos with no levels
 			if (video.levels.length === 0) continue;
 
@@ -110,7 +109,7 @@ export default class Subscription {
 					post.title = post.title.trim();
 				}
 				yield Video.getOrCreate({
-					attachmentId,
+					attachmentId: videoAttachment.id,
 					description: post.text,
 					artworkUrl: post.thumbnail?.path,
 					channelTitle: channel.title,
@@ -128,7 +127,8 @@ export default class Subscription {
 		let videosSearched = 0;
 		console.log(chalk`Searching for new videos in {yellow ${this.plan}}`);
 		for await (const blogPost of fApi.creator.blogPostsIterable(this.creatorId)) {
-			for await (const video of this.matchChannel(blogPost)) {
+			if (!blogPost.metadata.hasVideo) continue;
+			for await (const video of this.matchChannel(await fApi.content.post(blogPost.id))) {
 				yield video;
 			}
 
@@ -138,24 +138,6 @@ export default class Subscription {
 	}
 
 	public async *seekAndDestroy(contentPost: ContentPost): AsyncGenerator<Video> {
-		// Convert as best able to a BlogPost
-		const blogPost: BlogPost = <BlogPost>(<unknown>{
-			...contentPost,
-			videoAttachments: contentPost.videoAttachments === undefined ? undefined : contentPost.videoAttachments.map((att) => att.id),
-			audioAttachments: contentPost.audioAttachments === undefined ? undefined : contentPost.audioAttachments.map((att) => att.id),
-			pictureAttachments: contentPost.pictureAttachments === undefined ? undefined : contentPost.pictureAttachments.map((att) => att.id),
-			creator: {
-				...contentPost.creator,
-				owner: {
-					id: contentPost.creator.owner,
-					username: "",
-				},
-				category: {
-					title: contentPost.creator.category,
-				},
-				card: null,
-			},
-		});
-		for await (const video of this.matchChannel(blogPost)) yield video;
+		for await (const video of this.matchChannel(contentPost)) yield video;
 	}
 }
