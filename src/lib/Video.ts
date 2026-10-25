@@ -127,7 +127,8 @@ export class Video extends Attachment {
 				await this.downloadArtwork().catch(withContext(`Downloading artwork`)).catch(this.onError);
 			}
 			if (settings.extras.downloadCaptions) {
-				await this.downloadCaptions().catch(withContext(`Downloading captions`)).catch(this.onError);
+				// Silently fail if captions arent available
+				await this.downloadCaptions().catch(() => null);
 			}
 			if ((await this.getState()) === Video.State.Muxed) {
 				this.logger.done(chalk`{green Exists! Skipping}`);
