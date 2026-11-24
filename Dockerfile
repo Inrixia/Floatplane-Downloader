@@ -29,8 +29,13 @@ WORKDIR /fp
 COPY --from=build /build/dist/float.cjs float.cjs
 COPY --from=build /build/package.json package.json
 
+# Use Alpine's musl-compatible ffmpeg instead of the auto-downloaded build,
+# which segfaults on node:alpine (see #292)
+RUN apk add --no-cache ffmpeg
+
 # Environment variables
 ENV headless=true
+ENV ffmpegPath=/usr/bin/ffmpeg
 
 # Define volumes to be mountable
 VOLUME /fp/db
